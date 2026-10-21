@@ -13,9 +13,16 @@ Website of Zespół Szkół Mechanicznych Nr 3 w Krakowie: a static Astro site a
 
 ```bash
 pnpm install
+```
+
+```bash
 pnpm dev
 ```
 
-Documentation (Russian): [architecture](docs/SYSTEM.md), [development](docs/DEVELOPMENT.md), [supply chain](docs/SUPPLY-CHAIN.md).
+Documentation: [architecture](docs/en/architecture.md), [development](docs/en/development.md), [supply chain](docs/en/supply-chain.md).
 
-Security issues: see [SECURITY.md](SECURITY.md).
+## Po polsku
+
+Strona internetowa Zespołu Szkół Mechanicznych Nr 3 w Krakowie. Opis systemu, wymogów prawnych i planu prac: [docs/pl/architektura.md](docs/pl/architektura.md).
+
+Security issues / zgłaszanie podatności: [SECURITY.md](SECURITY.md).
