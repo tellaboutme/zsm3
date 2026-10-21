@@ -1,0 +1,138 @@
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    text-size-adjust: 100%;
+  }
+
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  figure,
+  blockquote,
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+@layer base {
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: var(--leading-body);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-stretch: var(--stretch-display);
+    font-weight: 800;
+    line-height: var(--leading-tight);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: var(--link);
+    text-decoration-thickness: var(--hairline);
+    text-underline-offset: 0.22em;
+  }
+
+  a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  :focus-visible {
+    outline: var(--rule) solid var(--focus);
+    outline-offset: var(--rule);
+  }
+
+  ::selection {
+    background: var(--blue);
+    color: var(--blue-ink);
+  }
+
+  code,
+  kbd,
+  time,
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .skip-link {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-4);
+    z-index: var(--z-skip);
+    padding: var(--space-2) var(--space-4);
+    background: var(--orange);
+    color: var(--orange-ink);
+    font-weight: 700;
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+@layer overrides {
+  :root[data-underline="on"] a {
+    text-decoration-line: underline !important;
+  }
+
+  :root[data-grayscale="on"] {
+    filter: grayscale(1);
+  }
+}

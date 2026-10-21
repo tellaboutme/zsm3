@@ -3,9 +3,34 @@ import Base from "../layouts/Base.astro";
 ---
 
 <Base
-  title="Zespół Szkół Mechanicznych Nr 3 w Krakowie"
-  description="Nowa strona Zespołu Szkół Mechanicznych Nr 3 w Krakowie jest w przygotowaniu."
+  title="Zespół Szkół Mechanicznych nr 3 w Krakowie"
+  description="Nowa strona Zespołu Szkół Mechanicznych nr 3 w Krakowie jest w przygotowaniu."
 >
-  <h1>Zespół Szkół Mechanicznych Nr 3 w Krakowie</h1>
-  <p>Nowa strona szkoły jest w przygotowaniu.</p>
+  <section class="intro" aria-labelledby="tytul">
+    <p class="tag">Technikum · Szkoła branżowa · os. Szkolne 37, Kraków</p>
+    <h1 id="tytul">
+      <span class="rise">
+        <span>Zespół Szkół</span>
+      </span>
+      <span class="rise">
+        <span>Mechanicznych nr&nbsp;3</span>
+      </span>
+      <span class="rise">
+        <span>w Krakowie</span>
+      </span>
+    </h1>
+    <p class="prose">Nowa strona szkoły jest w przygotowaniu.</p>
+  </section>
 </Base>
+
+<style>
+  .intro {
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-8);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+  }
+</style>

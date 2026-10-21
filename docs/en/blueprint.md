@@ -334,7 +334,7 @@ Breadcrumbs, title, intro, optional in-page navigation (for pages with four or m
 
 ## 5. Fittings (components)
 
-Every component lives in `apps/web/src/components/`, takes typed props from `packages/contracts`, and has an entry on the pattern page `/_wzornik` (preview only, never in production).
+Every component lives in `apps/web/src/components/`, takes typed props from `packages/contracts`, and has an entry on the pattern page `/wzornik` (built only with `pnpm build:preview`, never in production).
 
 | Group      | Components (variants)                                                                                                                                                                     |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -366,16 +366,16 @@ States for every interactive component: default, hover, focus-visible, active, d
 
 Each milestone is one or more pull requests, merged only with every check green.
 
-| #   | Milestone          | Contents                                                                                   | Accepted when                                                          |
-| --- | ------------------ | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| 1.1 | Foundation         | tokens, fonts, base styles, grid utilities, motion, lint fixes for Astro, `/_wzornik` page | tokens documented; Stylelint rejects literals; pattern page passes axe |
-| 1.2 | Frame              | header, mega menu, mobile menu, footer, breadcrumbs, banner, accessibility dialog, theme   | keyboard-only navigation works; dialog traps focus; settings persist   |
-| 1.3 | Home               | hero, live status, numbers, profession tiles and filter, news, timeline, audience panels   | matches §4.1 at 360/768/1280/1920 in both themes; Lighthouse budgets   |
-| 1.4 | Programme family   | professions listing, programme template                                                    | all 15 programmes render from fixtures                                 |
-| 1.5 | News family        | listing, article, rich-text renderer                                                       | rich text allow-list tested; pagination accessible                     |
-| 1.6 | Everyday templates | hubs, content page, documents, bells, calendar, people, meetings, contact                  | each template has a fixture page and e2e test                          |
-| 1.7 | Utility pages      | search page shell, sitemap, 404, legal layout                                              | sitemap lists every route                                              |
-| 1.8 | Visual regression  | Playwright screenshot baselines per template × 4 widths × 2 themes                         | baselines committed; CI fails on unreviewed visual change              |
+| #   | Milestone          | Contents                                                                                  | Accepted when                                                          |
+| --- | ------------------ | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1.1 | Foundation         | tokens, fonts, base styles, grid utilities, motion, lint fixes for Astro, `/wzornik` page | tokens documented; Stylelint rejects literals; pattern page passes axe |
+| 1.2 | Frame              | header, mega menu, mobile menu, footer, breadcrumbs, banner, accessibility dialog, theme  | keyboard-only navigation works; dialog traps focus; settings persist   |
+| 1.3 | Home               | hero, live status, numbers, profession tiles and filter, news, timeline, audience panels  | matches §4.1 at 360/768/1280/1920 in both themes; Lighthouse budgets   |
+| 1.4 | Programme family   | professions listing, programme template                                                   | all 15 programmes render from fixtures                                 |
+| 1.5 | News family        | listing, article, rich-text renderer                                                      | rich text allow-list tested; pagination accessible                     |
+| 1.6 | Everyday templates | hubs, content page, documents, bells, calendar, people, meetings, contact                 | each template has a fixture page and e2e test                          |
+| 1.7 | Utility pages      | search page shell, sitemap, 404, legal layout                                             | sitemap lists every route                                              |
+| 1.8 | Visual regression  | Playwright screenshot baselines per template × 4 widths × 2 themes                        | baselines committed; CI fails on unreviewed visual change              |
 
 Fixtures in stage 1 are typed modules generated from the current site's public text. Stage 2 swaps them for D1 without touching components, because components only depend on the `contracts` types.
 

@@ -1,12 +1,22 @@
 ---
+import "@fontsource-variable/archivo/wdth.css";
+import "@fontsource-variable/source-sans-3/wght.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "@fontsource/atkinson-hyperlegible-next/400.css";
+import "@fontsource/atkinson-hyperlegible-next/700.css";
+import archivo from "@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url";
+import sourceSans from "@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url";
+
 import "../styles/global.css";
 
 interface Props {
   title: string;
   description: string;
+  noindex?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, noindex = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -15,19 +25,17 @@ const { title, description } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="preload" href={archivo} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sourceSans} as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
   </head>
   <body>
-    <main class="page">
+    <a class="skip-link" href="#tresc">
+      Przejdź do treści
+    </a>
+    <main id="tresc" class="page">
       <slot />
     </main>
   </body>
 </html>
-
-<style>
-  .page {
-    max-width: var(--measure);
-    margin-inline: auto;
-    padding: var(--space-4) var(--space-2);
-  }
-</style>

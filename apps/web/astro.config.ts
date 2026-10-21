@@ -1,4 +1,4 @@
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 
 export default defineConfig({
   output: "static",
@@ -7,4 +7,9 @@ export default defineConfig({
   devToolbar: { enabled: false },
   build: { inlineStylesheets: "never" },
   vite: { build: { assetsInlineLimit: 0 } },
+  env: {
+    schema: {
+      PATTERN_LIBRARY: envField.boolean({ context: "server", access: "public", default: false }),
+    },
+  },
 });
