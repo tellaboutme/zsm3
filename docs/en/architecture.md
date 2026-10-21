@@ -11,7 +11,9 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
 3. **Staff panel:** the secretariat handles requests, teachers manage the gallery, an administrator manages access.
 4. **Gallery:** albums per school year, photo upload from the panel, migration of the existing archive (304 albums, about 5,400 photos).
 
-**Out of v1:** editing news from the panel (news stays as content files in git), online payments, accounts for students or parents, replacing the BIP.
+**Content management:** everything the school edits today (news, pages, documents, calendar, announcements, bell schedules, job offers) is edited in the panel; see [ADR 0001](adr/0001-content-managed-in-panel.md) and the [site plan](site-plan.md).
+
+**Out of v1:** online payments, accounts for students or parents, replacing the BIP.
 
 **Non-functional requirements**
 
@@ -57,24 +59,24 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
                                                                   └──► Brevo (EU) e-mail
 ```
 
-One Worker on one origin: no CORS, one deployment, one header policy. Cloudflare serves static files without running any code; the Worker runs only for `/api/*`, `/media/*` and `/panel*` (`run_worker_first`).
+One Worker on one origin: no CORS, one deployment, one header policy. Cloudflare serves built assets without running any code; the Worker renders content pages from D1 (cached at the edge) and handles `/api/*`, `/media/*` and `/panel*`.
 
 ## 4. Stack
 
-| Layer             | Choice                               | Why                                                                                                                                  |
-| ----------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Runtime           | Cloudflare Workers + Static Assets   | free, serverless, one origin                                                                                                         |
-| Server language   | TypeScript 6.0 (strict)              | native language of Workers; typescript-eslint does not support 7.x yet; Python Workers are still limited in packages and cold starts |
-| HTTP              | Hono                                 | small, well-tested router for Workers; middleware for secure headers, body limits and CSRF                                           |
-| Validation        | Zod 4                                | one set of schemas for the form and the API (`packages/contracts`)                                                                   |
-| Database          | D1 (SQLite), SQL migrations          | free; prepared statements with `bind` only                                                                                           |
-| Files             | R2                                   | 10 GB free, free egress                                                                                                              |
-| JWT               | `jose`                               | verifies Access JWTs against JWKS                                                                                                    |
-| E-mail            | Brevo behind an `EmailSender` port   | EU provider, 300 e-mails a day free; one adapter to swap the provider                                                                |
-| Front end         | Astro 7 (static), TypeScript         | HTML is built ahead of time, JavaScript only where needed; `astro check`; no inline scripts or styles, so the CSP stays strict       |
-| Image compression | jSquash (WebP, WASM) in a Web Worker | identical output in every browser; Safari cannot encode WebP through canvas                                                          |
-| Tooling           | Python 3.13 (`tools/`, uv)           | maintenance scripts: gallery archive import, repository checks                                                                       |
-| Node.js           | Node 24 LTS, pnpm 12                 | `minimumReleaseAge` of 7 days, `trustPolicy: no-downgrade`, `allowBuilds`, `blockExoticSubdeps`                                      |
+| Layer             | Choice                               | Why                                                                                                                                                                              |
+| ----------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime           | Cloudflare Workers + Static Assets   | free, serverless, one origin                                                                                                                                                     |
+| Server language   | TypeScript 6.0 (strict)              | native language of Workers; typescript-eslint does not support 7.x yet; Python Workers are still limited in packages and cold starts                                             |
+| HTTP              | Hono                                 | small, well-tested router for Workers; middleware for secure headers, body limits and CSRF                                                                                       |
+| Validation        | Zod 4                                | one set of schemas for the form and the API (`packages/contracts`)                                                                                                               |
+| Database          | D1 (SQLite), SQL migrations          | free; prepared statements with `bind` only                                                                                                                                       |
+| Files             | R2                                   | 10 GB free, free egress                                                                                                                                                          |
+| JWT               | `jose`                               | verifies Access JWTs against JWKS                                                                                                                                                |
+| E-mail            | Brevo behind an `EmailSender` port   | EU provider, 300 e-mails a day free; one adapter to swap the provider                                                                                                            |
+| Front end         | Astro 7 (hybrid), TypeScript         | design shell built ahead of time, content pages rendered on demand and cached; JavaScript only where needed; `astro check`; no inline scripts or styles, so the CSP stays strict |
+| Image compression | jSquash (WebP, WASM) in a Web Worker | identical output in every browser; Safari cannot encode WebP through canvas                                                                                                      |
+| Tooling           | Python 3.13 (`tools/`, uv)           | maintenance scripts: gallery archive import, repository checks                                                                                                                   |
+| Node.js           | Node 24 LTS, pnpm 12                 | `minimumReleaseAge` of 7 days, `trustPolicy: no-downgrade`, `allowBuilds`, `blockExoticSubdeps`                                                                                  |
 
 ## 5. Repository layout
 
@@ -363,20 +365,24 @@ Total: **0 PLN per month**. The school already owns its domain. If load grows, W
 
 ## 14. Stages
 
-| #   | Stage                 | Outcome                                                                                                                                                       |
-| --- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | Foundation            | **done:** repository, monorepo, all tooling and CI with every check, Worker and Astro skeletons; preview deployment waits for the school's Cloudflare account |
-| 1   | Public website        | design system, page templates, content migration (news, programmes, timetable, contact, history), accessibility modes                                         |
-| 2   | E-wniosek             | migrations, request API, form, status, withdrawal, e-mail queue, retention                                                                                    |
-| 3   | Panel                 | Access, JWT verification, roles, request handling, staff management, audit log                                                                                |
-| 4   | Gallery               | upload in the panel, public API, media serving, archive import                                                                                                |
-| 5   | Compliance and launch | accessibility statement, ETR/PJM, terms, information notice, full ZAP scan, ASVS L2 checklist, DNS move, launch                                               |
+| #   | Stage                 | Outcome                                                                                                                     |
+| --- | --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 0   | Foundation            | **done:** repository, monorepo, tooling and CI with every check, Worker and Astro skeletons                                 |
+| 1   | Design system         | visual direction chosen with the school, tokens, typography, components, templates, accessibility settings, live status     |
+| 2   | Content platform      | D1 content model, import of the current site, hybrid rendering, search, RSS, sitemap, redirects                             |
+| 3   | Panel and CMS         | Access, JWT verification, roles, editors for every content type, revisions, audit log, editor's guide                       |
+| 4   | E-wniosek             | migrations, request API, form, status, withdrawal, e-mail queue, retention                                                  |
+| 5   | Gallery               | upload in the panel, public gallery, media serving, archive import                                                          |
+| 6   | Community tools       | short links, Skrzynka #OgarniamŻycie, cookieless analytics                                                                  |
+| 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF review, terms, full ZAP scan, ASVS L2 checklist, DNS cutover with redirects, training |
+
+Details per stage: [site-plan.md](site-plan.md).
 
 A stage is closed only with a green pipeline and a demo on preview.
 
 ## 15. Open questions
 
-**For the school (before stage 5; development on preview is not blocked)**
+**For the school (before stage 7; development on preview is not blocked)**
 
 1. Cloudflare and Brevo accounts registered to the school, with the developer added as a member; acceptance of their DPAs.
 2. The school's domain DNS moves to Cloudflare (name-server change; e-mail records are kept).

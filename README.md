@@ -19,7 +19,7 @@ pnpm install
 pnpm dev
 ```
 
-Documentation: [architecture](docs/en/architecture.md), [development](docs/en/development.md), [supply chain](docs/en/supply-chain.md).
+Documentation: [architecture](docs/en/architecture.md), [site plan](docs/en/site-plan.md), [design system](docs/en/design-system.md), [development](docs/en/development.md), [supply chain](docs/en/supply-chain.md), [decisions](docs/en/adr/).
 
 ## Po polsku
 
