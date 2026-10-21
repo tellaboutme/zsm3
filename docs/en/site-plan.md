@@ -149,16 +149,16 @@ These carry real information and give the site its own character:
 
 ## 7. Stages
 
-| #   | Stage                 | Outcome                                                                                                                                                        |
-| --- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | Foundation            | done                                                                                                                                                           |
-| 1   | Design system         | three visual directions prototyped on real content, one chosen with the school; tokens, typography, components, templates, accessibility settings, live status |
-| 2   | Content platform      | D1 content model, import of the current site, hybrid rendering, search, RSS, sitemap, redirects                                                                |
-| 3   | Panel and CMS         | Access, roles, editors for every content type, revisions, audit log, editor's guide                                                                            |
-| 4   | E-wniosek             | document requests as specified in the architecture                                                                                                             |
-| 5   | Gallery               | uploads, public gallery, archive import                                                                                                                        |
-| 6   | Community tools       | short links, Skrzynka, cookieless analytics                                                                                                                    |
-| 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF accessibility review, terms, full security review, DNS cutover with redirects, staff training                            |
+| #   | Stage                 | Outcome                                                                                                                                                   |
+| --- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | Foundation            | done                                                                                                                                                      |
+| 1   | Design system         | direction E (Precyzja) built as tokens, typography, components and templates following the [blueprint](blueprint.md); accessibility settings, live status |
+| 2   | Content platform      | D1 content model, import of the current site, hybrid rendering, search, RSS, sitemap, redirects                                                           |
+| 3   | Panel and CMS         | Access, roles, editors for every content type, revisions, audit log, editor's guide                                                                       |
+| 4   | E-wniosek             | document requests as specified in the architecture                                                                                                        |
+| 5   | Gallery               | uploads, public gallery, archive import                                                                                                                   |
+| 6   | Community tools       | short links, Skrzynka, cookieless analytics                                                                                                               |
+| 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF accessibility review, terms, full security review, DNS cutover with redirects, staff training                       |
 
 ## 8. Open questions for the school
 
