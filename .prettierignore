@@ -1,0 +1,12 @@
+pnpm-lock.yaml
+uv.lock
+**/worker-configuration.d.ts
+**/dist/
+**/coverage/
+**/reports/
+**/.astro/
+**/.wrangler/
+playwright-report/
+test-results/
+.lighthouseci/
+tools/

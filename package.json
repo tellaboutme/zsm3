@@ -1,0 +1,53 @@
+{
+  "name": "zsm3",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.13.0",
+  "engines": {
+    "node": ">=24.20.0 <25"
+  },
+  "scripts": {
+    "build": "pnpm --filter @zsm3/web build",
+    "dev": "pnpm build && pnpm --filter @zsm3/worker dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "pnpm lint:ts && pnpm lint:css && pnpm lint:py",
+    "lint:ts": "eslint . --max-warnings 0",
+    "lint:css": "stylelint \"apps/**/*.{css,astro}\" --allow-empty-input --max-warnings 0",
+    "lint:py": "uv run --directory tools --locked ruff check && uv run --directory tools --locked ruff format --check && uv run --directory tools --locked zsm3-no-comments src tests",
+    "typecheck": "pnpm -r --parallel typecheck && pnpm typecheck:py",
+    "typecheck:py": "uv run --directory tools --locked mypy",
+    "test": "pnpm -r test && pnpm test:py",
+    "test:py": "uv run --directory tools --locked pytest",
+    "test:mutation": "pnpm -r test:mutation",
+    "test:e2e": "pnpm build && pnpm --filter @zsm3/e2e test:e2e",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e",
+    "prepare": "lefthook install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
+    "@commitlint/types": "21.2.3",
+    "@eslint/js": "10.0.1",
+    "@types/node": "catalog:",
+    "@zsm3/lint-rules": "workspace:*",
+    "eslint": "10.12.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-import-resolver-typescript": "4.4.5",
+    "eslint-plugin-astro": "3.2.1",
+    "eslint-plugin-import-x": "4.17.1",
+    "eslint-plugin-jsx-a11y-x": "0.2.0",
+    "eslint-plugin-no-unsanitized": "4.1.5",
+    "eslint-plugin-regexp": "3.3.1",
+    "globals": "17.13.0",
+    "jiti": "2.7.0",
+    "lefthook": "2.2.1",
+    "postcss-html": "2.0.0",
+    "prettier": "3.9.10",
+    "prettier-plugin-astro": "1.1.1",
+    "stylelint": "17.16.0",
+    "stylelint-config-standard": "40.0.0",
+    "typescript": "catalog:",
+    "typescript-eslint": "8.71.2"
+  }
+}

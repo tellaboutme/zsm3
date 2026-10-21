@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+reports/
+.astro/
+.wrangler/
+.venv/
+**/worker-configuration.d.ts

@@ -1,0 +1,51 @@
+packages:
+  - apps/*
+  - packages/*
+  - e2e
+
+catalog:
+  "@stryker-mutator/core": 10.0.0
+  "@stryker-mutator/typescript-checker": 10.0.0
+  "@stryker-mutator/vitest-runner": 10.0.0
+  "@types/node": 24.19.2
+  "@vitest/coverage-istanbul": 4.1.12
+  fast-check: 4.10.2
+  typescript: 6.0.3
+  vitest: 4.1.12
+  zod: 4.6.7
+
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - vitest@4.1.12
+  - "@vitest/coverage-istanbul@4.1.12"
+  - "@vitest/expect@4.1.12"
+  - "@vitest/mocker@4.1.12"
+  - "@vitest/pretty-format@4.1.12"
+  - "@vitest/runner@4.1.12"
+  - "@vitest/snapshot@4.1.12"
+  - "@vitest/spy@4.1.12"
+  - "@vitest/utils@4.1.12"
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - chokidar@4.0.3
+  - chromium-bidi@157.0.8090-0
+  - semver@6.3.1
+engineStrict: true
+strictPeerDependencies: true
+saveExact: true
+blockExoticSubdeps: true
+
+overrides:
+  qs@<6.16.0: 6.16.0
+  sharp@<0.35.5: 0.35.5
+  undici@<7.29.1: 7.29.1
+
+allowBuilds:
+  esbuild: true
+  lefthook: false
+  unrs-resolver: false
+  workerd: true
+
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm

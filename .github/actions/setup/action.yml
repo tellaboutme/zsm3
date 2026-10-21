@@ -1,0 +1,20 @@
+name: Setup toolchain
+description: Install pnpm, Node.js, uv and every locked dependency.
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      with:
+        node-version-file: .node-version
+        cache: pnpm
+    - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
+      with:
+        enable-cache: false
+    - name: Install Node.js dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+    - name: Install Python dependencies
+      shell: bash
+      run: uv sync --directory tools --locked

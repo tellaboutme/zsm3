@@ -1,0 +1,70 @@
+[project]
+name = "zsm3-tools"
+version = "0.1.0"
+description = "Build and maintenance tooling for the ZSM3 website."
+requires-python = ">=3.13,<3.14"
+dependencies = []
+
+[project.scripts]
+zsm3-no-comments = "zsm3_tools.no_comments:main"
+
+[dependency-groups]
+dev = [
+  "hypothesis",
+  "mypy",
+  "pytest",
+  "pytest-cov",
+  "ruff",
+]
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv]
+exclude-newer = "7 days"
+required-version = ">=0.12"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["COM812", "CPY", "D"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unreachable = true
+disallow_any_explicit = true
+enable_error_code = [
+  "explicit-override",
+  "ignore-without-code",
+  "mutable-override",
+  "possibly-undefined",
+  "redundant-expr",
+  "truthy-bool",
+  "unused-awaitable",
+]
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+xfail_strict = true
+addopts = [
+  "--strict-markers",
+  "--strict-config",
+  "-ra",
+  "--cov=zsm3_tools",
+  "--cov-branch",
+  "--cov-report=term-missing",
+  "--cov-fail-under=100",
+]
+
+[tool.coverage.run]
+source = ["zsm3_tools"]

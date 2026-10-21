@@ -1,0 +1,21 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: prettier
+      glob: "*.{ts,mts,astro,css,json,jsonc,md,yml,yaml}"
+      run: pnpm exec prettier --check {staged_files}
+    - name: eslint
+      glob: "*.{ts,mts,astro}"
+      run: pnpm exec eslint --max-warnings 0 --no-warn-ignored {staged_files}
+    - name: stylelint
+      glob: "*.{css,astro}"
+      run: pnpm exec stylelint --allow-empty-input --max-warnings 0 {staged_files}
+    - name: ruff
+      root: tools/
+      glob: "*.py"
+      run: uv run ruff check {staged_files} && uv run ruff format --check {staged_files}
+
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: pnpm exec commitlint --edit {1}

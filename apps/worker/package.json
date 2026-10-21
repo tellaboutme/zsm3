@@ -1,0 +1,29 @@
+{
+  "name": "@zsm3/worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --ip 127.0.0.1 --port 8787",
+    "types": "wrangler types",
+    "typecheck": "wrangler types --check && tsc -p tsconfig.json",
+    "test": "vitest run --coverage",
+    "test:mutation": "stryker run"
+  },
+  "dependencies": {
+    "@zsm3/contracts": "workspace:*",
+    "hono": "4.13.13",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.22.0",
+    "@stryker-mutator/core": "catalog:",
+    "@stryker-mutator/typescript-checker": "catalog:",
+    "@stryker-mutator/vitest-runner": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "wrangler": "4.151.0"
+  }
+}

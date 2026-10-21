@@ -1,0 +1,22 @@
+{
+  "name": "@zsm3/lint-rules",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./eslint": "./src/eslint/plugin.ts",
+    "./stylelint": "./src/stylelint/no-comments.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:",
+    "astro-eslint-parser": "3.2.0",
+    "eslint": "10.12.0",
+    "stylelint": "17.16.0",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

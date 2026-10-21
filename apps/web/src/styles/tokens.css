@@ -1,0 +1,21 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f5f7fa;
+  --ink: #0f1b2d;
+  --ink-2: #4a5668;
+  --brand: #1d4e89;
+  --font-body: system-ui, sans-serif;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-4: 2rem;
+  --measure: 65ch;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c1522;
+    --ink: #e6ecf3;
+    --ink-2: #a3b0c2;
+    --brand: #7fb0ea;
+  }
+}

@@ -1,0 +1,169 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  WRANGLER_SEND_METRICS: "false"
+  ASTRO_TELEMETRY_DISABLED: "1"
+
+jobs:
+  static:
+    name: Format, lint and types
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/setup
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+  test:
+    name: Unit and integration tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/setup
+      - run: pnpm test
+
+  mutation:
+    name: Mutation tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/setup
+      - run: pnpm test:mutation
+
+  e2e:
+    name: End-to-end, accessibility and Lighthouse
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/setup
+      - run: pnpm --filter @zsm3/e2e exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          retention-days: 7
+
+  dast:
+    name: OWASP ZAP baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/setup
+      - run: pnpm build
+      - name: Start the worker
+        run: |
+          pnpm --filter @zsm3/worker dev > wrangler.log 2>&1 &
+          timeout 120 bash -c "until curl --silent --fail http://127.0.0.1:8787/api/health; do sleep 2; done"
+      - uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25
+        with:
+          docker_name: ghcr.io/zaproxy/zaproxy@sha256:5ccfff9a411743ab2615136a2edd7416bec9ce41572fa94e935df38c14adb2b6
+          target: http://127.0.0.1:8787
+          rules_file_name: .zap/rules.tsv
+          cmd_options: -a -j
+          fail_action: true
+          allow_issue_writing: false
+          artifact_name: zap-baseline
+
+  security:
+    name: Static security analysis
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: $/.github/actions/setup
+      - name: Audit Node.js dependencies
+        run: pnpm audit --audit-level low
+      - name: Semgrep
+        run: >-
+          docker run --rm --volume "$PWD:/src" --workdir /src
+          semgrep/semgrep@sha256:529ee8a277ec8adc5b534d7c74eea0a47e9de21d62852b6ba7ac6ba9566845c3
+          semgrep scan --error --metrics off
+          --config p/default --config p/typescript --config p/nodejsscan
+          --config p/owasp-top-ten --config p/secrets --config p/python
+          --exclude-rule yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+      - name: OSV-Scanner
+        run: .github/scripts/osv-scan.sh
+      - name: Gitleaks
+        run: >-
+          docker run --rm --volume "$PWD:/repo"
+          zricethezav/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+          git /repo --redact --verbose
+      - name: actionlint
+        run: >-
+          docker run --rm --volume "$PWD:/repo" --workdir /repo
+          rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+          -color -ignore 'specifying action "\$/\.github/actions/setup" in invalid format'
+      - name: ShellCheck
+        run: >-
+          docker run --rm --volume "$PWD:/mnt:ro"
+          koalaman/shellcheck@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
+          --enable=all /mnt/.github/scripts/osv-scan.sh
+      - name: zizmor
+        run: uvx zizmor@1.30.1 --config .github/zizmor.yml .github
+      - name: SBOM
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c
+        with:
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+          artifact-name: sbom.cdx.json
+          upload-release-assets: false
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294
+        with:
+          fail-on-severity: low
