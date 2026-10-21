@@ -11,7 +11,9 @@ Status: **zatwierdzony projekt, etap 0 zrealizowany.** Kolejne etapy ruszają po
 3. **Panel dla pracowników:** sekretariat obsługuje wnioski, nauczyciele prowadzą galerię, administrator zarządza dostępami.
 4. **Galeria:** albumy według lat szkolnych, dodawanie zdjęć z panelu, przeniesienie obecnego archiwum (304 albumy, około 5400 zdjęć).
 
-**Poza wersją v1:** edycja aktualności z panelu (aktualności pozostają plikami treści w repozytorium), płatności online, konta uczniów i rodziców, zastąpienie BIP.
+**Zarządzanie treścią:** wszystko, co szkoła edytuje dziś w WordPressie (aktualności, strony, dokumenty, terminarz, komunikaty, dzwonki, oferty pracy), będzie edytowane w panelu, bez pomocy programisty.
+
+**Poza wersją v1:** płatności online, konta uczniów i rodziców, zastąpienie BIP.
 
 **Wymagania pozafunkcjonalne**
 
@@ -57,24 +59,24 @@ Status: **zatwierdzony projekt, etap 0 zrealizowany.** Kolejne etapy ruszają po
                                                                     └──► Brevo (UE) e-mail
 ```
 
-Jeden Worker pod jednym adresem: brak problemów z CORS, jedno wdrożenie, jedna polityka nagłówków. Pliki statyczne serwuje sieć Cloudflare bez uruchamiania kodu; Worker działa tylko dla `/api/*`, `/media/*` i `/panel*`.
+Jeden Worker pod jednym adresem: brak problemów z CORS, jedno wdrożenie, jedna polityka nagłówków. Gotowe pliki serwuje sieć Cloudflare bez uruchamiania kodu; Worker generuje strony z treścią z bazy D1 (z buforowaniem) i obsługuje `/api/*`, `/media/*` oraz `/panel*`.
 
 ## 4. Technologie
 
-| Warstwa         | Wybór                               | Uzasadnienie                                                                                                                      |
-| --------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Środowisko      | Cloudflare Workers + Static Assets  | bezpłatne, bez serwerów, jeden adres                                                                                              |
-| Język serwera   | TypeScript 6.0 (tryb ścisły)        | natywny język Workers; typescript-eslint nie obsługuje jeszcze wersji 7.x                                                         |
-| HTTP            | Hono                                | mały, sprawdzony router dla Workers; middleware do nagłówków bezpieczeństwa, limitów i ochrony CSRF                               |
-| Walidacja       | Zod 4                               | te same schematy dla formularza i API (`packages/contracts`)                                                                      |
-| Baza danych     | D1 (SQLite), migracje SQL           | bezpłatna; wyłącznie zapytania parametryzowane (`bind`)                                                                           |
-| Pliki           | R2                                  | 10 GB bezpłatnie, darmowy transfer                                                                                                |
-| JWT             | `jose`                              | weryfikacja tokenów Access według JWKS                                                                                            |
-| E-mail          | Brevo za interfejsem `EmailSender`  | dostawca z UE, 300 e-maili dziennie bezpłatnie; zmiana dostawcy to jeden adapter                                                  |
-| Front-end       | Astro 7 (statycznie), TypeScript    | HTML budowany z wyprzedzeniem, JavaScript tylko tam, gdzie potrzebny; brak skryptów i stylów inline, dzięki czemu CSP jest ścisła |
-| Kompresja zdjęć | jSquash (WebP, WASM) w Web Workerze | identyczny wynik w każdej przeglądarce                                                                                            |
-| Narzędzia       | Python 3.13 (`tools/`, uv)          | skrypty pomocnicze: import archiwum galerii, kontrole repozytorium                                                                |
-| Node.js         | Node 24 LTS, pnpm 12                | instalowane są tylko wersje starsze niż 7 dni, weryfikacja pochodzenia pakietów, skrypty instalacyjne tylko z białej listy        |
+| Warstwa         | Wybór                               | Uzasadnienie                                                                                                                                                                           |
+| --------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Środowisko      | Cloudflare Workers + Static Assets  | bezpłatne, bez serwerów, jeden adres                                                                                                                                                   |
+| Język serwera   | TypeScript 6.0 (tryb ścisły)        | natywny język Workers; typescript-eslint nie obsługuje jeszcze wersji 7.x                                                                                                              |
+| HTTP            | Hono                                | mały, sprawdzony router dla Workers; middleware do nagłówków bezpieczeństwa, limitów i ochrony CSRF                                                                                    |
+| Walidacja       | Zod 4                               | te same schematy dla formularza i API (`packages/contracts`)                                                                                                                           |
+| Baza danych     | D1 (SQLite), migracje SQL           | bezpłatna; wyłącznie zapytania parametryzowane (`bind`)                                                                                                                                |
+| Pliki           | R2                                  | 10 GB bezpłatnie, darmowy transfer                                                                                                                                                     |
+| JWT             | `jose`                              | weryfikacja tokenów Access według JWKS                                                                                                                                                 |
+| E-mail          | Brevo za interfejsem `EmailSender`  | dostawca z UE, 300 e-maili dziennie bezpłatnie; zmiana dostawcy to jeden adapter                                                                                                       |
+| Front-end       | Astro 7 (hybrydowo), TypeScript     | szkielet strony budowany z wyprzedzeniem, treść generowana na żądanie i buforowana; JavaScript tylko tam, gdzie potrzebny; brak skryptów i stylów inline, dzięki czemu CSP jest ścisła |
+| Kompresja zdjęć | jSquash (WebP, WASM) w Web Workerze | identyczny wynik w każdej przeglądarce                                                                                                                                                 |
+| Narzędzia       | Python 3.13 (`tools/`, uv)          | skrypty pomocnicze: import archiwum galerii, kontrole repozytorium                                                                                                                     |
+| Node.js         | Node 24 LTS, pnpm 12                | instalowane są tylko wersje starsze niż 7 dni, weryfikacja pochodzenia pakietów, skrypty instalacyjne tylko z białej listy                                                             |
 
 ## 5. Struktura repozytorium
 
@@ -266,20 +268,24 @@ Razem: **0 zł miesięcznie**. Szkoła ma już własną domenę. Przy dużym wzr
 
 ## 14. Etapy
 
-| #   | Etap                    | Rezultat                                                                                                                           |
-| --- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | Fundament               | **gotowe:** repozytorium, narzędzia, pełne CI, szkielety Workera i strony; wdrożenie preview czeka na konto Cloudflare szkoły      |
-| 1   | Strona publiczna        | system wizualny, szablony stron, przeniesienie treści (aktualności, kierunki, terminarz, kontakt, historia), tryby dostępności     |
-| 2   | E-wniosek               | baza, API wniosków, formularz, status, wycofanie, e-maile, automatyczne usuwanie danych                                            |
-| 3   | Panel                   | logowanie Access, role, obsługa wniosków, zarządzanie pracownikami, dziennik zdarzeń                                               |
-| 4   | Galeria                 | dodawanie zdjęć w panelu, publiczna galeria, import archiwum                                                                       |
-| 5   | Zgodność i uruchomienie | deklaracja dostępności, ETR/PJM, regulamin, klauzula, pełny skan bezpieczeństwa, lista kontrolna ASVS L2, przeniesienie DNS, start |
+| #   | Etap                    | Rezultat                                                                                                                       |
+| --- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 0   | Fundament               | **gotowe:** repozytorium, narzędzia, pełne CI, szkielety Workera i strony                                                      |
+| 1   | System wizualny         | kierunek graficzny wybrany ze szkołą, kolory, typografia, komponenty, szablony stron, ustawienia dostępności, „Teraz w szkole” |
+| 2   | Platforma treści        | model treści w bazie, import obecnej strony, wyszukiwarka, RSS, mapa strony, przekierowania starych adresów                    |
+| 3   | Panel i CMS             | logowanie, role, edycja wszystkich rodzajów treści, historia zmian, dziennik zdarzeń, podręcznik redaktora                     |
+| 4   | E-wniosek               | baza, API wniosków, formularz, status, wycofanie, e-maile, automatyczne usuwanie danych                                        |
+| 5   | Galeria                 | dodawanie zdjęć w panelu, publiczna galeria, import archiwum                                                                   |
+| 6   | Narzędzia społeczności  | krótkie linki, Skrzynka #OgarniamŻycie, statystyki bez plików cookie                                                           |
+| 7   | Zgodność i uruchomienie | deklaracja dostępności, ETR/PJM, przegląd PDF, regulamin, pełny skan bezpieczeństwa, ASVS L2, przeniesienie DNS, szkolenie     |
+
+Szczegóły etapów (w języku angielskim): [site-plan.md](../en/site-plan.md).
 
 Każdy etap kończy się zielonym CI i prezentacją na środowisku preview.
 
 ## 15. Pytania do szkoły
 
-Rozwój na środowisku preview nie jest od nich zależny; odpowiedzi są potrzebne przed etapem 5.
+Rozwój na środowisku preview nie jest od nich zależny; odpowiedzi są potrzebne przed etapem 7.
 
 1. Konta Cloudflare i Brevo zarejestrowane na szkołę, z programistą dodanym jako członek zespołu; akceptacja umów DPA.
 2. Przeniesienie obsługi DNS domeny szkoły do Cloudflare (zmiana serwerów nazw; rekordy poczty pozostają bez zmian).
