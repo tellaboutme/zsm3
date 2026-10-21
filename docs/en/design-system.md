@@ -6,15 +6,9 @@ How the website looks, reads and behaves. The rules here are binding for every p
 
 ZSM3 is a technical school: cars, aircraft, robots, code. Its students build and repair machines; its partners include an airport ground-handling company. The website should feel like a well-made technical object: precise, legible, honest about materials, and proud of the work done in the workshops. It should not feel like a startup landing page or a template.
 
-Three directions are prototyped in stage 1 on the real home page, a programme page and the documents page. The school chooses one; elements of the others can be borrowed.
+Chosen direction: **E "Precyzja"** ([ADR 0002](adr/0002-visual-direction-precyzja.md)) — official but energetic: a white base, the school's blue and orange, very large wide titles, filterable profession tiles and noticeable, purposeful motion. Foundation values (grid, type, colour, motion) and the page-by-page construction plan are in the [blueprint](blueprint.md).
 
-| Direction                 | Idea                                                                                                                                                                                                  | Risk                                                 |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| **A. Rysunek techniczny** | the language of engineering drawings: warm paper and ink, hairlines, a modular grid, dimension lines as dividers, a title-block footer, monospaced labels for metadata (dates, rooms, document codes) | can feel cold; needs strong photography to stay warm |
-| **B. Tablica odlotów**    | airport wayfinding: high-contrast signage typography, a signal colour on dark, departure-board patterns for events and the live lesson status                                                         | can turn into a gimmick if applied to every page     |
-| **C. Warsztat**           | the workshop: large documentary photos of real students at work, a bold condensed headline face, safety-orange accents, generous whitespace                                                           | depends entirely on photo quality and consents       |
-
-Recommended starting point: **A as the base system with B for the live elements** (Teraz w szkole, Co przed nami). It suits a document-heavy public institution and gives the live features a voice of their own.
+Directions A–D were prototyped on real content and set aside: A (technical drawing), B (departure board) and C (workshop photography) read as too subdued; D (academic navy and serif) as more formal than energetic.
 
 ## 2. Rules against generic design
 
@@ -53,7 +47,7 @@ Every review checks these. Each one is a yes/no question.
 
 **Motion**
 
-17. Motion explains a change (opening, moving, updating); nothing moves on its own except live data. Durations up to 200 ms, one easing curve, and nothing at all with `prefers-reduced-motion`.
+17. Motion explains or rewards an action (entering a page, revealing a section, hovering, changing a filter); nothing moves on its own except live data. It uses the motion tokens and patterns of the [blueprint](blueprint.md) §1.4, never delays content, and stops completely with `prefers-reduced-motion`.
 18. No parallax, no scroll-jacking, no auto-rotating carousels, no counters that animate from zero.
 
 **Substance**
@@ -76,17 +70,18 @@ All colours, sizes, spacing, radii, durations and z-indices are CSS custom prope
 
 Contrast: body text at least 7:1 (AAA) in both themes, large text and UI elements at least 4.5:1. The accessibility settings (larger text, high contrast, greyscale, underlined links, readable font) are token overrides, not separate styles.
 
-## 4. Typography candidates
+## 4. Typography
 
-Fonts are self-hosted WOFF2, subset to Latin and Latin Extended, at most two weights per family preloaded.
+Fonts are self-hosted WOFF2, subset to Latin and Latin Extended; Archivo and Source Sans 3 are preloaded.
 
-| Role    | Candidates (open licences)                                | Note                                                                     |
-| ------- | --------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Display | Barlow Condensed, Archivo Narrow, IBM Plex Sans Condensed | Barlow is the school's current typeface and was drawn after road signage |
-| Body    | Atkinson Hyperlegible Next, Source Sans 3, IBM Plex Sans  | Atkinson is designed for low-vision readers                              |
-| Mono    | IBM Plex Mono, JetBrains Mono                             | labels, times, codes                                                     |
+| Role                  | Face                                | Note                                                             |
+| --------------------- | ----------------------------------- | ---------------------------------------------------------------- |
+| Display               | Archivo (width 112–125, weight 800) | titles, numbers, codes                                           |
+| Body                  | Source Sans 3                       | text, navigation, forms                                          |
+| Mono                  | IBM Plex Mono                       | tags, dates, times, document and exam codes                      |
+| Readable font setting | Atkinson Hyperlegible Next          | replaces the body face when chosen in the accessibility settings |
 
-Final pairs are chosen with the direction, after rendering the Polish test string at every size.
+All faces render the Polish test string correctly.
 
 ## 5. Components
 
