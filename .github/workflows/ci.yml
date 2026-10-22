@@ -73,7 +73,7 @@ jobs:
         run: sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
       - run: pnpm --filter @zsm3/e2e exec playwright install --with-deps chromium firefox webkit
       - name: Production build excludes the pattern library
-        run: pnpm build && test ! -e apps/web/dist/wzornik
+        run: pnpm build && test -d apps/web/dist/client && test ! -e apps/web/dist/client/wzornik
       - run: pnpm test:e2e
       - if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
