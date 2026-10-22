@@ -41,6 +41,7 @@ for (const colorScheme of ["light", "dark"] as const) {
           await expect(page).toHaveScreenshot(
             `${template.name}-${colorScheme}-${String(width)}.png`,
             {
+              fullPage: true,
               animations: "disabled",
               caret: "hide",
               mask: [page.locator("[data-live-status], [data-dated]")],
