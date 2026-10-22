@@ -337,6 +337,13 @@ Breadcrumbs, title, intro, optional in-page navigation (for pages with four or m
 | Utility       | search, sitemap, 404          | search box with results grouped by type; full tree; 404 with search and top tasks                                                   |
 | Legal         | accessibility, RODO, etc.     | narrow layout, document metadata (date, version), in-page navigation                                                                |
 
+Stage 1 notes for the everyday templates:
+
+- Hubs show the three latest news until news carry audience tags (stage 2).
+- The bell schedule picks today's variant (shortened days) in the browser for the page and the live status everywhere; past variants are hidden.
+- The calendar filters are pure CSS like the professions listing; JavaScript hides empty months, announces the count and shows the empty state. `/szkola/terminarz.ics` is generated at build time (RFC 5545: CRLF, escaping, 75-octet folding).
+- Meetings and contact fixtures carry rooms, roles, extensions and role mailboxes only; names of staff come from the panel at runtime. Office hours are shown once the school provides them.
+
 ## 5. Fittings (components)
 
 Every component lives in `apps/web/src/components/`, takes typed props from `packages/contracts`, and has an entry on the pattern page `/wzornik` (built only with `pnpm build:preview`, never in production).

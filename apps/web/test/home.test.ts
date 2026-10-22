@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { schoolYearEvents } from "../src/data/calendar.ts";
+import { schoolYearEvents } from "../src/data/calendar/index.ts";
 import { news } from "../src/data/news/index.ts";
 import { professions } from "../src/data/professions.ts";
 import { upcomingEvents } from "../src/lib/calendar.ts";
@@ -95,7 +95,10 @@ describe("upcomingEvents", () => {
       (event) => event.title,
     );
 
-    expect(titles).toEqual(["Zimowa przerwa świąteczna", "Zebrania informacyjne z rodzicami"]);
+    expect(titles).toEqual([
+      "Zimowa przerwa świąteczna",
+      "Egzamin zawodowy, sesja zimowa: część pisemna",
+    ]);
   });
 
   it("includes an event on its own day and drops past ones", ({ expect }) => {

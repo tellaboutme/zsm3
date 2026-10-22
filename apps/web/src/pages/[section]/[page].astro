@@ -1,0 +1,94 @@
+---
+import ContentBlocks from "../../components/content/ContentBlocks.astro";
+import InPageNav from "../../components/content/InPageNav.astro";
+import SiblingNav from "../../components/content/SiblingNav.astro";
+import { sections } from "../../data/navigation.ts";
+import { contentPages } from "../../data/pages/index.ts";
+import Base from "../../layouts/Base.astro";
+import {
+  needsInPageNav,
+  sectionTitleFor,
+  siblingLinks,
+  type ContentPage,
+} from "../../lib/content.ts";
+
+interface Props {
+  page: ContentPage;
+}
+
+export function getStaticPaths(): { params: { section: string; page: string }; props: Props }[] {
+  return contentPages.map((page) => {
+    const [, section = "", slug = ""] = page.path.split("/");
+    return { params: { section, page: slug }, props: { page } };
+  });
+}
+
+const { page } = Astro.props;
+const parent = sectionTitleFor(sections, page.path);
+---
+
+<Base
+  title={`${page.title} — ZSM3`}
+  description={page.intro}
+  breadcrumbs={[...(parent === undefined ? [] : [parent]), { label: page.title }]}
+>
+  <div class="content-page">
+    <header class="intro">
+      <p class="tag">{page.kicker}</p>
+      <h1>
+        <span class="rise">
+          <span>{page.title}</span>
+        </span>
+      </h1>
+      <p class="lead">{page.intro}</p>
+    </header>
+    {needsInPageNav(page) && <InPageNav sections={page.sections} />}
+    {page.sections.map((section) => (
+      <section class="section" id={section.id} aria-labelledby={`${section.id}-tytul`}>
+        <h2 id={`${section.id}-tytul`}>{section.title}</h2>
+        <ContentBlocks blocks={section.blocks} />
+      </section>
+    ))}
+    <SiblingNav title="Zobacz też" links={siblingLinks(sections, page.path)} />
+  </div>
+</Base>
+
+<style>
+  .content-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .tag {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-stretch: var(--stretch-wide);
+    hyphens: auto;
+  }
+
+  .lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .section {
+    display: grid;
+    gap: var(--space-5);
+    scroll-margin-top: var(--header-height);
+  }
+
+  .section h2 {
+    font-size: var(--step-3);
+  }
+</style>

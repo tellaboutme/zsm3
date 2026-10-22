@@ -2,7 +2,10 @@ import { initDialogs } from "./dialogs.ts";
 import { initMegaMenus } from "./mega-menu.ts";
 import { initPreferences } from "./preferences-ui.ts";
 import { regularSchedule } from "../data/bell-schedule.ts";
+import { bellVariants } from "../data/bell-variants.ts";
 import { DISMISSED_KEY, readDismissed, withDismissed } from "../lib/announcement.ts";
+import { scheduleFor } from "../lib/bells.ts";
+import { isoDay } from "../lib/calendar.ts";
 import { describeStatus, liveStatus, warsawClock } from "../lib/live-status.ts";
 
 function initBanners(): void {
@@ -44,7 +47,9 @@ function initLiveStatus(): void {
     return;
   }
   const tick = (): void => {
-    const view = describeStatus(liveStatus(regularSchedule, warsawClock(new Date())));
+    const now = new Date();
+    const today = scheduleFor(bellVariants, regularSchedule, isoDay(now));
+    const view = describeStatus(liveStatus(today.lessons, warsawClock(now)));
     for (const root of roots) {
       root.dataset["state"] = view.state;
       for (const [field, text] of [

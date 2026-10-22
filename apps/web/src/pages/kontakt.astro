@@ -1,0 +1,122 @@
+---
+import ContactCards from "../components/ContactCards.astro";
+import Icon from "../components/Icon.astro";
+import { departments, management } from "../data/contacts.ts";
+import { school } from "../data/site.ts";
+import Base from "../layouts/Base.astro";
+---
+
+<Base
+  title="Kontakt — ZSM3"
+  description="Telefony i adresy e-mail sekretariatów, księgowości, Rady Rodziców i kierownictwa Zespołu Szkół Mechanicznych nr 3 w Krakowie."
+  breadcrumbs={[{ label: "Kontakt" }]}
+>
+  <div class="contact">
+    <header class="intro">
+      <p class="tag">Kontakt · os. Szkolne 37</p>
+      <h1>
+        <span class="rise">
+          <span>Kontakt</span>
+        </span>
+      </h1>
+      <div class="main">
+        <a class="phone" href={`tel:${school.phone}`}>
+          {school.phoneLabel}
+        </a>
+        <a href={`mailto:${school.email}`}>{school.email}</a>
+      </div>
+    </header>
+    <section aria-labelledby="dzialy">
+      <h2 id="dzialy">Sekretariaty i działy</h2>
+      <ContactCards cards={departments} />
+    </section>
+    <section aria-labelledby="kierownictwo">
+      <h2 id="kierownictwo">Kierownictwo i administracja</h2>
+      <ContactCards cards={management} />
+    </section>
+    <section class="where" aria-labelledby="dojazd">
+      <h2 id="dojazd">Jak do nas trafić</h2>
+      <address>
+        {school.name}
+        <br />
+        im. {school.patron}
+        <br />
+        {school.street}, {school.postalCode} {school.city}
+      </address>
+      <a class="map nudge" href={school.mapUrl}>
+        Otwórz mapę w OpenStreetMap
+        <Icon name="external" />
+        <span class="visually-hidden">(otwiera serwis zewnętrzny)</span>
+      </a>
+      <p class="note">
+        Mapa otwiera się w serwisie zewnętrznym dopiero po kliknięciu, dlatego strona szkoły nie
+        przekazuje nikomu Twoich danych.
+      </p>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro,
+  section {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .tag,
+  .note {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-stretch: var(--stretch-wide);
+  }
+
+  h2 {
+    font-size: var(--step-3);
+  }
+
+  .main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    align-items: baseline;
+    font-size: var(--step-1);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .phone {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 800;
+  }
+
+  .where {
+    max-width: 40rem;
+    padding: var(--space-5);
+    border-radius: var(--radius);
+    background: var(--gray);
+  }
+
+  address {
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .map {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--target);
+    font-weight: 700;
+  }
+</style>

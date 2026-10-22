@@ -1,0 +1,14 @@
+.calendar:has([name="dla"][value="Uczniowie"]:checked)
+  .event:not([data-audience="Uczniowie"], [data-audience="Wszyscy"]),
+.calendar:has([name="dla"][value="Rodzice"]:checked)
+  .event:not([data-audience="Rodzice"], [data-audience="Wszyscy"]),
+.calendar:has([name="rodzaj"][value="rok-szkolny"]:checked) .event:not([data-kind="rok-szkolny"]),
+.calendar:has([name="rodzaj"][value="przerwa"]:checked) .event:not([data-kind="przerwa"]),
+.calendar:has([name="rodzaj"][value="wolne"]:checked) .event:not([data-kind="wolne"]),
+.calendar:has([name="rodzaj"][value="zebranie"]:checked) .event:not([data-kind="zebranie"]),
+.calendar:has([name="rodzaj"][value="uroczystosc"]:checked) .event:not([data-kind="uroczystosc"]),
+.calendar:has([name="rodzaj"][value="oceny"]:checked) .event:not([data-kind="oceny"]),
+.calendar:has([name="rodzaj"][value="egzamin"]:checked) .event:not([data-kind="egzamin"]),
+.calendar:has([name="rodzaj"][value="praktyki"]:checked) .event:not([data-kind="praktyki"]) {
+  display: none;
+}

@@ -1,0 +1,47 @@
+---
+import type { NavLink } from "../../lib/navigation.ts";
+
+interface Props {
+  title: string;
+  text: string;
+  link?: NavLink | undefined;
+}
+
+const { title, text, link } = Astro.props;
+---
+
+<aside class="callout" aria-label={title}>
+  <p class="title">{title}</p>
+  <p class="text">{text}</p>
+  {link !== undefined && (
+    <a class="nudge" href={link.href}>
+      {link.label} <span aria-hidden="true">→</span>
+    </a>
+  )}
+</aside>
+
+<style>
+  .callout {
+    display: grid;
+    gap: var(--space-3);
+    max-width: var(--measure);
+    padding: var(--space-5);
+    border-left: var(--rule) solid var(--orange);
+    border-radius: var(--radius);
+    background: var(--gray);
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 800;
+  }
+
+  .text {
+    color: var(--ink-2);
+  }
+
+  a {
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,61 @@
+---
+import { longDate, type SchoolEvent } from "../../lib/calendar.ts";
+
+interface Props {
+  events: readonly SchoolEvent[];
+}
+
+const { events } = Astro.props;
+---
+
+<section class="key-dates" aria-labelledby="najwazniejsze">
+  <h2 id="najwazniejsze">Najważniejsze daty</h2>
+  <ol>
+    {events.map((event) => (
+      <li>
+        <p class="when">
+          {longDate(event.date)}
+          {event.endDate !== undefined && ` – ${longDate(event.endDate)}`}
+        </p>
+        <p class="what">{event.title}</p>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .key-dates {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  h2 {
+    font-size: var(--step-3);
+  }
+
+  ol {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-top: var(--rule) solid var(--orange);
+    background: var(--gray);
+  }
+
+  .when {
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .what {
+    font-weight: 700;
+  }
+</style>

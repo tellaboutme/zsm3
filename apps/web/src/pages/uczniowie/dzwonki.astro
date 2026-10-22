@@ -1,0 +1,116 @@
+---
+import BellTable from "../../components/bells/BellTable.astro";
+import LiveStatus from "../../components/LiveStatus.astro";
+import { regularSchedule } from "../../data/bell-schedule.ts";
+import { bellVariants } from "../../data/bell-variants.ts";
+import Base from "../../layouts/Base.astro";
+import { REGULAR_LABEL } from "../../lib/bells.ts";
+import { isoDay, longDate } from "../../lib/calendar.ts";
+
+const buildDay = isoDay(new Date());
+---
+
+<Base
+  title="Dzwonki — ZSM3"
+  description="Godziny lekcji i przerw w Zespole Szkół Mechanicznych nr 3, dni ze skróconymi lekcjami i odliczanie do dzwonka."
+  breadcrumbs={[{ label: "Uczniowie", href: "/uczniowie" }, { label: "Dzwonki" }]}
+>
+  <div class="bells-page">
+    <header class="intro">
+      <p class="tag">Uczniowie · plan dnia</p>
+      <h1>
+        <span class="rise">
+          <span>Dzwonki</span>
+        </span>
+      </h1>
+      <p class="lead">
+        Lekcje trwają 45 minut. Odliczanie poniżej uwzględnia dni ze skróconymi lekcjami.
+      </p>
+    </header>
+    <div class="now">
+      <LiveStatus size="large" />
+      <p class="today">
+        Dziś obowiązuje: <strong data-today-label>{REGULAR_LABEL}</strong>
+      </p>
+    </div>
+    <BellTable caption={REGULAR_LABEL} lessons={regularSchedule} />
+    <section class="variants" aria-labelledby="zmiany">
+      <h2 id="zmiany">Dni ze zmienionym planem</h2>
+      {bellVariants.map((variant) => (
+        <div
+          class="variant"
+          data-variant
+          data-date={variant.date}
+          data-label={variant.label}
+          hidden={variant.date < buildDay}
+        >
+          <BellTable
+            caption={`${longDate(variant.date)}: ${variant.label}`}
+            lessons={variant.lessons}
+          />
+        </div>
+      ))}
+      <p
+        class="empty"
+        data-no-variants
+        hidden={bellVariants.some((variant) => variant.date >= buildDay)}
+      >
+        Nie ma zaplanowanych dni ze skróconymi lekcjami.
+      </p>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import "../../scripts/bells.ts";
+</script>
+
+<style>
+  .bells-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    max-width: 52rem;
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .tag {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-stretch: var(--stretch-wide);
+  }
+
+  .lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .now {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .variants {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .variants h2 {
+    font-size: var(--step-3);
+  }
+
+  .empty {
+    padding: var(--space-5);
+    border-radius: var(--radius);
+    background: var(--gray);
+  }
+</style>

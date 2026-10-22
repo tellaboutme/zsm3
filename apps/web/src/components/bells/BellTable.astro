@@ -1,0 +1,73 @@
+---
+import { scheduleRows } from "../../lib/bells.ts";
+import { clockTime, type Lesson } from "../../lib/live-status.ts";
+
+interface Props {
+  caption: string;
+  lessons: readonly Lesson[];
+}
+
+const { caption, lessons } = Astro.props;
+---
+
+<table class="bells">
+  <caption>{caption}</caption>
+  <thead>
+    <tr>
+      <th scope="col">Lekcja</th>
+      <th scope="col">Godziny</th>
+      <th scope="col">Przerwa po lekcji</th>
+    </tr>
+  </thead>
+  <tbody>
+    {scheduleRows(lessons).map((row) => (
+      <tr>
+        <th scope="row">{row.lesson.number}.</th>
+        <td class="mono">
+          {clockTime(row.lesson.start)}–{clockTime(row.lesson.end)}
+          <span class="minutes">({row.minutes} min)</span>
+        </td>
+        <td>{row.breakAfter === undefined ? "koniec lekcji" : `${String(row.breakAfter)} min`}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .bells {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  caption {
+    padding-bottom: var(--space-3);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 800;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: var(--space-3) var(--space-3) var(--space-3) 0;
+    border-bottom: var(--hairline) solid var(--line);
+    text-align: left;
+  }
+
+  thead th {
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+
+  tbody th {
+    font-family: var(--font-mono);
+  }
+
+  .minutes {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+</style>

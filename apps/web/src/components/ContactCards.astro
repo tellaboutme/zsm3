@@ -1,0 +1,78 @@
+---
+import type { ContactCard } from "../data/contacts.ts";
+
+interface Props {
+  cards: readonly ContactCard[];
+}
+
+const { cards } = Astro.props;
+---
+
+<ul class="cards">
+  {cards.map((card) => (
+    <li class="card">
+      <p class="tag">{card.role}</p>
+      <h3>{card.title}</h3>
+      {card.phones.length + card.emails.length === 0 ? (
+        <p class="via">Kontakt przez sekretariat główny</p>
+      ) : (
+        <ul class="ways">
+          {card.phones.map((phone) => (
+            <li>
+              <a href={`tel:${phone.number}`}>{phone.label}</a>
+            </li>
+          ))}
+          {card.emails.map((email) => (
+            <li>
+              <a href={`mailto:${email}`}>{email}</a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  ))}
+</ul>
+
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-5);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .tag,
+  .via {
+    color: var(--ink-2);
+  }
+
+  h3 {
+    font-size: var(--step-1);
+  }
+
+  .ways {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ways a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    overflow-wrap: anywhere;
+  }
+</style>

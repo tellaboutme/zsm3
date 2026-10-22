@@ -1,0 +1,26 @@
+---
+import Callout from "./Callout.astro";
+import RichText from "./RichText.astro";
+import Timeline from "./Timeline.astro";
+import type { ContentBlock } from "../../lib/content.ts";
+import FactStrip from "../FactStrip.astro";
+
+interface Props {
+  blocks: readonly ContentBlock[];
+}
+
+const { blocks } = Astro.props;
+---
+
+{blocks.map((block) => {
+  switch (block.type) {
+    case "rich-text":
+      return <RichText document={block.document} />;
+    case "facts":
+      return <FactStrip label={block.label} facts={block.facts} />;
+    case "timeline":
+      return <Timeline items={block.items} />;
+    case "callout":
+      return <Callout title={block.title} text={block.text} link={block.link} />;
+  }
+})}
