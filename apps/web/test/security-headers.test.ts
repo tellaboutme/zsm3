@@ -5,6 +5,7 @@ import { describe, it } from "vitest";
 import { bootScript } from "../src/lib/preferences.ts";
 import {
   contentSecurityPolicy,
+  ON_DEMAND_CACHE,
   pageHeaders,
   renderHeaders,
   sha256Base64,
@@ -67,6 +68,10 @@ describe("headers for pages rendered on demand", () => {
       `Content-Security-Policy: ${contentSecurityPolicy({ scriptHashes: [hash] })}`,
       ...expectedStaticHeaders,
     ]);
+  });
+
+  it("make browsers revalidate every rendered page", ({ expect }) => {
+    expect(ON_DEMAND_CACHE).toBe("public, max-age=0, must-revalidate");
   });
 
   it("replace existing values and keep the response", async ({ expect }) => {
