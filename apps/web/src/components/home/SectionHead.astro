@@ -1,0 +1,53 @@
+---
+import type { NavLink } from "../../lib/navigation.ts";
+
+interface Props {
+  id: string;
+  kicker: string;
+  title: string;
+  link?: NavLink;
+}
+
+const { id, kicker, title, link } = Astro.props;
+---
+
+<div class="head">
+  <div class="titles">
+    <p class="tag">{kicker}</p>
+    <h2 id={id}>{title}</h2>
+  </div>
+  {link !== undefined && (
+    <a class="more nudge" href={link.href}>
+      {link.label} <span aria-hidden="true">→</span>
+    </a>
+  )}
+</div>
+
+<style>
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    align-items: end;
+    justify-content: space-between;
+    padding-top: var(--space-4);
+    border-top: var(--rule) solid var(--ink);
+  }
+
+  .titles {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .tag {
+    color: var(--ink-2);
+  }
+
+  h2 {
+    font-size: var(--step-3);
+  }
+
+  .more {
+    font-weight: 700;
+  }
+</style>

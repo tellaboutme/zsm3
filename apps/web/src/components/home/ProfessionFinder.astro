@@ -1,0 +1,90 @@
+---
+import ProfessionTile from "./ProfessionTile.astro";
+import SectionHead from "./SectionHead.astro";
+import { professions } from "../../data/professions.ts";
+import { fieldCounts, fieldLabels, fields } from "../../lib/professions.ts";
+
+const counts = fieldCounts(professions);
+const options = [
+  { value: "wszystkie", label: "Wszystkie", count: professions.length },
+  ...fields.map((field) => ({
+    value: field,
+    label: fieldLabels[field],
+    count: counts.get(field) ?? 0,
+  })),
+];
+---
+
+<section class="finder" aria-labelledby="zawody">
+  <SectionHead
+    id="zawody"
+    kicker="Dla kandydatów"
+    title="Wybierz zawód"
+    link={{ label: "Wszystkie zawody", href: "/kandydaci/zawody" }}
+  />
+  <div class="filter" role="group" aria-label="Branża" data-field-filter hidden>
+    {options.map((option, index) => (
+      <button type="button" data-field={option.value} aria-pressed={index === 0 ? "true" : "false"}>
+        {option.label}
+        <span class="count">{option.count}</span>
+      </button>
+    ))}
+  </div>
+  <p class="visually-hidden" role="status" data-filter-status></p>
+  <ul class="tiles">
+    {professions.map((profession, index) => (
+      <ProfessionTile profession={profession} number={index + 1} />
+    ))}
+  </ul>
+</section>
+
+<style>
+  .finder {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .filter button {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--target);
+    padding: var(--space-2) var(--space-4);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .filter button:hover {
+    border-color: var(--ink);
+  }
+
+  .filter button[aria-pressed="true"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .count {
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

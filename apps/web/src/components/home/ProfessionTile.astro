@@ -1,0 +1,105 @@
+---
+import { fieldLabels, pathLabel, type Profession } from "../../lib/professions.ts";
+
+interface Props {
+  profession: Profession;
+  number: number;
+}
+
+const { profession, number } = Astro.props;
+---
+
+<li class="tile" data-field={profession.field}>
+  <a href={`/kandydaci/zawody/${profession.slug}`}>
+    <span class="top">
+      <span class="tag">{String(number).padStart(2, "0")}</span>
+      <span class="tag">{fieldLabels[profession.field]}</span>
+    </span>
+    <span class="name">{profession.name}</span>
+    <span class="topics">{profession.topics.join(" · ")}</span>
+    <span class="codes">
+      {profession.qualifications.map((qualification) => (
+        <abbr class="code" title={qualification.name}>
+          {qualification.code}
+        </abbr>
+      ))}
+    </span>
+    <span class="paths">
+      {profession.paths.map((path) => (
+        <span>{pathLabel(path)}</span>
+      ))}
+    </span>
+  </a>
+</li>
+
+<style>
+  a {
+    display: grid;
+    grid-template-rows: auto 1fr auto auto auto;
+    gap: var(--space-3);
+    height: 100%;
+    padding: var(--space-5);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      background-color var(--duration-2) var(--ease),
+      border-color var(--duration-2) var(--ease),
+      color var(--duration-2) var(--ease);
+  }
+
+  a:hover {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: var(--blue-ink);
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    color: var(--ink-2);
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-stretch: var(--stretch-display);
+    font-weight: 800;
+    line-height: var(--leading-snug);
+    overflow-wrap: anywhere;
+  }
+
+  .topics {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+
+  a:hover .top,
+  a:hover .topics {
+    color: var(--blue-dim);
+  }
+
+  .codes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .code {
+    padding: var(--space-1) var(--space-2);
+    border: var(--hairline) solid currentcolor;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    text-decoration: none;
+  }
+
+  .paths {
+    display: grid;
+    font-size: var(--step-n1);
+    font-weight: 700;
+  }
+</style>

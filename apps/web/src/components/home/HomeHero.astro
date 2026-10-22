@@ -1,0 +1,166 @@
+---
+import { quickLinks } from "../../data/home.ts";
+import { school } from "../../data/site.ts";
+import { longDate } from "../../lib/calendar.ts";
+import { newsHref, type NewsItem } from "../../lib/news.ts";
+import LiveStatus from "../LiveStatus.astro";
+
+interface Props {
+  featured: NewsItem;
+}
+
+const { featured } = Astro.props;
+---
+
+<section class="hero" aria-labelledby="tytul">
+  <div class="kickers">
+    <p class="tag">Technikum · Szkoła branżowa I i II stopnia</p>
+    <p class="tag">
+      {school.street}, {school.city}
+    </p>
+  </div>
+  <h1 id="tytul">
+    <span class="rise">
+      <span>Zespół Szkół</span>
+    </span>
+    <span class="rise">
+      <span>Mechanicznych nr&nbsp;3</span>
+    </span>
+    <span class="rise">
+      <span>w Krakowie</span>
+    </span>
+  </h1>
+  <div class="grid">
+    <a class="featured" href={newsHref(featured)}>
+      <span class="photo" aria-hidden="true">
+        <span class="tag">Zdjęcie dodawane w panelu szkoły</span>
+      </span>
+      <span class="tag meta">
+        <time datetime={featured.date}>{longDate(featured.date)}</time> · {featured.category}
+      </span>
+      <span class="title">{featured.title}</span>
+      <span class="lead">{featured.lead}</span>
+    </a>
+    <div class="side">
+      <LiveStatus />
+      <nav aria-label="Na skróty">
+        <ul class="quick">
+          {quickLinks.map((link) => (
+            <li>
+              <a class="nudge" href={link.href}>
+                {link.label} <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    gap: var(--space-6);
+    container-type: inline-size;
+    padding-block: var(--space-7) 0;
+  }
+
+  .kickers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    justify-content: space-between;
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: max(min(var(--step-4), 8.5cqi), var(--step-2));
+    hyphens: auto;
+    font-stretch: var(--stretch-wide);
+    text-transform: uppercase;
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .featured {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .photo {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 3 / 2;
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--gray);
+    color: var(--ink-2);
+  }
+
+  .meta {
+    color: var(--ink-2);
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-stretch: var(--stretch-display);
+    font-weight: 800;
+    line-height: var(--leading-snug);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: var(--rule);
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color var(--duration-1) var(--ease);
+  }
+
+  .featured:hover .title {
+    text-decoration-color: var(--orange);
+  }
+
+  .lead {
+    max-width: var(--measure);
+    color: var(--ink-2);
+  }
+
+  .side {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+
+  .quick {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .quick a {
+    display: flex;
+    justify-content: space-between;
+    min-height: var(--target);
+    padding-block: var(--space-3);
+    border-bottom: var(--hairline) solid var(--line);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .quick a:hover {
+    color: var(--link);
+  }
+
+  @media (width >= 56rem) {
+    .grid {
+      grid-template-columns: minmax(0, 7fr) minmax(18rem, 5fr);
+      gap: var(--space-6);
+    }
+  }
+</style>
