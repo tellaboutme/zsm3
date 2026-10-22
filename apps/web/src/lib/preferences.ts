@@ -67,8 +67,15 @@ export function rootAttributes(preferences: Preferences): ReadonlyMap<string, st
   return new Map(preferenceNames.map((name) => [`data-${name}`, preferences[name]]));
 }
 
-export const bootScript = `(function(){try{var o=${JSON.stringify(
+export function scriptLiteral(value: unknown): string {
+  return JSON.stringify(value).replace(
+    /[<>/\u2028\u2029]/gu,
+    (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`,
+  );
+}
+
+export const bootScript = `(function(){try{var o=${scriptLiteral(
   preferenceOptions,
-)},p=JSON.parse(localStorage.getItem(${JSON.stringify(
+)},p=JSON.parse(localStorage.getItem(${scriptLiteral(
   PREFERENCES_KEY,
 )})||"{}"),r=document.documentElement;Object.keys(o).forEach(function(k){if(o[k].indexOf(p[k])>-1){r.setAttribute("data-"+k,p[k])}})}catch(e){}})();`;

@@ -13,6 +13,7 @@ import {
   preferenceOptions,
   readPreferences,
   rootAttributes,
+  scriptLiteral,
   withPreference,
 } from "../src/lib/preferences.ts";
 
@@ -89,6 +90,22 @@ describe("preference model", () => {
             true,
           );
         }
+      }),
+    );
+  });
+});
+
+describe("scriptLiteral", () => {
+  it("escapes everything that could end or break an inline script", ({ expect }) => {
+    expect(scriptLiteral("</script><!--\u2028\u2029")).toBe(
+      String.raw`"\u003c\u002fscript\u003e\u003c!--\u2028\u2029"`,
+    );
+  });
+
+  it("stays valid JSON for any value", ({ expect }) => {
+    fc.assert(
+      fc.property(fc.jsonValue(), (value) => {
+        expect(JSON.parse(scriptLiteral(value))).toEqual(JSON.parse(JSON.stringify(value)));
       }),
     );
   });
