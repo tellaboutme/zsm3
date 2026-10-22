@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "wrangler dev --ip 127.0.0.1 --port 8787",
     "types": "wrangler types",
-    "typecheck": "wrangler types --check && tsc -p tsconfig.json",
+    "typecheck": "wrangler types --check && tsc -p tsconfig.json && tsc -p test/node/tsconfig.json",
     "test": "vitest run --coverage",
     "test:mutation": "stryker run"
   },
