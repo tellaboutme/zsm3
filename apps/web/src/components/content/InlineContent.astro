@@ -1,0 +1,19 @@
+---
+import type { Inline } from "@zsm3/contracts/rich-text";
+
+import MarkedText from "./MarkedText.astro";
+
+interface Props {
+  content: readonly Inline[];
+}
+
+const { content } = Astro.props;
+---
+
+{content.map((inline) =>
+  inline.type === "link" ? (
+    <a href={inline.href}>{inline.text}</a>
+  ) : (
+    <MarkedText text={inline.text} marks={inline.marks} />
+  ),
+)}

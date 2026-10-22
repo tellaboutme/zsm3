@@ -1,0 +1,12 @@
+---
+interface Props {
+  text: string;
+  marks?: readonly ("bold" | "italic")[] | undefined;
+}
+
+const { text, marks = [] } = Astro.props;
+const bold = marks.includes("bold");
+const italic = marks.includes("italic");
+---
+
+{bold ? <strong>{italic ? <em>{text}</em> : text}</strong> : <>{italic ? <em>{text}</em> : text}</>}

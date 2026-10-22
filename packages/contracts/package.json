@@ -4,7 +4,8 @@
   "type": "module",
   "exports": {
     "./health": "./src/health.ts",
-    "./problem": "./src/problem.ts"
+    "./problem": "./src/problem.ts",
+    "./rich-text": "./src/rich-text.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

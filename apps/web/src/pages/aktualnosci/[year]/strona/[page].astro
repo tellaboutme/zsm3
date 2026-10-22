@@ -1,0 +1,40 @@
+---
+import NewsListing from "../../../../components/news/NewsListing.astro";
+import { news } from "../../../../data/news/index.ts";
+import Base from "../../../../layouts/Base.astro";
+import { laterPages, NEWS_PAGE_SIZE, newsYear, newsYears } from "../../../../lib/news.ts";
+
+interface Props {
+  year: string;
+  page: number;
+}
+
+export function getStaticPaths(): { params: { year: string; page: string }; props: Props }[] {
+  return newsYears(news).flatMap((year) =>
+    laterPages(news.filter((item) => newsYear(item) === year).length, NEWS_PAGE_SIZE).map(
+      (page) => ({ params: { year, page: String(page) }, props: { year, page } }),
+    ),
+  );
+}
+
+const { year, page } = Astro.props;
+const items = news.filter((item) => newsYear(item) === year);
+---
+
+<Base
+  title={`Aktualności ${year}, strona ${String(page)} — ZSM3`}
+  description={`Aktualności Zespołu Szkół Mechanicznych nr 3 z roku ${year}.`}
+  breadcrumbs={[
+    { label: "Aktualności", href: "/aktualnosci" },
+    { label: year, href: `/aktualnosci/${year}` },
+    { label: `Strona ${String(page)}` },
+  ]}
+>
+  <NewsListing
+    items={items}
+    page={page}
+    base={`/aktualnosci/${year}`}
+    heading={`Aktualności ${year}`}
+    year={year}
+  />
+</Base>

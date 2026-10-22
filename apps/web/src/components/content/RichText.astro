@@ -1,0 +1,56 @@
+---
+import type { RichText } from "@zsm3/contracts/rich-text";
+
+import InlineContent from "./InlineContent.astro";
+import RichList from "./RichList.astro";
+import RichQuote from "./RichQuote.astro";
+import RichTable from "./RichTable.astro";
+import VideoFacade from "./VideoFacade.astro";
+
+interface Props {
+  document: RichText;
+}
+
+const { document } = Astro.props;
+---
+
+<div class="rich-text">
+  {document.map((block) => {
+    switch (block.type) {
+      case "paragraph":
+        return (
+          <p>
+            <InlineContent content={block.content} />
+          </p>
+        );
+      case "heading":
+        return block.level === 2 ? <h2>{block.text}</h2> : <h3>{block.text}</h3>;
+      case "list":
+        return <RichList ordered={block.ordered} items={block.items} />;
+      case "quote":
+        return <RichQuote content={block.content} source={block.source} />;
+      case "table":
+        return <RichTable caption={block.caption} header={block.header} rows={block.rows} />;
+      case "video":
+        return <VideoFacade id={block.id} title={block.title} />;
+    }
+  })}
+</div>
+
+<style>
+  .rich-text {
+    display: grid;
+    gap: var(--space-4);
+    max-width: var(--measure);
+  }
+
+  h2 {
+    margin-top: var(--space-5);
+    font-size: var(--step-2);
+  }
+
+  h3 {
+    margin-top: var(--space-4);
+    font-size: var(--step-1);
+  }
+</style>

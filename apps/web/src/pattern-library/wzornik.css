@@ -15,7 +15,7 @@
   border-top: var(--hairline) solid var(--line);
 }
 
-.pattern-library .block h2 {
+.pattern-library .block > h2 {
   font-size: var(--step-3);
 }
 

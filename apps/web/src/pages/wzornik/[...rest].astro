@@ -1,7 +1,9 @@
 ---
 import { PATTERN_LIBRARY } from "astro:env/server";
 
+import RichText from "../../components/content/RichText.astro";
 import Base from "../../layouts/Base.astro";
+import { richTextSample } from "../../pattern-library/rich-text-sample.ts";
 import "../../pattern-library/wzornik.css";
 
 export function getStaticPaths(): { params: { rest: undefined } }[] {
@@ -146,6 +148,13 @@ const sample = "Zażółć gęślą jaźń ŹŻĆŃĄŚŁĘÓ 0123456789";
         <aside class="demo">Panel boczny (4 kolumny, przyklejony)</aside>
       </div>
       <div class="layout-narrow demo narrow">Układ wąski: formularze i strony prawne</div>
+    </section>
+
+    <section class="block" aria-labelledby="tresc-artykulu">
+      <h2 id="tresc-artykulu" class="reveal">
+        Treść artykułu
+      </h2>
+      <RichText document={richTextSample} />
     </section>
   </div>
 </Base>

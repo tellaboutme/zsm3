@@ -1,0 +1,49 @@
+---
+import NewsListing from "../../../../../components/news/NewsListing.astro";
+import { news } from "../../../../../data/news/index.ts";
+import Base from "../../../../../layouts/Base.astro";
+import {
+  categoryHref,
+  laterPages,
+  NEWS_PAGE_SIZE,
+  newsCategories,
+  type Category,
+} from "../../../../../lib/news.ts";
+
+interface Props {
+  category: Category;
+  page: number;
+}
+
+export function getStaticPaths(): { params: { category: string; page: string }; props: Props }[] {
+  return newsCategories(news).flatMap((category) =>
+    laterPages(news.filter((item) => item.category === category.name).length, NEWS_PAGE_SIZE).map(
+      (page) => ({
+        params: { category: category.slug, page: String(page) },
+        props: { category, page },
+      }),
+    ),
+  );
+}
+
+const { category, page } = Astro.props;
+const items = news.filter((item) => item.category === category.name);
+---
+
+<Base
+  title={`${category.name}, strona ${String(page)} — Aktualności — ZSM3`}
+  description={`Aktualności z kategorii ${category.name}.`}
+  breadcrumbs={[
+    { label: "Aktualności", href: "/aktualnosci" },
+    { label: category.name, href: categoryHref(category) },
+    { label: `Strona ${String(page)}` },
+  ]}
+>
+  <NewsListing
+    items={items}
+    page={page}
+    base={categoryHref(category)}
+    heading={category.name}
+    category={category.slug}
+  />
+</Base>

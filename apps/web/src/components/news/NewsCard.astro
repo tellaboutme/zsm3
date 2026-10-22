@@ -1,0 +1,114 @@
+---
+import { longDate } from "../../lib/calendar.ts";
+import { newsHref, type NewsItem } from "../../lib/news.ts";
+
+interface Props {
+  item: NewsItem;
+  variant?: "lead" | "standard" | "compact";
+  headingLevel?: 2 | 3;
+}
+
+const { item, variant = "standard", headingLevel = 3 } = Astro.props;
+const Heading = headingLevel === 2 ? "h2" : "h3";
+---
+
+<article class:list={["card", variant]}>
+  {variant === "lead" && (
+    <span class="photo" aria-hidden="true">
+      <span class="tag">Zdjęcie dodawane w panelu szkoły</span>
+    </span>
+  )}
+  <div class="text">
+    <p class="tag meta">
+      <time datetime={item.date}>{longDate(item.date)}</time>
+      {variant !== "compact" && <span> · {item.category}</span>}
+    </p>
+    <Heading class="title">
+      <a href={newsHref(item)}>{item.title}</a>
+    </Heading>
+    {variant !== "compact" && <p class="lead">{item.lead}</p>}
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    padding-top: var(--space-4);
+    border-top: var(--hairline) solid var(--line);
+  }
+
+  .text {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+
+  .meta {
+    color: var(--ink-2);
+  }
+
+  .title {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .title a::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+  }
+
+  .card:hover .title a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
+  .lead {
+    color: var(--ink-2);
+  }
+
+  .photo {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--gray);
+    color: var(--ink-2);
+  }
+
+  .card.lead {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .card.lead .title {
+    font-size: var(--step-3);
+    line-height: var(--leading-tight);
+  }
+
+  .card.lead .lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+  }
+
+  .card.compact {
+    gap: var(--space-2);
+  }
+
+  @media (width >= 56rem) {
+    .card.lead {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-6);
+      align-items: center;
+    }
+  }
+</style>

@@ -1,0 +1,30 @@
+---
+import NewsListing from "../../../components/news/NewsListing.astro";
+import { news } from "../../../data/news/index.ts";
+import Base from "../../../layouts/Base.astro";
+import { laterPages, NEWS_PAGE_SIZE } from "../../../lib/news.ts";
+
+interface Props {
+  page: number;
+}
+
+export function getStaticPaths(): { params: { page: string }; props: Props }[] {
+  return laterPages(news.length, NEWS_PAGE_SIZE).map((page) => ({
+    params: { page: String(page) },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+---
+
+<Base
+  title={`Aktualności, strona ${String(page)} — ZSM3`}
+  description="Starsze wiadomości Zespołu Szkół Mechanicznych nr 3 w Krakowie."
+  breadcrumbs={[
+    { label: "Aktualności", href: "/aktualnosci" },
+    { label: `Strona ${String(page)}` },
+  ]}
+>
+  <NewsListing items={news} page={page} base="/aktualnosci" heading="Aktualności" />
+</Base>

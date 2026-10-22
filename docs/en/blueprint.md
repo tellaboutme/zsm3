@@ -301,7 +301,9 @@ Data: programme (field, school, years, qualifications, areas, technologies, plac
 
 ### 4.5 News listing `/aktualnosci` and article `/aktualnosci/{year}/{slug}`
 
-Listing: title, category filter, year filter, lead story large, then a grid of cards, numbered pagination (no infinite scroll), RSS link.
+Listing: title, category filter, year filter, lead story large, then a grid of cards, numbered pagination (no infinite scroll), RSS link. Filters are links to static listings (`/aktualnosci/kategoria/{slug}`, `/aktualnosci/{year}`), pages are `…/strona/{n}` with nine items each, and the current filter and page carry `aria-current`. The RSS feed needs absolute URLs, so it ships in stage 2 with the production domain.
+
+Rich text is a structured document validated by `packages/contracts/src/rich-text.ts` (paragraph, heading 2–3, list, quote, table, video; inline text with bold or italic and links limited to `https://`, site paths, fragments, `mailto:` and `tel:`). Anything else is rejected before rendering, and Astro escapes every string. Videos render as a facade linking to YouTube, so no third-party frame or cookie loads with the page.
 
 Article (narrow layout with wide media):
 

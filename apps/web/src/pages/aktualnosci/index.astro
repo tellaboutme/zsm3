@@ -1,0 +1,13 @@
+---
+import NewsListing from "../../components/news/NewsListing.astro";
+import { news } from "../../data/news/index.ts";
+import Base from "../../layouts/Base.astro";
+---
+
+<Base
+  title="Aktualności — ZSM3"
+  description="Wydarzenia, konkursy, projekty i ogłoszenia Zespołu Szkół Mechanicznych nr 3 w Krakowie."
+  breadcrumbs={[{ label: "Aktualności" }]}
+>
+  <NewsListing items={news} page={1} base="/aktualnosci" heading="Aktualności" />
+</Base>
