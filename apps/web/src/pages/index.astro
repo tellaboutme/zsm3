@@ -1,36 +1,40 @@
 ---
+import AudiencePanels from "../components/home/AudiencePanels.astro";
+import EventTimeline from "../components/home/EventTimeline.astro";
+import HomeHero from "../components/home/HomeHero.astro";
+import NewsSection from "../components/home/NewsSection.astro";
+import NumbersStrip from "../components/home/NumbersStrip.astro";
+import ProfessionFinder from "../components/home/ProfessionFinder.astro";
+import { news } from "../data/news.ts";
 import Base from "../layouts/Base.astro";
+import { latestNews } from "../lib/news.ts";
+
+const [featured, ...recent] = latestNews(news, 5);
 ---
 
 <Base
   title="Zespół Szkół Mechanicznych nr 3 w Krakowie"
-  description="Nowa strona Zespołu Szkół Mechanicznych nr 3 w Krakowie jest w przygotowaniu."
+  description="Technikum i szkoła branżowa w Nowej Hucie: 13 zawodów w informatyce, mechatronice, motoryzacji, lotnictwie i logistyce portów. Dzwonki, aktualności i terminarz szkoły."
 >
-  <section class="intro" aria-labelledby="tytul">
-    <p class="tag">Technikum · Szkoła branżowa · os. Szkolne 37, Kraków</p>
-    <h1 id="tytul">
-      <span class="rise">
-        <span>Zespół Szkół</span>
-      </span>
-      <span class="rise">
-        <span>Mechanicznych nr&nbsp;3</span>
-      </span>
-      <span class="rise">
-        <span>w Krakowie</span>
-      </span>
-    </h1>
-    <p class="prose">Nowa strona szkoły jest w przygotowaniu.</p>
-  </section>
+  <div class="home">
+    {featured !== undefined && <HomeHero featured={featured} />}
+    <NumbersStrip />
+    <ProfessionFinder />
+    <NewsSection items={recent} />
+    <EventTimeline />
+    <AudiencePanels />
+  </div>
 </Base>
 
-<style>
-  .intro {
-    display: grid;
-    gap: var(--space-5);
-    padding-block: var(--space-8);
-  }
+<script>
+  import "../scripts/home.ts";
+</script>
 
-  h1 {
-    font-size: var(--step-4);
+<style>
+  .home {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+    padding-bottom: var(--space-8);
   }
 </style>

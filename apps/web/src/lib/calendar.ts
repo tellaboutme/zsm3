@@ -29,6 +29,22 @@ export function longDate(isoDate: string): string {
   return polishDate().format(new Date(`${isoDate}T12:00:00Z`));
 }
 
+export interface Dated {
+  readonly date: string;
+  readonly endDate?: string | undefined;
+}
+
+export function upcomingEvents<Event extends Dated>(
+  events: readonly Event[],
+  today: string,
+  count: number,
+): readonly Event[] {
+  return events
+    .filter((event) => (event.endDate ?? event.date) >= today)
+    .toSorted((first, second) => first.date.localeCompare(second.date))
+    .slice(0, count);
+}
+
 export function nextEvent(
   events: readonly SchoolEvent[],
   today: string,

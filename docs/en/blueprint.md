@@ -253,6 +253,8 @@ Each template lists its sections in reading order. "Data" names the content type
 
 Data: featured item (news or curated photo), bell schedule and today's variant, numbers (settings), recruitment season (settings), professions, latest news, upcoming events, audience links, partners.
 
+The seasonal recruitment block is built in stage 2, when the panel provides the recruitment dates; the static stage 1 home never shows invented dates. Upcoming events are rendered at build time and re-filtered in the browser against today's date in `Europe/Warsaw`, so the timeline never shows past events between deployments.
+
 ### 4.2 Hub `/kandydaci`, `/uczniowie`, `/rodzice`, `/szkola`
 
 ```

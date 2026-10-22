@@ -1,0 +1,89 @@
+---
+import SectionHead from "./SectionHead.astro";
+import { longDate } from "../../lib/calendar.ts";
+import { newsHref, type NewsItem } from "../../lib/news.ts";
+
+interface Props {
+  items: readonly NewsItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="news" aria-labelledby="aktualnosci">
+  <SectionHead
+    id="aktualnosci"
+    kicker="Aktualności"
+    title="Co się dzieje w szkole"
+    link={{ label: "Wszystkie aktualności", href: "/aktualnosci" }}
+  />
+  <ul class="cards">
+    {items.map((item) => (
+      <li class="card reveal">
+        <p class="tag meta">
+          <time datetime={item.date}>{longDate(item.date)}</time>
+        </p>
+        <h3>
+          <a href={newsHref(item)}>{item.title}</a>
+        </h3>
+        <p class="lead">{item.lead}</p>
+        <p class="tag category">{item.category}</p>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .news {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: var(--hairline) solid var(--line);
+  }
+
+  .meta,
+  .category {
+    color: var(--ink-2);
+  }
+
+  h3 {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  h3 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  h3 a::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+  }
+
+  .card:hover h3 a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
+  .lead {
+    color: var(--ink-2);
+  }
+</style>

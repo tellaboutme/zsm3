@@ -1,0 +1,105 @@
+---
+import SectionHead from "./SectionHead.astro";
+import { schoolYearEvents } from "../../data/calendar.ts";
+import { isoDay, longDate, upcomingEvents } from "../../lib/calendar.ts";
+
+const VISIBLE = 5;
+const events = upcomingEvents(schoolYearEvents, isoDay(new Date()), schoolYearEvents.length);
+---
+
+<section class="timeline" aria-labelledby="co-przed-nami">
+  <SectionHead
+    id="co-przed-nami"
+    kicker="Terminarz"
+    title="Co przed nami"
+    link={{ label: "Cały terminarz", href: "/szkola/terminarz" }}
+  />
+  <ol class="events" data-upcoming={VISIBLE}>
+    {events.map((event, index) => (
+      <li
+        class="event"
+        data-event
+        data-date={event.date}
+        data-end-date={event.endDate}
+        hidden={index >= VISIBLE}
+      >
+        <p class="when">
+          <time datetime={event.date}>{longDate(event.date)}</time>
+          {event.endDate !== undefined && (
+            <>
+              {" – "}
+              <time datetime={event.endDate}>{longDate(event.endDate)}</time>
+            </>
+          )}
+        </p>
+        <p class="what">{event.title}</p>
+        <p class="tag who">{event.audience}</p>
+      </li>
+    ))}
+  </ol>
+  <p class="empty" data-no-events hidden={events.length > 0}>
+    Nie ma zaplanowanych wydarzeń. Sprawdź terminarz roku szkolnego.
+  </p>
+</section>
+
+<style>
+  .timeline {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .events {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .event {
+    position: relative;
+    display: grid;
+    gap: var(--space-1) var(--space-5);
+    padding: var(--space-4) 0 var(--space-4) var(--space-6);
+    border-left: var(--rule) solid var(--line);
+  }
+
+  .event::before {
+    position: absolute;
+    top: var(--space-5);
+    left: calc(-1 * var(--space-2) - var(--rule) / 2);
+    width: var(--space-4);
+    height: var(--space-4);
+    border: var(--rule) solid var(--orange);
+    border-radius: 50%;
+    background: var(--bg);
+    content: "";
+  }
+
+  .event:first-child::before {
+    background: var(--orange);
+  }
+
+  .when {
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .what {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-stretch: var(--stretch-display);
+    font-weight: 800;
+    line-height: var(--leading-snug);
+  }
+
+  .who {
+    color: var(--ink-2);
+  }
+
+  @media (width >= 56rem) {
+    .event {
+      grid-template-columns: 16rem minmax(0, 1fr) auto;
+      align-items: baseline;
+    }
+  }
+</style>
