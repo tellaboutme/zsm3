@@ -23,7 +23,6 @@ export const resultTypeLabels: Readonly<Record<ResultType, string>> = {
   termin: "Terminy",
 };
 
-const TITLE_WEIGHT = 3;
 const MIN_QUERY_LENGTH = 2;
 const STEM_CUTS: readonly (readonly [number, number])[] = [
   [9, 3],
@@ -56,9 +55,9 @@ function score(entry: SearchEntry, terms: readonly string[]): number {
   const body = fold(entry.text);
   return terms.reduce((total, term) => {
     if (title.includes(term)) {
-      return total + TITLE_WEIGHT;
+      return total + 1;
     }
-    return body.includes(term) ? total + 1 : Number.NEGATIVE_INFINITY;
+    return body.includes(term) ? total : Number.NEGATIVE_INFINITY;
   }, 0);
 }
 

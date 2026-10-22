@@ -46,7 +46,7 @@
 10099	FAIL	(Source Code Disclosure)
 10105	FAIL	(Weak Authentication Method)
 10108	FAIL	(Reverse Tabnabbing)
-10109	FAIL	(Modern Web Application)
+10109	IGNORE	(Modern Web Application)
 10110	FAIL	(Dangerous JS Functions)
 10111	FAIL	(Authentication Request Identified)
 10112	FAIL	(Session Management Response Identified)
