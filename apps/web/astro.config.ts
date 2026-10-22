@@ -1,3 +1,4 @@
+import cloudflare from "@astrojs/cloudflare";
 import { defineConfig, envField } from "astro/config";
 
 import { securityHeaders } from "./integrations/security-headers.ts";
@@ -7,6 +8,8 @@ export default defineConfig({
   trailingSlash: "never",
   compressHTML: true,
   devToolbar: { enabled: false },
+  adapter: cloudflare({ prerenderEnvironment: "node", imageService: "passthrough" }),
+  session: false,
   integrations: [securityHeaders()],
   build: { inlineStylesheets: "never" },
   vite: { build: { assetsInlineLimit: 0 } },

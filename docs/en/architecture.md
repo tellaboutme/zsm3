@@ -6,7 +6,7 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
 
 **In v1**
 
-1. Public website: a new Astro front end, built as static pages.
+1. Public website: a new Astro front end; the design shell is built ahead of time and pages with editable content are rendered on demand from D1.
 2. **E-wniosek:** online requests for school documents such as a student ID renewal or duplicate (_legitymacja szkolna_) or a certificate of attendance (_zaświadczenie o uczęszczaniu do szkoły_). The applicant follows the status through a secret link and needs no account.
 3. **Staff panel:** the secretariat handles requests, teachers manage the gallery, an administrator manages access.
 4. **Gallery:** albums per school year, photo upload from the panel, migration of the existing archive (304 albums, about 5,400 photos).
@@ -83,7 +83,7 @@ One Worker on one origin: no CORS, one deployment, one header policy. Cloudflare
 ```
 zsm3/
 ├─ apps/
-│  ├─ worker/
+│  ├─ worker/                     API library, storage, migrations, seed data
 │  │  ├─ src/
 │  │  │  ├─ index.ts              entry point: fetch, queue, scheduled
 │  │  │  ├─ app.ts                Hono application and middleware order
@@ -96,10 +96,15 @@ zsm3/
 │  │  │  ├─ routes/               public-requests, gallery, media, panel/{requests,gallery,staff}
 │  │  │  ├─ mail/                 email-sender, brevo-sender, templates, queue-consumer
 │  │  │  └─ jobs/                 retention
-│  │  ├─ migrations/              0001_init.sql, …
+│  │  ├─ migrations/              0001_content.sql, …
+│  │  ├─ seed/                    sample content for local runs and end-to-end tests
 │  │  ├─ test/                    unit, integration (workerd), security
-│  │  └─ wrangler.jsonc
+│  │  └─ wrangler.jsonc           test Worker only
 │  └─ web/
+│     ├─ worker/index.ts          deployed entry: /api/* to Hono, everything else to Astro
+│     ├─ wrangler.jsonc           deployment configuration
+│     ├─ src/middleware.ts        security headers for pages rendered on demand
+│     ├─ src/server/              D1 access for pages rendered on demand
 │     ├─ src/pages/               Astro pages, including /panel
 │     ├─ src/layouts/             page layouts
 │     ├─ src/scripts/             TS: site/*, panel/*, upload-worker.ts
@@ -179,6 +184,14 @@ redirects
 ```
 
 Repositories in `apps/worker/src/storage` take a `Store` (`db`, `clock`, `random`), use static SQL with `.bind()` only, and parse every row with a schema. They run against real SQLite (`node:sqlite`) in the Node tests, where coverage and mutation testing run, and against D1 in the workerd tests.
+
+### Rendering
+
+`@astrojs/cloudflare` builds the site into `apps/web/dist/client` (prerendered pages and assets) and `apps/web/dist/server` (the Worker). The Worker entry `apps/web/worker/index.ts` sends `/api/*` to the Hono application from `@zsm3/worker/app` and every other request to Astro's handler, which serves a prerendered file when one exists and otherwise renders the page from D1.
+
+Rendered on demand: the home page, the section hubs, every news listing and article, and the search index (until FTS5 replaces it). Unknown categories, years, pages and articles return 404 with the prerendered error page. Astro middleware gives these responses the same headers as `_headers` gives static files, computed from the same module. Pages read D1 only through the repositories and the structural `SqlDatabase` interface; `src/cloudflare-workers.d.ts` exposes nothing else to Astro code.
+
+Static assets are not configured with `not_found_handling`: with it, Cloudflare answers browser navigations from the asset 404 page before the Worker runs.
 
 Migrations follow expand/contract: the new code works with the old schema and vice versa. They run before the Worker is deployed.
 

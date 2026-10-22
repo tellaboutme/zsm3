@@ -1,28 +1,20 @@
 ---
 import NewsCard from "./NewsCard.astro";
 import Pagination from "./Pagination.astro";
-import { news } from "../../data/news/index.ts";
-import {
-  categoryHref,
-  latestNews,
-  NEWS_PAGE_SIZE,
-  newsCategories,
-  newsYears,
-  paginate,
-  type NewsItem,
-} from "../../lib/news.ts";
+import type { Listing } from "../../lib/news-listing.ts";
+import { categoryHref } from "../../lib/news.ts";
 
 interface Props {
-  items: readonly NewsItem[];
-  page: number;
+  listing: Listing;
   base: string;
   heading: string;
-  category?: string | undefined;
   year?: string | undefined;
 }
 
-const { items, page, base, heading, category, year } = Astro.props;
-const current = paginate(latestNews(items, items.length), page, NEWS_PAGE_SIZE);
+const { listing, base, heading, year } = Astro.props;
+const current = listing.page;
+const page = current.page;
+const category = listing.category?.slug;
 const lead = page === 1 ? current.items[0] : undefined;
 const rest = lead === undefined ? current.items : current.items.slice(1);
 const unfiltered = category === undefined && year === undefined;
@@ -48,7 +40,7 @@ const unfiltered = category === undefined && year === undefined;
             Wszystkie
           </a>
         </li>
-        {newsCategories(news).map((entry) => (
+        {listing.categories.map((entry) => (
           <li>
             <a
               href={categoryHref(entry)}
@@ -63,7 +55,7 @@ const unfiltered = category === undefined && year === undefined;
     <nav aria-label="Lata">
       <p class="tag">Rok</p>
       <ul>
-        {newsYears(news).map((entry) => (
+        {listing.years.map((entry) => (
           <li>
             <a href={`/aktualnosci/${entry}`} aria-current={entry === year ? "page" : undefined}>
               {entry}

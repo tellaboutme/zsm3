@@ -1,38 +1,30 @@
 ---
 import NewsListing from "../../../../components/news/NewsListing.astro";
-import { news } from "../../../../data/news/index.ts";
 import Base from "../../../../layouts/Base.astro";
-import { laterPages, NEWS_PAGE_SIZE, newsYear, newsYears } from "../../../../lib/news.ts";
+import { loadListing } from "../../../../lib/news-listing.ts";
+import { newsReader, notFound } from "../../../../server/news.ts";
 
-interface Props {
-  year: string;
-  page: number;
+export const prerender = false;
+
+const year = Astro.params["year"];
+const listing = await loadListing(newsReader(), { year }, Astro.params["page"]);
+if (listing === undefined || year === undefined) {
+  return notFound();
 }
-
-export function getStaticPaths(): { params: { year: string; page: string }; props: Props }[] {
-  return newsYears(news).flatMap((year) =>
-    laterPages(news.filter((item) => newsYear(item) === year).length, NEWS_PAGE_SIZE).map(
-      (page) => ({ params: { year, page: String(page) }, props: { year, page } }),
-    ),
-  );
-}
-
-const { year, page } = Astro.props;
-const items = news.filter((item) => newsYear(item) === year);
+const page = String(listing.page.page);
 ---
 
 <Base
-  title={`Aktualności ${year}, strona ${String(page)} — ZSM3`}
+  title={`Aktualności ${year}, strona ${page} — ZSM3`}
   description={`Aktualności Zespołu Szkół Mechanicznych nr 3 z roku ${year}.`}
   breadcrumbs={[
     { label: "Aktualności", href: "/aktualnosci" },
     { label: year, href: `/aktualnosci/${year}` },
-    { label: `Strona ${String(page)}` },
+    { label: `Strona ${page}` },
   ]}
 >
   <NewsListing
-    items={items}
-    page={page}
+    listing={listing}
     base={`/aktualnosci/${year}`}
     heading={`Aktualności ${year}`}
     year={year}

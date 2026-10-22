@@ -3,7 +3,14 @@ import { describe, it } from "vitest";
 import { z } from "zod";
 
 import { counterRandom, FIXED_CLOCK, memoryDatabase } from "./memory-database.ts";
-import { allRows, firstRow, timestamp, type Store } from "../../src/storage/database.ts";
+import {
+  allRows,
+  firstRow,
+  liveStore,
+  systemClock,
+  timestamp,
+  type Store,
+} from "../../src/storage/database.ts";
 import { eventsRepo } from "../../src/storage/events-repo.ts";
 import { cryptoRandom, uuidv7 } from "../../src/storage/ids.ts";
 import { newsRepo } from "../../src/storage/news-repo.ts";
@@ -50,6 +57,17 @@ describe("database helpers", () => {
     expect(await firstRow(db.prepare("SELECT 2 AS value"), schema)).toEqual({ value: 2 });
     expect(await firstRow(db.prepare("SELECT 1 AS value WHERE 0"), schema)).toBeUndefined();
     await expect(firstRow(db.prepare("SELECT 'x' AS value"), schema)).rejects.toThrow();
+  });
+
+  it("builds a live store on the system clock and platform randomness", ({ expect }) => {
+    const db = memoryDatabase();
+    const before = Date.now();
+
+    const live = liveStore(db);
+
+    expect(live).toEqual({ db, clock: systemClock, random: cryptoRandom });
+    expect(live.clock().getTime()).toBeGreaterThanOrEqual(before);
+    expect(live.clock().getTime()).toBeLessThanOrEqual(Date.now());
   });
 
   it("rolls back a failing batch", async ({ expect }) => {

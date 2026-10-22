@@ -10,7 +10,7 @@ export function securityHeaders(): AstroIntegration {
     name: "zsm3-security-headers",
     hooks: {
       "astro:build:done": async ({ dir }) => {
-        const headers = renderHeaders({ scriptHashes: [sha256Base64(bootScript)] });
+        const headers = renderHeaders({ scriptHashes: [await sha256Base64(bootScript)] });
         await writeFile(new URL("_headers", dir), headers, "utf8");
       },
     },

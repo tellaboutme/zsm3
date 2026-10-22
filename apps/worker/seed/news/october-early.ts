@@ -1,6 +1,6 @@
-import type { NewsItem } from "../../lib/news.ts";
+import type { News } from "@zsm3/contracts/content";
 
-export const octoberEarly: readonly NewsItem[] = [
+export const octoberEarly: readonly News[] = [
   {
     slug: "jesienny-rajd-rowerowy",
     date: "2026-10-09",

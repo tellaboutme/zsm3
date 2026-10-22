@@ -2,34 +2,20 @@
 import Figure from "../../../components/content/Figure.astro";
 import RichText from "../../../components/content/RichText.astro";
 import NewsCard from "../../../components/news/NewsCard.astro";
-import { news } from "../../../data/news/index.ts";
 import Base from "../../../layouts/Base.astro";
 import { longDate } from "../../../lib/calendar.ts";
-import {
-  categoryHref,
-  newsCategories,
-  newsHref,
-  newsYear,
-  neighbours,
-  relatedNews,
-  type NewsItem,
-} from "../../../lib/news.ts";
+import { loadArticle } from "../../../lib/news-listing.ts";
+import { categoryHref, newsHref, newsYear } from "../../../lib/news.ts";
+import { newsReader, notFound } from "../../../server/news.ts";
 
-interface Props {
-  item: NewsItem;
+export const prerender = false;
+
+const article = await loadArticle(newsReader(), Astro.params["year"], Astro.params["slug"]);
+if (article === undefined) {
+  return notFound();
 }
-
-export function getStaticPaths(): { params: { year: string; slug: string }; props: Props }[] {
-  return news.map((item) => ({
-    params: { year: newsYear(item), slug: item.slug },
-    props: { item },
-  }));
-}
-
-const { item } = Astro.props;
-const category = newsCategories(news).find((entry) => entry.name === item.category);
-const { newer, older } = neighbours(news, item);
-const related = relatedNews(news, item, 3);
+const { item, category, related } = article;
+const { newer, older } = article.neighbours;
 ---
 
 <Base
@@ -44,7 +30,7 @@ const related = relatedNews(news, item, 3);
   <article class="article">
     <header class="head">
       <p class="tag meta">
-        {category !== undefined && <a href={categoryHref(category)}>{category.name}</a>}
+        <a href={categoryHref(category)}>{category.name}</a>
         <span aria-hidden="true">·</span>
         <time datetime={item.date}>{longDate(item.date)}</time>
       </p>
@@ -78,16 +64,18 @@ const related = relatedNews(news, item, 3);
       </a>
     )}
   </nav>
-  <section class="related" aria-labelledby="powiazane">
-    <h2 id="powiazane">Przeczytaj też</h2>
-    <ul>
-      {related.map((entry) => (
-        <li>
-          <NewsCard item={entry} />
-        </li>
-      ))}
-    </ul>
-  </section>
+  {related.length > 0 && (
+    <section class="related" aria-labelledby="powiazane">
+      <h2 id="powiazane">Przeczytaj też</h2>
+      <ul>
+        {related.map((entry) => (
+          <li>
+            <NewsCard item={entry} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 </Base>
 
 <script>

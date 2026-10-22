@@ -9,7 +9,9 @@
   "scripts": {
     "build": "pnpm --filter @zsm3/web build",
     "build:preview": "pnpm --filter @zsm3/web build:preview",
-    "dev": "pnpm build:preview && pnpm --filter @zsm3/worker dev",
+    "dev": "pnpm build:preview && pnpm start",
+    "start": "pnpm db:local && pnpm --filter @zsm3/web start",
+    "db:local": "pnpm --filter @zsm3/web db:migrate && pnpm --filter @zsm3/worker seed",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "pnpm lint:ts && pnpm lint:css && pnpm lint:py",

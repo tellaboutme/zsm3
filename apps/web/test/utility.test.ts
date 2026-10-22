@@ -1,9 +1,10 @@
 import { describe, it } from "vitest";
 
 import { privacyPolicy } from "../src/data/legal/privacy.ts";
-import { searchIndex } from "../src/data/search-index.ts";
+import { staticSearchEntries } from "../src/data/search-index.ts";
 import { siteMap } from "../src/data/site-map.ts";
 import { statusLabel } from "../src/lib/legal.ts";
+import { newsEntry, SEARCH_NEWS_LIMIT } from "../src/lib/news-search.ts";
 import {
   fold,
   groupResults,
@@ -93,7 +94,7 @@ describe("search", () => {
   });
 
   it("accepts only a well-formed index from the server", ({ expect }) => {
-    expect(isSearchIndex(searchIndex)).toBe(true);
+    expect(isSearchIndex(staticSearchEntries)).toBe(true);
     expect(isSearchIndex([])).toBe(true);
     expect(isSearchIndex({})).toBe(false);
     expect(isSearchIndex([null])).toBe(false);
@@ -104,17 +105,32 @@ describe("search", () => {
     expect(isSearchIndex([{ ...entry("strona", "A"), text: null }])).toBe(false);
   });
 
-  it("indexes every kind of content", ({ expect }) => {
-    const types = new Set(searchIndex.map((item) => item.type));
+  it("indexes news by title, category, lead and body text", ({ expect }) => {
+    expect(
+      newsEntry({
+        slug: "rajd",
+        date: "2026-10-09",
+        category: "Sport",
+        title: "Rajd",
+        lead: "Trasa.",
+        body: [{ type: "paragraph", content: [{ type: "text", text: "Park Jordana." }] }],
+      }),
+    ).toEqual({
+      type: "aktualnosc",
+      title: "Rajd",
+      href: "/aktualnosci/2026/rajd",
+      text: "Sport Trasa. Park Jordana.",
+    });
+    expect(SEARCH_NEWS_LIMIT).toBe(100);
+  });
 
-    expect([...types].toSorted()).toEqual([
-      "aktualnosc",
-      "dokument",
-      "kierunek",
-      "strona",
-      "termin",
-    ]);
-    expect(search(searchIndex, "legitymacja").some((item) => item.type === "dokument")).toBe(true);
+  it("indexes every kind of content", ({ expect }) => {
+    const types = new Set(staticSearchEntries.map((item) => item.type));
+
+    expect([...types].toSorted()).toEqual(["dokument", "kierunek", "strona", "termin"]);
+    expect(
+      search(staticSearchEntries, "legitymacja").some((item) => item.type === "dokument"),
+    ).toBe(true);
   });
 });
 
@@ -124,7 +140,7 @@ describe("site map", () => {
 
     expect(new Set(hrefs).size).toBe(hrefs.length);
     expect(hrefs).toContain("/kandydaci/zawody/technik-awionik");
-    expect(hrefs).toContain("/aktualnosci/strona/2");
+    expect(hrefs).toContain("/aktualnosci");
     expect(hrefs).toContain("/polityka-prywatnosci");
   });
 

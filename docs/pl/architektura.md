@@ -6,7 +6,7 @@ Status: **zatwierdzony projekt, etap 0 zrealizowany.** Kolejne etapy ruszają po
 
 **W wersji v1**
 
-1. Publiczna strona internetowa: nowy front-end w Astro, budowany jako strony statyczne.
+1. Publiczna strona internetowa: nowy front-end w Astro; szablon strony jest budowany z wyprzedzeniem, a strony z treścią edytowaną przez szkołę są generowane na bieżąco z bazy D1.
 2. **E-wniosek:** składanie przez internet wniosków o dokumenty szkolne, np. przedłużenie lub duplikat legitymacji szkolnej albo zaświadczenie o uczęszczaniu do szkoły. Wnioskodawca sprawdza status przez tajny link i nie potrzebuje konta.
 3. **Panel dla pracowników:** sekretariat obsługuje wnioski, nauczyciele prowadzą galerię, administrator zarządza dostępami.
 4. **Galeria:** albumy według lat szkolnych, dodawanie zdjęć z panelu, przeniesienie obecnego archiwum (304 albumy, około 5400 zdjęć).
@@ -83,12 +83,13 @@ Jeden Worker pod jednym adresem: brak problemów z CORS, jedno wdrożenie, jedna
 ```
 zsm3/
 ├─ apps/
-│  ├─ worker/                     Cloudflare Worker: API i serwowanie plików
+│  ├─ worker/                     API, dostęp do bazy D1, migracje i dane przykładowe
 │  │  ├─ src/                     http, security, domain, storage, media, routes, mail, jobs
 │  │  ├─ migrations/              migracje bazy D1
+│  │  ├─ seed/                    przykładowe treści do uruchomień lokalnych i testów
 │  │  ├─ test/                    testy jednostkowe, integracyjne (workerd) i bezpieczeństwa
-│  │  └─ wrangler.jsonc
-│  └─ web/                        strona Astro: pages, layouts, scripts, styles, content, public
+│  │  └─ wrangler.jsonc           Worker wyłącznie do testów
+│  └─ web/                        strona Astro i wdrażany Worker (worker/index.ts, wrangler.jsonc)
 ├─ packages/
 │  ├─ contracts/                  schematy Zod wspólne dla strony i API
 │  └─ lint-rules/                 własne reguły ESLint i Stylelint
