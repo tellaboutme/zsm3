@@ -1,0 +1,73 @@
+---
+import Icon from "./Icon.astro";
+
+interface Props {
+  id: string;
+  label?: string;
+}
+
+const { id, label = "Czego szukasz?" } = Astro.props;
+---
+
+<form class="search-box" action="/szukaj" method="get" role="search">
+  <label for={id}>{label}</label>
+  <div class="row">
+    <input
+      id={id}
+      name="q"
+      type="search"
+      autocomplete="off"
+      enterkeyhint="search"
+      maxlength="100"
+      data-search-input
+    />
+    <button type="submit">
+      <Icon name="search" />
+      <span>Szukaj</span>
+    </button>
+  </div>
+</form>
+
+<style>
+  .search-box {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+    max-width: 40rem;
+  }
+
+  label {
+    font-weight: 700;
+  }
+
+  .row {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    min-height: var(--target);
+    padding: var(--space-2) var(--space-4);
+    border: var(--rule) solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: var(--step-1);
+  }
+
+  button {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--target);
+    padding: var(--space-2) var(--space-4);
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--orange);
+    color: var(--orange-ink);
+    font-weight: 800;
+    cursor: pointer;
+  }
+</style>

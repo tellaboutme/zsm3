@@ -1,14 +1,41 @@
 ---
+import SearchBox from "../components/SearchBox.astro";
 import Base from "../layouts/Base.astro";
+
+const tasks = [
+  { label: "Zawody i kierunki", href: "/kandydaci/zawody" },
+  { label: "Dzwonki", href: "/uczniowie/dzwonki" },
+  { label: "Wzory dokumentów", href: "/uczniowie/wzory-dokumentow" },
+  { label: "Terminarz", href: "/szkola/terminarz" },
+  { label: "Aktualności", href: "/aktualnosci" },
+  { label: "Kontakt", href: "/kontakt" },
+];
 ---
 
 <Base title="Nie znaleziono strony" description="Strona o podanym adresie nie istnieje.">
   <section class="missing" aria-labelledby="tytul">
     <p class="tag">Błąd 404</p>
     <h1 id="tytul">Nie znaleziono strony</h1>
-    <p>
-      <a href="/">Przejdź do strony głównej</a>
+    <p class="lead">
+      Strona mogła zmienić adres po przeniesieniu serwisu. Wyszukaj ją albo wybierz jedną z
+      najczęściej odwiedzanych stron.
     </p>
+    <SearchBox id="szukaj-404" />
+    <nav class="tasks" aria-label="Najczęściej odwiedzane">
+      <h2>Najczęściej odwiedzane</h2>
+      <ul>
+        {tasks.map((task) => (
+          <li>
+            <a class="nudge" href={task.href}>
+              {task.label} <span aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p>
+        <a href="/">Strona główna</a> · <a href="/mapa-strony">Mapa strony</a>
+      </p>
+    </nav>
   </section>
 </Base>
 
@@ -16,10 +43,52 @@ import Base from "../layouts/Base.astro";
   .missing {
     display: grid;
     gap: var(--space-5);
+    max-width: 52rem;
     padding-block: var(--space-8);
   }
 
+  .tag,
+  .lead {
+    color: var(--ink-2);
+  }
+
   h1 {
-    font-size: var(--step-3);
+    font-size: var(--step-title);
+    font-stretch: var(--stretch-wide);
+  }
+
+  .tasks {
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--space-5);
+    border-top: var(--rule) solid var(--ink);
+  }
+
+  h2 {
+    font-size: var(--step-2);
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    gap: 0 var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  ul a {
+    display: flex;
+    justify-content: space-between;
+    min-height: var(--target);
+    padding-block: var(--space-3);
+    border-bottom: var(--hairline) solid var(--line);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  ul a:hover {
+    color: var(--link);
   }
 </style>

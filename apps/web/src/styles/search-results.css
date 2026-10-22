@@ -1,0 +1,34 @@
+.results {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.results section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.results h2 {
+  font-size: var(--step-2);
+}
+
+.results ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.results li {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-3);
+  border-bottom: var(--hairline) solid var(--line);
+}
+
+.results a {
+  font-weight: 700;
+}
+
+.results p {
+  color: var(--ink-2);
+}

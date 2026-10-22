@@ -11,7 +11,15 @@ export default defineConfig({
   retries: 0,
   reporter: IN_CI ? [["github"], ["html", { open: "never" }]] : [["list"]],
   use: { baseURL: BASE_URL, trace: "retain-on-failure" },
+  snapshotPathTemplate: "{testDir}/baselines/{arg}{ext}",
+  expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.001 } },
   projects: [
+    {
+      name: "visual",
+      testDir: "visual",
+      testMatch: "*.visual.ts",
+      use: { ...devices["Desktop Chrome"] },
+    },
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
