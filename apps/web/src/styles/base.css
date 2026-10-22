@@ -69,6 +69,10 @@
     text-wrap: pretty;
   }
 
+  main {
+    container-type: inline-size;
+  }
+
   a {
     color: var(--link);
     text-decoration-thickness: var(--hairline);

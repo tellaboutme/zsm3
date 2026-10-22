@@ -68,6 +68,7 @@ describe("people", () => {
     expect(initials("anna nowak")).toBe("AN");
     expect(initials("Maria Kowalska-Nowak")).toBe("MK");
     expect(initials("  Łucja  ")).toBe("Ł");
+    expect(initials("  anna   nowak ")).toBe("AN");
   });
 
   it("keeps staff fixtures free of personal names", ({ expect }) => {

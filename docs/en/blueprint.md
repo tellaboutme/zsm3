@@ -41,7 +41,7 @@ home, hubs, listings     programme, article, documents    forms, legal pages
 | Body    | Source Sans 3, weights 400/600/700 | running text, navigation, forms                      |
 | Mono    | IBM Plex Mono 400/500              | tags, dates, times, document and qualification codes |
 
-Scale `--step-n1` … `--step-4`, fluid with `clamp()`. Self-hosted WOFF2, Latin and Latin Extended subsets only, two files preloaded (Archivo, Source Sans 3).
+Scale `--step-n1` … `--step-4`, fluid with `clamp()`. Page titles use `--step-title`, which also scales with the width of `<main>` (a size container), so long Polish words such as „dokumentów” never break mid-word on phones or with large text. Self-hosted WOFF2, Latin and Latin Extended subsets only, two files preloaded (Archivo, Source Sans 3).
 
 ### 1.3 Colour
 
