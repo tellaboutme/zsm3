@@ -1,0 +1,42 @@
+---
+import type { Inline } from "@zsm3/contracts/rich-text";
+
+import InlineContent from "./InlineContent.astro";
+
+interface Props {
+  content: readonly Inline[];
+  source?: string | undefined;
+}
+
+const { content, source } = Astro.props;
+---
+
+<figure class="quote">
+  <blockquote>
+    <p>
+      <InlineContent content={content} />
+    </p>
+  </blockquote>
+  {source !== undefined && <figcaption>{source}</figcaption>}
+</figure>
+
+<style>
+  .quote {
+    margin: 0;
+    padding-left: var(--space-5);
+    border-left: var(--rule) solid var(--orange);
+  }
+
+  blockquote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    line-height: var(--leading-snug);
+  }
+
+  figcaption {
+    margin-top: var(--space-2);
+    color: var(--ink-2);
+  }
+</style>

@@ -1,0 +1,62 @@
+---
+interface Props {
+  caption: string;
+  header: readonly string[];
+  rows: readonly (readonly string[])[];
+}
+
+const { caption, header, rows } = Astro.props;
+---
+
+<table>
+  <caption>{caption}</caption>
+  <thead>
+    <tr>
+      {header.map((cell) => (
+        <th scope="col">{cell}</th>
+      ))}
+    </tr>
+  </thead>
+  <tbody>
+    {rows.map((row) => (
+      <tr>
+        {row.map((cell) => (
+          <td>{cell}</td>
+        ))}
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  caption {
+    padding-bottom: var(--space-3);
+    font-weight: 700;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: var(--space-3) var(--space-3) var(--space-3) 0;
+    border-bottom: var(--hairline) solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  td {
+    overflow-wrap: anywhere;
+  }
+
+  th {
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+</style>

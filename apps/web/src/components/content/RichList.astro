@@ -1,0 +1,35 @@
+---
+import type { Inline } from "@zsm3/contracts/rich-text";
+
+import InlineContent from "./InlineContent.astro";
+
+interface Props {
+  ordered: boolean;
+  items: readonly (readonly Inline[])[];
+}
+
+const { ordered, items } = Astro.props;
+const List = ordered ? "ol" : "ul";
+---
+
+<List class="list">
+  {items.map((item) => (
+    <li>
+      <InlineContent content={item} />
+    </li>
+  ))}
+</List>
+
+<style>
+  .list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding-left: var(--space-5);
+  }
+
+  li::marker {
+    color: var(--orange);
+    font-weight: 700;
+  }
+</style>

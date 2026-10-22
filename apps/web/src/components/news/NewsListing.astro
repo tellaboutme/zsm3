@@ -1,0 +1,160 @@
+---
+import NewsCard from "./NewsCard.astro";
+import Pagination from "./Pagination.astro";
+import { news } from "../../data/news/index.ts";
+import {
+  categoryHref,
+  latestNews,
+  NEWS_PAGE_SIZE,
+  newsCategories,
+  newsYears,
+  paginate,
+  type NewsItem,
+} from "../../lib/news.ts";
+
+interface Props {
+  items: readonly NewsItem[];
+  page: number;
+  base: string;
+  heading: string;
+  category?: string | undefined;
+  year?: string | undefined;
+}
+
+const { items, page, base, heading, category, year } = Astro.props;
+const current = paginate(latestNews(items, items.length), page, NEWS_PAGE_SIZE);
+const lead = page === 1 ? current.items[0] : undefined;
+const rest = lead === undefined ? current.items : current.items.slice(1);
+const unfiltered = category === undefined && year === undefined;
+---
+
+<div class="listing">
+  <header class="intro">
+    <p class="tag">
+      Aktualności · {page > 1 ? `strona ${String(page)} z ${String(current.pages)}` : "ZSM3"}
+    </p>
+    <h1>
+      <span class="rise">
+        <span>{heading}</span>
+      </span>
+    </h1>
+  </header>
+  <div class="filters">
+    <nav aria-label="Kategorie">
+      <p class="tag">Kategoria</p>
+      <ul>
+        <li>
+          <a href="/aktualnosci" aria-current={unfiltered ? "page" : undefined}>
+            Wszystkie
+          </a>
+        </li>
+        {newsCategories(news).map((entry) => (
+          <li>
+            <a
+              href={categoryHref(entry)}
+              aria-current={entry.slug === category ? "page" : undefined}
+            >
+              {entry.name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <nav aria-label="Lata">
+      <p class="tag">Rok</p>
+      <ul>
+        {newsYears(news).map((entry) => (
+          <li>
+            <a href={`/aktualnosci/${entry}`} aria-current={entry === year ? "page" : undefined}>
+              {entry}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+  {lead !== undefined && <NewsCard item={lead} variant="lead" headingLevel={2} />}
+  <ul class="grid">
+    {rest.map((item) => (
+      <li>
+        <NewsCard item={item} headingLevel={2} />
+      </li>
+    ))}
+  </ul>
+  <Pagination base={base} page={current.page} pages={current.pages} />
+</div>
+
+<style>
+  .listing {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .tag {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-stretch: var(--stretch-wide);
+    hyphens: auto;
+  }
+
+  .filters {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .filters nav {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .filters ul,
+  .grid {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .filters ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .filters a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    padding: var(--space-2) var(--space-4);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .filters a:hover {
+    border-color: var(--ink);
+  }
+
+  .filters a[aria-current="page"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-6) var(--space-5);
+  }
+</style>

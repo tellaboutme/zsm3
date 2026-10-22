@@ -1,0 +1,79 @@
+---
+import { youtubeWatchUrl } from "@zsm3/contracts/rich-text";
+
+import Icon from "../Icon.astro";
+
+interface Props {
+  id: string;
+  title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+<figure class="video">
+  <span class="play" aria-hidden="true"></span>
+  <figcaption>
+    <span class="tag">Film · YouTube</span>
+    <span class="title">{title}</span>
+  </figcaption>
+  <a class="watch nudge" href={youtubeWatchUrl(id)}>
+    Obejrzyj na YouTube
+    <Icon name="external" />
+    <span class="visually-hidden">(otwiera serwis zewnętrzny)</span>
+  </a>
+  <p class="note">
+    Film nie ładuje się na stronie szkoły, dlatego YouTube nie dostaje Twoich danych, dopóki go nie
+    otworzysz.
+  </p>
+</figure>
+
+<style>
+  .video {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-5);
+    border-radius: var(--radius);
+    background: var(--blue);
+    color: var(--blue-ink);
+  }
+
+  .play {
+    width: 0;
+    height: 0;
+    border-top: var(--space-4) solid transparent;
+    border-bottom: var(--space-4) solid transparent;
+    border-left: var(--space-5) solid var(--orange);
+  }
+
+  figcaption {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .tag,
+  .note {
+    color: var(--blue-dim);
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 800;
+  }
+
+  .watch {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    justify-self: start;
+    min-height: var(--target);
+    color: var(--blue-ink);
+    font-weight: 700;
+  }
+
+  .note {
+    font-size: var(--step-n1);
+  }
+</style>

@@ -1,0 +1,49 @@
+---
+interface Props {
+  caption: string;
+  credit?: string | undefined;
+}
+
+const { caption, credit } = Astro.props;
+---
+
+<figure class="figure">
+  <span class="frame" aria-hidden="true">
+    <span class="tag">Zdjęcie dodawane w panelu szkoły</span>
+  </span>
+  <figcaption>
+    {caption}
+    {credit !== undefined && <span class="credit">Fot. {credit}</span>}
+  </figcaption>
+</figure>
+
+<style>
+  .figure {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .frame {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 3 / 2;
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--gray);
+    color: var(--ink-2);
+  }
+
+  figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    justify-content: space-between;
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+
+  .credit {
+    font-family: var(--font-mono);
+  }
+</style>

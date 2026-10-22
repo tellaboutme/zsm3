@@ -1,0 +1,102 @@
+---
+import { pageHref, pageWindow } from "../../lib/news.ts";
+
+interface Props {
+  base: string;
+  page: number;
+  pages: number;
+}
+
+const { base, page, pages } = Astro.props;
+---
+
+{pages > 1 && (
+  <nav class="pagination" aria-label="Strony">
+    {page > 1 ? (
+      <a class="step" href={pageHref(base, page - 1)} rel="prev">
+        <span aria-hidden="true">←</span> Nowsze
+      </a>
+    ) : (
+      <span class="step" aria-hidden="true"></span>
+    )}
+    <ol>
+      {pageWindow(page, pages).map((entry) => (
+        <li>
+          {entry === null ? (
+            <span class="gap" aria-hidden="true">
+              …
+            </span>
+          ) : (
+            <a
+              href={pageHref(base, entry)}
+              aria-current={entry === page ? "page" : undefined}
+              aria-label={`Strona ${String(entry)}`}
+            >
+              {entry}
+            </a>
+          )}
+        </li>
+      ))}
+    </ol>
+    {page < pages ? (
+      <a class="step" href={pageHref(base, page + 1)} rel="next">
+        Starsze <span aria-hidden="true">→</span>
+      </a>
+    ) : (
+      <span class="step" aria-hidden="true"></span>
+    )}
+  </nav>
+)}
+
+<style>
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-5);
+    border-top: var(--hairline) solid var(--line);
+  }
+
+  ol {
+    display: flex;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  ol a,
+  .gap {
+    display: inline-grid;
+    place-items: center;
+    min-width: var(--target);
+    min-height: var(--target);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  ol a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  ol a:hover {
+    background: var(--gray);
+  }
+
+  ol a[aria-current="page"] {
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .step {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--target);
+    font-weight: 700;
+  }
+</style>

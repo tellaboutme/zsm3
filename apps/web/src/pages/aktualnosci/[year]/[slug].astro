@@ -1,0 +1,189 @@
+---
+import Figure from "../../../components/content/Figure.astro";
+import RichText from "../../../components/content/RichText.astro";
+import NewsCard from "../../../components/news/NewsCard.astro";
+import { news } from "../../../data/news/index.ts";
+import Base from "../../../layouts/Base.astro";
+import { longDate } from "../../../lib/calendar.ts";
+import {
+  categoryHref,
+  newsCategories,
+  newsHref,
+  newsYear,
+  neighbours,
+  relatedNews,
+  type NewsItem,
+} from "../../../lib/news.ts";
+
+interface Props {
+  item: NewsItem;
+}
+
+export function getStaticPaths(): { params: { year: string; slug: string }; props: Props }[] {
+  return news.map((item) => ({
+    params: { year: newsYear(item), slug: item.slug },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+const category = newsCategories(news).find((entry) => entry.name === item.category);
+const { newer, older } = neighbours(news, item);
+const related = relatedNews(news, item, 3);
+---
+
+<Base
+  title={`${item.title} — ZSM3`}
+  description={item.lead}
+  breadcrumbs={[
+    { label: "Aktualności", href: "/aktualnosci" },
+    { label: newsYear(item), href: `/aktualnosci/${newsYear(item)}` },
+    { label: item.title },
+  ]}
+>
+  <article class="article">
+    <header class="head">
+      <p class="tag meta">
+        {category !== undefined && <a href={categoryHref(category)}>{category.name}</a>}
+        <span aria-hidden="true">·</span>
+        <time datetime={item.date}>{longDate(item.date)}</time>
+      </p>
+      <h1>
+        <span class="rise">
+          <span>{item.title}</span>
+        </span>
+      </h1>
+      <p class="lead">{item.lead}</p>
+    </header>
+    {item.cover !== undefined && <Figure caption={item.cover.caption} credit={item.cover.credit} />}
+    <RichText document={item.body} />
+    <footer class="tools">
+      <button type="button" class="copy" data-copy-link hidden>
+        Kopiuj link do artykułu
+      </button>
+      <p class="visually-hidden" role="status" data-copy-status></p>
+    </footer>
+  </article>
+  <nav class="neighbours" aria-label="Sąsiednie artykuły">
+    {newer !== undefined && (
+      <a class="newer" href={newsHref(newer)} rel="prev">
+        <span class="tag">← Nowszy</span>
+        <span>{newer.title}</span>
+      </a>
+    )}
+    {older !== undefined && (
+      <a class="older" href={newsHref(older)} rel="next">
+        <span class="tag">Starszy →</span>
+        <span>{older.title}</span>
+      </a>
+    )}
+  </nav>
+  <section class="related" aria-labelledby="powiazane">
+    <h2 id="powiazane">Przeczytaj też</h2>
+    <ul>
+      {related.map((entry) => (
+        <li>
+          <NewsCard item={entry} />
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>
+
+<script>
+  import "../../../scripts/article.ts";
+</script>
+
+<style>
+  .article {
+    display: grid;
+    gap: var(--space-6);
+    max-width: calc(var(--measure) + var(--space-8));
+    padding-block: var(--space-7);
+  }
+
+  .head {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-3);
+    hyphens: auto;
+  }
+
+  .lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .copy {
+    min-height: var(--target);
+    padding: var(--space-2) var(--space-4);
+    border: var(--hairline) solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .copy:hover {
+    background: var(--gray);
+  }
+
+  .neighbours {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-4);
+    padding-block: var(--space-5);
+    border-block: var(--hairline) solid var(--line);
+  }
+
+  .neighbours a {
+    display: grid;
+    gap: var(--space-1);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .neighbours a:hover {
+    color: var(--link);
+  }
+
+  .neighbours .tag {
+    color: var(--ink-2);
+  }
+
+  .older {
+    text-align: right;
+  }
+
+  .related {
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .related h2 {
+    font-size: var(--step-3);
+  }
+
+  .related ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

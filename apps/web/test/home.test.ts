@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { schoolYearEvents } from "../src/data/calendar.ts";
-import { news } from "../src/data/news.ts";
+import { news } from "../src/data/news/index.ts";
 import { professions } from "../src/data/professions.ts";
 import { upcomingEvents } from "../src/lib/calendar.ts";
 import { latestNews, newsHref } from "../src/lib/news.ts";
@@ -70,7 +70,14 @@ describe("professions", () => {
 describe("news", () => {
   it("links to the article under its year", ({ expect }) => {
     expect(
-      newsHref({ slug: "rajd", date: "2026-10-09", category: "Sport", title: "Rajd", lead: "" }),
+      newsHref({
+        slug: "rajd",
+        date: "2026-10-09",
+        category: "Sport",
+        title: "Rajd",
+        lead: "",
+        body: [],
+      }),
     ).toBe("/aktualnosci/2026/rajd");
   });
 
@@ -78,7 +85,7 @@ describe("news", () => {
     const shuffled = news.toReversed();
 
     expect(latestNews(shuffled, 2).map((item) => item.date)).toEqual(["2026-10-19", "2026-10-17"]);
-    expect(latestNews(shuffled, 10)).toHaveLength(news.length);
+    expect(latestNews(shuffled, news.length + 5)).toHaveLength(news.length);
   });
 });
 
