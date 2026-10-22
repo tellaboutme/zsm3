@@ -156,6 +156,30 @@ outbox_failures
   id, message_kind, request_id, error_code, at   messages that reached the dead-letter queue
 ```
 
+Content tables (`migrations/0001_content.sql`), validated on the way in and out by the Zod schemas in `packages/contracts/src/content.ts`:
+
+```
+news
+  id TEXT PK (UUIDv7), slug, published_on (YYYY-MM-DD), year (generated from published_on),
+  category, title, lead, body_json (structured rich text, never HTML), cover_caption NULL,
+  cover_credit NULL, status (draft | published), created_at, updated_at
+  UNIQUE (year, slug), INDEX (status, published_on DESC), INDEX (status, category, published_on DESC)
+
+events
+  id, starts_on, ends_on NULL (> starts_on), title, audience (Wszyscy | Uczniowie | Rodzice),
+  kind (rok-szkolny | przerwa | wolne | zebranie | uroczystosc | oceny | egzamin | praktyki),
+  note NULL, key_date (0 | 1), created_at, updated_at
+  INDEX (starts_on)
+
+pages
+  path PK (/section/page), kicker, title, intro, sections_json (blocks), status, created_at, updated_at
+
+redirects
+  from_path PK (old WordPress address, lower case, no trailing slash), to_path, created_at
+```
+
+Repositories in `apps/worker/src/storage` take a `Store` (`db`, `clock`, `random`), use static SQL with `.bind()` only, and parse every row with a schema. They run against real SQLite (`node:sqlite`) in the Node tests, where coverage and mutation testing run, and against D1 in the workerd tests.
+
 Migrations follow expand/contract: the new code works with the old schema and vice versa. They run before the Worker is deployed.
 
 ## 7. Flows
