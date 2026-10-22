@@ -1,0 +1,6 @@
+.documents:has([name="kto"][value="uczen"]:checked)
+  .row:not([data-signer="uczen"], [data-signer="kazdy"]),
+.documents:has([name="kto"][value="rodzic"]:checked)
+  .row:not([data-signer="rodzic"], [data-signer="kazdy"]) {
+  display: none;
+}

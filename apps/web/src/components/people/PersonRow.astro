@@ -1,0 +1,53 @@
+---
+import { initials, type Person } from "../../lib/people.ts";
+
+interface Props {
+  person: Person;
+}
+
+const { person } = Astro.props;
+---
+
+<li class="person">
+  {person.name !== undefined && (
+    <span class="badge" aria-hidden="true">
+      {initials(person.name)}
+    </span>
+  )}
+  <div>
+    {person.name !== undefined && <p class="name">{person.name}</p>}
+    <p class="role">{person.role}</p>
+    {person.subjects !== undefined && <p class="subjects">{person.subjects}</p>}
+  </div>
+</li>
+
+<style>
+  .person {
+    display: flex;
+    gap: var(--space-4);
+    align-items: start;
+    padding-block: var(--space-3);
+    border-bottom: var(--hairline) solid var(--line);
+  }
+
+  .badge {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: var(--target);
+    height: var(--target);
+    border-radius: 50%;
+    background: var(--blue);
+    color: var(--blue-ink);
+    font-weight: 800;
+  }
+
+  .name,
+  .role {
+    font-weight: 700;
+  }
+
+  .subjects {
+    color: var(--ink-2);
+  }
+</style>
