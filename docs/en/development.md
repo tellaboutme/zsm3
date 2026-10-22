@@ -22,7 +22,8 @@ pnpm exec playwright install chromium firefox webkit
 
 | Command                             | What it does                                                                               |
 | ----------------------------------- | ------------------------------------------------------------------------------------------ |
-| `pnpm dev`                          | builds the site and serves it with the Worker on http://127.0.0.1:8787                     |
+| `pnpm dev`                          | builds the preview site and serves it with the Worker on http://127.0.0.1:8787             |
+| `pnpm build` / `pnpm build:preview` | production build / preview build (adds the pattern library at `/wzornik`)                  |
 | `pnpm format` / `pnpm format:check` | Prettier                                                                                   |
 | `pnpm lint`                         | ESLint (TypeScript and Astro), Stylelint, ruff, no-comments check for Python               |
 | `pnpm typecheck`                    | `tsc`, `astro check`, `wrangler types --check`, mypy `--strict`                            |
@@ -40,6 +41,13 @@ lefthook runs Prettier, ESLint, Stylelint and ruff on staged files before each c
 - External data is parsed with a Zod schema at the boundary; `as`, `!` and `any` are banned.
 - SQL only through `.prepare(...).bind(...)`; template strings inside `prepare` fail lint.
 - Every new API response goes through the security-header middleware and `problemResponse`, with a header test.
+
+## Styles
+
+- Tokens live only in `apps/web/src/styles/tokens.css`; colours use `light-dark()` so each token is defined once for both themes.
+- Stylelint rejects literal colours, font families, font sizes, spacing, radii, z-indices and durations outside the tokens file.
+- Global CSS uses cascade layers: `reset, base, layout, motion, utilities, overrides`. Component styles are scoped in their `.astro` files.
+- Accessibility settings are attributes on `<html>` (`data-text`, `data-contrast`, `data-font`, `data-underline`, `data-grayscale`, `data-motion`, `data-theme`) that override tokens.
 
 ## Worker tests
 

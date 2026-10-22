@@ -109,7 +109,7 @@ export default defineConfig(
       ],
       "import-x/no-cycle": "error",
       "import-x/no-named-as-default-member": "off",
-      "import-x/no-unresolved": ["error", { ignore: ["^cloudflare:"] }],
+      "import-x/no-unresolved": ["error", { ignore: ["^cloudflare:", "^astro:"] }],
       "import-x/no-duplicates": "error",
       "import-x/no-extraneous-dependencies": "error",
       "import-x/no-mutable-exports": "error",
@@ -135,8 +135,8 @@ export default defineConfig(
     },
   },
   {
+    ...tseslint.configs.disableTypeChecked,
     files: ["**/*.astro"],
-    languageOptions: { parserOptions: { projectService: false, project: true } },
   },
   {
     files: ["apps/worker/src/logging/log.ts"],

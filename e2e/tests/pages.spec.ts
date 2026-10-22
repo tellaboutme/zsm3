@@ -3,7 +3,7 @@ import { AxeBuilder } from "@axe-core/playwright";
 import { expect, test } from "./fixtures.ts";
 
 const pages = [
-  { path: "/", status: 200, heading: "Zespół Szkół Mechanicznych Nr 3 w Krakowie" },
+  { path: "/", status: 200, heading: "Zespół Szkół Mechanicznych nr 3 w Krakowie" },
   { path: "/nie-istnieje", status: 404, heading: "Nie znaleziono strony" },
 ] as const;
 

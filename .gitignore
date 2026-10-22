@@ -15,6 +15,7 @@ blob-report/
 .env
 .env.*
 !.env.example
+!apps/web/.env.preview
 .venv/
 __pycache__/
 .mypy_cache/

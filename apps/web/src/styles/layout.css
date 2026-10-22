@@ -1,0 +1,63 @@
+@layer layout {
+  .page {
+    width: min(100% - 2 * var(--space-5), var(--page-max));
+    margin-inline: auto;
+  }
+
+  .stack > * + * {
+    margin-block-start: var(--stack-space, var(--space-5));
+  }
+
+  .prose {
+    max-width: var(--measure);
+  }
+
+  .layout-full {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .layout-aside {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .layout-narrow {
+    max-width: calc(var(--measure) + 2 * var(--space-5));
+    margin-inline: auto;
+  }
+
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .span-all {
+    grid-column: 1 / -1;
+  }
+
+  @media (width >= 56rem) {
+    .layout-aside {
+      grid-template-columns: minmax(0, 8fr) minmax(16rem, 4fr);
+    }
+
+    .layout-aside > aside {
+      position: sticky;
+      top: var(--space-8);
+      align-self: start;
+    }
+
+    .span-8 {
+      grid-column: span 8;
+    }
+
+    .span-4 {
+      grid-column: span 4;
+    }
+
+    .span-6 {
+      grid-column: span 6;
+    }
+  }
+}
