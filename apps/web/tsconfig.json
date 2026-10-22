@@ -6,5 +6,5 @@
     "jsx": "preserve"
   },
   "include": [".astro/types.d.ts", "src", "integrations", "test", "*.ts"],
-  "exclude": ["dist"]
+  "exclude": ["dist", "worker"]
 }

@@ -26,7 +26,7 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 7"] } },
   ],
   webServer: {
-    command: "pnpm --filter @zsm3/worker dev",
+    command: "pnpm --workspace-root start",
     url: `${BASE_URL}/api/health`,
     reuseExistingServer: !IN_CI,
     timeout: 120_000,

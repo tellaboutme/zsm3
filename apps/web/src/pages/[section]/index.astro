@@ -2,28 +2,20 @@
 import TaskGroups from "../../components/hub/TaskGroups.astro";
 import MenuFeature from "../../components/MenuFeature.astro";
 import NewsCard from "../../components/news/NewsCard.astro";
-import { hubs, type Hub } from "../../data/hubs.ts";
+import { hubs } from "../../data/hubs.ts";
 import { sections } from "../../data/navigation.ts";
-import { news } from "../../data/news/index.ts";
 import Base from "../../layouts/Base.astro";
-import type { NavSection } from "../../lib/navigation.ts";
-import { latestNews } from "../../lib/news.ts";
+import { latestNews } from "../../lib/news-listing.ts";
+import { newsReader, notFound } from "../../server/news.ts";
 
-interface Props {
-  hub: Hub;
-  section: NavSection;
+export const prerender = false;
+
+const hub = hubs.find((candidate) => candidate.section === Astro.params["section"]);
+const section = sections.find((candidate) => candidate.id === hub?.section);
+if (hub === undefined || section === undefined) {
+  return notFound();
 }
-
-export function getStaticPaths(): { params: { section: string }; props: Props }[] {
-  return hubs.flatMap((hub) => {
-    const section = sections.find((candidate) => candidate.id === hub.section);
-    return section === undefined
-      ? []
-      : [{ params: { section: hub.section }, props: { hub, section } }];
-  });
-}
-
-const { hub, section } = Astro.props;
+const latest = await latestNews(newsReader(), 3);
 ---
 
 <Base
@@ -52,7 +44,7 @@ const { hub, section } = Astro.props;
     <section class="news" aria-labelledby="aktualnosci">
       <h2 id="aktualnosci">Aktualności</h2>
       <ul>
-        {latestNews(news, 3).map((item) => (
+        {latest.map((item) => (
           <li>
             <NewsCard item={item} />
           </li>

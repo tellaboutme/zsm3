@@ -3,11 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --ip 127.0.0.1 --port 8787",
     "types": "wrangler types",
-    "typecheck": "wrangler types --check && tsc -p tsconfig.json && tsc -p test/node/tsconfig.json",
+    "typecheck": "wrangler types --check && tsc -p tsconfig.json && tsc -p test/node/tsconfig.json && tsc -p seed/tsconfig.json",
     "test": "vitest run --coverage",
-    "test:mutation": "stryker run"
+    "test:mutation": "stryker run",
+    "seed": "node seed/seed.ts ../web/wrangler.jsonc ../web/.wrangler/state/v3"
   },
   "dependencies": {
     "@zsm3/contracts": "workspace:*",
@@ -25,5 +25,9 @@
     "typescript": "catalog:",
     "vitest": "catalog:",
     "wrangler": "4.151.0"
+  },
+  "exports": {
+    "./app": "./src/app.ts",
+    "./storage/*": "./src/storage/*"
   }
 }

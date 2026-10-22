@@ -23,7 +23,7 @@ export default defineConfig({
       {
         plugins: [
           cloudflareTest({
-            wrangler: { configPath: "./wrangler.jsonc", environment: "test" },
+            wrangler: { configPath: "./wrangler.jsonc" },
             miniflare: { bindings: { TEST_MIGRATIONS: migrations } },
           }),
         ],

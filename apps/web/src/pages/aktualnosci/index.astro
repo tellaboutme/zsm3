@@ -1,7 +1,15 @@
 ---
 import NewsListing from "../../components/news/NewsListing.astro";
-import { news } from "../../data/news/index.ts";
 import Base from "../../layouts/Base.astro";
+import { loadListing } from "../../lib/news-listing.ts";
+import { newsReader, notFound } from "../../server/news.ts";
+
+export const prerender = false;
+
+const listing = await loadListing(newsReader(), {}, undefined);
+if (listing === undefined) {
+  return notFound();
+}
 ---
 
 <Base
@@ -9,5 +17,5 @@ import Base from "../../layouts/Base.astro";
   description="Wydarzenia, konkursy, projekty i ogłoszenia Zespołu Szkół Mechanicznych nr 3 w Krakowie."
   breadcrumbs={[{ label: "Aktualności" }]}
 >
-  <NewsListing items={news} page={1} base="/aktualnosci" heading="Aktualności" />
+  <NewsListing listing={listing} base="/aktualnosci" heading="Aktualności" />
 </Base>

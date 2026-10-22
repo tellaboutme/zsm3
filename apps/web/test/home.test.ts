@@ -1,10 +1,8 @@
 import { describe, it } from "vitest";
 
 import { schoolYearEvents } from "../src/data/calendar/index.ts";
-import { news } from "../src/data/news/index.ts";
 import { professions } from "../src/data/professions.ts";
 import { upcomingEvents } from "../src/lib/calendar.ts";
-import { latestNews, newsHref } from "../src/lib/news.ts";
 import {
   fieldCounts,
   fieldLabels,
@@ -64,28 +62,6 @@ describe("professions", () => {
     expect(pathLabel({ school: "branzowa-1", years: 3 })).toBe("Branżowa I stopnia · 3 lata");
     expect(pathLabel({ school: "branzowa-2", years: 2 })).toBe("Branżowa II stopnia · 2 lata");
     expect(pathLabel({ school: "technikum", years: 4 })).toBe("Technikum · 4 lata");
-  });
-});
-
-describe("news", () => {
-  it("links to the article under its year", ({ expect }) => {
-    expect(
-      newsHref({
-        slug: "rajd",
-        date: "2026-10-09",
-        category: "Sport",
-        title: "Rajd",
-        lead: "",
-        body: [],
-      }),
-    ).toBe("/aktualnosci/2026/rajd");
-  });
-
-  it("returns the newest items first", ({ expect }) => {
-    const shuffled = news.toReversed();
-
-    expect(latestNews(shuffled, 2).map((item) => item.date)).toEqual(["2026-10-19", "2026-10-17"]);
-    expect(latestNews(shuffled, news.length + 5)).toHaveLength(news.length);
   });
 });
 

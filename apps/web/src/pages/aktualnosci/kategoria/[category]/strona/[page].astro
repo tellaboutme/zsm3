@@ -1,49 +1,32 @@
 ---
 import NewsListing from "../../../../../components/news/NewsListing.astro";
-import { news } from "../../../../../data/news/index.ts";
 import Base from "../../../../../layouts/Base.astro";
-import {
-  categoryHref,
-  laterPages,
-  NEWS_PAGE_SIZE,
-  newsCategories,
-  type Category,
-} from "../../../../../lib/news.ts";
+import { loadListing } from "../../../../../lib/news-listing.ts";
+import { categoryHref } from "../../../../../lib/news.ts";
+import { newsReader, notFound } from "../../../../../server/news.ts";
 
-interface Props {
-  category: Category;
-  page: number;
+export const prerender = false;
+
+const listing = await loadListing(
+  newsReader(),
+  { category: Astro.params["category"] },
+  Astro.params["page"],
+);
+const category = listing?.category;
+if (listing === undefined || category === undefined) {
+  return notFound();
 }
-
-export function getStaticPaths(): { params: { category: string; page: string }; props: Props }[] {
-  return newsCategories(news).flatMap((category) =>
-    laterPages(news.filter((item) => item.category === category.name).length, NEWS_PAGE_SIZE).map(
-      (page) => ({
-        params: { category: category.slug, page: String(page) },
-        props: { category, page },
-      }),
-    ),
-  );
-}
-
-const { category, page } = Astro.props;
-const items = news.filter((item) => item.category === category.name);
+const page = String(listing.page.page);
 ---
 
 <Base
-  title={`${category.name}, strona ${String(page)} — Aktualności — ZSM3`}
+  title={`${category.name}, strona ${page} — Aktualności — ZSM3`}
   description={`Aktualności z kategorii ${category.name}.`}
   breadcrumbs={[
     { label: "Aktualności", href: "/aktualnosci" },
     { label: category.name, href: categoryHref(category) },
-    { label: `Strona ${String(page)}` },
+    { label: `Strona ${page}` },
   ]}
 >
-  <NewsListing
-    items={items}
-    page={page}
-    base={categoryHref(category)}
-    heading={category.name}
-    category={category.slug}
-  />
+  <NewsListing listing={listing} base={categoryHref(category)} heading={category.name} />
 </Base>

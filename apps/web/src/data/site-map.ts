@@ -1,17 +1,6 @@
-import { news } from "./news/index.ts";
 import { contentPages } from "./pages/index.ts";
 import { professions } from "./professions.ts";
 import { programmes } from "./programmes/index.ts";
-import {
-  categoryHref,
-  laterPages,
-  NEWS_PAGE_SIZE,
-  newsCategories,
-  newsHref,
-  newsYear,
-  newsYears,
-  pageHref,
-} from "../lib/news.ts";
 import { schoolLabels } from "../lib/professions.ts";
 import { professionOf, programmeHref } from "../lib/programmes.ts";
 import type { MapNode } from "../lib/site-map.ts";
@@ -22,43 +11,11 @@ function contentNodes(section: string): readonly MapNode[] {
     .map((page) => ({ label: page.title, href: page.path, description: page.intro }));
 }
 
-function listingPages(base: string, total: number): readonly MapNode[] {
-  return laterPages(total, NEWS_PAGE_SIZE).map((page) => ({
-    label: `Strona ${String(page)}`,
-    href: pageHref(base, page),
-  }));
-}
-
 const programmeNodes: readonly MapNode[] = programmes.map((programme) => ({
   label: `${professionOf(professions, programme).name} (${schoolLabels[programme.school]})`,
   href: programmeHref(programme),
   description: programme.lead,
 }));
-
-const newsNodes: readonly MapNode[] = [
-  ...listingPages("/aktualnosci", news.length),
-  ...newsCategories(news).map((category) => {
-    const items = news.filter((item) => item.category === category.name);
-    return {
-      label: `Kategoria: ${category.name}`,
-      href: categoryHref(category),
-      children: listingPages(categoryHref(category), items.length),
-    };
-  }),
-  ...newsYears(news).map((year) => ({
-    label: `Rok ${year}`,
-    href: `/aktualnosci/${year}`,
-    children: [
-      ...listingPages(
-        `/aktualnosci/${year}`,
-        news.filter((item) => newsYear(item) === year).length,
-      ),
-      ...news
-        .filter((item) => newsYear(item) === year)
-        .map((item) => ({ label: item.title, href: newsHref(item), description: item.lead })),
-    ],
-  })),
-];
 
 export const siteMap: readonly MapNode[] = [
   {
@@ -123,7 +80,11 @@ export const siteMap: readonly MapNode[] = [
       },
     ],
   },
-  { label: "Aktualności", href: "/aktualnosci", children: newsNodes },
+  {
+    label: "Aktualności",
+    href: "/aktualnosci",
+    description: "Wydarzenia, konkursy, projekty i ogłoszenia z podziałem na kategorie i lata.",
+  },
   {
     label: "Kontakt",
     href: "/kontakt",

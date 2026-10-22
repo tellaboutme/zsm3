@@ -1,6 +1,6 @@
-import type { NewsItem } from "../../lib/news.ts";
+import type { News } from "@zsm3/contracts/content";
 
-export const september: readonly NewsItem[] = [
+export const september: readonly News[] = [
   {
     slug: "ogolnopolski-dzien-glosnego-czytania",
     date: "2026-09-29",
