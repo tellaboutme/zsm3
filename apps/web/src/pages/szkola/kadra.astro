@@ -1,0 +1,113 @@
+---
+import Callout from "../../components/content/Callout.astro";
+import PersonRow from "../../components/people/PersonRow.astro";
+import { staffGroups } from "../../data/staff.ts";
+import Base from "../../layouts/Base.astro";
+---
+
+<Base
+  title="Kadra — ZSM3"
+  description="Dyrekcja, specjaliści wspierający uczniów oraz nauczyciele przedmiotów zawodowych i ogólnokształcących w Zespole Szkół Mechanicznych nr 3."
+  breadcrumbs={[{ label: "Szkoła", href: "/szkola" }, { label: "Kadra" }]}
+>
+  <div class="staff">
+    <header class="intro">
+      <p class="tag">Szkoła · rok szkolny 2026/2027</p>
+      <h1>
+        <span class="rise">
+          <span>Kadra</span>
+        </span>
+      </h1>
+      <p class="lead">
+        Nauczyciele przedmiotów zawodowych i ogólnokształcących, specjaliści wspierający uczniów
+        oraz dyrekcja szkoły.
+      </p>
+    </header>
+    {staffGroups.map((group) => (
+      <section class="group" aria-labelledby={group.id}>
+        <h2 id={group.id}>{group.title}</h2>
+        <p class="summary">{group.summary}</p>
+        {group.people.length > 0 && (
+          <ul class="people">
+            {group.people.map((person) => (
+              <PersonRow person={person} />
+            ))}
+          </ul>
+        )}
+        {group.subjects.length > 0 && (
+          <ul class="subjects" aria-label={`Przedmioty: ${group.title}`}>
+            {group.subjects.map((subject) => (
+              <li>{subject}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+    ))}
+    <Callout
+      title="Kontakt z nauczycielem"
+      text="Z nauczycielami można skontaktować się przez dziennik Librus lub przez sekretariat uczniowski."
+      link={{ label: "Telefony i adresy szkoły", href: "/kontakt" }}
+    />
+  </div>
+</Base>
+
+<style>
+  .staff {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    max-width: 60rem;
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro,
+  .group {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .tag,
+  .summary {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-title);
+    font-stretch: var(--stretch-wide);
+  }
+
+  h2 {
+    font-size: var(--step-2);
+  }
+
+  .lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .people,
+  .subjects {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .people {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: 0 var(--space-5);
+  }
+
+  .subjects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .subjects li {
+    padding: var(--space-1) var(--space-3);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+  }
+</style>

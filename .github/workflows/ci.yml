@@ -69,6 +69,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: $/.github/actions/setup
+      - name: Drop the runner's Microsoft package source
+        run: sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
       - run: pnpm --filter @zsm3/e2e exec playwright install --with-deps chromium firefox webkit
       - name: Production build excludes the pattern library
         run: pnpm build && test ! -e apps/web/dist/wzornik

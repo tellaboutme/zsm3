@@ -1,0 +1,133 @@
+---
+import "../../styles/document-filters.css";
+import Callout from "../../components/content/Callout.astro";
+import DocumentRow from "../../components/documents/DocumentRow.astro";
+import RadioFilters from "../../components/RadioFilters.astro";
+import { documentGroups, documentSteps } from "../../data/documents.ts";
+import Base from "../../layouts/Base.astro";
+import { documentCount, signerLabels } from "../../lib/documents.ts";
+
+const groups = [
+  {
+    name: "kto",
+    legend: "Kto składa dokument",
+    options: [
+      { value: "wszyscy", label: "Wszystkie dokumenty" },
+      { value: "uczen", label: signerLabels.uczen },
+      { value: "rodzic", label: signerLabels.rodzic },
+    ],
+  },
+];
+---
+
+<Base
+  title="Wzory dokumentów — ZSM3"
+  description="Formularze PDF: duplikaty świadectwa i legitymacji, zwolnienia z zajęć, wydanie dokumentów i oświadczenia o zamieszkaniu."
+  breadcrumbs={[{ label: "Uczniowie", href: "/uczniowie" }, { label: "Wzory dokumentów" }]}
+>
+  <div class="documents">
+    <header class="intro">
+      <p class="tag">Uczniowie · {documentCount(documentGroups)} formularzy PDF</p>
+      <h1>
+        <span class="rise">
+          <span>Wzory dokumentów</span>
+        </span>
+      </h1>
+      <ol class="steps">
+        {documentSteps.map((step, index) => (
+          <li>
+            <span class="number">{String(index + 1).padStart(2, "0")}</span>
+            {step}
+          </li>
+        ))}
+      </ol>
+    </header>
+    <RadioFilters groups={groups} hook="documents" />
+    <p class="visually-hidden" role="status" data-filter-status></p>
+    {documentGroups.map((group) => (
+      <section class="group" aria-labelledby={group.id} data-document-group>
+        <h2 id={group.id}>{group.title}</h2>
+        <p class="summary">{group.summary}</p>
+        <ul>
+          {group.documents.map((document) => (
+            <DocumentRow document={document} />
+          ))}
+        </ul>
+      </section>
+    ))}
+    <Callout
+      title="Nie wiesz, który formularz wybrać?"
+      text="Przy zwolnieniach i wydaniu dokumentów wybierz wersję zgodną z tym, kto składa dokument: pełnoletni uczeń albo rodzic lub opiekun prawny. W razie wątpliwości zapytaj w sekretariacie uczniowskim."
+      link={{ label: "Kontakt z sekretariatem", href: "/kontakt" }}
+    />
+  </div>
+</Base>
+
+<script>
+  import "../../scripts/documents.ts";
+</script>
+
+<style>
+  .documents {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    max-width: 60rem;
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .tag,
+  .summary {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-title);
+    font-stretch: var(--stretch-wide);
+    hyphens: auto;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .steps li {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+    border-top: var(--rule) solid var(--orange);
+    background: var(--gray);
+    font-weight: 700;
+  }
+
+  .number {
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .group {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  h2 {
+    font-size: var(--step-2);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>
