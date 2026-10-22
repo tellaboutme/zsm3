@@ -147,20 +147,40 @@ These carry real information and give the site its own character:
 - **Co przed nami:** upcoming events as a compact board, read like a departures board.
 - **Kierunki:** each programme shows the real workshop, equipment, partners (for example LS Airport Services) and the qualifications earned.
 
-## 7. Stages
+## 7. Search engine optimisation
 
-| #   | Stage                 | Outcome                                                                                                                                                   |
-| --- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | Foundation            | done                                                                                                                                                      |
-| 1   | Design system         | direction E (Precyzja) built as tokens, typography, components and templates following the [blueprint](blueprint.md); accessibility settings, live status |
-| 2   | Content platform      | D1 content model, import of the current site, hybrid rendering, search, RSS, sitemap, redirects                                                           |
-| 3   | Panel and CMS         | Access, roles, editors for every content type, revisions, audit log, editor's guide                                                                       |
-| 4   | E-wniosek             | document requests as specified in the architecture                                                                                                        |
-| 5   | Gallery               | uploads, public gallery, archive import                                                                                                                   |
-| 6   | Community tools       | short links, Skrzynka, cookieless analytics                                                                                                               |
-| 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF accessibility review, terms, full security review, DNS cutover with redirects, staff training                       |
+The school is found through searches such as "technikum lotnicze Kraków", "technik programista Nowa Huta" or "szkoła branżowa mechanik Kraków". The new site must keep the rankings of the current one at cutover and then earn better ones on content quality, speed and structured data.
 
-## 8. Open questions for the school
+| Area            | What the site does                                                                                                                                                            | Stage |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| Metadata        | a unique `<title>` and meta description on every page, generated from content and edited in the panel; one `<h1>`; `lang="pl"`                                                | 2     |
+| Canonical URLs  | `<link rel="canonical">` on every page; one form of each address (lower case, no trailing slash, no query parameters); filter and search pages marked `noindex, follow`       | 2     |
+| Sitemaps        | `sitemap.xml` built from D1 with `lastmod` for news and pages; referenced from `robots.txt`; IndexNow ping to Bing and others when content is published                       | 2     |
+| Structured data | JSON-LD: `HighSchool` with address, phone and geo; `BreadcrumbList`; `NewsArticle`; `Event` for open days and key dates; `FAQPage` on programme pages; `Course` per programme | 2     |
+| Social previews | Open Graph and Twitter cards; a generated preview image per article and programme in the site's visual style                                                                  | 2     |
+| Old addresses   | 301 redirects for every crawled WordPress URL so links and rankings carry over; the old sitemap is kept until search engines pick up the new one                              | 2     |
+| Performance     | Core Web Vitals in the Lighthouse budgets (LCP < 2.5 s, CLS < 0.1, INP < 200 ms on mobile); static shell, no third-party scripts                                              | 1     |
+| Content         | programme pages that answer what candidates search for (exams, qualifications, partners, workshops, career paths); internal links between news, programmes and recruitment    | 3     |
+| Images          | alt text required in the panel; WebP in two sizes with `width` and `height`; descriptive file names                                                                           | 5     |
+| Local presence  | Google Business Profile and Bing Places kept consistent with the contact page (name, address, phone, hours)                                                                   | 7     |
+| Monitoring      | Google Search Console and Bing Webmaster Tools verified by DNS; structured data validated in CI; crawl errors and 404s reviewed after cutover                                 | 7     |
+
+`robots.txt` keeps the site out of search engines until launch; it is opened in stage 7 together with the DNS cutover.
+
+## 8. Stages
+
+| #   | Stage                 | Outcome                                                                                                                                                         |
+| --- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | Foundation            | done                                                                                                                                                            |
+| 1   | Design system         | direction E (Precyzja) built as tokens, typography, components and templates following the [blueprint](blueprint.md); accessibility settings, live status       |
+| 2   | Content platform      | D1 content model, import of the current site, hybrid rendering, search, RSS, redirects, technical SEO (metadata, canonical URLs, sitemaps, structured data)     |
+| 3   | Panel and CMS         | Access, roles, editors for every content type, revisions, audit log, editor's guide                                                                             |
+| 4   | E-wniosek             | document requests as specified in the architecture                                                                                                              |
+| 5   | Gallery               | uploads, public gallery, archive import                                                                                                                         |
+| 6   | Community tools       | short links, Skrzynka, cookieless analytics                                                                                                                     |
+| 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF accessibility review, terms, full security review, DNS cutover with redirects, search engine registration, staff training |
+
+## 9. Open questions for the school
 
 1. Which content editors exist today and who edits what (roles for the panel).
 2. Photo consents: which archive photos may be republished.

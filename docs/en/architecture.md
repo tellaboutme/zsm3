@@ -365,16 +365,16 @@ Total: **0 PLN per month**. The school already owns its domain. If load grows, W
 
 ## 14. Stages
 
-| #   | Stage                 | Outcome                                                                                                                     |
-| --- | --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| 0   | Foundation            | **done:** repository, monorepo, tooling and CI with every check, Worker and Astro skeletons                                 |
-| 1   | Design system         | visual direction chosen with the school, tokens, typography, components, templates, accessibility settings, live status     |
-| 2   | Content platform      | D1 content model, import of the current site, hybrid rendering, search, RSS, sitemap, redirects                             |
-| 3   | Panel and CMS         | Access, JWT verification, roles, editors for every content type, revisions, audit log, editor's guide                       |
-| 4   | E-wniosek             | migrations, request API, form, status, withdrawal, e-mail queue, retention                                                  |
-| 5   | Gallery               | upload in the panel, public gallery, media serving, archive import                                                          |
-| 6   | Community tools       | short links, Skrzynka #OgarniamŻycie, cookieless analytics                                                                  |
-| 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF review, terms, full ZAP scan, ASVS L2 checklist, DNS cutover with redirects, training |
+| #   | Stage                 | Outcome                                                                                                                        |
+| --- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 0   | Foundation            | **done:** repository, monorepo, tooling and CI with every check, Worker and Astro skeletons                                    |
+| 1   | Design system         | visual direction chosen with the school, tokens, typography, components, templates, accessibility settings, live status        |
+| 2   | Content platform      | D1 content model, import of the current site, hybrid rendering, search, RSS, redirects, technical SEO                          |
+| 3   | Panel and CMS         | Access, JWT verification, roles, editors for every content type, revisions, audit log, editor's guide                          |
+| 4   | E-wniosek             | migrations, request API, form, status, withdrawal, e-mail queue, retention                                                     |
+| 5   | Gallery               | upload in the panel, public gallery, media serving, archive import                                                             |
+| 6   | Community tools       | short links, Skrzynka #OgarniamŻycie, cookieless analytics                                                                     |
+| 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF review, terms, full ZAP scan, ASVS L2, DNS cutover, search engine registration, training |
 
 Details per stage: [site-plan.md](site-plan.md).
 

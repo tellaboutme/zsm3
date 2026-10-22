@@ -268,16 +268,16 @@ Razem: **0 zł miesięcznie**. Szkoła ma już własną domenę. Przy dużym wzr
 
 ## 14. Etapy
 
-| #   | Etap                    | Rezultat                                                                                                                       |
-| --- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| 0   | Fundament               | **gotowe:** repozytorium, narzędzia, pełne CI, szkielety Workera i strony                                                      |
-| 1   | System wizualny         | kierunek graficzny wybrany ze szkołą, kolory, typografia, komponenty, szablony stron, ustawienia dostępności, „Teraz w szkole” |
-| 2   | Platforma treści        | model treści w bazie, import obecnej strony, wyszukiwarka, RSS, mapa strony, przekierowania starych adresów                    |
-| 3   | Panel i CMS             | logowanie, role, edycja wszystkich rodzajów treści, historia zmian, dziennik zdarzeń, podręcznik redaktora                     |
-| 4   | E-wniosek               | baza, API wniosków, formularz, status, wycofanie, e-maile, automatyczne usuwanie danych                                        |
-| 5   | Galeria                 | dodawanie zdjęć w panelu, publiczna galeria, import archiwum                                                                   |
-| 6   | Narzędzia społeczności  | krótkie linki, Skrzynka #OgarniamŻycie, statystyki bez plików cookie                                                           |
-| 7   | Zgodność i uruchomienie | deklaracja dostępności, ETR/PJM, przegląd PDF, regulamin, pełny skan bezpieczeństwa, ASVS L2, przeniesienie DNS, szkolenie     |
+| #   | Etap                    | Rezultat                                                                                                                                                |
+| --- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | Fundament               | **gotowe:** repozytorium, narzędzia, pełne CI, szkielety Workera i strony                                                                               |
+| 1   | System wizualny         | kierunek graficzny wybrany ze szkołą, kolory, typografia, komponenty, szablony stron, ustawienia dostępności, „Teraz w szkole”                          |
+| 2   | Platforma treści        | model treści w bazie, import obecnej strony, wyszukiwarka, RSS, przekierowania starych adresów, SEO (metadane, mapy strony, dane strukturalne)          |
+| 3   | Panel i CMS             | logowanie, role, edycja wszystkich rodzajów treści, historia zmian, dziennik zdarzeń, podręcznik redaktora                                              |
+| 4   | E-wniosek               | baza, API wniosków, formularz, status, wycofanie, e-maile, automatyczne usuwanie danych                                                                 |
+| 5   | Galeria                 | dodawanie zdjęć w panelu, publiczna galeria, import archiwum                                                                                            |
+| 6   | Narzędzia społeczności  | krótkie linki, Skrzynka #OgarniamŻycie, statystyki bez plików cookie                                                                                    |
+| 7   | Zgodność i uruchomienie | deklaracja dostępności, ETR/PJM, przegląd PDF, regulamin, pełny skan bezpieczeństwa, ASVS L2, przeniesienie DNS, rejestracja w Google i Bing, szkolenie |
 
 Szczegóły etapów (w języku angielskim): [site-plan.md](../en/site-plan.md).
 
