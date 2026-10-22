@@ -94,6 +94,18 @@ test.describe("theme toggle", () => {
     await expect(html).not.toHaveAttribute("data-theme");
   });
 
+  test("shows a different icon for each theme", async ({ page }) => {
+    await page.goto("/wzornik");
+    const toggle = page.locator(".tools [data-theme-toggle]");
+    const shown = toggle.locator("[data-theme-icon]:visible");
+
+    for (const theme of ["system", "light", "dark", "system"]) {
+      await expect(shown).toHaveCount(1);
+      await expect(shown).toHaveAttribute("data-theme-icon", theme);
+      await toggle.click();
+    }
+  });
+
   test("ignores tampered stored preferences", async ({ page, problems }) => {
     await page.addInitScript(() => {
       localStorage.setItem("zsm3.preferences", '{"theme":"<img>","text":"999"}');

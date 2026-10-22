@@ -71,6 +71,11 @@ const current = sectionFor(sections, Astro.props.path)?.id;
     z-index: var(--z-header);
     border-bottom: var(--hairline) solid var(--line);
     background: var(--bg);
+    transition: margin-bottom var(--duration-1) var(--ease);
+  }
+
+  .site-header[data-compact="on"] {
+    margin-bottom: calc(var(--header-height) - var(--header-height-compact));
   }
 
   .bar {
