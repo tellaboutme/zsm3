@@ -1,0 +1,199 @@
+---
+import FaqList from "../../../components/FaqList.astro";
+import ProfessionTile from "../../../components/ProfessionTile.astro";
+import ExamCards from "../../../components/programme/ExamCards.astro";
+import ProgrammeAside from "../../../components/programme/ProgrammeAside.astro";
+import ProgrammeHero from "../../../components/programme/ProgrammeHero.astro";
+import TopicGrid from "../../../components/programme/TopicGrid.astro";
+import { professions } from "../../../data/professions.ts";
+import { programmes } from "../../../data/programmes/index.ts";
+import Base from "../../../layouts/Base.astro";
+import { schoolLabels } from "../../../lib/professions.ts";
+import {
+  professionOf,
+  programmeFaq,
+  programmeHref,
+  schoolYears,
+  siblingProgrammes,
+  yearsLabel,
+  type Programme,
+} from "../../../lib/programmes.ts";
+
+interface Props {
+  programme: Programme;
+}
+
+export function getStaticPaths(): { params: { slug: string }; props: Props }[] {
+  return programmes.map((programme) => ({
+    params: { slug: programme.slug },
+    props: { programme },
+  }));
+}
+
+const { programme } = Astro.props;
+const profession = professionOf(professions, programme);
+const siblings = siblingProgrammes(programmes, professions, programme);
+const practice = [
+  ...programme.practice,
+  ...(programme.erasmus ? ["Zagraniczne praktyki zawodowe w programie Erasmus+"] : []),
+];
+---
+
+<Base
+  title={`${profession.name} — ${schoolLabels[programme.school]} — ZSM3`}
+  description={programme.lead}
+  breadcrumbs={[
+    { label: "Kandydaci", href: "/kandydaci" },
+    { label: "Zawody", href: "/kandydaci/zawody" },
+    { label: profession.name },
+  ]}
+>
+  <ProgrammeHero programme={programme} profession={profession} />
+  <div class="layout-aside body">
+    <div class="sections">
+      <div class="photo" aria-hidden="true">
+        <span class="tag">Zdjęcia pracowni dodawane w panelu szkoły</span>
+      </div>
+      <section aria-labelledby="czego-sie-uczysz">
+        <h2 id="czego-sie-uczysz">Czego się uczysz</h2>
+        <TopicGrid topics={programme.learn} numbered />
+      </section>
+      {programme.tools.length > 0 && (
+        <section aria-labelledby="technologie">
+          <h2 id="technologie">Z czym pracujesz</h2>
+          <ul class="chips">
+            {programme.tools.map((tool) => (
+              <li>{tool}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <section aria-labelledby="egzaminy">
+        <h2 id="egzaminy">
+          {programme.exams.length === 1 ? "Egzamin zawodowy" : "Egzaminy zawodowe"}
+        </h2>
+        <ExamCards exams={programme.exams} />
+      </section>
+      {practice.length > 0 && (
+        <section aria-labelledby="praktyka">
+          <h2 id="praktyka">Gdzie uczysz się zawodu</h2>
+          <ul class="practice">
+            {practice.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {programme.careers.length > 0 && (
+        <section aria-labelledby="praca">
+          <h2 id="praca">Gdzie możesz pracować</h2>
+          <TopicGrid topics={programme.careers} />
+        </section>
+      )}
+      <section aria-labelledby="pytania">
+        <h2 id="pytania">Pytania</h2>
+        <FaqList questions={programmeFaq(programme, profession)} />
+      </section>
+    </div>
+    <ProgrammeAside programme={programme} profession={profession} />
+  </div>
+  {siblings.length > 0 && (
+    <section class="siblings" aria-labelledby="inne">
+      <h2 id="inne">Inne kierunki w tej branży</h2>
+      <ul class="tiles">
+        {siblings.map((sibling, index) => {
+          const siblingProfession = professionOf(professions, sibling);
+          return (
+            <ProfessionTile
+              href={programmeHref(sibling)}
+              number={index + 1}
+              name={siblingProfession.name}
+              field={siblingProfession.field}
+              topics={siblingProfession.topics}
+              qualifications={sibling.exams}
+              paths={[
+                `${schoolLabels[sibling.school]} · ${yearsLabel(schoolYears[sibling.school])}`,
+              ]}
+            />
+          );
+        })}
+      </ul>
+    </section>
+  )}
+</Base>
+
+<style>
+  .body {
+    padding-block: var(--space-7);
+  }
+
+  .sections {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+
+  section {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  h2 {
+    font-size: var(--step-3);
+  }
+
+  .photo {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--gray);
+    color: var(--ink-2);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chips li {
+    padding: var(--space-2) var(--space-4);
+    border: var(--hairline) solid var(--ink);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .practice {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .practice li {
+    padding: var(--space-4) 0;
+    border-bottom: var(--hairline) solid var(--line);
+    font-size: var(--step-1);
+    font-weight: 700;
+  }
+
+  .siblings {
+    padding-block: var(--space-7) var(--space-8);
+    border-top: var(--rule) solid var(--ink);
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>
