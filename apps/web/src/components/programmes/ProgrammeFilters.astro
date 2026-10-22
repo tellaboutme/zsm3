@@ -1,0 +1,105 @@
+---
+import { fieldLabels, fields, schoolLabels } from "../../lib/professions.ts";
+import { schools } from "../../lib/programmes.ts";
+
+const groups = [
+  {
+    name: "branza",
+    legend: "Branża",
+    options: [
+      { value: "wszystkie", label: "Wszystkie" },
+      ...fields.map((field) => ({ value: field, label: fieldLabels[field] })),
+    ],
+  },
+  {
+    name: "szkola",
+    legend: "Szkoła",
+    options: [
+      { value: "wszystkie", label: "Wszystkie" },
+      ...schools.map((school) => ({ value: school, label: schoolLabels[school] })),
+    ],
+  },
+];
+---
+
+<div class="filters" data-programme-filters>
+  {groups.map((group) => (
+    <fieldset>
+      <legend class="tag">{group.legend}</legend>
+      <div class="options">
+        {group.options.map((option, index) => (
+          <label>
+            <input type="radio" name={group.name} value={option.value} checked={index === 0} />
+            <span>{option.label}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  ))}
+</div>
+
+<style>
+  .filters {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  fieldset {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    margin-bottom: var(--space-2);
+    padding: 0;
+    color: var(--ink-2);
+  }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  label {
+    position: relative;
+    display: inline-flex;
+  }
+
+  input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    padding: var(--space-2) var(--space-4);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  label:hover span {
+    border-color: var(--ink);
+  }
+
+  input:checked + span {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  input:focus-visible + span {
+    outline: var(--rule) solid var(--focus);
+    outline-offset: 2px;
+  }
+</style>

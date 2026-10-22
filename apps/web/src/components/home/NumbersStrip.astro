@@ -1,6 +1,7 @@
 ---
 import { professions } from "../../data/professions.ts";
 import { fields } from "../../lib/professions.ts";
+import FactStrip from "../FactStrip.astro";
 
 const numbers = [
   { value: String(professions.length), label: "zawodów w technikum i szkole branżowej" },
@@ -10,57 +11,4 @@ const numbers = [
 ];
 ---
 
-<section class="numbers" aria-label="Szkoła w liczbach">
-  <dl>
-    {numbers.map((item) => (
-      <div class="item reveal">
-        <dt>{item.label}</dt>
-        <dd>{item.value}</dd>
-      </div>
-    ))}
-  </dl>
-</section>
-
-<style>
-  dl {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-    margin: 0;
-    border-block: var(--hairline) solid var(--line);
-  }
-
-  .item {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: var(--space-2);
-    justify-content: start;
-    padding: var(--space-5) var(--space-4);
-    container-type: inline-size;
-    border-bottom: var(--hairline) solid var(--line);
-  }
-
-  dd {
-    margin: 0;
-    color: var(--link);
-    font-family: var(--font-display);
-    font-size: min(var(--step-3), 14cqi);
-    font-stretch: var(--stretch-wide);
-    font-weight: 900;
-    line-height: var(--leading-tight);
-  }
-
-  dt {
-    max-width: 22ch;
-    color: var(--ink-2);
-  }
-
-  @media (width >= 56rem) {
-    .item {
-      border-bottom: 0;
-    }
-
-    .item + .item {
-      border-left: var(--hairline) solid var(--line);
-    }
-  }
-</style>
+<FactStrip label="Szkoła w liczbach" facts={numbers} />

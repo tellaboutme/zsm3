@@ -1,0 +1,95 @@
+---
+import { professions } from "../../data/professions.ts";
+import { fieldLabels, schoolLabels } from "../../lib/professions.ts";
+import {
+  examCodes,
+  professionOf,
+  programmeHref,
+  schoolYears,
+  yearsLabel,
+  type Programme,
+} from "../../lib/programmes.ts";
+
+interface Props {
+  programmes: readonly Programme[];
+}
+
+const { programmes } = Astro.props;
+---
+
+<details class="compare">
+  <summary>Porównaj wszystkie kierunki w tabeli</summary>
+  <div class="scroller" role="region" aria-label="Tabela porównawcza kierunków">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Kierunek</th>
+          <th scope="col">Branża</th>
+          <th scope="col">Szkoła</th>
+          <th scope="col">Nauka</th>
+          <th scope="col">Egzaminy</th>
+        </tr>
+      </thead>
+      <tbody>
+        {programmes.map((programme) => {
+          const profession = professionOf(professions, programme);
+          return (
+            <tr>
+              <th scope="row">
+                <a href={programmeHref(programme)}>{profession.name}</a>
+              </th>
+              <td>{fieldLabels[profession.field]}</td>
+              <td>{schoolLabels[programme.school]}</td>
+              <td>{yearsLabel(schoolYears[programme.school])}</td>
+              <td class="mono">{examCodes(programme)}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<style>
+  .compare {
+    border-block: var(--hairline) solid var(--line);
+  }
+
+  summary {
+    min-height: var(--target);
+    padding-block: var(--space-4);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .scroller {
+    overflow-x: auto;
+    padding-bottom: var(--space-4);
+  }
+
+  table {
+    width: 100%;
+    min-width: 44rem;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: var(--space-3) var(--space-4) var(--space-3) 0;
+    border-bottom: var(--hairline) solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead th {
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+
+  tbody th {
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+import type { Question } from "../lib/programmes.ts";
+
+interface Props {
+  questions: readonly Question[];
+}
+
+const { questions } = Astro.props;
+---
+
+<div class="faq">
+  {questions.map((item) => (
+    <details>
+      <summary>{item.question}</summary>
+      <p>{item.answer}</p>
+    </details>
+  ))}
+</div>
+
+<style>
+  details {
+    border-bottom: var(--hairline) solid var(--line);
+  }
+
+  summary {
+    min-height: var(--target);
+    padding-block: var(--space-4);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  p {
+    max-width: var(--measure);
+    padding-bottom: var(--space-4);
+    color: var(--ink-2);
+  }
+</style>

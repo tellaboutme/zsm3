@@ -1,32 +1,38 @@
 ---
-import { fieldLabels, pathLabel, type Profession } from "../../lib/professions.ts";
+import { fieldLabels, type Field, type Qualification } from "../lib/professions.ts";
 
 interface Props {
-  profession: Profession;
+  href: string;
   number: number;
+  name: string;
+  field: Field;
+  topics: readonly string[];
+  qualifications: readonly Qualification[];
+  paths: readonly string[];
+  school?: string;
 }
 
-const { profession, number } = Astro.props;
+const { href, number, name, field, topics, qualifications, paths, school } = Astro.props;
 ---
 
-<li class="tile" data-field={profession.field}>
-  <a href={`/kandydaci/zawody/${profession.slug}`}>
+<li class="tile" data-field={field} data-school={school}>
+  <a href={href}>
     <span class="top">
       <span class="tag">{String(number).padStart(2, "0")}</span>
-      <span class="tag">{fieldLabels[profession.field]}</span>
+      <span class="tag">{fieldLabels[field]}</span>
     </span>
-    <span class="name">{profession.name}</span>
-    <span class="topics">{profession.topics.join(" · ")}</span>
+    <span class="name">{name}</span>
+    <span class="topics">{topics.join(" · ")}</span>
     <span class="codes">
-      {profession.qualifications.map((qualification) => (
+      {qualifications.map((qualification) => (
         <abbr class="code" title={qualification.name}>
           {qualification.code}
         </abbr>
       ))}
     </span>
     <span class="paths">
-      {profession.paths.map((path) => (
-        <span>{pathLabel(path)}</span>
+      {paths.map((path) => (
+        <span>{path}</span>
       ))}
     </span>
   </a>

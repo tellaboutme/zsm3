@@ -1,8 +1,8 @@
 ---
-import ProfessionTile from "./ProfessionTile.astro";
 import SectionHead from "./SectionHead.astro";
 import { professions } from "../../data/professions.ts";
-import { fieldCounts, fieldLabels, fields } from "../../lib/professions.ts";
+import { fieldCounts, fieldLabels, fields, pathLabel } from "../../lib/professions.ts";
+import ProfessionTile from "../ProfessionTile.astro";
 
 const counts = fieldCounts(professions);
 const options = [
@@ -33,7 +33,15 @@ const options = [
   <p class="visually-hidden" role="status" data-filter-status></p>
   <ul class="tiles">
     {professions.map((profession, index) => (
-      <ProfessionTile profession={profession} number={index + 1} />
+      <ProfessionTile
+        href={`/kandydaci/zawody/${profession.slug}`}
+        number={index + 1}
+        name={profession.name}
+        field={profession.field}
+        topics={profession.topics}
+        qualifications={profession.qualifications}
+        paths={profession.paths.map(pathLabel)}
+      />
     ))}
   </ul>
 </section>

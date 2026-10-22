@@ -1,0 +1,20 @@
+@layer layout {
+  .programme-listing:has([name="branza"][value="informatyka"]:checked)
+    .tile:not([data-field="informatyka"]),
+  .programme-listing:has([name="branza"][value="mechatronika"]:checked)
+    .tile:not([data-field="mechatronika"]),
+  .programme-listing:has([name="branza"][value="motoryzacja"]:checked)
+    .tile:not([data-field="motoryzacja"]),
+  .programme-listing:has([name="branza"][value="lotnictwo"]:checked)
+    .tile:not([data-field="lotnictwo"]),
+  .programme-listing:has([name="branza"][value="logistyka"]:checked)
+    .tile:not([data-field="logistyka"]),
+  .programme-listing:has([name="szkola"][value="technikum"]:checked)
+    .tile:not([data-school="technikum"]),
+  .programme-listing:has([name="szkola"][value="branzowa-1"]:checked)
+    .tile:not([data-school="branzowa-1"]),
+  .programme-listing:has([name="szkola"][value="branzowa-2"]:checked)
+    .tile:not([data-school="branzowa-2"]) {
+    display: none;
+  }
+}

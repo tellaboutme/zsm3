@@ -1,0 +1,122 @@
+---
+import { school } from "../../data/site.ts";
+import { fieldLabels, type Profession } from "../../lib/professions.ts";
+import {
+  examCodes,
+  schoolNames,
+  schoolYears,
+  yearsLabel,
+  type Programme,
+} from "../../lib/programmes.ts";
+
+interface Props {
+  programme: Programme;
+  profession: Profession;
+}
+
+const { programme, profession } = Astro.props;
+---
+
+<aside class="summary" aria-labelledby="w-skrocie">
+  <h2 id="w-skrocie" class="tag">
+    W skrócie
+  </h2>
+  <dl>
+    <div>
+      <dt>Szkoła</dt>
+      <dd>{schoolNames[programme.school]}</dd>
+    </div>
+    <div>
+      <dt>Nauka</dt>
+      <dd>{yearsLabel(schoolYears[programme.school])}</dd>
+    </div>
+    <div>
+      <dt>Branża</dt>
+      <dd>{fieldLabels[profession.field]}</dd>
+    </div>
+    <div>
+      <dt>Egzaminy</dt>
+      <dd class="mono">{examCodes(programme)}</dd>
+    </div>
+    {programme.drivingLicence !== undefined && (
+      <div>
+        <dt>Prawo jazdy</dt>
+        <dd>kat. {programme.drivingLicence}, bezpłatny kurs</dd>
+      </div>
+    )}
+  </dl>
+  <p class="ask">
+    Pytania o kierunek: sekretariat
+    <a href={`tel:${school.phone}`}>{school.phoneLabel}</a>
+  </p>
+  <a class="cta nudge" href="/kandydaci/rekrutacja">
+    Rekrutacja <span aria-hidden="true">→</span>
+  </a>
+</aside>
+
+<style>
+  .summary {
+    order: -1;
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+  }
+
+  .summary .tag {
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  dl {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  dl div {
+    display: grid;
+    gap: var(--space-1);
+    padding-bottom: var(--space-3);
+    border-bottom: var(--hairline) solid var(--line);
+  }
+
+  dt {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .ask {
+    color: var(--ink-2);
+  }
+
+  .cta {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    justify-content: center;
+    min-height: var(--target);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius);
+    background: var(--orange);
+    color: var(--orange-ink);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  @media (width >= 56rem) {
+    .summary {
+      order: 0;
+    }
+  }
+</style>

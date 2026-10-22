@@ -1,0 +1,118 @@
+---
+import "../../../styles/programme-filters.css";
+import ProfessionTile from "../../../components/ProfessionTile.astro";
+import ComparisonTable from "../../../components/programmes/ComparisonTable.astro";
+import ProgrammeFilters from "../../../components/programmes/ProgrammeFilters.astro";
+import { professions } from "../../../data/professions.ts";
+import { programmes } from "../../../data/programmes/index.ts";
+import Base from "../../../layouts/Base.astro";
+import { schoolLabels } from "../../../lib/professions.ts";
+import { professionOf, programmeHref, schoolYears, yearsLabel } from "../../../lib/programmes.ts";
+---
+
+<Base
+  title="Zawody i kierunki — ZSM3"
+  description="15 kierunków w technikum oraz branżowej szkole I i II stopnia: informatyka, mechatronika i robotyka, motoryzacja, lotnictwo, porty i terminale."
+  breadcrumbs={[{ label: "Kandydaci", href: "/kandydaci" }, { label: "Zawody" }]}
+>
+  <div class="programme-listing">
+    <header class="intro">
+      <p class="tag">Oferta · technikum i szkoła branżowa</p>
+      <h1>
+        <span class="rise">
+          <span>Zawody i kierunki</span>
+        </span>
+      </h1>
+      <p class="prose">
+        Technikum trwa 5 lat i kończy się maturą oraz tytułem technika. Branżowa szkoła I stopnia
+        trwa 3 lata i daje zawód, a branżowa szkoła II stopnia w 2 lata prowadzi od zawodu do tytułu
+        technika.
+      </p>
+    </header>
+    <ProgrammeFilters />
+    <p class="visually-hidden" role="status" data-filter-status></p>
+    <ul class="tiles">
+      {programmes.map((programme, index) => {
+        const profession = professionOf(professions, programme);
+        return (
+          <ProfessionTile
+            href={programmeHref(programme)}
+            number={index + 1}
+            name={profession.name}
+            field={profession.field}
+            topics={profession.topics}
+            qualifications={programme.exams}
+            paths={[
+              `${schoolLabels[programme.school]} · ${yearsLabel(schoolYears[programme.school])}`,
+            ]}
+            school={programme.school}
+          />
+        );
+      })}
+    </ul>
+    <p class="empty" data-no-programmes hidden>
+      Ta szkoła nie prowadzi kierunków w wybranej branży. Wybierz inną branżę albo szkołę.
+    </p>
+    <ComparisonTable programmes={programmes} />
+    <a class="cta nudge" href="/kandydaci/rekrutacja">
+      Zasady rekrutacji, terminy i dokumenty <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</Base>
+
+<script>
+  import "../../../scripts/programme-filters.ts";
+</script>
+
+<style>
+  .programme-listing {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .intro .tag {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-stretch: var(--stretch-wide);
+    hyphens: auto;
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .empty {
+    padding: var(--space-5);
+    border-radius: var(--radius);
+    background: var(--gray);
+  }
+
+  .cta {
+    justify-self: start;
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--target);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius);
+    background: var(--orange);
+    color: var(--orange-ink);
+    font-weight: 800;
+    text-decoration: none;
+  }
+</style>

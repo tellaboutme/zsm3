@@ -274,7 +274,7 @@ The seasonal recruitment block is built in stage 2, when the panel provides the 
 
 ### 4.3 Professions listing `/kandydaci/zawody`
 
-Title, intro, field filter (radio group, works without JavaScript), school-type filter (technikum, branżowa I, branżowa II), tiles grid, comparison table toggle (name, school, years, qualifications), link to recruitment.
+Title, intro, field filter (radio group, works without JavaScript), school-type filter (technikum, branżowa I, branżowa II), tiles grid, comparison table toggle (name, school, years, qualifications), link to recruitment. One tile per programme (15). Filtering is pure CSS (`:has()` on the checked radios); JavaScript only announces the result count, shows the empty state and selects the filter named in the URL fragment (`#lotnictwo`, `#technikum`).
 
 ### 4.4 Programme `/kandydaci/zawody/{slug}`
 
@@ -297,7 +297,7 @@ Title, intro, field filter (radio group, works without JavaScript), school-type 
 └───────────────────────────────────────────────────────────────┘
 ```
 
-Data: programme (field, school, years, qualifications, areas, technologies, places, photos, FAQ), related news, sibling programmes.
+Data: programme (field, school, years, qualifications, areas, technologies, places, photos, FAQ), related news, sibling programmes. The FAQ is generated from the programme data (length, exams, entry requirement, driving licence, Erasmus+), so it never states anything the data does not; related news is added in stage 2 when news carry profession tags.
 
 ### 4.5 News listing `/aktualnosci` and article `/aktualnosci/{year}/{slug}`
 
