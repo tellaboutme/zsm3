@@ -64,7 +64,7 @@ Every test in `apps/worker/test` runs twice: in Node, where mutation testing run
 | Rule  | Name                           | Why it is ignored                                                                                                                                                                                  |
 | ----- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 10049 | Content Cacheability           | Informational report of cache headers; caching is set deliberately in `_headers` and tested end to end.                                                                                            |
-| 90005 | Fetch Metadata Request Headers | Asks the server to validate `Sec-Fetch-*` on requests; static pages have no state to protect, and the API checks origin and tokens itself.                                                         |
+| 90005 | Fetch Metadata Request Headers | Asks the server to validate `Sec-Fetch-*` on requests; the pages are static and carry no state that a cross-site request could change.                                                             |
 | 10094 | Base64 Disclosure              | Matches any 30-character run of letters, digits and slashes, so it fires on ordinary URL paths and content-addressed file keys. Secrets in the repository and build output are caught by gitleaks. |
 
 ## Known local limitation (Windows 11 build 26200)
