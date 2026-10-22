@@ -1,10 +1,13 @@
 import { defineConfig, envField } from "astro/config";
 
+import { securityHeaders } from "./integrations/security-headers.ts";
+
 export default defineConfig({
   output: "static",
   trailingSlash: "never",
   compressHTML: true,
   devToolbar: { enabled: false },
+  integrations: [securityHeaders()],
   build: { inlineStylesheets: "never" },
   vite: { build: { assetsInlineLimit: 0 } },
   env: {

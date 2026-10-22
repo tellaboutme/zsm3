@@ -1,8 +1,9 @@
 import { expect, test } from "./fixtures.ts";
 
+const contentSecurityPolicy =
+  /^default-src 'none'; script-src 'self' 'sha256-[\w+/]{43}='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types 'none'$/u;
+
 const pageHeaders = {
-  "content-security-policy":
-    "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types 'none'",
   "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
   "x-content-type-options": "nosniff",
   "x-frame-options": "DENY",
@@ -18,6 +19,10 @@ test.describe("response headers", () => {
     for (const path of ["/", "/nie-istnieje", "/robots.txt"]) {
       const response = await request.get(path);
       const headers = response.headers();
+
+      expect(headers["content-security-policy"], `${path} content-security-policy`).toMatch(
+        contentSecurityPolicy,
+      );
 
       for (const [name, value] of Object.entries(pageHeaders)) {
         expect(headers[name], `${path} ${name}`).toBe(value);

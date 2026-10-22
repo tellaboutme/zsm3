@@ -1,0 +1,49 @@
+---
+import type { Crumb } from "../lib/breadcrumbs.ts";
+
+interface Props {
+  items: readonly Crumb[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="crumbs" aria-label="Okruszki">
+  <ol>
+    <li>
+      <a href="/">Strona główna</a>
+    </li>
+    {items.map((item) => (
+      <li>
+        {item.href === undefined ? (
+          <span aria-current="page">{item.label}</span>
+        ) : (
+          <a href={item.href}>{item.label}</a>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-2);
+    margin: 0;
+    padding: var(--space-4) 0 0;
+    list-style: none;
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+
+  li + li::before {
+    margin-right: var(--space-2);
+    content: "/";
+  }
+
+  [aria-current="page"] {
+    color: var(--ink);
+    font-weight: 600;
+  }
+</style>

@@ -19,7 +19,7 @@ The plan is layered like a building:
 ### 1.1 Grid and breakpoints
 
 - 12-column grid, `--page-max` 86 rem, outer margin `--space-5`, column gap `--space-5`.
-- Mobile first. Breakpoints: `40rem` (640 px, two columns), `56rem` (896 px, desktop navigation and side columns), `80rem` (1280 px, wide layouts).
+- Mobile first. Breakpoints: `40rem` (640 px, two columns), `56rem` (896 px, side columns), `80rem` (1280 px, wide layouts).
 - Content measure `--measure` (60 ch) for running text; nothing wider is set in body size.
 - Every page uses one of three layouts:
 
@@ -104,8 +104,9 @@ Skip link, landmarks (`header`, `nav`, `main`, `aside`, `footer`), one `h1` per 
 
 ### 2.2 Header
 
+- Header breakpoints are container queries on the header, so they follow the text-size setting (`rem` scales with it): desktop navigation from `80rem`, the school name from `48rem` and hidden between `80rem` and `92rem` where the navigation needs the room, search, settings and theme from `40rem`. Nothing may scroll sideways at 360 px with 150% text.
 - Left: wordmark `ZSM3` (orange 3) and the full name in two lines; links to home.
-- Centre: six audience sections. Desktop (≥ 56 rem): each opens a **mega menu** on click (not on hover), closes on Escape, outside click or focus leaving it.
+- Centre: six audience sections. Desktop (≥ 80 rem): each opens a **mega menu** on click (not on hover), closes on Escape, outside click or focus leaving it.
 - Right: search, accessibility settings, theme, and the orange **Rekrutacja** button.
 - Mobile: wordmark, Rekrutacja, and a menu button opening a full-height panel with the six sections as disclosures, then utility links (Librus, BIP, E-wniosek, Skrzynka).
 - The header shrinks (smaller padding) after 80 px of scroll; no hide-on-scroll.

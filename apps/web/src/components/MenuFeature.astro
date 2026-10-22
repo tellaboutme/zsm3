@@ -1,0 +1,76 @@
+---
+import LiveStatus from "./LiveStatus.astro";
+import { schoolYearEvents } from "../data/calendar.ts";
+import { isoDay, longDate, nextEvent } from "../lib/calendar.ts";
+import type { Featured } from "../lib/navigation.ts";
+
+interface Props {
+  feature: Featured;
+}
+
+const { feature } = Astro.props;
+const meeting = nextEvent(schoolYearEvents, isoDay(new Date()), "Rodzice");
+---
+
+{feature === "live-status" && <LiveStatus />}
+{feature === "professions" && (
+  <a class="feature nudge" href="/kandydaci/zawody">
+    <span class="tag">Oferta</span>
+    <span class="big">13 zawodów</span>
+    <span>w technikum i szkole branżowej, w pięciu branżach</span>
+    <span class="go" aria-hidden="true">
+      →
+    </span>
+  </a>
+)}
+{feature === "next-meeting" && (
+  <a class="feature nudge" href="/szkola/terminarz">
+    <span class="tag">Najbliższe zebranie z rodzicami</span>
+    <span class="big">{meeting === undefined ? "Terminarz" : longDate(meeting.date)}</span>
+    <span>Terminy wszystkich spotkań w terminarzu roku szkolnego</span>
+    <span class="go" aria-hidden="true">
+      →
+    </span>
+  </a>
+)}
+{feature === "patron" && (
+  <a class="feature nudge" href="/szkola/patron">
+    <span class="tag">Patron szkoły</span>
+    <span class="big">gen. Władysław Sikorski</span>
+    <span>Historia patrona i tradycje szkoły</span>
+    <span class="go" aria-hidden="true">
+      →
+    </span>
+  </a>
+)}
+
+<style>
+  .feature {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    height: 100%;
+    padding: var(--space-5);
+    border-radius: var(--radius);
+    background: var(--blue);
+    color: var(--blue-ink);
+    text-decoration: none;
+  }
+
+  .feature .tag {
+    color: var(--blue-dim);
+  }
+
+  .big {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-stretch: var(--stretch-display);
+    font-weight: 800;
+    line-height: var(--leading-snug);
+  }
+
+  .go {
+    font-size: var(--step-1);
+    font-weight: 800;
+  }
+</style>

@@ -8,15 +8,26 @@ import "@fontsource/atkinson-hyperlegible-next/700.css";
 import archivo from "@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url";
 import sourceSans from "@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url";
 
+import AccessibilityDialog from "../components/AccessibilityDialog.astro";
+import AnnouncementBanner from "../components/AnnouncementBanner.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import type { Announcement } from "../lib/announcement.ts";
+import type { Crumb } from "../lib/breadcrumbs.ts";
+import { bootScript } from "../lib/preferences.ts";
+
 import "../styles/global.css";
 
 interface Props {
   title: string;
   description: string;
   noindex?: boolean;
+  breadcrumbs?: readonly Crumb[];
+  announcement?: Announcement;
 }
 
-const { title, description, noindex = false } = Astro.props;
+const { title, description, noindex = false, breadcrumbs, announcement } = Astro.props;
 ---
 
 <!doctype html>
@@ -26,16 +37,37 @@ const { title, description, noindex = false } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
+    <script is:inline set:html={bootScript} />
     <link rel="preload" href={archivo} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sourceSans} as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
   </head>
   <body>
+    <div class="scroll-sentinel" aria-hidden="true" data-scroll-sentinel></div>
     <a class="skip-link" href="#tresc">
       Przejdź do treści
     </a>
+    {announcement !== undefined && <AnnouncementBanner announcement={announcement} />}
+    <SiteHeader path={Astro.url.pathname} />
+    <div class="page">{breadcrumbs !== undefined && <Breadcrumbs items={breadcrumbs} />}</div>
     <main id="tresc" class="page">
       <slot />
     </main>
+    <SiteFooter />
+    <AccessibilityDialog />
+    <script>
+      import "../scripts/frame.ts";
+    </script>
   </body>
 </html>
+
+<style>
+  .scroll-sentinel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: var(--space-8);
+    pointer-events: none;
+  }
+</style>

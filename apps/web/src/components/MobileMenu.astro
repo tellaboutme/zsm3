@@ -1,0 +1,216 @@
+---
+import Icon from "./Icon.astro";
+import { sections, utilityLinks } from "../data/navigation.ts";
+
+interface Props {
+  currentSection: string | undefined;
+}
+
+const { currentSection } = Astro.props;
+---
+
+<dialog class="mobile" aria-labelledby="menu-mobilne" data-mobile-menu>
+  <div class="head">
+    <h2 id="menu-mobilne">Menu</h2>
+    <button type="button" class="close" data-close-dialog>
+      <Icon name="close" />
+      <span class="visually-hidden">Zamknij menu</span>
+    </button>
+  </div>
+  <nav aria-label="Główna (menu mobilne)">
+    <ul class="sections">
+      {sections.map((section) => (
+        <li>
+          {section.groups.length > 0 ? (
+            <details open={section.id === currentSection}>
+              <summary>
+                {section.label}
+                <span class="chevron">
+                  <Icon name="chevron" />
+                </span>
+              </summary>
+              <a class="overview" href={section.href}>
+                {section.label}: przegląd
+              </a>
+              {section.groups.map((group) => (
+                <section>
+                  <h3 class="tag">{group.title}</h3>
+                  <ul>
+                    {group.links.map((link) => (
+                      <li>
+                        <a href={link.href} rel={link.external === true ? "external" : undefined}>
+                          {link.label}
+                          {link.external === true && (
+                            <span class="visually-hidden">(strona zewnętrzna)</span>
+                          )}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </details>
+          ) : (
+            <a class="plain" href={section.href}>
+              {section.label}
+            </a>
+          )}
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <div class="extras">
+    <a class="cta" href="/kandydaci/rekrutacja">
+      Rekrutacja
+    </a>
+    <button type="button" class="action" aria-haspopup="dialog" data-open-settings>
+      <Icon name="settings" />
+      Ustawienia dostępności
+    </button>
+    <button type="button" class="action" data-theme-toggle>
+      <Icon name="theme" />
+      <span data-theme-label>Motyw: systemowy</span>
+    </button>
+    <ul class="utility">
+      {utilityLinks.map((link) => (
+        <li>
+          <a href={link.href} rel={link.external === true ? "external" : undefined}>
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</dialog>
+
+<style>
+  .mobile {
+    width: min(100%, 28rem);
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0 0 0 auto;
+    padding: var(--space-5);
+    border: 0;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  .mobile::backdrop {
+    background: var(--ink);
+    opacity: 0.5;
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+  }
+
+  .head h2 {
+    font-size: var(--step-2);
+  }
+
+  .close,
+  .action {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-width: var(--target);
+    min-height: var(--target);
+    padding: var(--space-2);
+    border: 0;
+    border-radius: var(--radius);
+    background: none;
+    color: var(--ink);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .close:hover,
+  .action:hover {
+    background: var(--gray);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sections > li {
+    border-bottom: var(--hairline) solid var(--line);
+  }
+
+  summary,
+  .plain {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: calc(var(--target) + var(--space-2));
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-stretch: var(--stretch-display);
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details[open] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .overview {
+    display: block;
+    margin-bottom: var(--space-3);
+    font-weight: 700;
+  }
+
+  details section {
+    margin-bottom: var(--space-4);
+  }
+
+  h3 {
+    margin-bottom: var(--space-1);
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-stretch: 100%;
+    font-weight: 500;
+  }
+
+  details li a,
+  .utility a {
+    display: flex;
+    align-items: center;
+    min-height: var(--target);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .extras {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--target);
+    border-radius: var(--radius);
+    background: var(--orange);
+    color: var(--orange-ink);
+    font-weight: 800;
+    text-decoration: none;
+  }
+</style>

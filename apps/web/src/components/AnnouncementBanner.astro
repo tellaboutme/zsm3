@@ -1,0 +1,79 @@
+---
+import Icon from "./Icon.astro";
+import type { Announcement } from "../lib/announcement.ts";
+
+interface Props {
+  announcement: Announcement;
+}
+
+const { announcement } = Astro.props;
+const dismissible = announcement.severity !== "urgent";
+const labels = { info: "Informacja", important: "Ważne", urgent: "Pilne" } as const;
+---
+
+<aside
+  class:list={["banner", announcement.severity]}
+  aria-label={`Komunikat: ${labels[announcement.severity]}`}
+  data-banner={announcement.id}
+>
+  <div class="page inner">
+    <p>
+      <strong>{labels[announcement.severity]}:</strong>
+      {announcement.text}
+      {announcement.link !== undefined && (
+        <a href={announcement.link.href}>{announcement.link.label}</a>
+      )}
+    </p>
+    {dismissible && (
+      <button type="button" class="dismiss" data-dismiss-banner={announcement.id}>
+        <Icon name="close" />
+        <span class="visually-hidden">Ukryj komunikat</span>
+      </button>
+    )}
+  </div>
+</aside>
+
+<style>
+  .banner {
+    background: var(--gray);
+    color: var(--ink);
+  }
+
+  .important {
+    background: var(--blue);
+    color: var(--blue-ink);
+  }
+
+  .urgent {
+    background: var(--danger-surface);
+    color: var(--danger-ink);
+  }
+
+  .inner {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--space-2);
+  }
+
+  a {
+    margin-left: var(--space-2);
+    color: inherit;
+    font-weight: 700;
+  }
+
+  .dismiss {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--target);
+    min-height: var(--target);
+    border: 0;
+    border-radius: var(--radius);
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+</style>

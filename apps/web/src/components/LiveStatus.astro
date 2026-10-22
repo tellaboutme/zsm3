@@ -1,0 +1,83 @@
+---
+---
+
+<section class="live" data-live-status aria-label="Teraz w szkole">
+  <div class="top">
+    <h3 class="tag">Teraz w szkole</h3>
+    <a class="tag" href="/uczniowie/dzwonki">
+      Dzwonki
+    </a>
+  </div>
+  <p class="title" data-live="title">
+    Dzwonki
+  </p>
+  <p class="detail" data-live="detail">
+    1. lekcja o 7:30
+  </p>
+  <p class="timer" data-live="timer">
+    —
+  </p>
+  <progress max="1" value="0" aria-label="Postęp bieżącej lekcji"></progress>
+</section>
+
+<style>
+  .live {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    border-radius: var(--radius);
+    background: var(--blue);
+    color: var(--blue-ink);
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    color: var(--blue-dim);
+  }
+
+  .top a {
+    color: var(--blue-ink);
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-stretch: var(--stretch-display);
+    font-weight: 800;
+    line-height: var(--leading-tight);
+  }
+
+  .timer {
+    font-family: var(--font-mono);
+    font-size: var(--step-3);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--leading-tight);
+  }
+
+  progress {
+    width: 100%;
+    height: var(--space-2);
+    border: 0;
+    border-radius: var(--radius);
+    appearance: none;
+    background: var(--blue-2);
+    accent-color: var(--orange);
+  }
+
+  progress::-webkit-progress-bar {
+    border-radius: var(--radius);
+    background: var(--blue-2);
+  }
+
+  progress::-webkit-progress-value {
+    border-radius: var(--radius);
+    background: var(--orange);
+  }
+
+  progress::-moz-progress-bar {
+    border-radius: var(--radius);
+    background: var(--orange);
+  }
+</style>
