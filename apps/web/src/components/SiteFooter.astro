@@ -1,0 +1,135 @@
+---
+import { footerGroups } from "../data/navigation.ts";
+import { school } from "../data/site.ts";
+---
+
+<footer class="site-footer">
+  <div class="page inner">
+    <section class="identity" aria-labelledby="stopka-szkola">
+      <p class="mark" aria-hidden="true">
+        ZSM<span>3</span>
+      </p>
+      <h2 id="stopka-szkola">
+        {school.name} im.&nbsp;{school.patron}
+      </h2>
+      <address>
+        {school.street}
+        <br />
+        {school.postalCode}&nbsp;{school.city}
+        <br />
+        <a href={school.mapUrl} rel="external">
+          Mapa dojazdu
+        </a>
+      </address>
+    </section>
+    <section aria-labelledby="stopka-kontakt">
+      <h2 id="stopka-kontakt" class="tag">
+        Sekretariat
+      </h2>
+      <address>
+        <a href={`tel:${school.phone}`}>
+          {school.phoneLabel} wew. {school.secretariatExtension}
+        </a>
+        <br />
+        <a href={`mailto:${school.email}`}>{school.email}</a>
+        <br />
+        <a href={`mailto:${school.officeEmail}`}>{school.officeEmail}</a>
+      </address>
+    </section>
+    {footerGroups.map((group) => (
+      <section aria-label={group.title}>
+        <h2 class="tag">{group.title}</h2>
+        <ul>
+          {group.links.map((link) => (
+            <li>
+              <a href={link.href} rel={link.external === true ? "external" : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+  <div class="page legal">
+    <p>Organ prowadzący: {school.owner}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-8);
+    padding-block: var(--space-7) var(--space-5);
+    border-top: calc(2 * var(--rule)) solid var(--orange);
+    background: var(--blue-2);
+    color: var(--blue-ink);
+  }
+
+  .inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-6);
+  }
+
+  .identity {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+
+  .mark {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-stretch: var(--stretch-wide);
+    font-weight: 900;
+    line-height: var(--leading-tight);
+  }
+
+  .mark span {
+    color: var(--orange);
+  }
+
+  .identity h2 {
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    font-stretch: 100%;
+    font-weight: 700;
+    line-height: var(--leading-snug);
+  }
+
+  .tag {
+    margin-bottom: var(--space-3);
+    color: var(--blue-dim);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-stretch: 100%;
+    font-weight: 500;
+  }
+
+  address {
+    font-style: normal;
+    overflow-wrap: anywhere;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li + li {
+    margin-top: var(--space-2);
+  }
+
+  a {
+    color: var(--blue-ink);
+  }
+
+  .legal {
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: var(--hairline) solid var(--blue);
+    color: var(--blue-dim);
+    font-size: var(--step-n1);
+  }
+</style>

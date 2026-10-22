@@ -1,0 +1,199 @@
+---
+import HeaderTools from "./HeaderTools.astro";
+import Icon from "./Icon.astro";
+import MegaPanel from "./MegaPanel.astro";
+import MobileMenu from "./MobileMenu.astro";
+import { sections } from "../data/navigation.ts";
+import { sectionFor } from "../lib/navigation.ts";
+
+interface Props {
+  path: string;
+}
+
+const current = sectionFor(sections, Astro.props.path)?.id;
+---
+
+<header class="site-header" data-site-header>
+  <div class="page bar">
+    <a class="wordmark" href="/">
+      <span class="mark" aria-hidden="true">
+        ZSM<span>3</span>
+      </span>
+      <span class="name">
+        Zespół Szkół
+        <br />
+        Mechanicznych nr&nbsp;3
+      </span>
+    </a>
+    <nav class="primary" aria-label="Główna" data-primary-nav>
+      <ul>
+        {sections.map((section) => (
+          <li>
+            {section.groups.length > 0 ? (
+              <>
+                <button
+                  type="button"
+                  class:list={["entry", { current: section.id === current }]}
+                  aria-expanded="false"
+                  aria-controls={`menu-${section.id}`}
+                  data-menu-toggle
+                >
+                  {section.label}
+                  <span class="chevron">
+                    <Icon name="chevron" />
+                  </span>
+                </button>
+                <MegaPanel section={section} />
+              </>
+            ) : (
+              <a
+                class:list={["entry", { current: section.id === current }]}
+                href={section.href}
+                aria-current={section.id === current ? "page" : undefined}
+              >
+                {section.label}
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <HeaderTools />
+  </div>
+</header>
+<MobileMenu currentSection={current} />
+
+<style>
+  .site-header {
+    position: sticky;
+    container: site-header / inline-size;
+    top: 0;
+    z-index: var(--z-header);
+    border-bottom: var(--hairline) solid var(--line);
+    background: var(--bg);
+  }
+
+  .bar {
+    display: flex;
+    gap: var(--space-4) var(--space-5);
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--header-height);
+    transition: min-height var(--duration-1) var(--ease);
+  }
+
+  .site-header[data-compact="on"] .bar {
+    min-height: var(--header-height-compact);
+  }
+
+  .wordmark {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .mark {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-stretch: var(--stretch-wide);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+
+  .mark span {
+    color: var(--orange);
+  }
+
+  .name {
+    padding-left: var(--space-3);
+    border-left: 2px solid var(--line);
+    font-size: var(--step-n1);
+    font-weight: 600;
+    line-height: var(--leading-snug);
+  }
+
+  .primary {
+    display: none;
+  }
+
+  .primary ul {
+    display: flex;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .entry {
+    position: relative;
+    display: inline-flex;
+    gap: var(--space-1);
+    align-items: center;
+    min-height: var(--target);
+    padding: var(--space-2) var(--space-3);
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .entry::after {
+    position: absolute;
+    right: var(--space-3);
+    bottom: var(--space-1);
+    left: var(--space-3);
+    height: var(--rule);
+    background: var(--orange);
+    content: "";
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-2) var(--ease);
+  }
+
+  .entry:hover::after,
+  .entry.current::after,
+  .entry[aria-expanded="true"]::after {
+    transform: scaleX(1);
+  }
+
+  .chevron {
+    display: inline-flex;
+    transition: transform var(--duration-1) var(--ease);
+  }
+
+  .entry[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+  }
+
+  @container site-header (width < 48rem) {
+    .name {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  @container site-header (80rem <= width < 92rem) {
+    .name {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  @container site-header (width >= 80rem) {
+    .primary {
+      display: block;
+    }
+  }
+</style>

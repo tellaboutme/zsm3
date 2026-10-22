@@ -1,0 +1,100 @@
+---
+import Icon from "./Icon.astro";
+---
+
+<div class="tools">
+  <a class="tool" href="/szukaj">
+    <Icon name="search" />
+    <span class="visually-hidden">Szukaj</span>
+  </a>
+  <button type="button" class="tool" aria-haspopup="dialog" data-open-settings>
+    <Icon name="settings" />
+    <span class="visually-hidden">Ustawienia dostępności</span>
+  </button>
+  <button type="button" class="tool" data-theme-toggle>
+    <Icon name="theme" />
+    <span class="visually-hidden" data-theme-label>
+      Motyw: systemowy
+    </span>
+  </button>
+  <a class="cta nudge" href="/kandydaci/rekrutacja">
+    Rekrutacja <span aria-hidden="true">→</span>
+  </a>
+  <button type="button" class="menu-button" aria-haspopup="dialog" data-open-mobile-menu>
+    <Icon name="menu" />
+    <span class="menu-label">Menu</span>
+  </button>
+</div>
+
+<style>
+  .tools {
+    display: flex;
+    gap: var(--space-1);
+    align-items: center;
+  }
+
+  .tool,
+  .menu-button {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    justify-content: center;
+    min-width: var(--target);
+    min-height: var(--target);
+    padding: var(--space-2);
+    border: 0;
+    border-radius: var(--radius);
+    background: none;
+    color: var(--ink);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .tool:hover,
+  .menu-button:hover {
+    background: var(--gray);
+  }
+
+  .cta {
+    display: none;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--target);
+    margin-left: var(--space-2);
+    padding: var(--space-2) var(--space-5);
+    border-radius: var(--radius);
+    background: var(--orange);
+    color: var(--orange-ink);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  @container site-header (width < 20rem) {
+    .menu-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  @container site-header (width < 40rem) {
+    .tool {
+      display: none;
+    }
+  }
+
+  @container site-header (width >= 40rem) {
+    .cta {
+      display: inline-flex;
+    }
+  }
+
+  @container site-header (width >= 80rem) {
+    .menu-button {
+      display: none;
+    }
+  }
+</style>

@@ -40,101 +40,112 @@ const sample = "Zażółć gęślą jaźń ŹŻĆŃĄŚŁĘÓ 0123456789";
   title="Wzornik — ZSM3"
   description="Fundament systemu wizualnego: kolory, typografia, odstępy, ruch, układy."
   noindex
+  breadcrumbs={[{ label: "Wzornik" }]}
+  announcement={{
+    id: "wzornik-przyklad",
+    severity: "important",
+    text: "Przykładowy komunikat szkoły wyświetlany nad nagłówkiem.",
+    link: { label: "Szczegóły", href: "#kolory" },
+  }}
 >
-  <header class="head">
-    <p class="tag">Wzornik · wersja robocza</p>
-    <h1>
-      <span class="rise">
-        <span>Fundament</span>
-      </span>
-      <span class="rise">
-        <span>systemu wizualnego</span>
-      </span>
-    </h1>
-    <p class="prose">
-      Tokeny, typografia, odstępy, ruch i układy, na których opiera się każda strona. Ta strona
-      istnieje tylko w wersji podglądowej.
-    </p>
-  </header>
+  <div class="pattern-library">
+    <header class="head">
+      <p class="tag">Wzornik · wersja robocza</p>
+      <h1>
+        <span class="rise">
+          <span>Fundament</span>
+        </span>
+        <span class="rise">
+          <span>systemu wizualnego</span>
+        </span>
+      </h1>
+      <p class="prose">
+        Tokeny, typografia, odstępy, ruch i układy, na których opiera się każda strona. Ta strona
+        istnieje tylko w wersji podglądowej.
+      </p>
+    </header>
 
-  <section class="block" aria-labelledby="kolory">
-    <h2 id="kolory" class="reveal">
-      Kolory
-    </h2>
-    <ul class="swatches">
-      {colours.map((colour) => (
-        <li class="reveal">
-          <span class={`chip ${colour.token.slice(2)}`} aria-hidden="true" />
-          <code>{colour.token}</code>
-          <span>{colour.use}</span>
-        </li>
-      ))}
-    </ul>
-    <div class="pairs">
-      <p class="pair on-bg">Tekst na tle strony</p>
-      <p class="pair on-gray">Tekst na szarym panelu</p>
-      <p class="pair on-blue">Biały tekst na niebieskim</p>
-      <p class="pair on-orange">Ciemny tekst na pomarańczowym</p>
-    </div>
-  </section>
+    <section class="block" aria-labelledby="kolory">
+      <h2 id="kolory" class="reveal">
+        Kolory
+      </h2>
+      <ul class="swatches">
+        {colours.map((colour) => (
+          <li class="reveal">
+            <span class={`chip ${colour.token.slice(2)}`} aria-hidden="true" />
+            <code>{colour.token}</code>
+            <span>{colour.use}</span>
+          </li>
+        ))}
+      </ul>
+      <div class="pairs">
+        <p class="pair on-bg">Tekst na tle strony</p>
+        <p class="pair on-gray">Tekst na szarym panelu</p>
+        <p class="pair on-blue">Biały tekst na niebieskim</p>
+        <p class="pair on-orange">Ciemny tekst na pomarańczowym</p>
+      </div>
+    </section>
 
-  <section class="block" aria-labelledby="typografia">
-    <h2 id="typografia" class="reveal">
-      Typografia
-    </h2>
-    <ul class="scale">
-      {steps.map((step) => (
-        <li class="reveal">
-          <code>{step}</code>
-          <span class={`specimen ${step.slice(2)}`}>{sample}</span>
-        </li>
-      ))}
-    </ul>
-    <p class="faces">
-      <span class="face-body">Source Sans 3 — tekst, nawigacja, formularze.</span>
-      <span class="face-mono">IBM Plex Mono — INF.03 · 7:30–8:15 · W6</span>
-      <span class="face-readable">Atkinson Hyperlegible Next — krój czytelny w ustawieniach.</span>
-    </p>
-  </section>
+    <section class="block" aria-labelledby="typografia">
+      <h2 id="typografia" class="reveal">
+        Typografia
+      </h2>
+      <ul class="scale">
+        {steps.map((step) => (
+          <li class="reveal">
+            <code>{step}</code>
+            <span class={`specimen ${step.slice(2)}`}>{sample}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="faces">
+        <span class="face-body">Source Sans 3 — tekst, nawigacja, formularze.</span>
+        <span class="face-mono">IBM Plex Mono — INF.03 · 7:30–8:15 · W6</span>
+        <span class="face-readable">
+          Atkinson Hyperlegible Next — krój czytelny w ustawieniach.
+        </span>
+      </p>
+    </section>
 
-  <section class="block" aria-labelledby="odstepy">
-    <h2 id="odstepy" class="reveal">
-      Odstępy
-    </h2>
-    <ul class="spaces">
-      {spaces.map((space) => (
+    <section class="block" aria-labelledby="odstepy">
+      <h2 id="odstepy" class="reveal">
+        Odstępy
+      </h2>
+      <ul class="spaces">
+        {spaces.map((space) => (
+          <li>
+            <code>{space}</code>
+            <span class={`bar ${space.slice(2)}`} aria-hidden="true" />
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="block" aria-labelledby="ruch">
+      <h2 id="ruch" class="reveal">
+        Ruch
+      </h2>
+      <ul class="motion">
+        <li>Tytuł strony wjeżdża linia po linii przy wejściu (raz).</li>
+        <li>Sekcje pojawiają się podczas przewijania.</li>
         <li>
-          <code>{space}</code>
-          <span class={`bar ${space.slice(2)}`} aria-hidden="true" />
+          <a class="nudge" href="#ruch">
+            Strzałka przesuwa się po najechaniu <span aria-hidden="true">→</span>
+          </a>
         </li>
-      ))}
-    </ul>
-  </section>
+        <li>Przy ustawieniu „mniej ruchu” wszystko jest wyłączone.</li>
+      </ul>
+    </section>
 
-  <section class="block" aria-labelledby="ruch">
-    <h2 id="ruch" class="reveal">
-      Ruch
-    </h2>
-    <ul class="motion">
-      <li>Tytuł strony wjeżdża linia po linii przy wejściu (raz).</li>
-      <li>Sekcje pojawiają się podczas przewijania.</li>
-      <li>
-        <a class="nudge" href="#ruch">
-          Strzałka przesuwa się po najechaniu <span aria-hidden="true">→</span>
-        </a>
-      </li>
-      <li>Przy ustawieniu „mniej ruchu” wszystko jest wyłączone.</li>
-    </ul>
-  </section>
-
-  <section class="block" aria-labelledby="uklady">
-    <h2 id="uklady" class="reveal">
-      Układy
-    </h2>
-    <div class="layout-aside">
-      <div class="demo">Treść główna (8 kolumn)</div>
-      <aside class="demo">Panel boczny (4 kolumny, przyklejony)</aside>
-    </div>
-    <div class="layout-narrow demo narrow">Układ wąski: formularze i strony prawne</div>
-  </section>
+    <section class="block" aria-labelledby="uklady">
+      <h2 id="uklady" class="reveal">
+        Układy
+      </h2>
+      <div class="layout-aside">
+        <div class="demo">Treść główna (8 kolumn)</div>
+        <aside class="demo">Panel boczny (4 kolumny, przyklejony)</aside>
+      </div>
+      <div class="layout-narrow demo narrow">Układ wąski: formularze i strony prawne</div>
+    </section>
+  </div>
 </Base>

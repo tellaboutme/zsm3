@@ -16,6 +16,11 @@
   --success: light-dark(#1a7f37, #6fdc8c);
   --warning: light-dark(#8a5a00, #f2cc60);
   --danger: light-dark(#b42318, #ff8a80);
+  --danger-surface: light-dark(#b42318, #ff8a80);
+  --danger-ink: light-dark(#fff, #0b1220);
+  --shadow-float: 0 1.25rem 2.5rem light-dark(#0b122029, #0009);
+  --header-height: 4.5rem;
+  --header-height-compact: 3.5rem;
   --font-display: "Archivo Variable", "Arial", sans-serif;
   --font-body: "Source Sans 3 Variable", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -51,6 +56,7 @@
   --duration-2: 380ms;
   --duration-3: 750ms;
   --z-header: 10;
+  --z-menu: 20;
   --z-dialog: 100;
   --z-skip: 1000;
 }

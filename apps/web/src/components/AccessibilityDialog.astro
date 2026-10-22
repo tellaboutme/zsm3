@@ -1,0 +1,171 @@
+---
+import Icon from "./Icon.astro";
+
+const switches = [
+  { name: "contrast", value: "high", label: "Wysoki kontrast" },
+  { name: "font", value: "readable", label: "Czytelny krój pisma" },
+  { name: "underline", value: "on", label: "Podkreślaj linki" },
+  { name: "grayscale", value: "on", label: "Skala szarości" },
+  { name: "motion", value: "reduce", label: "Ogranicz animacje" },
+] as const;
+const textSizes = [
+  { value: "", label: "Standardowy" },
+  { value: "125", label: "Większy" },
+  { value: "150", label: "Największy" },
+] as const;
+const themes = [
+  { value: "", label: "Systemowy" },
+  { value: "light", label: "Jasny" },
+  { value: "dark", label: "Ciemny" },
+] as const;
+---
+
+<dialog class="settings" aria-labelledby="ustawienia-tytul" data-settings-dialog>
+  <div class="panel" data-settings-form>
+    <div class="head">
+      <h2 id="ustawienia-tytul">Ustawienia dostępności</h2>
+      <button type="button" class="icon-button" data-close-dialog>
+        <Icon name="close" />
+        <span class="visually-hidden">Zamknij ustawienia</span>
+      </button>
+    </div>
+    <p class="note">Zmiany działają od razu i zostają zapamiętane w tej przeglądarce.</p>
+    <fieldset>
+      <legend>Wielkość tekstu</legend>
+      {textSizes.map((size) => (
+        <label class="choice">
+          <input type="radio" name="text" value={size.value} />
+          {size.label}
+        </label>
+      ))}
+    </fieldset>
+    <fieldset>
+      <legend>Motyw</legend>
+      {themes.map((theme) => (
+        <label class="choice">
+          <input type="radio" name="theme" value={theme.value} />
+          {theme.label}
+        </label>
+      ))}
+    </fieldset>
+    <fieldset>
+      <legend>Wygląd i ruch</legend>
+      {switches.map((item) => (
+        <label class="choice">
+          <input type="checkbox" name={item.name} value={item.value} />
+          {item.label}
+        </label>
+      ))}
+    </fieldset>
+    <div class="actions">
+      <button type="button" class="secondary" data-reset-settings>
+        Przywróć domyślne
+      </button>
+      <button type="button" class="primary" data-close-dialog>
+        Gotowe
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .settings {
+    width: min(100% - 2 * var(--space-4), 34rem);
+    max-height: calc(100% - 2 * var(--space-4));
+    padding: var(--space-6);
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    box-shadow: var(--shadow-float);
+  }
+
+  .settings::backdrop {
+    background: var(--ink);
+    opacity: 0.5;
+  }
+
+  .panel {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .head {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .head h2 {
+    font-size: var(--step-2);
+  }
+
+  .note {
+    color: var(--ink-2);
+  }
+
+  fieldset {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: var(--space-4);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  legend {
+    padding-inline: var(--space-2);
+    font-weight: 700;
+  }
+
+  .choice {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    min-height: var(--target);
+    cursor: pointer;
+  }
+
+  input {
+    width: var(--space-5);
+    height: var(--space-5);
+    accent-color: var(--blue);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    justify-content: flex-end;
+  }
+
+  .icon-button,
+  .secondary,
+  .primary {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    justify-content: center;
+    min-width: var(--target);
+    min-height: var(--target);
+    padding: var(--space-2) var(--space-4);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .icon-button {
+    padding: var(--space-2);
+    border-color: transparent;
+  }
+
+  .primary {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: var(--blue-ink);
+  }
+</style>

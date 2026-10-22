@@ -1,0 +1,43 @@
+---
+interface Props {
+  name: "chevron" | "search" | "settings" | "theme" | "menu" | "close" | "external";
+}
+
+const paths = {
+  chevron: ["M6 9l6 6 6-6"],
+  search: ["M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z", "M16 16l5 5"],
+  settings: ["M4 7h10", "M18 7h2", "M4 17h4", "M12 17h8", "M16 4v6", "M10 14v6"],
+  theme: ["M12 3a9 9 0 1 0 0 18z", "M12 3a9 9 0 0 1 0 18"],
+  menu: ["M4 7h16", "M4 12h16", "M4 17h16"],
+  close: ["M6 6l12 12", "M18 6L6 18"],
+  external: ["M8 16L16 8", "M9 8h7v7"],
+} as const;
+
+const { name } = Astro.props;
+---
+
+<svg
+  class="icon"
+  viewBox="0 0 24 24"
+  width="24"
+  height="24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  {paths[name].map((path) => (
+    <path d={path} />
+  ))}
+</svg>
+
+<style>
+  .icon {
+    flex: none;
+    width: 1.25em;
+    height: 1.25em;
+  }
+</style>
