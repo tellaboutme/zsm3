@@ -1,0 +1,108 @@
+---
+import { richTextSchema } from "@zsm3/contracts/rich-text";
+
+import InPageNav from "../components/content/InPageNav.astro";
+import RichText from "../components/content/RichText.astro";
+import { privacyPolicy } from "../data/legal/privacy.ts";
+import Base from "../layouts/Base.astro";
+import { longDate } from "../lib/calendar.ts";
+import { statusLabel } from "../lib/legal.ts";
+
+const document = privacyPolicy;
+const sections = document.sections.map((section) => ({
+  ...section,
+  document: richTextSchema.parse(section.document),
+  blocks: [],
+}));
+---
+
+<Base
+  title={`${document.title} — ZSM3`}
+  description={document.intro}
+  breadcrumbs={[{ label: document.title }]}
+>
+  <article class="legal">
+    <header class="intro">
+      <h1>{document.title}</h1>
+      <p class="lead">{document.intro}</p>
+      <dl class="meta">
+        <div>
+          <dt>Wersja</dt>
+          <dd class="mono">{document.version}</dd>
+        </div>
+        <div>
+          <dt>Aktualizacja</dt>
+          <dd>
+            <time datetime={document.updated}>{longDate(document.updated)}</time>
+          </dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>{statusLabel(document)}</dd>
+        </div>
+      </dl>
+    </header>
+    <InPageNav sections={sections} />
+    {sections.map((section) => (
+      <section id={section.id} aria-labelledby={`${section.id}-tytul`}>
+        <h2 id={`${section.id}-tytul`}>{section.title}</h2>
+        <RichText document={section.document} />
+      </section>
+    ))}
+  </article>
+</Base>
+
+<style>
+  .legal {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    max-width: calc(var(--measure) + var(--space-8));
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  h1 {
+    font-size: var(--step-3);
+    hyphens: auto;
+  }
+
+  .lead {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    margin: 0;
+    padding: var(--space-4);
+    border-radius: var(--radius);
+    background: var(--gray);
+  }
+
+  dt {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  section {
+    display: grid;
+    gap: var(--space-3);
+    scroll-margin-top: var(--header-height);
+  }
+
+  h2 {
+    font-size: var(--step-2);
+  }
+</style>

@@ -1,0 +1,60 @@
+---
+import "../../styles/search-results.css";
+import SearchBox from "../../components/SearchBox.astro";
+import Base from "../../layouts/Base.astro";
+---
+
+<Base
+  title="Szukaj — ZSM3"
+  description="Wyszukiwarka stron, kierunków, aktualności, dokumentów i terminów Zespołu Szkół Mechanicznych nr 3."
+  breadcrumbs={[{ label: "Szukaj" }]}
+>
+  <div class="search-page">
+    <header class="intro">
+      <h1>
+        <span class="rise">
+          <span>Szukaj</span>
+        </span>
+      </h1>
+      <SearchBox id="szukaj-strona" label="Wpisz słowo, np. dzwonki, legitymacja, informatyk" />
+    </header>
+    <p class="status" role="status" data-search-status></p>
+    <div class="results" data-search-results></div>
+    <noscript>
+      <p class="note">
+        Wyszukiwarka działa w przeglądarce z włączonym JavaScriptem. Wszystkie strony znajdziesz też
+        na <a href="/mapa-strony">mapie strony</a>.
+      </p>
+    </noscript>
+  </div>
+</Base>
+
+<script>
+  import "../../scripts/search.ts";
+</script>
+
+<style>
+  .search-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    max-width: 52rem;
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  h1 {
+    font-size: var(--step-title);
+    font-stretch: var(--stretch-wide);
+  }
+
+  .status,
+  .note {
+    color: var(--ink-2);
+  }
+</style>

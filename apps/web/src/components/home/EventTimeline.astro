@@ -4,7 +4,8 @@ import { schoolYearEvents } from "../../data/calendar/index.ts";
 import { isoDay, longDate, upcomingEvents } from "../../lib/calendar.ts";
 
 const VISIBLE = 5;
-const events = upcomingEvents(schoolYearEvents, isoDay(new Date()), schoolYearEvents.length);
+const events = upcomingEvents(schoolYearEvents, "", schoolYearEvents.length);
+const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIBLE));
 ---
 
 <section class="timeline" aria-labelledby="co-przed-nami">
@@ -15,13 +16,13 @@ const events = upcomingEvents(schoolYearEvents, isoDay(new Date()), schoolYearEv
     link={{ label: "Cały terminarz", href: "/szkola/terminarz" }}
   />
   <ol class="events" data-upcoming={VISIBLE}>
-    {events.map((event, index) => (
+    {events.map((event) => (
       <li
         class="event"
         data-event
         data-date={event.date}
         data-end-date={event.endDate}
-        hidden={index >= VISIBLE}
+        hidden={!shown.has(event)}
       >
         <p class="when">
           <time datetime={event.date}>{longDate(event.date)}</time>
@@ -37,7 +38,7 @@ const events = upcomingEvents(schoolYearEvents, isoDay(new Date()), schoolYearEv
       </li>
     ))}
   </ol>
-  <p class="empty" data-no-events hidden={events.length > 0}>
+  <p class="empty" data-no-events hidden={shown.size > 0}>
     Nie ma zaplanowanych wydarzeń. Sprawdź terminarz roku szkolnego.
   </p>
 </section>

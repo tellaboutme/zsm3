@@ -344,6 +344,12 @@ Stage 1 notes for the everyday templates:
 - The calendar filters are pure CSS like the professions listing; JavaScript hides empty months, announces the count and shows the empty state. `/szkola/terminarz.ics` is generated at build time (RFC 5545: CRLF, escaping, 75-octet folding).
 - Meetings and contact fixtures carry rooms, roles, extensions and role mailboxes only; names of staff come from the panel at runtime. Office hours are shown once the school provides them.
 
+Stage 1 notes for the utility pages:
+
+- `/mapa-strony` renders the tree from `data/site-map.ts`; an end-to-end crawl from the home page fails the build when a reachable page is missing from the map. `sitemap.xml` needs absolute URLs and ships in stage 2 with the production domain.
+- `/szukaj` searches a static index (`/szukaj/indeks.json`, built from the site map, programmes, news, forms and calendar) in the browser: Polish letters folded, simple suffix stemming, all words required, title matches ranked first, results grouped by type and rendered without `innerHTML`. Stage 2 swaps the index for the D1 FTS5 endpoint behind the same page.
+- `/polityka-prywatnosci` uses the legal layout (metadata, in-page navigation) and describes exactly what the public site does; it is marked as a draft until the school's data protection officer approves it.
+
 ## 5. Fittings (components)
 
 Every component lives in `apps/web/src/components/`, takes typed props from `packages/contracts`, and has an entry on the pattern page `/wzornik` (built only with `pnpm build:preview`, never in production).

@@ -1,0 +1,55 @@
+---
+import SiteMapTree from "../components/SiteMapTree.astro";
+import { siteMap } from "../data/site-map.ts";
+import Base from "../layouts/Base.astro";
+import { flattenMap } from "../lib/site-map.ts";
+---
+
+<Base
+  title="Mapa strony — ZSM3"
+  description="Wszystkie strony serwisu Zespołu Szkół Mechanicznych nr 3 w jednym miejscu."
+  breadcrumbs={[{ label: "Mapa strony" }]}
+>
+  <div class="site-map">
+    <header class="intro">
+      <p class="tag">Serwis · {flattenMap(siteMap).length} stron</p>
+      <h1>
+        <span class="rise">
+          <span>Mapa strony</span>
+        </span>
+      </h1>
+      <p class="lead">Wszystkie strony serwisu, uporządkowane tak jak w menu.</p>
+    </header>
+    <nav aria-label="Mapa strony">
+      <SiteMapTree nodes={siteMap} />
+    </nav>
+  </div>
+</Base>
+
+<style>
+  .site-map {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .tag {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-title);
+    font-stretch: var(--stretch-wide);
+  }
+
+  .lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+  }
+</style>
