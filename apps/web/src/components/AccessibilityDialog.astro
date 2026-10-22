@@ -21,7 +21,7 @@ const themes = [
 ---
 
 <dialog class="settings" aria-labelledby="ustawienia-tytul" data-settings-dialog>
-  <form method="dialog" data-settings-form>
+  <div class="panel" data-settings-form>
     <div class="head">
       <h2 id="ustawienia-tytul">Ustawienia dostępności</h2>
       <button type="button" class="icon-button" data-close-dialog>
@@ -65,7 +65,7 @@ const themes = [
         Gotowe
       </button>
     </div>
-  </form>
+  </div>
 </dialog>
 
 <style>
@@ -85,7 +85,7 @@ const themes = [
     opacity: 0.5;
   }
 
-  form {
+  .panel {
     display: grid;
     gap: var(--space-5);
   }

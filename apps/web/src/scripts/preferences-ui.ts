@@ -39,7 +39,7 @@ function apply(preferences: Preferences): void {
   }
 }
 
-function syncForm(form: HTMLFormElement, preferences: Preferences): void {
+function syncForm(form: HTMLElement, preferences: Preferences): void {
   for (const input of form.querySelectorAll("input")) {
     const name = preferenceNames.find((known) => known === input.name);
     if (name !== undefined) {
@@ -55,7 +55,7 @@ function valueOf(input: HTMLInputElement): string | undefined {
 
 export function initPreferences(): void {
   let preferences = load();
-  const form = document.querySelector<HTMLFormElement>("[data-settings-form]");
+  const form = document.querySelector<HTMLElement>("[data-settings-form]");
   const update = (name: PreferenceName, value: string | undefined): void => {
     preferences = withPreference(preferences, name, value);
     save(preferences);
