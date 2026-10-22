@@ -1,0 +1,205 @@
+---
+import "../../styles/calendar-filters.css";
+import KeyDates from "../../components/calendar/KeyDates.astro";
+import RadioFilters from "../../components/RadioFilters.astro";
+import { calendarPdf, schoolYearEvents } from "../../data/calendar/index.ts";
+import Base from "../../layouts/Base.astro";
+import { byMonth, eventKindLabels, eventKinds, longDate } from "../../lib/calendar.ts";
+
+const keyDates = schoolYearEvents.filter((event) => event.key === true);
+const groups = [
+  {
+    name: "dla",
+    legend: "Dla kogo",
+    options: [
+      { value: "wszyscy", label: "Wszyscy" },
+      { value: "Uczniowie", label: "Uczniowie" },
+      { value: "Rodzice", label: "Rodzice" },
+    ],
+  },
+  {
+    name: "rodzaj",
+    legend: "Rodzaj",
+    options: [
+      { value: "wszystkie", label: "Wszystkie" },
+      ...eventKinds.map((kind) => ({ value: kind, label: eventKindLabels[kind] })),
+    ],
+  },
+];
+---
+
+<Base
+  title="Terminarz roku szkolnego 2026/2027 — ZSM3"
+  description="Rozpoczęcie i zakończenie roku, przerwy, dni wolne, zebrania z rodzicami, klasyfikacja, praktyki i egzaminy w roku szkolnym 2026/2027."
+  breadcrumbs={[{ label: "Szkoła", href: "/szkola" }, { label: "Terminarz" }]}
+>
+  <div class="calendar">
+    <header class="intro">
+      <p class="tag">Szkoła · rok szkolny 2026/2027</p>
+      <h1>
+        <span class="rise">
+          <span>Terminarz</span>
+        </span>
+      </h1>
+      <p class="lead">
+        Najważniejsze daty roku szkolnego: przerwy, dni wolne, zebrania, klasyfikacja, praktyki i
+        egzaminy.
+      </p>
+      <div class="exports">
+        <a class="export" href="/szkola/terminarz.ics" download>
+          Dodaj do kalendarza (.ics)
+        </a>
+        <a class="export" href={calendarPdf}>
+          Wersja PDF
+        </a>
+      </div>
+    </header>
+    <KeyDates events={keyDates} />
+    <section class="all" aria-labelledby="wszystkie">
+      <h2 id="wszystkie">Wszystkie terminy</h2>
+      <RadioFilters groups={groups} hook="calendar" />
+      <p class="visually-hidden" role="status" data-filter-status></p>
+      <p class="empty" data-no-matches hidden>
+        Brak terminów dla wybranych filtrów.
+      </p>
+      {byMonth(schoolYearEvents).map((group) => (
+        <section class="month" aria-label={group.label} data-month>
+          <h3>{group.label}</h3>
+          <ol>
+            {group.events.map((event) => (
+              <li class="event" data-audience={event.audience} data-kind={event.kind}>
+                <p class="when">
+                  <time datetime={event.date}>{longDate(event.date)}</time>
+                  {event.endDate !== undefined && (
+                    <>
+                      {" – "}
+                      <time datetime={event.endDate}>{longDate(event.endDate)}</time>
+                    </>
+                  )}
+                </p>
+                <div>
+                  <p class="what">{event.title}</p>
+                  {event.note !== undefined && <p class="note">{event.note}</p>}
+                </div>
+                <p class="tag kind">
+                  {eventKindLabels[event.kind]} · {event.audience}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </section>
+  </div>
+</Base>
+
+<script>
+  import "../../scripts/calendar.ts";
+</script>
+
+<style>
+  .calendar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .tag {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-stretch: var(--stretch-wide);
+  }
+
+  h2 {
+    font-size: var(--step-3);
+  }
+
+  .lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .export {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    padding: var(--space-2) var(--space-4);
+    border: var(--hairline) solid var(--ink);
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .export:hover {
+    background: var(--gray);
+  }
+
+  section {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .when {
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .what {
+    font-weight: 700;
+  }
+
+  .month {
+    gap: var(--space-3);
+  }
+
+  .month h3 {
+    font-size: var(--step-2);
+  }
+
+  .month ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .event {
+    display: grid;
+    gap: var(--space-1) var(--space-5);
+    padding-block: var(--space-3);
+    border-bottom: var(--hairline) solid var(--line);
+  }
+
+  .note {
+    color: var(--ink-2);
+  }
+
+  .empty {
+    padding: var(--space-5);
+    border-radius: var(--radius);
+    background: var(--gray);
+  }
+
+  @media (width >= 56rem) {
+    .event {
+      grid-template-columns: 17rem minmax(0, 1fr) 14rem;
+      align-items: baseline;
+    }
+  }
+</style>

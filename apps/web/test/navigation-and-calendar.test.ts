@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { schoolYearEvents } from "../src/data/calendar.ts";
+import { schoolYearEvents } from "../src/data/calendar/index.ts";
 import { footerGroups, sections, utilityLinks } from "../src/data/navigation.ts";
 import { isoDay, longDate, nextEvent, polishDate, warsawDay } from "../src/lib/calendar.ts";
 import { sectionFor } from "../src/lib/navigation.ts";

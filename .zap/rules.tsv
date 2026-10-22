@@ -39,7 +39,7 @@
 10061	FAIL	(X-AspNet-Version Response Header)
 10062	FAIL	(PII Disclosure)
 10063	FAIL	(Permissions Policy Header Not Set)
-10094	FAIL	(Base64 Disclosure)
+10094	IGNORE	(Base64 Disclosure)
 10096	FAIL	(Timestamp Disclosure)
 10097	FAIL	(Hash Disclosure)
 10098	FAIL	(Cross-Domain Misconfiguration)

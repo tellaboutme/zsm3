@@ -1,0 +1,78 @@
+---
+import type { TimelineItem } from "../../lib/content.ts";
+
+interface Props {
+  items: readonly TimelineItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<ol class="timeline">
+  {items.map((item) => (
+    <li class="reveal">
+      <p class="label">{item.label}</p>
+      <h3>{item.title}</h3>
+      <p class="text">{item.text}</p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .timeline {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    position: relative;
+    display: grid;
+    gap: var(--space-1) var(--space-5);
+    padding: var(--space-4) 0 var(--space-4) var(--space-6);
+    border-left: var(--rule) solid var(--line);
+  }
+
+  li::before {
+    position: absolute;
+    top: var(--space-5);
+    left: calc(-1 * var(--space-2) - var(--rule) / 2);
+    width: var(--space-4);
+    height: var(--space-4);
+    border: var(--rule) solid var(--orange);
+    border-radius: 50%;
+    background: var(--bg);
+    content: "";
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .text {
+    max-width: var(--measure);
+    color: var(--ink-2);
+  }
+
+  @media (width >= 56rem) {
+    li {
+      grid-template-columns: 9rem minmax(0, 1fr);
+    }
+
+    h3,
+    .text {
+      grid-column: 2;
+    }
+
+    .label {
+      grid-row: 1 / span 2;
+    }
+  }
+</style>

@@ -6,7 +6,7 @@ function checkedValue(form: HTMLElement, name: string): string | undefined {
 }
 
 function initProgrammeFilters(): void {
-  const form = document.querySelector<HTMLElement>("[data-programme-filters]");
+  const form = document.querySelector<HTMLElement>('[data-filters="programmes"]');
   const status = document.querySelector("[data-filter-status]");
   const empty = document.querySelector<HTMLElement>("[data-no-programmes]");
   if (form === null || status === null || empty === null) {

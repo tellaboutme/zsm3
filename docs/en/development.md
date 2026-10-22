@@ -57,6 +57,16 @@ Every test in `apps/worker/test` runs twice: in Node, where mutation testing run
 
 `main` changes only through pull requests. A pull request is merged when every CI job is green: format, lint, types, unit and integration tests, mutation tests, end-to-end tests, ZAP, static security analysis, dependency review and CodeQL.
 
+## ZAP rules that do not fail the build
+
+`.zap/rules.tsv` fails the baseline scan on every alert except these, which do not apply to a static site with no sessions or secrets in pages:
+
+| Rule  | Name                           | Why it is ignored                                                                                                                                                                                  |
+| ----- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 10049 | Content Cacheability           | Informational report of cache headers; caching is set deliberately in `_headers` and tested end to end.                                                                                            |
+| 90005 | Fetch Metadata Request Headers | Asks the server to validate `Sec-Fetch-*` on requests; the pages are static and carry no state that a cross-site request could change.                                                             |
+| 10094 | Base64 Disclosure              | Matches any 30-character run of letters, digits and slashes, so it fires on ordinary URL paths and content-addressed file keys. Secrets in the repository and build output are caught by gitleaks. |
+
 ## Known local limitation (Windows 11 build 26200)
 
 Playwright's Firefox and full Chromium builds fail to start on this Windows build (side-by-side configuration error). Chromium headless shell and WebKit work, so locally run:

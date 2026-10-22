@@ -1,0 +1,132 @@
+---
+import TaskGroups from "../../components/hub/TaskGroups.astro";
+import MenuFeature from "../../components/MenuFeature.astro";
+import NewsCard from "../../components/news/NewsCard.astro";
+import { hubs, type Hub } from "../../data/hubs.ts";
+import { sections } from "../../data/navigation.ts";
+import { news } from "../../data/news/index.ts";
+import Base from "../../layouts/Base.astro";
+import type { NavSection } from "../../lib/navigation.ts";
+import { latestNews } from "../../lib/news.ts";
+
+interface Props {
+  hub: Hub;
+  section: NavSection;
+}
+
+export function getStaticPaths(): { params: { section: string }; props: Props }[] {
+  return hubs.flatMap((hub) => {
+    const section = sections.find((candidate) => candidate.id === hub.section);
+    return section === undefined
+      ? []
+      : [{ params: { section: hub.section }, props: { hub, section } }];
+  });
+}
+
+const { hub, section } = Astro.props;
+---
+
+<Base
+  title={`${section.label} — ZSM3`}
+  description={hub.intro}
+  breadcrumbs={[{ label: section.label }]}
+>
+  <div class="hub">
+    <header class="intro">
+      <h1>
+        <span class="rise">
+          <span>{section.label}</span>
+        </span>
+      </h1>
+      <p class="lead">{hub.intro}</p>
+      <a class="action nudge" href={hub.action.href}>
+        {hub.action.label} <span aria-hidden="true">→</span>
+      </a>
+    </header>
+    {section.featured !== undefined && (
+      <div class="feature">
+        <MenuFeature feature={section.featured} />
+      </div>
+    )}
+    <TaskGroups groups={section.groups} />
+    <section class="news" aria-labelledby="aktualnosci">
+      <h2 id="aktualnosci">Aktualności</h2>
+      <ul>
+        {latestNews(news, 3).map((item) => (
+          <li>
+            <NewsCard item={item} />
+          </li>
+        ))}
+      </ul>
+      <a class="more nudge" href="/aktualnosci">
+        Wszystkie aktualności <span aria-hidden="true">→</span>
+      </a>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .hub {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  h1 {
+    font-size: var(--step-4);
+    font-stretch: var(--stretch-wide);
+    hyphens: auto;
+  }
+
+  .lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .action {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--target);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius);
+    background: var(--orange);
+    color: var(--orange-ink);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .feature {
+    max-width: 32rem;
+  }
+
+  .news {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .news h2 {
+    font-size: var(--step-3);
+  }
+
+  .news ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .more {
+    font-weight: 700;
+  }
+</style>

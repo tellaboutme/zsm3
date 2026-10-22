@@ -1,0 +1,74 @@
+---
+import type { NavGroup } from "../../lib/navigation.ts";
+import Icon from "../Icon.astro";
+
+interface Props {
+  groups: readonly NavGroup[];
+}
+
+const { groups } = Astro.props;
+---
+
+<div class="groups">
+  {groups.map((group) => (
+    <div class="group">
+      <h2>{group.title}</h2>
+      <ul>
+        {group.links.map((link) => (
+          <li>
+            <a href={link.href}>
+              {link.label}
+              {link.external === true && (
+                <>
+                  <Icon name="external" />
+                  <span class="visually-hidden">(otwiera serwis zewnętrzny)</span>
+                </>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
+
+<style>
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-6) var(--space-5);
+  }
+
+  .group {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    padding-top: var(--space-4);
+    border-top: var(--rule) solid var(--ink);
+  }
+
+  h2 {
+    font-size: var(--step-1);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--target);
+    border-bottom: var(--hairline) solid var(--line);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--link);
+  }
+</style>

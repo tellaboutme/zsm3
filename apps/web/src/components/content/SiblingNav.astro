@@ -1,0 +1,62 @@
+---
+import type { NavLink } from "../../lib/navigation.ts";
+
+interface Props {
+  title: string;
+  links: readonly NavLink[];
+}
+
+const { title, links } = Astro.props;
+---
+
+{links.length > 0 && (
+  <nav class="siblings" aria-label={title}>
+    <h2>{title}</h2>
+    <ul>
+      {links.map((link) => (
+        <li>
+          <a class="nudge" href={link.href}>
+            {link.label} <span aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<style>
+  .siblings {
+    display: grid;
+    gap: var(--space-4);
+    padding-top: var(--space-5);
+    border-top: var(--rule) solid var(--ink);
+  }
+
+  h2 {
+    font-size: var(--step-2);
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: 0 var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    justify-content: space-between;
+    min-height: var(--target);
+    padding-block: var(--space-3);
+    border-bottom: var(--hairline) solid var(--line);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--link);
+  }
+</style>
