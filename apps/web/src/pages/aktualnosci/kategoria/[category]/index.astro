@@ -1,22 +1,17 @@
 ---
 import NewsListing from "../../../../components/news/NewsListing.astro";
-import { news } from "../../../../data/news/index.ts";
 import Base from "../../../../layouts/Base.astro";
-import { categoryHref, newsCategories, type Category } from "../../../../lib/news.ts";
+import { loadListing } from "../../../../lib/news-listing.ts";
+import { categoryHref } from "../../../../lib/news.ts";
+import { newsReader, notFound } from "../../../../server/news.ts";
 
-interface Props {
-  category: Category;
+export const prerender = false;
+
+const listing = await loadListing(newsReader(), { category: Astro.params["category"] }, undefined);
+const category = listing?.category;
+if (listing === undefined || category === undefined) {
+  return notFound();
 }
-
-export function getStaticPaths(): { params: { category: string }; props: Props }[] {
-  return newsCategories(news).map((category) => ({
-    params: { category: category.slug },
-    props: { category },
-  }));
-}
-
-const { category } = Astro.props;
-const items = news.filter((item) => item.category === category.name);
 ---
 
 <Base
@@ -24,11 +19,5 @@ const items = news.filter((item) => item.category === category.name);
   description={`Aktualności z kategorii ${category.name}.`}
   breadcrumbs={[{ label: "Aktualności", href: "/aktualnosci" }, { label: category.name }]}
 >
-  <NewsListing
-    items={items}
-    page={1}
-    base={categoryHref(category)}
-    heading={category.name}
-    category={category.slug}
-  />
+  <NewsListing listing={listing} base={categoryHref(category)} heading={category.name} />
 </Base>

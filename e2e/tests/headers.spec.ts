@@ -16,7 +16,7 @@ const pageHeaders = {
 
 test.describe("response headers", () => {
   test("pages carry the full security policy", async ({ request }) => {
-    for (const path of ["/", "/nie-istnieje", "/robots.txt"]) {
+    for (const path of ["/", "/kontakt", "/aktualnosci", "/nie-istnieje", "/robots.txt"]) {
       const response = await request.get(path);
       const headers = response.headers();
 
@@ -28,6 +28,20 @@ test.describe("response headers", () => {
         expect(headers[name], `${path} ${name}`).toBe(value);
       }
     }
+  });
+
+  test("pages rendered on demand revalidate and accept only reads", async ({ request }) => {
+    const page = await request.get("/aktualnosci");
+    const missing = await request.get("/aktualnosci/kategoria/nie-ma-takiej");
+    const posted = await request.post("/aktualnosci");
+
+    expect(page.status()).toBe(200);
+    expect(page.headers()["cache-control"]).toBe("public, max-age=0, must-revalidate");
+    expect(missing.status()).toBe(404);
+    expect(await missing.text()).toContain("Nie znaleziono strony");
+    expect(posted.status()).toBe(405);
+    expect(posted.headers()["allow"]).toBe("GET, HEAD");
+    expect(posted.headers()["content-security-policy"]).toMatch(contentSecurityPolicy);
   });
 
   test("fingerprinted assets are cached forever", async ({ page, request }) => {

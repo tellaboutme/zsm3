@@ -3,7 +3,15 @@ import { createHash } from "node:crypto";
 import { describe, it } from "vitest";
 
 import { bootScript } from "../src/lib/preferences.ts";
-import { contentSecurityPolicy, renderHeaders, sha256Base64 } from "../src/lib/security-headers.ts";
+import {
+  contentSecurityPolicy,
+  ON_DEMAND_CACHE,
+  pageHeaders,
+  renderHeaders,
+  sha256Base64,
+  sitePageHeaders,
+  withHeaders,
+} from "../src/lib/security-headers.ts";
 
 const expectedStaticHeaders = [
   "Strict-Transport-Security: max-age=63072000; includeSubDomains; preload",
@@ -17,8 +25,8 @@ const expectedStaticHeaders = [
 ];
 
 describe("sha256Base64", () => {
-  it("matches the CSP hash format", ({ expect }) => {
-    expect(sha256Base64("abc")).toBe("ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=");
+  it("matches the CSP hash format", async ({ expect }) => {
+    expect(await sha256Base64("abc")).toBe("ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=");
   });
 });
 
@@ -48,5 +56,41 @@ describe("rendered _headers file", () => {
         "",
       ].join("\n"),
     );
+  });
+});
+
+describe("headers for pages rendered on demand", () => {
+  it("carry the same policy as the static pages", async ({ expect }) => {
+    const hash = createHash("sha256").update(bootScript).digest("base64");
+
+    expect(await sitePageHeaders()).toEqual(pageHeaders({ scriptHashes: [hash] }));
+    expect((await sitePageHeaders()).map(([name, value]) => `${name}: ${value}`)).toEqual([
+      `Content-Security-Policy: ${contentSecurityPolicy({ scriptHashes: [hash] })}`,
+      ...expectedStaticHeaders,
+    ]);
+  });
+
+  it("make browsers revalidate every rendered page", ({ expect }) => {
+    expect(ON_DEMAND_CACHE).toBe("public, max-age=0, must-revalidate");
+  });
+
+  it("replace existing values and keep the response", async ({ expect }) => {
+    const original = new Response("treść", {
+      status: 404,
+      headers: { "X-Frame-Options": "SAMEORIGIN", "Content-Type": "text/html" },
+    });
+
+    const secured = withHeaders(original, [
+      ["X-Frame-Options", "DENY"],
+      ["Cache-Control", "no-store"],
+    ]);
+
+    expect(secured.status).toBe(404);
+    expect(Object.fromEntries(secured.headers)).toEqual({
+      "cache-control": "no-store",
+      "content-type": "text/html",
+      "x-frame-options": "DENY",
+    });
+    expect(await secured.text()).toBe("treść");
   });
 });

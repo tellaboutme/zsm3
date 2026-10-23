@@ -1,13 +1,9 @@
-import { plainText } from "@zsm3/contracts/rich-text";
-
 import { schoolYearEvents } from "./calendar/index.ts";
 import { documentGroups } from "./documents.ts";
-import { news } from "./news/index.ts";
 import { professions } from "./professions.ts";
 import { programmes } from "./programmes/index.ts";
 import { siteMap } from "./site-map.ts";
 import { longDate } from "../lib/calendar.ts";
-import { newsHref } from "../lib/news.ts";
 import { schoolLabels } from "../lib/professions.ts";
 import { examCodes, professionOf, programmeHref } from "../lib/programmes.ts";
 import type { SearchEntry } from "../lib/search.ts";
@@ -31,13 +27,6 @@ const programmeEntries: readonly SearchEntry[] = programmes.map((programme) => {
   };
 });
 
-const newsEntries: readonly SearchEntry[] = news.map((item) => ({
-  type: "aktualnosc",
-  title: item.title,
-  href: newsHref(item),
-  text: `${item.category} ${item.lead} ${plainText(item.body)}`,
-}));
-
 const documentEntries: readonly SearchEntry[] = documentGroups.flatMap((group) =>
   group.documents.map((document) => ({
     type: "dokument",
@@ -54,10 +43,9 @@ const eventEntries: readonly SearchEntry[] = schoolYearEvents.map((event) => ({
   text: [longDate(event.date), event.note ?? "", event.audience].join(" "),
 }));
 
-export const searchIndex: readonly SearchEntry[] = [
+export const staticSearchEntries: readonly SearchEntry[] = [
   ...pages,
   ...programmeEntries,
-  ...newsEntries,
   ...documentEntries,
   ...eventEntries,
 ];

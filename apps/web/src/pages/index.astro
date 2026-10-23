@@ -5,11 +5,13 @@ import HomeHero from "../components/home/HomeHero.astro";
 import NewsSection from "../components/home/NewsSection.astro";
 import NumbersStrip from "../components/home/NumbersStrip.astro";
 import ProfessionFinder from "../components/home/ProfessionFinder.astro";
-import { news } from "../data/news/index.ts";
 import Base from "../layouts/Base.astro";
-import { latestNews } from "../lib/news.ts";
+import { latestNews } from "../lib/news-listing.ts";
+import { newsReader } from "../server/news.ts";
 
-const [featured, ...recent] = latestNews(news, 5);
+export const prerender = false;
+
+const [featured, ...recent] = await latestNews(newsReader(), 5);
 ---
 
 <Base

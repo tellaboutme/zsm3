@@ -1,8 +1,26 @@
 import { newsSchema, type News, type PublicationStatus } from "@zsm3/contracts/content";
 import { z } from "zod";
 
-import { allRows, firstRow, timestamp, type SqlDatabase, type Store } from "./database.ts";
+import {
+  allRows,
+  firstRow,
+  timestamp,
+  type SqlDatabase,
+  type SqlStatement,
+  type Store,
+} from "./database.ts";
 import { uuidv7 } from "./ids.ts";
+import {
+  COUNT_PUBLISHED,
+  SELECT_CATEGORIES,
+  SELECT_NEWER,
+  SELECT_OLDER,
+  SELECT_ONE,
+  SELECT_PUBLISHED,
+  SELECT_RELATED,
+  SELECT_YEARS,
+  UPSERT_NEWS,
+} from "./news-sql.ts";
 
 export interface NewsFilter {
   readonly category?: string;
@@ -14,11 +32,18 @@ export interface NewsPage {
   readonly offset: number;
 }
 
+export interface Neighbours {
+  readonly newer: News | undefined;
+  readonly older: News | undefined;
+}
+
 export interface NewsRepo {
   save(item: News, status: PublicationStatus): Promise<void>;
   published(filter: NewsFilter, page: NewsPage): Promise<readonly News[]>;
   countPublished(filter: NewsFilter): Promise<number>;
   find(year: string, slug: string): Promise<News | undefined>;
+  neighbours(item: News): Promise<Neighbours>;
+  related(item: News, limit: number): Promise<readonly News[]>;
   categories(): Promise<readonly string[]>;
   years(): Promise<readonly string[]>;
 }
@@ -35,26 +60,6 @@ const newsRowSchema = z.object({
 });
 
 type NewsRow = z.infer<typeof newsRowSchema>;
-
-const INSERT = `INSERT INTO news
-  (id, slug, published_on, category, title, lead, body_json, cover_caption, cover_credit, status, created_at, updated_at)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  ON CONFLICT (year, slug) DO UPDATE SET
-    published_on = excluded.published_on, category = excluded.category,
-    title = excluded.title, lead = excluded.lead, body_json = excluded.body_json,
-    cover_caption = excluded.cover_caption, cover_credit = excluded.cover_credit,
-    status = excluded.status, updated_at = excluded.updated_at`;
-
-const SELECT_PUBLISHED = `SELECT slug, published_on, category, title, lead, body_json, cover_caption, cover_credit
-  FROM news
-  WHERE status = 'published' AND (?1 IS NULL OR category = ?1) AND (?2 IS NULL OR year = ?2)
-  ORDER BY published_on DESC, slug ASC LIMIT ?3 OFFSET ?4`;
-
-const COUNT_PUBLISHED = `SELECT count(*) AS total FROM news
-  WHERE status = 'published' AND (?1 IS NULL OR category = ?1) AND (?2 IS NULL OR year = ?2)`;
-
-const SELECT_ONE = `SELECT slug, published_on, category, title, lead, body_json, cover_caption, cover_credit
-  FROM news WHERE status = 'published' AND year = ? AND slug = ?`;
 
 export function newsFromRow(row: NewsRow): News {
   const body: unknown = JSON.parse(row.body_json);
@@ -84,7 +89,7 @@ async function saveNews(
   const news = newsSchema.parse(item);
   const now = timestamp(clock);
   await db
-    .prepare(INSERT)
+    .prepare(UPSERT_NEWS)
     .bind(
       uuidv7(clock().getTime(), random),
       news.slug,
@@ -119,9 +124,22 @@ async function countNews(db: SqlDatabase, filter: NewsFilter): Promise<number> {
   return rows.reduce((sum, row) => sum + row.total, 0);
 }
 
-async function findNews(db: SqlDatabase, year: string, slug: string): Promise<News | undefined> {
-  const row = await firstRow(db.prepare(SELECT_ONE).bind(year, slug), newsRowSchema);
+async function oneNews(statement: SqlStatement): Promise<News | undefined> {
+  const row = await firstRow(statement, newsRowSchema);
   return row === undefined ? undefined : newsFromRow(row);
+}
+
+async function neighbourNews(db: SqlDatabase, item: News): Promise<Neighbours> {
+  const [newer, older] = await Promise.all([
+    oneNews(db.prepare(SELECT_NEWER).bind(item.date, item.slug)),
+    oneNews(db.prepare(SELECT_OLDER).bind(item.date, item.slug)),
+  ]);
+  return { newer, older };
+}
+
+async function relatedNews(db: SqlDatabase, item: News, limit: number): Promise<readonly News[]> {
+  const statement = db.prepare(SELECT_RELATED).bind(item.date, item.slug, item.category, limit);
+  return (await allRows(statement, newsRowSchema)).map(newsFromRow);
 }
 
 async function distinctValues(db: SqlDatabase, query: string): Promise<readonly string[]> {
@@ -135,16 +153,10 @@ export function newsRepo(store: Store): NewsRepo {
     save: async (item, status) => saveNews(store, item, status),
     published: async (filter, page) => publishedNews(db, filter, page),
     countPublished: async (filter) => countNews(db, filter),
-    find: async (year, slug) => findNews(db, year, slug),
-    categories: async () =>
-      distinctValues(
-        db,
-        "SELECT DISTINCT category AS value FROM news WHERE status = 'published' ORDER BY category",
-      ),
-    years: async () =>
-      distinctValues(
-        db,
-        "SELECT DISTINCT year AS value FROM news WHERE status = 'published' ORDER BY year DESC",
-      ),
+    find: async (year, slug) => oneNews(db.prepare(SELECT_ONE).bind(year, slug)),
+    neighbours: async (item) => neighbourNews(db, item),
+    related: async (item, limit) => relatedNews(db, item, limit),
+    categories: async () => distinctValues(db, SELECT_CATEGORIES),
+    years: async () => distinctValues(db, SELECT_YEARS),
   };
 }

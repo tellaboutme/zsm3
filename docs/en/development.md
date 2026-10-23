@@ -22,7 +22,8 @@ pnpm exec playwright install chromium firefox webkit
 
 | Command                             | What it does                                                                               |
 | ----------------------------------- | ------------------------------------------------------------------------------------------ |
-| `pnpm dev`                          | builds the preview site and serves it with the Worker on http://127.0.0.1:8787             |
+| `pnpm dev`                          | builds the preview site and runs `pnpm start`                                              |
+| `pnpm start`                        | applies migrations to the local D1, loads the seed data and serves http://127.0.0.1:8787   |
 | `pnpm build` / `pnpm build:preview` | production build / preview build (adds the pattern library at `/wzornik`)                  |
 | `pnpm format` / `pnpm format:check` | Prettier                                                                                   |
 | `pnpm lint`                         | ESLint (TypeScript and Astro), Stylelint, ruff, no-comments check for Python               |
@@ -48,6 +49,10 @@ lefthook runs Prettier, ESLint, Stylelint and ruff on staged files before each c
 - Stylelint rejects literal colours, font families, font sizes, spacing, radii, z-indices and durations outside the tokens file.
 - Global CSS uses cascade layers: `reset, base, layout, motion, utilities, overrides`. Component styles are scoped in their `.astro` files.
 - Accessibility settings are attributes on `<html>` (`data-text`, `data-contrast`, `data-font`, `data-underline`, `data-grayscale`, `data-motion`, `data-theme`) that override tokens.
+
+## Local data
+
+`pnpm start` keeps the local D1 database in `apps/web/.wrangler/state`. The seed in `apps/worker/seed` writes sample news through the same repositories the site reads with; running it again updates the rows instead of duplicating them. Delete the directory to start from an empty database.
 
 ## Worker tests
 

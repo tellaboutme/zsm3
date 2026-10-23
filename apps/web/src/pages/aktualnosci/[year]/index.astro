@@ -1,19 +1,16 @@
 ---
 import NewsListing from "../../../components/news/NewsListing.astro";
-import { news } from "../../../data/news/index.ts";
 import Base from "../../../layouts/Base.astro";
-import { newsYear, newsYears } from "../../../lib/news.ts";
+import { loadListing } from "../../../lib/news-listing.ts";
+import { newsReader, notFound } from "../../../server/news.ts";
 
-interface Props {
-  year: string;
+export const prerender = false;
+
+const year = Astro.params["year"];
+const listing = await loadListing(newsReader(), { year }, undefined);
+if (listing === undefined || year === undefined) {
+  return notFound();
 }
-
-export function getStaticPaths(): { params: { year: string }; props: Props }[] {
-  return newsYears(news).map((year) => ({ params: { year }, props: { year } }));
-}
-
-const { year } = Astro.props;
-const items = news.filter((item) => newsYear(item) === year);
 ---
 
 <Base
@@ -22,8 +19,7 @@ const items = news.filter((item) => newsYear(item) === year);
   breadcrumbs={[{ label: "Aktualności", href: "/aktualnosci" }, { label: year }]}
 >
   <NewsListing
-    items={items}
-    page={1}
+    listing={listing}
     base={`/aktualnosci/${year}`}
     heading={`Aktualności ${year}`}
     year={year}

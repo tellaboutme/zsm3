@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-import type { RandomBytes } from "./ids.ts";
+import { cryptoRandom, type RandomBytes } from "./ids.ts";
 
 export type SqlValue = string | number | null;
 
@@ -22,6 +22,12 @@ export interface Store {
   readonly db: SqlDatabase;
   readonly clock: Clock;
   readonly random: RandomBytes;
+}
+
+export const systemClock: Clock = () => new Date();
+
+export function liveStore(db: SqlDatabase): Store {
+  return { db, clock: systemClock, random: cryptoRandom };
 }
 
 export function timestamp(clock: Clock): string {

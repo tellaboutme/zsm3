@@ -5,6 +5,7 @@ import { expect, test } from "./fixtures.ts";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"];
 const LINK = /href="(\/[^"#?]*)/gu;
+const NEWS_ARCHIVE = "/aktualnosci/";
 
 function internalLinks(html: string): readonly string[] {
   return [...html.matchAll(LINK)].flatMap((match) =>
@@ -38,7 +39,10 @@ test.describe("site map", () => {
     "One crawl is enough.",
   );
 
-  test("lists every page reachable from the home page", async ({ page, request }) => {
+  test("lists every page reachable from the home page outside the news archive", async ({
+    page,
+    request,
+  }) => {
     test.slow();
     await page.goto("/mapa-strony");
     const listed = new Set(
@@ -49,7 +53,10 @@ test.describe("site map", () => {
     );
     const reachable = await crawl(request);
 
-    expect([...reachable].filter((path) => !listed.has(path))).toEqual([]);
+    const unlisted = [...reachable].filter((path) => !listed.has(path));
+
+    expect(unlisted.filter((path) => !path.startsWith(NEWS_ARCHIVE))).toEqual([]);
+    expect(unlisted.length).toBeGreaterThan(0);
     for (const path of listed) {
       expect((await request.get(path)).status(), path).toBe(200);
     }

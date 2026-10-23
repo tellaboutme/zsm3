@@ -1,49 +1,24 @@
 import fc from "fast-check";
 import { describe, it } from "vitest";
 
-import { news } from "../src/data/news/index.ts";
 import {
   categoryHref,
-  laterPages,
-  neighbours,
-  NEWS_PAGE_SIZE,
-  newsCategories,
+  isYearParam,
+  newsHref,
   newsYear,
-  newsYears,
   pageCount,
   pageHref,
   pageWindow,
-  paginate,
-  relatedNews,
+  parsePageParam,
   slugify,
+  sortedCategories,
+  toCategory,
   type NewsItem,
 } from "../src/lib/news.ts";
 
 function item(slug: string, date: string, category: string): NewsItem {
   return { slug, date, category, title: slug, lead: "", body: [] };
 }
-
-function bySlug(slug: string): NewsItem {
-  const found = news.find((entry) => entry.slug === slug);
-  if (found === undefined) {
-    throw new Error(`missing ${slug}`);
-  }
-  return found;
-}
-
-describe("news fixtures", () => {
-  it("have unique slugs and valid dates", ({ expect }) => {
-    expect(new Set(news.map((entry) => entry.slug)).size).toBe(news.length);
-    for (const entry of news) {
-      expect(entry.date, entry.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/u);
-      expect(entry.body.length, entry.slug).toBeGreaterThan(0);
-    }
-  });
-
-  it("need more than one page so pagination is exercised", ({ expect }) => {
-    expect(news.length).toBeGreaterThan(NEWS_PAGE_SIZE);
-  });
-});
 
 describe("slugify", () => {
   it("turns Polish names into ASCII slugs", ({ expect }) => {
@@ -65,56 +40,50 @@ describe("slugify", () => {
 
 describe("categories and years", () => {
   it("lists categories alphabetically in Polish order with slugs", ({ expect }) => {
-    const categories = newsCategories([
-      item("a", "2026-01-01", "Zdrowie"),
-      item("b", "2026-01-02", "Środowisko"),
-      item("c", "2026-01-03", "Sport"),
-      item("d", "2026-01-04", "Sport"),
-    ]);
-
-    expect(categories).toEqual([
+    expect(sortedCategories(["Zdrowie", "Środowisko", "Sport"])).toEqual([
       { name: "Sport", slug: "sport" },
       { name: "Środowisko", slug: "srodowisko" },
       { name: "Zdrowie", slug: "zdrowie" },
     ]);
+    expect(toCategory("Wychowanie fizyczne")).toEqual({
+      name: "Wychowanie fizyczne",
+      slug: "wychowanie-fizyczne",
+    });
     expect(categoryHref({ name: "Sport", slug: "sport" })).toBe("/aktualnosci/kategoria/sport");
   });
 
-  it("lists years newest first", ({ expect }) => {
-    const items = [
-      item("a", "2024-05-01", "Sport"),
-      item("b", "2026-05-01", "Sport"),
-      item("c", "2025-05-01", "Sport"),
-      item("d", "2026-01-01", "Sport"),
-    ];
-
-    expect(newsYears(items)).toEqual(["2026", "2025", "2024"]);
+  it("links an article under the year of its date", ({ expect }) => {
     expect(newsYear(item("x", "2025-12-31", "Sport"))).toBe("2025");
+    expect(newsHref(item("rajd", "2026-10-09", "Sport"))).toBe("/aktualnosci/2026/rajd");
+  });
+
+  it("accepts only four-digit years from the address", ({ expect }) => {
+    expect(isYearParam("2026")).toBe(true);
+    expect(isYearParam(undefined)).toBe(false);
+    expect(isYearParam("202")).toBe(false);
+    expect(isYearParam("20266")).toBe(false);
+    expect(isYearParam("x2026")).toBe(false);
   });
 });
 
 describe("pagination", () => {
-  it("counts pages and the pages after the first", ({ expect }) => {
+  it("counts pages", ({ expect }) => {
     expect(pageCount(0, 9)).toBe(1);
     expect(pageCount(9, 9)).toBe(1);
     expect(pageCount(10, 9)).toBe(2);
-    expect(laterPages(9, 9)).toEqual([]);
-    expect(laterPages(28, 9)).toEqual([2, 3, 4]);
   });
 
-  it("slices one page and rejects pages that do not exist", ({ expect }) => {
-    const items = [...Array.from({ length: 20 }).keys()].map((index) => index + 1);
-
-    expect(paginate(items, 1, 9)).toEqual({
-      items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-      page: 1,
-      pages: 3,
-    });
-    expect(paginate(items, 3, 9)).toEqual({ items: [19, 20], page: 3, pages: 3 });
-    expect(paginate([], 1, 9)).toEqual({ items: [], page: 1, pages: 1 });
-    expect(() => paginate(items, 0, 9)).toThrow("Page 0 is outside 1–3");
-    expect(() => paginate(items, 4, 9)).toThrow(RangeError);
-    expect(() => paginate(items, 1.5, 9)).toThrow(RangeError);
+  it("reads later page numbers from the address and rejects the rest", ({ expect }) => {
+    expect(parsePageParam(undefined)).toBe(1);
+    expect(parsePageParam("2")).toBe(2);
+    expect(parsePageParam("9999")).toBe(9999);
+    expect(parsePageParam("1")).toBeUndefined();
+    expect(parsePageParam("0")).toBeUndefined();
+    expect(parsePageParam("02")).toBeUndefined();
+    expect(parsePageParam("10000")).toBeUndefined();
+    expect(parsePageParam("2a")).toBeUndefined();
+    expect(parsePageParam("a2")).toBeUndefined();
+    expect(parsePageParam("")).toBeUndefined();
   });
 
   it("links the first page without a page number", ({ expect }) => {
@@ -145,35 +114,5 @@ describe("pagination", () => {
         expect(pageWindow(current, total).length).toBeLessThanOrEqual(7);
       }),
     );
-  });
-});
-
-describe("article navigation", () => {
-  it("finds the newer and older article", ({ expect }) => {
-    const middle = neighbours(news, bySlug("konkurs-bogdan-wlosik-i-jego-nowohucka-mala-ojczyzna"));
-
-    expect(middle.newer?.slug).toBe("swiatowy-dzien-przywracania-czynnosci-serca");
-    expect(middle.older?.slug).toBe("druzyna-mistrzow");
-    expect(
-      neighbours(news, bySlug("kurs-programowania-robotow-przemyslowych")).newer,
-    ).toBeUndefined();
-    expect(neighbours(news, bySlug("salon-maturzystow-2026")).older).toBeUndefined();
-  });
-
-  it("prefers related news from the same category, newest first", ({ expect }) => {
-    const items = [
-      item("a", "2026-01-05", "Sport"),
-      item("b", "2026-01-04", "Zdrowie"),
-      item("c", "2026-01-03", "Sport"),
-      item("d", "2026-01-02", "Zdrowie"),
-      item("e", "2026-01-01", "Sport"),
-    ];
-    const target = items[4];
-    if (target === undefined) {
-      throw new Error("fixture");
-    }
-
-    expect(relatedNews(items, target, 3).map((entry) => entry.slug)).toEqual(["a", "c", "b"]);
-    expect(relatedNews(items, target, 10).map((entry) => entry.slug)).toEqual(["a", "c", "b", "d"]);
   });
 });

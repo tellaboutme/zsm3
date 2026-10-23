@@ -1,11 +1,10 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "zsm3",
+  "name": "zsm3-api-test",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-15",
   "workers_dev": false,
   "preview_urls": false,
-  "observability": { "enabled": true },
   "d1_databases": [
     {
       "binding": "DB",
@@ -15,27 +14,9 @@
     },
   ],
   "assets": {
-    "directory": "../web/dist",
+    "directory": "test/assets",
     "html_handling": "drop-trailing-slash",
     "not_found_handling": "404-page",
     "run_worker_first": ["/api/*"],
-  },
-  "env": {
-    "test": {
-      "d1_databases": [
-        {
-          "binding": "DB",
-          "database_name": "zsm3",
-          "database_id": "00000000-0000-4000-8000-000000000000",
-          "migrations_dir": "migrations",
-        },
-      ],
-      "assets": {
-        "directory": "test/assets",
-        "html_handling": "drop-trailing-slash",
-        "not_found_handling": "404-page",
-        "run_worker_first": ["/api/*"],
-      },
-    },
   },
 }
