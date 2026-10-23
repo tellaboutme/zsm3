@@ -9,7 +9,7 @@ import {
   MATCH_STEM,
   MATCH_SYNONYM,
   MATCH_TYPO,
-  matchToken,
+  matchWord,
   MIN_SHARED_ROOT,
   PREFIX_TYPO_LENGTH,
   PREFIX_TYPOS,
@@ -41,7 +41,7 @@ describe("edit distance", () => {
     expect([3, 4, 7, 8].map((length) => typoAllowance("x".repeat(length)))).toEqual([0, 1, 1, 2]);
     expect(typoAllowance("12345678")).toBe(0);
     expect(typoAllowance("sala204")).toBe(0);
-    expect(matchToken("1205", "120")).toBe(0);
+    expect(matchWord("1205", "120")).toBe(0);
     expect(PREFIX_TYPOS).toBe(1);
     expect(PREFIX_TYPO_LENGTH).toBe(5);
   });
@@ -52,15 +52,15 @@ describe("matching a term to a word", () => {
     expect([MATCH_EXACT, MATCH_STEM, MATCH_PREFIX, MATCH_SYNONYM, MATCH_TYPO]).toEqual([
       1, 0.9, 0.8, 0.7, 0.5,
     ]);
-    expect(matchToken("dzwonki", "dzwonki")).toBe(MATCH_EXACT);
-    expect(matchToken("dzwonki", "dzwonek")).toBe(MATCH_STEM);
-    expect(matchToken("inform", "informatyk")).toBe(MATCH_PREFIX);
-    expect(matchToken("dzownki", "dzwonki")).toBe(MATCH_TYPO);
-    expect(matchToken("informtyk", "informatyk")).toBe(MATCH_TYPO);
-    expect(matchToken("informtyk", "informatykiem")).toBe(0);
-    expect(matchToken("lotniczy", "lotnicze")).toBe(MATCH_STEM);
-    expect(matchToken("kot", "kat")).toBe(0);
-    expect(matchToken("sala", "salon")).toBe(0);
+    expect(matchWord("dzwonki", "dzwonki")).toBe(MATCH_EXACT);
+    expect(matchWord("dzwonki", "dzwonek")).toBe(MATCH_STEM);
+    expect(matchWord("inform", "informatyk")).toBe(MATCH_PREFIX);
+    expect(matchWord("dzownki", "dzwonki")).toBe(MATCH_TYPO);
+    expect(matchWord("informtyk", "informatyk")).toBe(MATCH_TYPO);
+    expect(matchWord("informtyk", "informatykiem")).toBe(0);
+    expect(matchWord("lotniczy", "lotnicze")).toBe(MATCH_STEM);
+    expect(matchWord("kot", "kat")).toBe(0);
+    expect(matchWord("sala", "salon")).toBe(0);
   });
 
   it("treats words with a shared root of five letters as one word", ({ expect }) => {
@@ -73,31 +73,31 @@ describe("matching a term to a word", () => {
     expect(sharesRoot("lotniczy", "lotnisko")).toBe(false);
     expect(sharesRoot("informtyk", "informacji")).toBe(false);
     expect(ROOT_SLACK).toBe(2);
-    expect(matchToken("lotniczego", "lotniczy")).toBe(MATCH_STEM);
+    expect(matchWord("lotniczego", "lotniczy")).toBe(MATCH_STEM);
   });
 
   it("can turn typo matching off", ({ expect }) => {
-    expect(matchToken("dzownki", "dzwonki", false)).toBe(0);
-    expect(matchToken("dzwonki", "dzwonki", false)).toBe(MATCH_EXACT);
+    expect(matchWord("dzownki", "dzwonki", false)).toBe(0);
+    expect(matchWord("dzwonki", "dzwonki", false)).toBe(MATCH_EXACT);
     expect(directMatch("dzownki", "dzwonki")).toBe(0);
     expect(directMatch("dzw", "dzwonki")).toBe(MATCH_PREFIX);
   });
 
   it("ignores words of very different length", ({ expect }) => {
-    expect(matchToken("abcd", "abcdxyzw")).toBe(MATCH_PREFIX);
-    expect(matchToken("abcx", "abcdxyzwq")).toBe(0);
-    expect(matchToken("abxd", "abcdxyz")).toBe(0);
-    expect(matchToken("abxde", "abcdexy")).toBe(MATCH_TYPO);
-    expect(matchToken("abcdefgh", "abcdefgxyz")).toBe(MATCH_STEM);
-    expect(matchToken("abcdefgh", "abcdxfghij")).toBe(MATCH_TYPO);
+    expect(matchWord("abcd", "abcdxyzw")).toBe(MATCH_PREFIX);
+    expect(matchWord("abcx", "abcdxyzwq")).toBe(0);
+    expect(matchWord("abxd", "abcdxyz")).toBe(0);
+    expect(matchWord("abxde", "abcdexy")).toBe(MATCH_TYPO);
+    expect(matchWord("abcdefgh", "abcdefgxyz")).toBe(MATCH_STEM);
+    expect(matchWord("abcdefgh", "abcdxfghij")).toBe(MATCH_TYPO);
   });
 
   it("does not stretch the prefix comparison past one typo", ({ expect }) => {
-    expect(matchToken("informtyk", "informacji")).toBe(0);
-    expect(matchToken("informtyk", "informatyka")).toBe(MATCH_TYPO);
-    expect(matchToken("dzownk", "dzwonkiem")).toBe(MATCH_TYPO);
-    expect(matchToken("dzwn", "dzwonkiem")).toBe(0);
-    expect(matchToken("dzown", "dzwonkiem")).toBe(MATCH_TYPO);
+    expect(matchWord("informtyk", "informacji")).toBe(0);
+    expect(matchWord("informtyk", "informatyka")).toBe(MATCH_TYPO);
+    expect(matchWord("dzownk", "dzwonkiem")).toBe(MATCH_TYPO);
+    expect(matchWord("dzwn", "dzwonkiem")).toBe(0);
+    expect(matchWord("dzown", "dzwonkiem")).toBe(MATCH_TYPO);
   });
 });
 

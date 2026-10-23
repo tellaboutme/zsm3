@@ -63,10 +63,10 @@ export function editDistance(first: string, second: string): number {
   return at(previous, second.length);
 }
 
-function isNear(term: string, token: string): boolean {
-  const start = token.slice(0, term.length);
+function isNear(term: string, word: string): boolean {
+  const start = word.slice(0, term.length);
   return (
-    editDistance(term, token) <= typoAllowance(term) ||
+    editDistance(term, word) <= typoAllowance(term) ||
     (term.length >= PREFIX_TYPO_LENGTH && editDistance(term, start) <= PREFIX_TYPOS)
   );
 }
@@ -79,26 +79,26 @@ export function sharesRoot(first: string, second: string): boolean {
   return left === right || (Math.min(left.length, right.length) >= needed && extended);
 }
 
-export function directMatch(term: string, token: string): number {
-  if (token === term) {
+export function directMatch(term: string, word: string): number {
+  if (word === term) {
     return MATCH_EXACT;
   }
-  if (token.startsWith(term)) {
+  if (word.startsWith(term)) {
     return MATCH_PREFIX;
   }
-  return sharesRoot(term, token) ? MATCH_STEM : 0;
+  return sharesRoot(term, word) ? MATCH_STEM : 0;
 }
 
-export function matchToken(term: string, token: string, typos = true): number {
-  const direct = directMatch(term, token);
+export function matchWord(term: string, word: string, typos = true): number {
+  const direct = directMatch(term, word);
   if (direct > 0 || !typos) {
     return direct;
   }
-  return isNear(term, token) ? MATCH_TYPO : 0;
+  return isNear(term, word) ? MATCH_TYPO : 0;
 }
 
 export function bestMatch(term: string, candidates: readonly string[], typos = true): number {
-  return candidates.reduce((best, token) => Math.max(best, matchToken(term, token, typos)), 0);
+  return candidates.reduce((best, word) => Math.max(best, matchWord(term, word, typos)), 0);
 }
 
 export function termMatch(term: string, candidates: readonly string[], typos = true): number {
