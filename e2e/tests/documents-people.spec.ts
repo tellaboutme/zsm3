@@ -17,7 +17,7 @@ test.describe("documents", () => {
     await expect(rows).toHaveCount(10);
     await expect(
       page.getByRole("link", { name: "Wniosek o wydanie duplikatu legitymacji" }),
-    ).toHaveAttribute("href", /\/w6\.pdf$/u);
+    ).toHaveAttribute("href", /^\/media\/d\/[0-9a-f]{64}\.pdf$/u);
     await expect(rows.filter({ hasText: "W6" })).toContainText("PDF, 718 KB");
     expect(problems).toEqual([]);
   });

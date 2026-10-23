@@ -4,7 +4,6 @@ import { regularSchedule } from "../src/data/bell-schedule.ts";
 import { bellVariants } from "../src/data/bell-variants.ts";
 import { schoolYearEvents } from "../src/data/calendar/index.ts";
 import { sections } from "../src/data/navigation.ts";
-import { contentPages } from "../src/data/pages/index.ts";
 import {
   lessonsFrom,
   REGULAR_LABEL,
@@ -180,14 +179,5 @@ describe("content pages", () => {
       href: "/szkola",
     });
     expect(sectionTitleFor(sections, "/szkola")).toBeUndefined();
-  });
-
-  it("have unique paths inside the site sections", ({ expect }) => {
-    const paths = contentPages.map((entry) => entry.path);
-
-    expect(new Set(paths).size).toBe(paths.length);
-    for (const path of paths) {
-      expect(sectionTitleFor(sections, path), path).toBeDefined();
-    }
   });
 });

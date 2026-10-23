@@ -1,6 +1,11 @@
+import { fileLink } from "@zsm3/worker/seed/files.ts";
+
 import type { DocumentGroup } from "../lib/documents.ts";
 
-const FORMS = "https://www.zespolszkolmechanicznych.edu.pl/wp-content/uploads/2025/wzory";
+function form(code: string): { readonly href: string; readonly bytes: number } {
+  const { href, bytes } = fileLink(`form-${code}`, code);
+  return { href, bytes };
+}
 
 export const documentGroups: readonly DocumentGroup[] = [
   {
@@ -13,8 +18,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Wniosek o wydanie duplikatu świadectwa",
         description: "Dla absolwenta lub ucznia, który utracił albo zniszczył świadectwo.",
         signer: "kazdy",
-        href: `${FORMS}/w1.pdf`,
-        bytes: 550_987,
+        ...form("w1"),
         updated: "2025-03-01",
       },
       {
@@ -22,8 +26,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Wniosek o wydanie duplikatu legitymacji",
         description: "Gdy potrzebna jest nowa legitymacja szkolna.",
         signer: "kazdy",
-        href: `${FORMS}/w6.pdf`,
-        bytes: 734_771,
+        ...form("w6"),
         updated: "2026-02-19",
       },
     ],
@@ -38,8 +41,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Zwolnienie z drugiego języka obcego",
         description: "Podanie składane samodzielnie przez pełnoletniego ucznia.",
         signer: "uczen",
-        href: `${FORMS}/w2.pdf`,
-        bytes: 280_544,
+        ...form("w2"),
         updated: "2025-03-01",
       },
       {
@@ -47,8 +49,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Zwolnienie z wychowania fizycznego",
         description: "Podanie pełnoletniego ucznia o zwolnienie z całości lub części zajęć.",
         signer: "uczen",
-        href: `${FORMS}/w3.pdf`,
-        bytes: 283_469,
+        ...form("w3"),
         updated: "2025-03-01",
       },
       {
@@ -56,8 +57,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Zwolnienie z wychowania fizycznego",
         description: "Podanie rodzica lub opiekuna o zwolnienie ucznia z całości lub części zajęć.",
         signer: "rodzic",
-        href: `${FORMS}/w4.pdf`,
-        bytes: 351_687,
+        ...form("w4"),
         updated: "2025-03-01",
       },
       {
@@ -65,8 +65,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Zwolnienie z drugiego języka obcego",
         description: "Podanie rodzica lub opiekuna prawnego ucznia.",
         signer: "rodzic",
-        href: `${FORMS}/w5.pdf`,
-        bytes: 348_772,
+        ...form("w5"),
         updated: "2025-03-01",
       },
     ],
@@ -81,8 +80,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Podanie o wydanie dokumentów",
         description: "Wersja dla rodzica lub opiekuna prawnego ucznia.",
         signer: "rodzic",
-        href: `${FORMS}/w7.pdf`,
-        bytes: 248_635,
+        ...form("w7"),
         updated: "2025-03-01",
       },
       {
@@ -90,8 +88,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Podanie o wydanie dokumentów",
         description: "Wersja dla pełnoletniego ucznia, który składa podanie samodzielnie.",
         signer: "uczen",
-        href: `${FORMS}/w8.pdf`,
-        bytes: 253_066,
+        ...form("w8"),
         updated: "2025-03-01",
       },
     ],
@@ -106,8 +103,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Oświadczenie rodzica o zamieszkaniu",
         description: "Miejsce zamieszkania ucznia cudzoziemskiego na terytorium Polski.",
         signer: "rodzic",
-        href: `${FORMS}/w9.pdf`,
-        bytes: 397_128,
+        ...form("w9"),
         updated: "2025-03-01",
       },
       {
@@ -115,8 +111,7 @@ export const documentGroups: readonly DocumentGroup[] = [
         title: "Oświadczenie opiekuna prawnego o zamieszkaniu",
         description: "Oświadczenie osoby sprawującej opiekę prawną nad uczniem w Polsce.",
         signer: "rodzic",
-        href: `${FORMS}/w10.pdf`,
-        bytes: 61_142,
+        ...form("w10"),
         updated: "2025-03-01",
       },
     ],

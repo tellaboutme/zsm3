@@ -13,6 +13,7 @@
       "migrations_dir": "migrations",
     },
   ],
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "zsm3-media" }],
   "assets": {
     "directory": "test/assets",
     "html_handling": "drop-trailing-slash",

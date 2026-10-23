@@ -1,0 +1,114 @@
+---
+import type { FilesBlock } from "@zsm3/contracts/media";
+
+import { fileSize } from "../../lib/documents.ts";
+
+interface Props {
+  block: FilesBlock;
+}
+
+const { block } = Astro.props;
+---
+
+<div class="files">
+  <p class="tag">{block.label}</p>
+  <ul>
+    {block.files.map((file) => (
+      <li class="row">
+        <span class="format">{file.format.toUpperCase()}</span>
+        <div class="text">
+          <a href={file.href}>{file.title}</a>
+          {file.description !== undefined && <p class="description">{file.description}</p>}
+        </div>
+        <p class="meta">
+          {file.format.toUpperCase()}, {fileSize(file.bytes)}
+        </p>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .files {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .tag {
+    color: var(--ink-2);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    padding-block: var(--space-4);
+    border-bottom: var(--hairline) solid var(--line);
+  }
+
+  .format {
+    display: grid;
+    place-items: center;
+    align-self: start;
+    min-height: var(--target);
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-weight: 600;
+  }
+
+  .text {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .text a {
+    color: var(--ink);
+    font-weight: 700;
+    line-height: var(--leading-snug);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .text a::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+  }
+
+  .row:hover .text a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
+  .description,
+  .meta {
+    color: var(--ink-2);
+  }
+
+  .meta {
+    grid-column: 2;
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+  }
+
+  @media (width >= 48rem) {
+    .row {
+      grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+    }
+
+    .meta {
+      grid-column: 3;
+      text-align: right;
+    }
+  }
+</style>

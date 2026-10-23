@@ -3,31 +3,21 @@ import { schoolYearEvents } from "./calendar/index.ts";
 import { departments, management } from "./contacts.ts";
 import { documentGroups } from "./documents.ts";
 import { gradeRooms, meetingPlan } from "./meetings.ts";
-import { contentPages } from "./pages/index.ts";
 import { professions } from "./professions.ts";
 import { programmes } from "./programmes/index.ts";
-import { siteMap } from "./site-map.ts";
+import { buildSiteMap } from "./site-map.ts";
 import { staffGroups } from "./staff.ts";
 import { longDate } from "../lib/calendar.ts";
 import { schoolLabels } from "../lib/professions.ts";
 import { examCodes, professionOf, programmeFaq, programmeHref } from "../lib/programmes.ts";
-import {
-  bellsEntry,
-  classEntries,
-  contactEntry,
-  contentPageEntry,
-  staffEntry,
-} from "../lib/search-sources.ts";
+import { bellsEntry, classEntries, contactEntry, staffEntry } from "../lib/search-sources.ts";
 import type { SearchEntry } from "../lib/search.ts";
 import { flattenMap } from "../lib/site-map.ts";
 
 const PROGRAMME_OR_ARTICLE = /^\/(?:kandydaci\/zawody\/|aktualnosci\/\d{4}\/(?!strona\/))/u;
-const INDEXED_SEPARATELY = new Set([
-  ...contentPages.map((page) => page.path),
-  "/uczniowie/dzwonki",
-]);
+const INDEXED_SEPARATELY = new Set(["/uczniowie/dzwonki"]);
 
-const pages: readonly SearchEntry[] = flattenMap(siteMap).flatMap((node) =>
+const pages: readonly SearchEntry[] = flattenMap(buildSiteMap([])).flatMap((node) =>
   node.description === undefined ||
   PROGRAMME_OR_ARTICLE.test(node.href) ||
   INDEXED_SEPARATELY.has(node.href)
@@ -75,7 +65,6 @@ const eventEntries: readonly SearchEntry[] = schoolYearEvents.map((event) => ({
 
 export const staticSearchEntries: readonly SearchEntry[] = [
   ...pages,
-  ...contentPages.map(contentPageEntry),
   bellsEntry(regularSchedule),
   ...programmeEntries,
   ...classEntries(gradeRooms, longDate(meetingPlan.date)),

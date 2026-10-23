@@ -28,6 +28,11 @@ const page = {
   ],
 };
 
+const withBlock = (block: unknown): unknown => ({
+  ...page,
+  sections: [{ id: "a", title: "A", blocks: [block] }],
+});
+
 describe("content pages", () => {
   it("accepts every block type", ({ expect }) => {
     expect(contentPageSchema.safeParse(page).success).toBe(true);
@@ -39,10 +44,6 @@ describe("content pages", () => {
   });
 
   it("accepts several facts and timeline items but not empty lists", ({ expect }) => {
-    const withBlock = (block: unknown): unknown => ({
-      ...page,
-      sections: [{ id: "a", title: "A", blocks: [block] }],
-    });
     const fact = { value: "1959", label: "siedziba" };
     const item = { label: "1972", title: "ZSM3", text: "Nowa nazwa." };
 
@@ -64,12 +65,34 @@ describe("content pages", () => {
     ).toBe(true);
   });
 
-  it("lives one level below a section", ({ expect }) => {
+  it("lives at the top level or one level below a section", ({ expect }) => {
     const nested = contentPageSchema.safeParse({ ...page, path: "/szkola/historia/stara" });
 
     expect(nested.success).toBe(false);
-    expect(nested.error?.issues[0]?.message).toBe("Content pages live one level below a section");
-    expect(contentPageSchema.safeParse({ ...page, path: "/szkola" }).success).toBe(false);
+    expect(nested.error?.issues[0]?.message).toBe(
+      "Content pages live at the top level or one level below a section",
+    );
+    expect(contentPageSchema.safeParse({ ...page, path: "/rodo" }).success).toBe(true);
+    expect(contentPageSchema.safeParse({ ...page, path: "/" }).success).toBe(false);
+  });
+
+  it("accepts lists of stored files", ({ expect }) => {
+    const file = {
+      title: "Statut",
+      href: `/media/d/${"a".repeat(64)}.pdf`,
+      format: "pdf",
+      bytes: 1024,
+    };
+
+    expect(
+      contentPageSchema.safeParse(withBlock({ type: "files", label: "Dokumenty", files: [file] }))
+        .success,
+    ).toBe(true);
+    expect(
+      contentPageSchema.safeParse(
+        withBlock({ type: "files", label: "Dokumenty", files: [{ ...file, href: "/statut.pdf" }] }),
+      ).success,
+    ).toBe(false);
   });
 
   it("rejects external callout links and empty sections", ({ expect }) => {

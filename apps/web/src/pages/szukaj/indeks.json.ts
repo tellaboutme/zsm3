@@ -1,13 +1,19 @@
 import { staticSearchEntries } from "../../data/search-index.ts";
 import { latestNews } from "../../lib/news-listing.ts";
 import { newsEntry, SEARCH_NEWS_LIMIT } from "../../lib/news-search.ts";
+import { contentPageEntry } from "../../lib/search-sources.ts";
 import { newsReader } from "../../server/news.ts";
+import { pagesReader } from "../../server/pages.ts";
 
 export const prerender = false;
 
 export async function GET(): Promise<Response> {
-  const news = await latestNews(newsReader(), SEARCH_NEWS_LIMIT);
-  return new Response(JSON.stringify([...staticSearchEntries, ...news.map(newsEntry)]), {
+  const [news, pages] = await Promise.all([
+    latestNews(newsReader(), SEARCH_NEWS_LIMIT),
+    pagesReader().published(),
+  ]);
+  const entries = [...staticSearchEntries, ...pages.map(contentPageEntry), ...news.map(newsEntry)];
+  return new Response(JSON.stringify(entries), {
     headers: { "Content-Type": "application/json; charset=utf-8" },
   });
 }

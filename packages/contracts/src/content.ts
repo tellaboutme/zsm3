@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { filesBlockSchema } from "./media.ts";
 import { richTextSchema } from "./rich-text.ts";
 
 const MAX_SECTIONS = 20;
@@ -81,11 +82,12 @@ export const contentBlockSchema = z.union([
     text: line(600),
     link: linkSchema.optional(),
   }),
+  filesBlockSchema,
 ]);
 
 export const contentPageSchema = z.strictObject({
-  path: sitePathSchema.refine((path) => path.split("/").length === 3, {
-    message: "Content pages live one level below a section",
+  path: sitePathSchema.refine((path) => path !== "/" && path.split("/").length <= 3, {
+    message: "Content pages live at the top level or one level below a section",
   }),
   kicker: line(120),
   title: line(200),

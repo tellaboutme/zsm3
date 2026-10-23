@@ -27,5 +27,7 @@ export const apiSecurityHeaders = secureHeaders({
 
 export const noStore: MiddlewareHandler<AppEnv> = async (c, next) => {
   await next();
-  c.header("Cache-Control", "no-store");
+  if (!c.res.headers.has("Cache-Control")) {
+    c.header("Cache-Control", "no-store");
+  }
 };
