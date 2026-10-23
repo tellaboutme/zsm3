@@ -1,0 +1,25 @@
+---
+import Icon from "./Icon.astro";
+---
+
+<span class="theme-icon" data-theme-icon="system">
+  <Icon name="theme-system" />
+</span>
+<span class="theme-icon" data-theme-icon="light">
+  <Icon name="theme-light" />
+</span>
+<span class="theme-icon" data-theme-icon="dark">
+  <Icon name="theme-dark" />
+</span>
+
+<style>
+  .theme-icon {
+    display: none;
+  }
+
+  :root:not([data-theme]) [data-theme-icon="system"],
+  :root[data-theme="light"] [data-theme-icon="light"],
+  :root[data-theme="dark"] [data-theme-icon="dark"] {
+    display: inline-flex;
+  }
+</style>

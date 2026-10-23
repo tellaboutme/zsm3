@@ -141,6 +141,21 @@ test.describe("page frame", () => {
     await expect(banner).toBeHidden();
   });
 
+  test("the header shrinks on scroll without moving the page", async ({ page }) => {
+    await page.goto("/kontakt");
+    const header = page.locator("[data-site-header]");
+    const heading = page.getByRole("heading", { level: 1 });
+    const offset = async (): Promise<number> =>
+      heading.evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
+    const before = await offset();
+
+    await page.mouse.wheel(0, 120);
+
+    await expect(header).toHaveAttribute("data-compact", "on");
+    await expect.poll(async () => (await header.boundingBox())?.height ?? 0).toBeLessThan(64);
+    expect(await offset()).toBeCloseTo(before, 0);
+  });
+
   test("breadcrumbs mark the current page", async ({ page }) => {
     await page.goto("/wzornik");
     const crumbs = page.getByRole("navigation", { name: "Okruszki" });

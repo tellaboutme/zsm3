@@ -51,9 +51,6 @@ const practice = [
   <ProgrammeHero programme={programme} profession={profession} />
   <div class="layout-aside body">
     <div class="sections">
-      <div class="photo" aria-hidden="true">
-        <span class="tag">Zdjęcia pracowni dodawane w panelu szkoły</span>
-      </div>
       <section aria-labelledby="czego-sie-uczysz">
         <h2 id="czego-sie-uczysz">Czego się uczysz</h2>
         <TopicGrid topics={programme.learn} numbered />
@@ -140,16 +137,6 @@ const practice = [
 
   h2 {
     font-size: var(--step-3);
-  }
-
-  .photo {
-    display: grid;
-    place-items: center;
-    aspect-ratio: 16 / 9;
-    border: var(--hairline) solid var(--line);
-    border-radius: var(--radius);
-    background: var(--gray);
-    color: var(--ink-2);
   }
 
   .chips {

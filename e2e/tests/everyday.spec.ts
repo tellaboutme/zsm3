@@ -2,6 +2,8 @@ import { AxeBuilder } from "@axe-core/playwright";
 
 import { expect, test } from "./fixtures.ts";
 
+const LONGEST_TIMER = new Date("2026-10-22T01:30:00Z");
+
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"];
 const PAGES = [
   "/kandydaci",
@@ -148,6 +150,7 @@ test.describe("meetings and contact", () => {
 
   test("never scroll sideways on a phone with the largest text", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
+    await page.clock.setFixedTime(LONGEST_TIMER);
     await page.addInitScript(() => {
       localStorage.setItem("zsm3.preferences", '{"text":"150"}');
     });

@@ -348,7 +348,8 @@ Stage 1 notes for the utility pages:
 
 - `/mapa-strony` renders the tree from `data/site-map.ts`; an end-to-end crawl from the home page fails the build when a reachable page is missing from the map. `sitemap.xml` needs absolute URLs and ships in stage 2 with the production domain.
 - `/szukaj` searches a static index (`/szukaj/indeks.json`, built from the site map, programmes, news, forms and calendar) in the browser: Polish letters folded, simple suffix stemming, all words required, title matches ranked first, results grouped by type and rendered without `innerHTML`. Stage 2 swaps the index for the D1 FTS5 endpoint behind the same page.
-- `/polityka-prywatnosci` uses the legal layout (metadata, in-page navigation) and describes exactly what the public site does; it is marked as a draft until the school's data protection officer approves it.
+- Public copy is written for the finished site: no mention of the previous website, of migration, of drafts or of content "added later". An element without its content (a photo, a page) is not rendered instead of showing a placeholder.
+- `/polityka-prywatnosci` uses the legal layout (metadata, in-page navigation) and describes exactly what the public site does. The school's data protection officer approves the text before launch (stage 7); the page itself never shows draft wording.
 
 ## 5. Fittings (components)
 

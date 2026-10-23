@@ -1,4 +1,15 @@
-export const resultTypes = ["strona", "kierunek", "aktualnosc", "dokument", "termin"] as const;
+import { editDistance, termMatch, typoAllowance } from "./search-match.ts";
+import { fold, queryTerms, tokens } from "./search-text.ts";
+
+export const resultTypes = [
+  "strona",
+  "kierunek",
+  "klasa",
+  "kontakt",
+  "aktualnosc",
+  "dokument",
+  "termin",
+] as const;
 
 export type ResultType = (typeof resultTypes)[number];
 
@@ -15,57 +26,78 @@ export interface ResultGroup {
   readonly entries: readonly SearchEntry[];
 }
 
+export interface PreparedEntry {
+  readonly entry: SearchEntry;
+  readonly title: readonly string[];
+  readonly text: readonly string[];
+  readonly phrase: string;
+}
+
+export interface SearchIndex {
+  readonly entries: readonly PreparedEntry[];
+  readonly vocabulary: readonly string[];
+}
+
+export interface QueryTerm {
+  readonly term: string;
+  readonly typos: boolean;
+}
+
 export const resultTypeLabels: Readonly<Record<ResultType, string>> = {
   strona: "Strony",
   kierunek: "Kierunki",
+  klasa: "Klasy i sale",
+  kontakt: "Kontakty",
   aktualnosc: "Aktualności",
   dokument: "Dokumenty",
   termin: "Terminy",
 };
 
-const MIN_QUERY_LENGTH = 2;
-const STEM_CUTS: readonly (readonly [number, number])[] = [
-  [9, 3],
-  [7, 2],
-  [5, 1],
-];
+export const TITLE_WEIGHT = 3;
+export const TEXT_WEIGHT = 1;
+export const PHRASE_BONUS = 2;
+export const SUGGEST_EXTRA_LENGTH = 7;
 
-export function fold(text: string): string {
-  return text
-    .toLowerCase()
-    .replaceAll("ł", "l")
-    .normalize("NFD")
-    .replace(/\p{Mn}/gu, "")
-    .replace(/[^a-z0-9]+/gu, " ")
-    .trim();
+export function prepare(entries: readonly SearchEntry[]): SearchIndex {
+  const prepared = entries.map((entry) => ({
+    entry,
+    title: tokens(entry.title),
+    text: tokens(entry.text),
+    phrase: fold(entry.title),
+  }));
+  const vocabulary = [...new Set(prepared.flatMap((item) => [...item.title, ...item.text]))];
+  return { entries: prepared, vocabulary };
 }
 
-export function stem(term: string): string {
-  const cut = STEM_CUTS.find(([minimum]) => term.length >= minimum)?.[1] ?? 0;
-  return term.slice(0, term.length - cut);
+function termScore({ term, typos }: QueryTerm, prepared: PreparedEntry): number {
+  return Math.max(
+    TITLE_WEIGHT * termMatch(term, prepared.title, typos),
+    TEXT_WEIGHT * termMatch(term, prepared.text, typos),
+  );
 }
 
-export function queryTerms(query: string): readonly string[] {
-  const folded = fold(query);
-  return folded.length < MIN_QUERY_LENGTH ? [] : folded.split(" ").map(stem);
+export function score(prepared: PreparedEntry, terms: readonly QueryTerm[]): number {
+  const points = terms.map((term) => termScore(term, prepared));
+  if (points.some((point) => point === 0)) {
+    return 0;
+  }
+  const phrase = terms.map(({ term }) => term).join(" ");
+  const bonus = terms.length > 1 && prepared.phrase.includes(phrase) ? PHRASE_BONUS : 0;
+  return points.reduce((sum, point) => sum + point, bonus);
 }
 
-function score(entry: SearchEntry, terms: readonly string[]): number {
-  const title = fold(entry.title);
-  const body = fold(entry.text);
-  return terms.reduce((total, term) => {
-    if (title.includes(term)) {
-      return total + 1;
-    }
-    return body.includes(term) ? total : Number.NEGATIVE_INFINITY;
-  }, 0);
+export function analyse(index: SearchIndex, query: string): readonly QueryTerm[] {
+  return queryTerms(query).map((term) => ({
+    term,
+    typos: !index.vocabulary.some((word) => word.startsWith(term)),
+  }));
 }
 
-export function search(entries: readonly SearchEntry[], query: string): readonly SearchEntry[] {
-  const terms = queryTerms(query);
-  return entries
-    .map((entry) => ({ entry, points: score(entry, terms) }))
-    .filter(({ points }) => terms.length > 0 && Number.isFinite(points))
+export function search(index: SearchIndex, query: string): readonly SearchEntry[] {
+  const terms = analyse(index, query);
+  return index.entries
+    .map((prepared) => ({ entry: prepared.entry, points: score(prepared, terms) }))
+    .filter(({ points }) => points > 0)
     .toSorted((first, second) => {
       const difference = second.points - first.points;
       return difference === 0
@@ -75,14 +107,31 @@ export function search(entries: readonly SearchEntry[], query: string): readonly
     .map(({ entry }) => entry);
 }
 
+function closestWord(term: string, vocabulary: readonly string[]): string {
+  const extra = typoAllowance(term) > 0 && term.length >= SUGGEST_EXTRA_LENGTH ? 1 : 0;
+  const allowance = typoAllowance(term) + extra;
+  const ranked = vocabulary
+    .map((word) => ({ word, distance: editDistance(term, word) }))
+    .filter(({ distance }) => distance <= allowance)
+    .toSorted((first, second) => first.distance - second.distance);
+  return ranked[0]?.word ?? term;
+}
+
+export function suggestion(index: SearchIndex, query: string): string | undefined {
+  const terms = queryTerms(query);
+  const corrected = terms.map((term) => closestWord(term, index.vocabulary));
+  const changed = corrected.some((word, position) => word !== terms[position]);
+  const proposal = corrected.join(" ");
+  return changed && search(index, proposal).length > 0 ? proposal : undefined;
+}
+
 export function groupResults(results: readonly SearchEntry[]): readonly ResultGroup[] {
-  return resultTypes
-    .map((type) => ({
-      type,
-      label: resultTypeLabels[type],
-      entries: results.filter((entry) => entry.type === type),
-    }))
-    .filter((group) => group.entries.length > 0);
+  const order = [...new Set(results.map((entry) => entry.type))];
+  return order.map((type) => ({
+    type,
+    label: resultTypeLabels[type],
+    entries: results.filter((entry) => entry.type === type),
+  }));
 }
 
 function isSearchEntry(entry: unknown): entry is SearchEntry {

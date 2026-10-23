@@ -13,11 +13,6 @@ const Heading = headingLevel === 2 ? "h2" : "h3";
 ---
 
 <article class:list={["card", variant]}>
-  {variant === "lead" && (
-    <span class="photo" aria-hidden="true">
-      <span class="tag">Zdjęcie dodawane w panelu szkoły</span>
-    </span>
-  )}
   <div class="text">
     <p class="tag meta">
       <time datetime={item.date}>{longDate(item.date)}</time>
@@ -75,19 +70,9 @@ const Heading = headingLevel === 2 ? "h2" : "h3";
     color: var(--ink-2);
   }
 
-  .photo {
-    display: grid;
-    place-items: center;
-    aspect-ratio: 16 / 9;
-    border: var(--hairline) solid var(--line);
-    border-radius: var(--radius);
-    background: var(--gray);
-    color: var(--ink-2);
-  }
-
   .card.lead {
-    padding-top: 0;
-    border-top: 0;
+    padding-top: var(--space-5);
+    border-top: var(--rule) solid var(--orange);
   }
 
   .card.lead .title {
@@ -102,13 +87,5 @@ const Heading = headingLevel === 2 ? "h2" : "h3";
 
   .card.compact {
     gap: var(--space-2);
-  }
-
-  @media (width >= 56rem) {
-    .card.lead {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: var(--space-6);
-      align-items: center;
-    }
   }
 </style>

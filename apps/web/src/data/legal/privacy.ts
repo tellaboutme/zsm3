@@ -5,9 +5,9 @@ const text = (value: string): { type: "text"; text: string } => ({ type: "text",
 export const privacyPolicy: LegalDocument = {
   path: "/polityka-prywatnosci",
   title: "Polityka prywatności serwisu",
-  version: "0.1",
+  version: "1.0",
   updated: "2026-10-22",
-  status: "projekt",
+  status: "obowiązuje",
   intro:
     "Jak publiczna część serwisu Zespołu Szkół Mechanicznych nr 3 obchodzi się z danymi osób, które go odwiedzają.",
   sections: [

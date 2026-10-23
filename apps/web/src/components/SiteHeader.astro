@@ -71,6 +71,11 @@ const current = sectionFor(sections, Astro.props.path)?.id;
     z-index: var(--z-header);
     border-bottom: var(--hairline) solid var(--line);
     background: var(--bg);
+    transition: margin-bottom var(--duration-1) var(--ease);
+  }
+
+  .site-header[data-compact="on"] {
+    margin-bottom: calc(var(--header-height) - var(--header-height-compact));
   }
 
   .bar {
@@ -146,8 +151,8 @@ const current = sectionFor(sections, Astro.props.path)?.id;
     right: var(--space-3);
     bottom: var(--space-1);
     left: var(--space-3);
-    height: var(--rule);
-    background: var(--orange);
+    height: var(--hairline);
+    background: var(--ink-2);
     content: "";
     transform: scaleX(0);
     transform-origin: left;
@@ -158,6 +163,11 @@ const current = sectionFor(sections, Astro.props.path)?.id;
   .entry.current::after,
   .entry[aria-expanded="true"]::after {
     transform: scaleX(1);
+  }
+
+  .entry.current::after {
+    height: var(--rule);
+    background: var(--orange);
   }
 
   .chevron {

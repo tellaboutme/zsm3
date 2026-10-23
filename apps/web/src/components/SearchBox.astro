@@ -50,11 +50,24 @@ const { id, label = "Czego szukasz?" } = Astro.props;
     min-width: 0;
     min-height: var(--target);
     padding: var(--space-2) var(--space-4);
-    border: var(--rule) solid var(--ink);
+    border: var(--hairline) solid var(--ink-2);
     border-radius: var(--radius);
     background: var(--bg);
     color: var(--ink);
     font-size: var(--step-1);
+    transition:
+      border-color var(--duration-1) var(--ease),
+      box-shadow var(--duration-1) var(--ease);
+  }
+
+  input:hover {
+    border-color: var(--ink);
+  }
+
+  input:focus-visible {
+    border-color: var(--link);
+    outline: var(--ring) solid transparent;
+    box-shadow: 0 0 0 var(--ring) var(--link);
   }
 
   button {

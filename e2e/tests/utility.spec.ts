@@ -2,6 +2,7 @@ import { AxeBuilder } from "@axe-core/playwright";
 import type { APIRequestContext } from "@playwright/test";
 
 import { expect, test } from "./fixtures.ts";
+import { pagesAwaitingImport } from "./pages-awaiting-import.ts";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"];
 const LINK = /href="(\/[^"#?]*)/gu;
@@ -13,13 +14,22 @@ function internalLinks(html: string): readonly string[] {
   );
 }
 
-async function crawl(request: APIRequestContext): Promise<ReadonlySet<string>> {
+interface Crawl {
+  readonly pages: ReadonlySet<string>;
+  readonly missing: ReadonlySet<string>;
+}
+
+async function crawl(request: APIRequestContext): Promise<Crawl> {
   const pages = new Set<string>();
+  const missing = new Set<string>();
   const queue = ["/"];
   const seen = new Set(queue);
   while (queue.length > 0) {
     const path = queue.shift() ?? "/";
     const response = await request.get(path);
+    if (response.status() === 404) {
+      missing.add(path);
+    }
     if (!response.ok() || !(response.headers()["content-type"] ?? "").includes("text/html")) {
       continue;
     }
@@ -30,7 +40,7 @@ async function crawl(request: APIRequestContext): Promise<ReadonlySet<string>> {
       queue.push(link);
     }
   }
-  return pages;
+  return { pages, missing };
 }
 
 test.describe("site map", () => {
@@ -51,9 +61,11 @@ test.describe("site map", () => {
         .getByRole("link")
         .evaluateAll((links) => links.map((link) => link.getAttribute("href") ?? "")),
     );
-    const reachable = await crawl(request);
+    const { pages: reachable, missing } = await crawl(request);
 
     const unlisted = [...reachable].filter((path) => !listed.has(path));
+
+    expect([...missing].toSorted()).toEqual(pagesAwaitingImport);
 
     expect(unlisted.filter((path) => !path.startsWith(NEWS_ARCHIVE))).toEqual([]);
     expect(unlisted.length).toBeGreaterThan(0);
@@ -78,6 +90,30 @@ test.describe("search", () => {
     ).toHaveAttribute("href", "/uczniowie/wzory-dokumentow#duplikaty");
     await expect(page).toHaveURL(/\?q=legitymacja$/u);
     expect(problems).toEqual([]);
+  });
+
+  test("finds a class however its code is typed and marks it", async ({ page }) => {
+    await page.goto("/szukaj?q=4TP");
+
+    await expect(page.getByRole("heading", { name: "Klasy i sale (1)" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Klasa 4 Tp" })).toHaveAttribute(
+      "href",
+      "/rodzice/wywiadowki",
+    );
+    await expect(page.locator(".results mark").first()).toHaveText("4 Tp");
+  });
+
+  test("forgives a typo and suggests a word that exists", async ({ page }) => {
+    await page.goto("/szukaj?q=dzwunkiy");
+
+    await expect(
+      page.getByRole("link", { name: "Dzwonki: godziny lekcji i przerw" }),
+    ).toBeVisible();
+    await page.getByLabel(/Wpisz słowo/u).fill("legitymcjaaa");
+    await page.getByRole("button", { name: "legitymacja" }).click();
+
+    await expect(page.getByLabel(/Wpisz słowo/u)).toHaveValue("legitymacja");
+    await expect(page.getByRole("heading", { name: /^Dokumenty \(\d+\)$/u })).toBeVisible();
   });
 
   test("reads the query from the address and reports empty results", async ({ page }) => {
@@ -121,12 +157,22 @@ test.describe("missing pages and legal documents", () => {
     ).toHaveAttribute("href", "/uczniowie/dzwonki");
   });
 
+  test("a missing page shows results while typing and keeps its address", async ({ page }) => {
+    await page.goto("/nie-istnieje");
+    await page.getByRole("searchbox", { name: "Czego szukasz?" }).fill("4tp");
+
+    await expect(page.getByRole("link", { name: "Klasa 4 Tp" })).toBeVisible();
+    await expect(page).toHaveURL(/\/nie-istnieje$/u);
+    await page.getByRole("searchbox", { name: "Czego szukasz?" }).press("Enter");
+
+    await expect(page).toHaveURL(/\/szukaj\?q=4tp$/u);
+    await expect(page.getByRole("link", { name: "Klasa 4 Tp" })).toBeVisible();
+  });
+
   test("the privacy policy shows its version and sections", async ({ page }) => {
     await page.goto("/polityka-prywatnosci");
 
-    await expect(
-      page.getByText("Projekt do zatwierdzenia przez inspektora ochrony danych"),
-    ).toBeVisible();
+    await expect(page.getByText("Dokument obowiązujący")).toBeVisible();
     await expect(
       page.getByRole("navigation", { name: "Na tej stronie" }).getByRole("link"),
     ).toHaveCount(5);

@@ -1,0 +1,17 @@
+export const synonymGroups: readonly (readonly string[])[] = [
+  ["lotnictwo", "lotniczy", "samolot", "awionik", "lotnisko"],
+  ["informatyka", "informatyk", "programista", "komputer"],
+  ["dzwonki", "dzwonek", "lekcje", "przerwy"],
+  ["wywiadowka", "zebranie"],
+  ["legitymacja", "duplikat"],
+  ["ferie", "przerwa"],
+  ["wakacje", "zakonczenie"],
+  ["samochod", "motoryzacja", "pojazdow", "auto"],
+  ["robot", "robotyk", "mechatronik", "automatyka"],
+  ["port", "terminal", "logistyka"],
+  ["rekrutacja", "nabor", "zapisy", "przyjecie"],
+  ["egzamin", "kwalifikacja"],
+  ["sekretariat", "kontakt", "telefon"],
+  ["plan", "rozklad", "harmonogram"],
+  ["wf", "wychowanie"],
+];

@@ -1,13 +1,34 @@
 ---
 interface Props {
-  name: "chevron" | "search" | "settings" | "theme" | "menu" | "close" | "external";
+  name:
+    | "chevron"
+    | "search"
+    | "settings"
+    | "theme-system"
+    | "theme-light"
+    | "theme-dark"
+    | "menu"
+    | "close"
+    | "external";
 }
 
 const paths = {
   chevron: ["M6 9l6 6 6-6"],
   search: ["M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z", "M16 16l5 5"],
   settings: ["M4 7h10", "M18 7h2", "M4 17h4", "M12 17h8", "M16 4v6", "M10 14v6"],
-  theme: ["M12 3a9 9 0 1 0 0 18z", "M12 3a9 9 0 0 1 0 18"],
+  "theme-system": ["M3 4h18v12H3z", "M8 20h8", "M12 16v4"],
+  "theme-light": [
+    "M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8z",
+    "M12 2v2",
+    "M12 20v2",
+    "M4.9 4.9l1.4 1.4",
+    "M17.7 17.7l1.4 1.4",
+    "M2 12h2",
+    "M20 12h2",
+    "M4.9 19.1l1.4-1.4",
+    "M17.7 6.3l1.4-1.4",
+  ],
+  "theme-dark": ["M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"],
   menu: ["M4 7h16", "M4 12h16", "M4 17h16"],
   close: ["M6 6l12 12", "M18 6L6 18"],
   external: ["M8 16L16 8", "M9 8h7v7"],

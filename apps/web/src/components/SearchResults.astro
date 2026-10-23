@@ -1,0 +1,49 @@
+---
+import "../styles/search-results.css";
+
+interface Props {
+  syncAddress?: boolean;
+}
+
+const { syncAddress = false } = Astro.props;
+---
+
+<div
+  class="search-results"
+  data-search-results-root
+  data-search-sync={syncAddress ? "" : undefined}
+>
+  <p class="status" role="status" data-search-status></p>
+  <p class="suggestion" data-search-suggestion hidden>
+    Czy chodziło Ci o <button type="button" data-search-suggest></button>?
+  </p>
+  <div class="results" data-search-results></div>
+</div>
+
+<script>
+  import "../scripts/search.ts";
+</script>
+
+<style>
+  .search-results {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .status,
+  .suggestion {
+    color: var(--ink-2);
+  }
+
+  .suggestion button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--link);
+    font: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+</style>
