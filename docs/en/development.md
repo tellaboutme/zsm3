@@ -54,7 +54,7 @@ lefthook runs Prettier, ESLint, Stylelint and ruff on staged files before each c
 
 `pnpm start` keeps the local D1 database in `apps/web/.wrangler/state`. The seed in `apps/worker/seed` writes sample news through the same repositories the site reads with; running it again updates the rows instead of duplicating them. Delete the directory to start from an empty database.
 
-`apps/worker/seed/files.json` lists the school's public files by SHA-256 and size. The files themselves are not in the repository: set `ZSM3_MEDIA` to a directory that holds them as `<sha256>.<format>`, and `pnpm start` loads them into the local R2 after checking each hash. Without it the pages still render and file links answer 404.
+`apps/worker/seed/files.json` lists the school's public files by SHA-256 and size. The files themselves are not in the repository: put them as `<sha256>.<format>` in a `zsm3_media` directory next to the repository, and `pnpm start` loads them into the local R2 after checking each hash. `ZSM3_MEDIA` points somewhere else. Without the files the pages still render and file links answer 404.
 
 ## Worker tests
 

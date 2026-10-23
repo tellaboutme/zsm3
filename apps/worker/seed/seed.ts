@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { getPlatformProxy } from "wrangler";
 
@@ -16,8 +18,18 @@ interface MediaBucket {
   put(key: string, value: Uint8Array): Promise<unknown>;
 }
 
+const SIBLING_MEDIA = fileURLToPath(new URL("../../../../zsm3_media/", import.meta.url));
+
+function mediaDirectoryFrom(argument: string | undefined): string | undefined {
+  const chosen = argument ?? process.env["ZSM3_MEDIA"];
+  if (chosen !== undefined) {
+    return chosen;
+  }
+  return existsSync(SIBLING_MEDIA) ? SIBLING_MEDIA : undefined;
+}
+
 const [configPath, statePath, mediaArgument] = process.argv.slice(2);
-const mediaDirectory = mediaArgument ?? process.env["ZSM3_MEDIA"];
+const mediaDirectory = mediaDirectoryFrom(mediaArgument);
 if (configPath === undefined || statePath === undefined) {
   throw new Error("Usage: node seed/seed.ts <wrangler config> <state directory> [media directory]");
 }
