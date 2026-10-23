@@ -8,6 +8,7 @@ import { assignRequestId } from "./http/request-id.ts";
 import { apiSecurityHeaders, noStore } from "./http/security-headers.ts";
 import { logEvent } from "./logging/log.ts";
 import { healthRoutes } from "./routes/health.ts";
+import { mediaRoutes } from "./routes/media.ts";
 
 export const MAX_BODY_BYTES = 16 * 1024;
 
@@ -15,6 +16,7 @@ export function createApp(): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
   app.use(assignRequestId, apiSecurityHeaders, noStore, bodyLimit({ maxSize: MAX_BODY_BYTES }));
   app.route("/api", healthRoutes);
+  app.route("/media", mediaRoutes);
   app.notFound((c) => problemResponse(c, 404));
   app.onError((error, c) => {
     if (error instanceof HTTPException && isProblemStatus(error.status)) {

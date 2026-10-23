@@ -191,6 +191,12 @@ Repositories in `apps/worker/src/storage` take a `Store` (`db`, `clock`, `random
 
 Rendered on demand: the home page, the section hubs, every news listing and article, and the search index (until FTS5 replaces it). Unknown categories, years, pages and articles return 404 with the prerendered error page. Astro middleware gives these responses the same headers as `_headers` gives static files, computed from the same module. Pages read D1 only through the repositories and the structural `SqlDatabase` interface; `src/cloudflare-workers.d.ts` exposes nothing else to Astro code.
 
+Content pages (`/szkola/historia`, and top-level pages such as `/rodo`) are read from the `pages` table; the site map and the search index include every published page.
+
+### Documents and other files
+
+School documents (forms, statutes, curricula, recruitment files) live in R2 under `d/<sha256>.<format>` and are served at `/media/d/...` by the Hono app. A file is served only if the `files` table knows its key; the response carries the stored content type, `Content-Disposition` (inline for PDF and images, attachment for archives and office files), `nosniff`, `Cross-Origin-Resource-Policy: same-origin` and `Cache-Control: public, max-age=31536000, immutable`, which is safe because the key is the content hash. Pages link to files through `files` blocks; nothing on the site links to the previous website.
+
 Static assets are not configured with `not_found_handling`: with it, Cloudflare answers browser navigations from the asset 404 page before the Worker runs.
 
 Migrations follow expand/contract: the new code works with the old schema and vice versa. They run before the Worker is deployed.

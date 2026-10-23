@@ -33,6 +33,11 @@ function blockText(block: ContentBlock): string {
       return block.items.map((item) => `${item.label} ${item.title} ${item.text}`).join(" ");
     case "callout":
       return `${block.title} ${block.text}`;
+    case "files":
+      return [
+        block.label,
+        ...block.files.map((file) => [file.title, file.description ?? ""].join(" ").trim()),
+      ].join(" ");
   }
 }
 

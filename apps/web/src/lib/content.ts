@@ -1,38 +1,12 @@
-import type { RichText } from "@zsm3/contracts/rich-text";
+import type { ContentBlock, ContentPage } from "@zsm3/contracts/content";
 
 import type { NavLink, NavSection } from "./navigation.ts";
-import type { Fact } from "./programmes.ts";
 
-export interface TimelineItem {
-  readonly label: string;
-  readonly title: string;
-  readonly text: string;
-}
+export type { ContentBlock, ContentPage };
 
-export type ContentBlock =
-  | { readonly type: "rich-text"; readonly document: RichText }
-  | { readonly type: "facts"; readonly label: string; readonly facts: readonly Fact[] }
-  | { readonly type: "timeline"; readonly items: readonly TimelineItem[] }
-  | {
-      readonly type: "callout";
-      readonly title: string;
-      readonly text: string;
-      readonly link?: NavLink;
-    };
+export type ContentSection = ContentPage["sections"][number];
 
-export interface ContentSection {
-  readonly id: string;
-  readonly title: string;
-  readonly blocks: readonly ContentBlock[];
-}
-
-export interface ContentPage {
-  readonly path: string;
-  readonly kicker: string;
-  readonly title: string;
-  readonly intro: string;
-  readonly sections: readonly ContentSection[];
-}
+export type TimelineItem = Extract<ContentBlock, { type: "timeline" }>["items"][number];
 
 export const IN_PAGE_NAV_MIN_SECTIONS = 4;
 

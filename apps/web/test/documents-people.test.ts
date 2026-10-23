@@ -21,9 +21,10 @@ describe("documents", () => {
     );
   });
 
-  it("links only to PDF files over HTTPS", ({ expect }) => {
+  it("links only to PDF files stored on the site", ({ expect }) => {
     for (const entry of documentGroups.flatMap((group) => group.documents)) {
-      expect(entry.href, entry.code).toMatch(/^https:\/\/\S+\.pdf$/u);
+      expect(entry.href, entry.code).toMatch(/^\/media\/d\/[0-9a-f]{64}\.pdf$/u);
+      expect(entry.bytes, entry.code).toBeGreaterThan(1000);
     }
   });
 

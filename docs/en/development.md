@@ -54,6 +54,8 @@ lefthook runs Prettier, ESLint, Stylelint and ruff on staged files before each c
 
 `pnpm start` keeps the local D1 database in `apps/web/.wrangler/state`. The seed in `apps/worker/seed` writes sample news through the same repositories the site reads with; running it again updates the rows instead of duplicating them. Delete the directory to start from an empty database.
 
+`apps/worker/seed/files.json` lists the school's public files by SHA-256 and size. The files themselves are not in the repository: set `ZSM3_MEDIA` to a directory that holds them as `<sha256>.<format>`, and `pnpm start` loads them into the local R2 after checking each hash. Without it the pages still render and file links answer 404.
+
 ## Worker tests
 
 Every test in `apps/worker/test` runs twice: in Node, where mutation testing runs, and in the real workerd runtime, for compatibility. Tests that need workerd itself are named `*.workers.test.ts`.

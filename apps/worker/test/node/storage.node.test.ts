@@ -182,6 +182,15 @@ describe("pages repository", () => {
     expect(await repo.find("/szkola/historia")).toEqual({ ...page, intro: "Zmieniony wstęp." });
     expect(await repo.find("/szkola/patron")).toBeUndefined();
     expect(await repo.publishedPaths()).toEqual(["/szkola/historia"]);
+    expect(await repo.published()).toEqual([{ ...page, intro: "Zmieniony wstęp." }]);
+  });
+
+  it("lists published pages in path order", async ({ expect }) => {
+    const repo = pagesRepo(store());
+    await repo.save({ ...page, path: "/szkola/statut", title: "Statut" }, "published");
+    await repo.save({ ...page, path: "/rodo", title: "RODO" }, "published");
+
+    expect((await repo.published()).map((item) => item.path)).toEqual(["/rodo", "/szkola/statut"]);
   });
 });
 

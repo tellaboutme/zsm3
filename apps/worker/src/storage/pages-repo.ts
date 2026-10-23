@@ -18,6 +18,7 @@ export interface PagesRepo {
   save(page: ContentPage, status: PublicationStatus): Promise<void>;
   find(path: string): Promise<ContentPage | undefined>;
   publishedPaths(): Promise<readonly string[]>;
+  published(): Promise<readonly ContentPage[]>;
 }
 
 const pageRowSchema = z.object({
@@ -42,6 +43,9 @@ const SELECT_ONE = `SELECT path, kicker, title, intro, sections_json
   FROM pages WHERE path = ? AND status = 'published'`;
 
 const SELECT_PATHS = "SELECT path FROM pages WHERE status = 'published' ORDER BY path";
+
+const SELECT_PUBLISHED = `SELECT path, kicker, title, intro, sections_json
+  FROM pages WHERE status = 'published' ORDER BY path LIMIT 500`;
 
 export function pageFromRow(row: PageRow): ContentPage {
   const sections: unknown = JSON.parse(row.sections_json);
@@ -84,6 +88,8 @@ export function pagesRepo({ db, clock }: Store): PagesRepo {
       const row = await firstRow(db.prepare(SELECT_ONE).bind(path), pageRowSchema);
       return row === undefined ? undefined : pageFromRow(row);
     },
+    published: async () =>
+      (await allRows(db.prepare(SELECT_PUBLISHED), pageRowSchema)).map(pageFromRow),
     publishedPaths: async () =>
       (await allRows(db.prepare(SELECT_PATHS), z.object({ path: z.string() }))).map(
         (row) => row.path,

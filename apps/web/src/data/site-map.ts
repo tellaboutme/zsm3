@@ -1,14 +1,25 @@
-import { contentPages } from "./pages/index.ts";
 import { professions } from "./professions.ts";
 import { programmes } from "./programmes/index.ts";
 import { schoolLabels } from "../lib/professions.ts";
 import { professionOf, programmeHref } from "../lib/programmes.ts";
 import type { MapNode } from "../lib/site-map.ts";
 
-function contentNodes(section: string): readonly MapNode[] {
-  return contentPages
-    .filter((page) => page.path.startsWith(`/${section}/`))
-    .map((page) => ({ label: page.title, href: page.path, description: page.intro }));
+export interface MapPage {
+  readonly path: string;
+  readonly title: string;
+  readonly intro: string;
+}
+
+function pageNode(page: MapPage): MapNode {
+  return { label: page.title, href: page.path, description: page.intro };
+}
+
+function contentNodes(pages: readonly MapPage[], section: string): readonly MapNode[] {
+  return pages.filter((page) => page.path.startsWith(`/${section}/`)).map(pageNode);
+}
+
+function topLevelNodes(pages: readonly MapPage[]): readonly MapNode[] {
+  return pages.filter((page) => page.path.split("/").length === 2).map(pageNode);
 }
 
 const programmeNodes: readonly MapNode[] = programmes.map((programme) => ({
@@ -17,7 +28,7 @@ const programmeNodes: readonly MapNode[] = programmes.map((programme) => ({
   description: programme.lead,
 }));
 
-export const siteMap: readonly MapNode[] = [
+const baseMap: readonly MapNode[] = [
   {
     label: "Strona główna",
     href: "/",
@@ -67,7 +78,6 @@ export const siteMap: readonly MapNode[] = [
     label: "Szkoła",
     href: "/szkola",
     children: [
-      ...contentNodes("szkola"),
       {
         label: "Kadra",
         href: "/szkola/kadra",
@@ -107,3 +117,22 @@ export const siteMap: readonly MapNode[] = [
     ],
   },
 ];
+
+const SECTION_ROOTS: ReadonlySet<string> = new Set([
+  "/kandydaci",
+  "/uczniowie",
+  "/rodzice",
+  "/szkola",
+]);
+
+export function buildSiteMap(pages: readonly MapPage[]): readonly MapNode[] {
+  const withPages = baseMap.map((node) =>
+    SECTION_ROOTS.has(node.href)
+      ? {
+          ...node,
+          children: [...contentNodes(pages, node.href.slice(1)), ...(node.children ?? [])],
+        }
+      : node,
+  );
+  return [...withPages.slice(0, -1), ...topLevelNodes(pages), ...withPages.slice(-1)];
+}

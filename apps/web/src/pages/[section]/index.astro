@@ -1,4 +1,5 @@
 ---
+import ContentPageView from "../../components/content/ContentPageView.astro";
 import TaskGroups from "../../components/hub/TaskGroups.astro";
 import MenuFeature from "../../components/MenuFeature.astro";
 import NewsCard from "../../components/news/NewsCard.astro";
@@ -7,55 +8,62 @@ import { sections } from "../../data/navigation.ts";
 import Base from "../../layouts/Base.astro";
 import { latestNews } from "../../lib/news-listing.ts";
 import { newsReader, notFound } from "../../server/news.ts";
+import { pagesReader } from "../../server/pages.ts";
 
 export const prerender = false;
 
-const hub = hubs.find((candidate) => candidate.section === Astro.params["section"]);
+const slug = Astro.params["section"] ?? "";
+const hub = hubs.find((candidate) => candidate.section === slug);
 const section = sections.find((candidate) => candidate.id === hub?.section);
-if (hub === undefined || section === undefined) {
+const page =
+  hub === undefined || section === undefined ? await pagesReader().find(`/${slug}`) : undefined;
+if (page === undefined && (hub === undefined || section === undefined)) {
   return notFound();
 }
-const latest = await latestNews(newsReader(), 3);
+const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
 ---
 
-<Base
-  title={`${section.label} — ZSM3`}
-  description={hub.intro}
-  breadcrumbs={[{ label: section.label }]}
->
-  <div class="hub">
-    <header class="intro">
-      <h1>
-        <span class="rise">
-          <span>{section.label}</span>
-        </span>
-      </h1>
-      <p class="lead">{hub.intro}</p>
-      <a class="action nudge" href={hub.action.href}>
-        {hub.action.label} <span aria-hidden="true">→</span>
-      </a>
-    </header>
-    {section.featured !== undefined && (
-      <div class="feature">
-        <MenuFeature feature={section.featured} />
-      </div>
-    )}
-    <TaskGroups groups={section.groups} />
-    <section class="news" aria-labelledby="aktualnosci">
-      <h2 id="aktualnosci">Aktualności</h2>
-      <ul>
-        {latest.map((item) => (
-          <li>
-            <NewsCard item={item} />
-          </li>
-        ))}
-      </ul>
-      <a class="more nudge" href="/aktualnosci">
-        Wszystkie aktualności <span aria-hidden="true">→</span>
-      </a>
-    </section>
-  </div>
-</Base>
+{page !== undefined && <ContentPageView page={page} />}
+{hub !== undefined && section !== undefined && (
+  <Base
+    title={`${section.label} — ZSM3`}
+    description={hub.intro}
+    breadcrumbs={[{ label: section.label }]}
+  >
+    <div class="hub">
+      <header class="intro">
+        <h1>
+          <span class="rise">
+            <span>{section.label}</span>
+          </span>
+        </h1>
+        <p class="lead">{hub.intro}</p>
+        <a class="action nudge" href={hub.action.href}>
+          {hub.action.label} <span aria-hidden="true">→</span>
+        </a>
+      </header>
+      {section.featured !== undefined && (
+        <div class="feature">
+          <MenuFeature feature={section.featured} />
+        </div>
+      )}
+      <TaskGroups groups={section.groups} />
+      <section class="news" aria-labelledby="aktualnosci">
+        <h2 id="aktualnosci">Aktualności</h2>
+        <ul>
+          {latest.map((item) => (
+            <li>
+              <NewsCard item={item} />
+            </li>
+          ))}
+        </ul>
+        <a class="more nudge" href="/aktualnosci">
+          Wszystkie aktualności <span aria-hidden="true">→</span>
+        </a>
+      </section>
+    </div>
+  </Base>
+)}
 
 <style>
   .hub {

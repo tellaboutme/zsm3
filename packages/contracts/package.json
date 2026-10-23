@@ -6,7 +6,8 @@
     "./health": "./src/health.ts",
     "./problem": "./src/problem.ts",
     "./rich-text": "./src/rich-text.ts",
-    "./content": "./src/content.ts"
+    "./content": "./src/content.ts",
+    "./media": "./src/media.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

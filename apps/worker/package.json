@@ -28,6 +28,8 @@
   },
   "exports": {
     "./app": "./src/app.ts",
-    "./storage/*": "./src/storage/*"
+    "./storage/*": "./src/storage/*",
+    "./seed/files.ts": "./seed/files.ts",
+    "./seed/pages/index.ts": "./seed/pages/index.ts"
   }
 }

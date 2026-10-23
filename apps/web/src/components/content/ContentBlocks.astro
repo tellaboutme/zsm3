@@ -1,5 +1,6 @@
 ---
 import Callout from "./Callout.astro";
+import FileList from "./FileList.astro";
 import RichText from "./RichText.astro";
 import Timeline from "./Timeline.astro";
 import type { ContentBlock } from "../../lib/content.ts";
@@ -22,5 +23,7 @@ const { blocks } = Astro.props;
       return <Timeline items={block.items} />;
     case "callout":
       return <Callout title={block.title} text={block.text} link={block.link} />;
+    case "files":
+      return <FileList block={block} />;
   }
 })}

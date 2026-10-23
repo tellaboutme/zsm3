@@ -1,4 +1,4 @@
-import type { ContentPage } from "../../lib/content.ts";
+import type { ContentPage } from "@zsm3/contracts/content";
 
 export const historia: ContentPage = {
   path: "/szkola/historia",
