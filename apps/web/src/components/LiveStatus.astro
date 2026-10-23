@@ -28,6 +28,7 @@ const { size = "panel" } = Astro.props;
 <style>
   .live {
     display: grid;
+    container-type: inline-size;
     gap: var(--space-2);
     padding: var(--space-5);
     border-radius: var(--radius);
@@ -56,7 +57,7 @@ const { size = "panel" } = Astro.props;
 
   .timer {
     font-family: var(--font-mono);
-    font-size: var(--step-3);
+    font-size: min(var(--step-3), 14cqi);
     font-variant-numeric: tabular-nums;
     line-height: var(--leading-tight);
   }
@@ -95,6 +96,6 @@ const { size = "panel" } = Astro.props;
   }
 
   .large .timer {
-    font-size: var(--step-4);
+    font-size: min(var(--step-4), 18cqi);
   }
 </style>

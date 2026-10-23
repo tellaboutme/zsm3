@@ -48,12 +48,10 @@ export const partners: readonly Partner[] = [
   {
     name: "Erasmus+",
     role: "wyjazdy i praktyki zagraniczne uczniów od 2014 roku",
-    href: "/szkola/projekty/erasmus",
   },
   {
     name: "Centrum Kompetencji Zawodowych",
     role: "kursy zawodowe dla uczniów w projekcie współfinansowanym przez Unię Europejską",
-    href: "/szkola/projekty",
   },
   { name: "LS Airport Services", role: "partner kierunków lotniczych" },
 ];

@@ -1,5 +1,4 @@
 ---
-import Figure from "../../../components/content/Figure.astro";
 import RichText from "../../../components/content/RichText.astro";
 import NewsCard from "../../../components/news/NewsCard.astro";
 import Base from "../../../layouts/Base.astro";
@@ -41,7 +40,6 @@ const { newer, older } = article.neighbours;
       </h1>
       <p class="lead">{item.lead}</p>
     </header>
-    {item.cover !== undefined && <Figure caption={item.cover.caption} credit={item.cover.credit} />}
     <RichText document={item.body} />
     <footer class="tools">
       <button type="button" class="copy" data-copy-link hidden>

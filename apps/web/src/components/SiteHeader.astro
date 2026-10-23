@@ -151,8 +151,8 @@ const current = sectionFor(sections, Astro.props.path)?.id;
     right: var(--space-3);
     bottom: var(--space-1);
     left: var(--space-3);
-    height: var(--rule);
-    background: var(--orange);
+    height: var(--hairline);
+    background: var(--ink-2);
     content: "";
     transform: scaleX(0);
     transform-origin: left;
@@ -163,6 +163,11 @@ const current = sectionFor(sections, Astro.props.path)?.id;
   .entry.current::after,
   .entry[aria-expanded="true"]::after {
     transform: scaleX(1);
+  }
+
+  .entry.current::after {
+    height: var(--rule);
+    background: var(--orange);
   }
 
   .chevron {

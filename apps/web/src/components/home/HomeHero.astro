@@ -14,7 +14,7 @@ const { featured } = Astro.props;
 
 <section class="hero" aria-labelledby="tytul">
   <div class="kickers">
-    <p class="tag">Technikum · Szkoła branżowa I i II stopnia</p>
+    <p class="tag">Technikum · Szkoła branżowa I oraz II stopnia</p>
     <p class="tag">
       {school.street}, {school.city}
     </p>
@@ -32,14 +32,15 @@ const { featured } = Astro.props;
   </h1>
   <div class="grid">
     <a class="featured" href={newsHref(featured)}>
-      <span class="photo" aria-hidden="true">
-        <span class="tag">Zdjęcie dodawane w panelu szkoły</span>
-      </span>
+      <span class="tag">Najnowsza wiadomość</span>
       <span class="tag meta">
         <time datetime={featured.date}>{longDate(featured.date)}</time> · {featured.category}
       </span>
       <span class="title">{featured.title}</span>
       <span class="lead">{featured.lead}</span>
+      <span class="more">
+        Czytaj dalej <span aria-hidden="true">→</span>
+      </span>
     </a>
     <div class="side">
       <LiveStatus />
@@ -83,25 +84,23 @@ const { featured } = Astro.props;
 
   .grid {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-5);
   }
 
   .featured {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-4);
     align-content: start;
+    padding-top: var(--space-5);
+    border-top: var(--rule) solid var(--orange);
     color: var(--ink);
     text-decoration: none;
   }
 
-  .photo {
-    display: grid;
-    place-items: center;
-    aspect-ratio: 3 / 2;
-    border: var(--hairline) solid var(--line);
-    border-radius: var(--radius);
-    background: var(--gray);
-    color: var(--ink-2);
+  .more {
+    color: var(--link);
+    font-weight: 700;
   }
 
   .meta {
@@ -110,10 +109,12 @@ const { featured } = Astro.props;
 
   .title {
     font-family: var(--font-display);
-    font-size: var(--step-2);
+    font-size: var(--step-3);
     font-stretch: var(--stretch-display);
     font-weight: 800;
     line-height: var(--leading-snug);
+    overflow-wrap: anywhere;
+    hyphens: auto;
     text-decoration: underline;
     text-decoration-color: transparent;
     text-decoration-thickness: var(--rule);
