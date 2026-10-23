@@ -1,5 +1,6 @@
 ---
 import SearchBox from "../components/SearchBox.astro";
+import SearchResults from "../components/SearchResults.astro";
 import Base from "../layouts/Base.astro";
 
 const tasks = [
@@ -17,10 +18,11 @@ const tasks = [
     <p class="tag">Błąd 404</p>
     <h1 id="tytul">Nie znaleziono strony</h1>
     <p class="lead">
-      Strona mogła zmienić adres po przeniesieniu serwisu. Wyszukaj ją albo wybierz jedną z
-      najczęściej odwiedzanych stron.
+      Pod tym adresem nie ma strony. Sprawdź, czy adres jest wpisany poprawnie, wyszukaj to, czego
+      potrzebujesz, albo wybierz jedną z najczęściej odwiedzanych stron.
     </p>
     <SearchBox id="szukaj-404" />
+    <SearchResults />
     <nav class="tasks" aria-label="Najczęściej odwiedzane">
       <h2>Najczęściej odwiedzane</h2>
       <ul>

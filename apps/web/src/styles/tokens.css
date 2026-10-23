@@ -13,6 +13,7 @@
   --orange: light-dark(#f26b1d, #ff8a3d);
   --orange-ink: #0b1220;
   --focus: light-dark(#f26b1d, #ff8a3d);
+  --highlight: light-dark(#ffe1cc, #4a2a12);
   --success: light-dark(#1a7f37, #6fdc8c);
   --warning: light-dark(#8a5a00, #f2cc60);
   --danger: light-dark(#b42318, #ff8a80);
@@ -51,6 +52,7 @@
   --radius: 6px;
   --hairline: 1px;
   --rule: 3px;
+  --ring: 2px;
   --target: 2.75rem;
   --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
   --duration-1: 160ms;
@@ -87,6 +89,7 @@
   --link: light-dark(#002f87, #ffe066);
   --blue: light-dark(#002f87, #002f87);
   --focus: light-dark(#000, #ffe066);
+  --highlight: light-dark(#ffe066, #002f87);
 }
 
 :root[data-font="readable"] {

@@ -1,12 +1,12 @@
 ---
-import "../../styles/search-results.css";
 import SearchBox from "../../components/SearchBox.astro";
+import SearchResults from "../../components/SearchResults.astro";
 import Base from "../../layouts/Base.astro";
 ---
 
 <Base
   title="Szukaj — ZSM3"
-  description="Wyszukiwarka stron, kierunków, aktualności, dokumentów i terminów Zespołu Szkół Mechanicznych nr 3."
+  description="Wyszukiwarka stron, kierunków, klas, kontaktów, aktualności, dokumentów i terminów Zespołu Szkół Mechanicznych nr 3."
   breadcrumbs={[{ label: "Szukaj" }]}
 >
   <div class="search-page">
@@ -18,8 +18,7 @@ import Base from "../../layouts/Base.astro";
       </h1>
       <SearchBox id="szukaj-strona" label="Wpisz słowo, np. dzwonki, legitymacja, informatyk" />
     </header>
-    <p class="status" role="status" data-search-status></p>
-    <div class="results" data-search-results></div>
+    <SearchResults syncAddress />
     <noscript>
       <p class="note">
         Wyszukiwarka działa w przeglądarce z włączonym JavaScriptem. Wszystkie strony znajdziesz też
@@ -28,10 +27,6 @@ import Base from "../../layouts/Base.astro";
     </noscript>
   </div>
 </Base>
-
-<script>
-  import "../../scripts/search.ts";
-</script>
 
 <style>
   .search-page {
@@ -53,7 +48,6 @@ import Base from "../../layouts/Base.astro";
     font-stretch: var(--stretch-wide);
   }
 
-  .status,
   .note {
     color: var(--ink-2);
   }

@@ -32,3 +32,9 @@
 .results p {
   color: var(--ink-2);
 }
+
+.results mark {
+  background: var(--highlight);
+  color: var(--ink);
+  font-weight: 700;
+}
