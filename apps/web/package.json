@@ -30,7 +30,7 @@
     "@types/node": "catalog:",
     "@vitest/coverage-istanbul": "catalog:",
     "fast-check": "catalog:",
-    "happy-dom": "21.0.1",
+    "happy-dom": "21.0.4",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "wrangler": "4.151.0"
