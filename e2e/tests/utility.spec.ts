@@ -10,7 +10,9 @@ const NEWS_ARCHIVE = "/aktualnosci/";
 
 function internalLinks(html: string): readonly string[] {
   return [...html.matchAll(LINK)].flatMap((match) =>
-    match[1] === undefined || /\.[a-z]+$/u.test(match[1]) ? [] : [match[1]],
+    match[1] === undefined || match[1].startsWith("/media/") || /\.[a-z]+$/u.test(match[1])
+      ? []
+      : [match[1]],
   );
 }
 
