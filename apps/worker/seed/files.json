@@ -1,486 +1,480 @@
 {
   "books-epojsam": {
-    "name": "Epojsam.pdf",
+    "name": "Wykaz podręczników – elektromechanik pojazdów samochodowych.pdf",
     "format": "pdf",
     "sha256": "1395dc5134f9b4e914fc93b6714300f222a0a7b92205d2897076eb619cbfd934",
     "bytes": 799520
   },
   "books-mpojsam": {
-    "name": "Mpojsam.pdf",
+    "name": "Wykaz podręczników – mechanik pojazdów samochodowych.pdf",
     "format": "pdf",
     "sha256": "91edfedf971e5dc9ee1bd7f1c6a0ba1207d0dd9c8513027ad8393b4f7a846e37",
     "bytes": 806768
   },
   "books-tinf": {
-    "name": "Tinf.pdf",
+    "name": "Wykaz podręczników – technik informatyk.pdf",
     "format": "pdf",
     "sha256": "3b4bf52db9c9d2944ec259a3307bce46e0334988d2f45725ca8415c56c8617f2",
     "bytes": 703716
   },
   "books-tlotsop": {
-    "name": "Tlotsop.pdf",
+    "name": "Wykaz podręczników – technik lotniskowych służb operacyjnych.pdf",
     "format": "pdf",
     "sha256": "132eb25f4ce2e96bd98243203caff55771a8c46595d1cac30c7c573948661c0d",
     "bytes": 865250
   },
   "books-tmechatronik": {
-    "name": "Tmechatronik.pdf",
+    "name": "Wykaz podręczników – technik mechatronik.pdf",
     "format": "pdf",
     "sha256": "aea9674c67655146ebb6d0242b40f522989ac23f0763be2a4d6dd7bdf9da95a6",
     "bytes": 866526
   },
   "books-tmechlot": {
-    "name": "Tmechlot.pdf",
+    "name": "Wykaz podręczników – technik mechanik lotniczy.pdf",
     "format": "pdf",
     "sha256": "4aface550c054a7befff49c37978a5a93e914553d31070e8ffcc45cfaf49437d",
     "bytes": 855151
   },
   "books-tpojsam": {
-    "name": "Tpojsam.pdf",
+    "name": "Wykaz podręczników – technik pojazdów samochodowych.pdf",
     "format": "pdf",
     "sha256": "40471f33fc383c71484b59434505f1b22ea5f1225016c52731eca772bcf3bb5f",
     "bytes": 865756
   },
   "books-tprogramista": {
-    "name": "Tprogramista.pdf",
+    "name": "Wykaz podręczników – technik programista.pdf",
     "format": "pdf",
     "sha256": "a5f473694e5ee3cd5961392a1e4304de0393bd0d15cdccac313aa3074b2d3802",
     "bytes": 709564
   },
   "calendar-2026-27": {
-    "name": "Terminarz roku szkolnego 2026-27.pdf",
+    "name": "Terminarz roku szkolnego 2026-2027.pdf",
     "format": "pdf",
     "sha256": "68a432fc573851d50541b9bab2a2de7cd1d08a50487eb0f24ccc26fff99a7a8a",
     "bytes": 563419
   },
   "form-w1": {
-    "name": "w1.pdf",
+    "name": "W1 Wniosek o wydanie duplikatu świadectwa.pdf",
     "format": "pdf",
     "sha256": "c33c153497ede4721454c3ffa69d3bb6c36729cc52a123a77a65db6c55597ce6",
     "bytes": 550987
   },
   "form-w10": {
-    "name": "w10.pdf",
+    "name": "W10 Oświadczenie opiekuna prawnego o zamieszkaniu.pdf",
     "format": "pdf",
     "sha256": "ecdd108834ffcac63b6a7fd63391e8b4fcc2a8fade4be7f29400bf06b7e2b705",
     "bytes": 61142
   },
   "form-w2": {
-    "name": "w2.pdf",
+    "name": "W2 Zwolnienie z drugiego języka obcego.pdf",
     "format": "pdf",
     "sha256": "e7ac4d62d56b62a3f826cb4ea604779ae70a10c1a4db834ff1dd394b00ba457a",
     "bytes": 280544
   },
   "form-w3": {
-    "name": "w3.pdf",
+    "name": "W3 Zwolnienie z wychowania fizycznego.pdf",
     "format": "pdf",
     "sha256": "29a31d006930e9e45ac63ee9d52192b76d789f7e2028d9a9e11f8554fd7b4ac7",
     "bytes": 283469
   },
   "form-w4": {
-    "name": "w4.pdf",
+    "name": "W4 Zwolnienie z wychowania fizycznego (pełnoletni uczeń).pdf",
     "format": "pdf",
     "sha256": "e3149bde7d9044f43f835cc3db41a559912f1a1cd5f97380e91df75a225e4876",
     "bytes": 351687
   },
   "form-w5": {
-    "name": "w5.pdf",
+    "name": "W5 Zwolnienie z drugiego języka obcego (pełnoletni uczeń).pdf",
     "format": "pdf",
     "sha256": "2b81d574373050902a37727d35301624f39b21e7bb98c3aebcae64e865bec22f",
     "bytes": 348772
   },
   "form-w6": {
-    "name": "w6.pdf",
+    "name": "W6 Wniosek o wydanie duplikatu legitymacji.pdf",
     "format": "pdf",
     "sha256": "2c0e0c7a67dc88d4df6a627b152948588f5e49557491d31d7dfb22d72aefca26",
     "bytes": 734771
   },
   "form-w7": {
-    "name": "w7.pdf",
+    "name": "W7 Podanie o wydanie dokumentów.pdf",
     "format": "pdf",
     "sha256": "a092584119b5866daa7212fb31b09971a2acb8f327c68bd6d190e814315d85ef",
     "bytes": 248635
   },
   "form-w8": {
-    "name": "w8.pdf",
+    "name": "W8 Podanie o wydanie dokumentów (pełnoletni uczeń).pdf",
     "format": "pdf",
     "sha256": "c09f8f9cc28d2e59f131941670d1147e17360660d28e2858a110a7506df7a2b0",
     "bytes": 253066
   },
   "form-w9": {
-    "name": "w9.pdf",
+    "name": "W9 Oświadczenie rodzica o zamieszkaniu.pdf",
     "format": "pdf",
     "sha256": "809e75c53e68a2da637314f2ed0966c1d49943869a1135de1ecb381f3fba5c3e",
     "bytes": 397128
   },
-  "plan-1": {
-    "name": "1-2026-27_technik_mechatronik_1Ta_2Ta.pdf",
+  "open-day-invitation": {
+    "name": "Zaproszenie na Dni Otwarte ZSM3.jpg",
+    "format": "jpg",
+    "sha256": "3b47ad790dbde76a519c35103690c79de24422c0e0a9999c930ef2b49e8aa4d0",
+    "bytes": 135952
+  },
+  "plan-01": {
+    "name": "Plan nauczania 1 – technik mechatronik 1Ta 2Ta.pdf",
     "format": "pdf",
     "sha256": "b6b496b3dc2a81b878268710280954fec795bf1baee2be91a4eac774c69b11ee",
     "bytes": 875119
   },
-  "plan-10": {
-    "name": "18-2026-27_technik_lotniskowych_służb_operacyjnych_3Ts.pdf",
-    "format": "pdf",
-    "sha256": "380370f5b2b71c0edd627d6700f2b82f014afbc4668faf336e40fd7149575e06",
-    "bytes": 734657
-  },
-  "plan-11": {
-    "name": "19-2026-27_technik_lotniskowych_służb_operacyjnych_4Ts.pdf",
-    "format": "pdf",
-    "sha256": "03be394bdf0fe3a250e6e2b1ca93daffbfba1b11848dc0698642bb08eaf3c6be",
-    "bytes": 730659
-  },
-  "plan-12": {
-    "name": "2-2026-27_technik_mechatronik_3Ta.pdf",
+  "plan-02": {
+    "name": "Plan nauczania 2 – technik mechatronik 3Ta.pdf",
     "format": "pdf",
     "sha256": "360d293ee709fa3dc0a78d8f55199393ecf194d41688428d213302d646bc877d",
     "bytes": 877758
   },
-  "plan-13": {
-    "name": "20-2026-27_technik_lotniskowych_służb_operacyjnych_5Ts.pdf",
-    "format": "pdf",
-    "sha256": "772235eb213cb229e7196f1cf8eac821f2532f49c07ff22c939db266e89345e6",
-    "bytes": 728223
-  },
-  "plan-14": {
-    "name": "21-2026-27_technik_mechanik_lotniczy_1LST.pdf",
-    "format": "pdf",
-    "sha256": "d701bffda2ba755f5b63e15ce7b6e75b0b1cd3c3f4754f4ecf65080c1830f1e5",
-    "bytes": 875851
-  },
-  "plan-15": {
-    "name": "22-2026-27_technik_mechanik_lotniczy_2Tm.pdf",
-    "format": "pdf",
-    "sha256": "243cf5fa1237e2166a0209595564780b1c4ce12f43db53cdf5a6f2206d193c82",
-    "bytes": 874023
-  },
-  "plan-16": {
-    "name": "23-2026-27_technik_mechanik_lotniczy_3Tm.pdf",
-    "format": "pdf",
-    "sha256": "40ad8c9ac1f500d288bd2207bec12cf706e72d4533507816a9c69de6995907bc",
-    "bytes": 880356
-  },
-  "plan-17": {
-    "name": "24-2026-27_technik_mechanik_lotniczy_4Tm.pdf",
-    "format": "pdf",
-    "sha256": "4ed2cb724c8d960987032cbae9496829c9a5e2f142d94724085710c161509398",
-    "bytes": 877528
-  },
-  "plan-18": {
-    "name": "25-2026-27_technik_mechanik_lotniczy_5Tm.pdf",
-    "format": "pdf",
-    "sha256": "43b9ff020632ee482d4133ecf156b50cdfadda0f594c27846aae080e2a1d3828",
-    "bytes": 874948
-  },
-  "plan-19": {
-    "name": "26-2026-27_mechanik_pojazdów_samochodowych_1Ba_1Bd_2Ba.pdf",
-    "format": "pdf",
-    "sha256": "6e46ad49855667cb13426e545236d2dd512e9a3dc223f4fdf6b5fb558c83f82e",
-    "bytes": 495025
-  },
-  "plan-2": {
-    "name": "10-2026-27_technik_informatyk_4Tc.pdf",
-    "format": "pdf",
-    "sha256": "716a6fe628505289b71fbebba2d08cc2261f67bc1b5b339dd8fdeee49ecfddbb",
-    "bytes": 732436
-  },
-  "plan-20": {
-    "name": "27-2026-27_elektromechanik_pojazdów_samochodowych_1Bb.pdf",
-    "format": "pdf",
-    "sha256": "8c799abe6c92416ef60933eb1c8ded45351d53e183dbd6c3307f6244bb9a294b",
-    "bytes": 493667
-  },
-  "plan-21": {
-    "name": "28-2026-27_mechanik_pojazdów_samochodowych_3Ba_3Bd.pdf",
-    "format": "pdf",
-    "sha256": "b257375c97ca8b8b9d7c4a7b6a12d2fd439af6ed8b5bc51dca36ad0ce03929b7",
-    "bytes": 674255
-  },
-  "plan-22": {
-    "name": "29-2026-27_elektromechanik_pojazdów_samochodowych_3Bb.pdf",
-    "format": "pdf",
-    "sha256": "1e8f71167d5c5fd6d2b2d1c577c77b4a586612b93674e5d3ddcb68821fa92760",
-    "bytes": 495359
-  },
-  "plan-23": {
-    "name": "3-2026-27_technik_mechatronik_4Ta.pdf",
+  "plan-03": {
+    "name": "Plan nauczania 3 – technik mechatronik 4Ta.pdf",
     "format": "pdf",
     "sha256": "828e9a4b83828e558f14dbe2d7bc40ef498f568c09065bfb49c0d7380c6d1d8d",
     "bytes": 874753
   },
-  "plan-24": {
-    "name": "30-2026-27_technik_pojazdów_samochodowych_1BDa_2BDa_2BDb_BSIIS.pdf",
-    "format": "pdf",
-    "sha256": "5d488844506e5b3b252bee05989cd1378d4bbfb8c807e305ba6bfb9a18d1f529",
-    "bytes": 821562
-  },
-  "plan-25": {
-    "name": "4-2026-27_technik_mechatronik_5Ta.pdf",
+  "plan-04": {
+    "name": "Plan nauczania 4 – technik mechatronik 5Ta.pdf",
     "format": "pdf",
     "sha256": "e3dd665eeb1857927121979bb5e4add211f9ef0659fca804d1e5baa0910e9242",
     "bytes": 873576
   },
-  "plan-26": {
-    "name": "5-2026-27_technik_pojazdów_samochodowych_1Tb_1Td_2Tb_2Td.pdf",
+  "plan-05": {
+    "name": "Plan nauczania 5 – technik pojazdów samochodowych 1Tb 1Td 2Tb 2Td.pdf",
     "format": "pdf",
     "sha256": "7e6e5db0ffa786a519a4fc8af362d1f97aae0dfe2d2e1499367febbcdaf17f23",
     "bytes": 879517
   },
-  "plan-27": {
-    "name": "6-2026-27_technik_pojazdów_samochodowych_3Tb_3Td.pdf",
+  "plan-06": {
+    "name": "Plan nauczania 6 – technik pojazdów samochodowych 3Tb 3Td.pdf",
     "format": "pdf",
     "sha256": "95c1675633db12f728978f1a5efbcb8410af113186adec0c2ffd08e724d984c5",
     "bytes": 881894
   },
-  "plan-28": {
-    "name": "7-2026-27_technik_pojazdów_samochodowych_4Tb_4Td.pdf",
+  "plan-07": {
+    "name": "Plan nauczania 7 – technik pojazdów samochodowych 4Tb 4Td.pdf",
     "format": "pdf",
     "sha256": "43472da029e986a4b86268a6d2288c3aafcf9b8d5d866fe1fcff6e56912853a4",
     "bytes": 879196
   },
-  "plan-29": {
-    "name": "8-2026-27_technik_pojazdów_samochodowych_5Tb_5Td.pdf",
+  "plan-08": {
+    "name": "Plan nauczania 8 – technik pojazdów samochodowych 5Tb 5Td.pdf",
     "format": "pdf",
     "sha256": "1fc7bef70417885d4d8e4ed4907d782a2a0e4df940ed36c7e4168b93d9ee8612",
     "bytes": 878233
   },
-  "plan-3": {
-    "name": "11-2026-27_technik informatyk_5Tc_5Te.pdf",
-    "format": "pdf",
-    "sha256": "674ff5c0d4aa888880a930801db0cef6817db51778b04fee5a2fe82cd931ab7e",
-    "bytes": 729971
-  },
-  "plan-30": {
-    "name": "9-2026-27_technik_informatyk_1Tc_2Tc.pdf",
+  "plan-09": {
+    "name": "Plan nauczania 9 – technik informatyk 1Tc 2Tc.pdf",
     "format": "pdf",
     "sha256": "6213014cf31c1c74897dc256da9cb285dd2fee5ab42931e34d2991ea8b5c0c75",
     "bytes": 794702
   },
-  "plan-31": {
-    "name": "SZKOLNY_ZESTAW_PLANÓW_NAUCZANIA_numeracja_2026_27.pdf",
+  "plan-10": {
+    "name": "Plan nauczania 10 – technik informatyk 4Tc.pdf",
     "format": "pdf",
-    "sha256": "8c86fdb137b2a6dacd731264b8ef39680fa6ebc6650f4f9f3955b9f65e221928",
-    "bytes": 226482
+    "sha256": "716a6fe628505289b71fbebba2d08cc2261f67bc1b5b339dd8fdeee49ecfddbb",
+    "bytes": 732436
   },
-  "plan-32": {
-    "name": "Wszystkie_spakowane.7z",
-    "format": "7z",
-    "sha256": "ab9dc92058a460a950f7558fb2351a7ef77e9c1adf519d9086df0b3ac3cc4f44",
-    "bytes": 11551302
+  "plan-11": {
+    "name": "Plan nauczania 11 – technik informatyk 5Tc 5Te.pdf",
+    "format": "pdf",
+    "sha256": "674ff5c0d4aa888880a930801db0cef6817db51778b04fee5a2fe82cd931ab7e",
+    "bytes": 729971
   },
-  "plan-4": {
-    "name": "12-2026-27_technik_programista_1Tp_2Tp.pdf",
+  "plan-12": {
+    "name": "Plan nauczania 12 – technik programista 1Tp 2Tp.pdf",
     "format": "pdf",
     "sha256": "ca3a62626df6e19cf307179fc4528d6c52ef1a6f9159fd8224a171249fbb2547",
     "bytes": 736378
   },
-  "plan-5": {
-    "name": "13-2026-27_technik_programista_3Tp.pdf",
+  "plan-13": {
+    "name": "Plan nauczania 13 – technik programista 3Tp.pdf",
     "format": "pdf",
     "sha256": "7de22f5c1123e146c22f638a4d515a050d16e5de10e579216c40abe888e34996",
     "bytes": 739582
   },
-  "plan-6": {
-    "name": "14-2026-27_technik_programista_4Tp.pdf",
+  "plan-14": {
+    "name": "Plan nauczania 14 – technik programista 4Tp.pdf",
     "format": "pdf",
     "sha256": "4f69cb03e8fb916ea683d056307b604c89ed46e9bdf2ee16803a1eccdb521791",
     "bytes": 737147
   },
-  "plan-7": {
-    "name": "15-2026-27_technik_programista_5Tp.pdf",
+  "plan-15": {
+    "name": "Plan nauczania 15 – technik programista 5Tp.pdf",
     "format": "pdf",
     "sha256": "ddbb22b784dd61600ed3aff493c9cf36d5ab9e3f50e147dbb399d463f0b5e902",
     "bytes": 736049
   },
-  "plan-8": {
-    "name": "16-2026-27_technik_lotniskowych_służb_operacyjnych_1Ts.pdf",
+  "plan-16": {
+    "name": "Plan nauczania 16 – technik lotniskowych służb operacyjnych 1Ts.pdf",
     "format": "pdf",
     "sha256": "1954d4d469cdeb49867fc1838be322aa19638e717a1e177f72117bbb5e2055bc",
     "bytes": 875050
   },
-  "plan-9": {
-    "name": "17-2026-27_technik_lotniskowych_służb_operacyjnych_2Ts.pdf",
+  "plan-17": {
+    "name": "Plan nauczania 17 – technik lotniskowych służb operacyjnych 2Ts.pdf",
     "format": "pdf",
     "sha256": "6760ffd7dbdef4494cf5b72305e5821cbcc9dbdb730a64c1845051f368e531a3",
     "bytes": 731268
   },
-  "protection-1": {
-    "name": "Mp_132A_Niebieska_karta_A.pdf",
+  "plan-18": {
+    "name": "Plan nauczania 18 – technik lotniskowych służb operacyjnych 3Ts.pdf",
     "format": "pdf",
-    "sha256": "96224ad58126557a842e93dd39ad94c963f9e6e29afff37720dd99fa0bf58696",
-    "bytes": 511200
+    "sha256": "380370f5b2b71c0edd627d6700f2b82f014afbc4668faf336e40fd7149575e06",
+    "bytes": 734657
   },
-  "protection-10": {
-    "name": "Załącznik 9 Oświadczenie pracownika.pdf",
+  "plan-19": {
+    "name": "Plan nauczania 19 – technik lotniskowych służb operacyjnych 4Ts.pdf",
     "format": "pdf",
-    "sha256": "28865173a9cc4f2ec125f2f2b16a3ade9c7a7a253bdc189446b1244603fc498f",
-    "bytes": 498193
+    "sha256": "03be394bdf0fe3a250e6e2b1ca93daffbfba1b11848dc0698642bb08eaf3c6be",
+    "bytes": 730659
   },
-  "protection-2": {
-    "name": "Załącznik 1 Zasady rekrutacji personelu.pdf",
+  "plan-20": {
+    "name": "Plan nauczania 20 – technik lotniskowych służb operacyjnych 5Ts.pdf",
+    "format": "pdf",
+    "sha256": "772235eb213cb229e7196f1cf8eac821f2532f49c07ff22c939db266e89345e6",
+    "bytes": 728223
+  },
+  "plan-21": {
+    "name": "Plan nauczania 21 – technik mechanik lotniczy 1LST.pdf",
+    "format": "pdf",
+    "sha256": "d701bffda2ba755f5b63e15ce7b6e75b0b1cd3c3f4754f4ecf65080c1830f1e5",
+    "bytes": 875851
+  },
+  "plan-22": {
+    "name": "Plan nauczania 22 – technik mechanik lotniczy 2Tm.pdf",
+    "format": "pdf",
+    "sha256": "243cf5fa1237e2166a0209595564780b1c4ce12f43db53cdf5a6f2206d193c82",
+    "bytes": 874023
+  },
+  "plan-23": {
+    "name": "Plan nauczania 23 – technik mechanik lotniczy 3Tm.pdf",
+    "format": "pdf",
+    "sha256": "40ad8c9ac1f500d288bd2207bec12cf706e72d4533507816a9c69de6995907bc",
+    "bytes": 880356
+  },
+  "plan-24": {
+    "name": "Plan nauczania 24 – technik mechanik lotniczy 4Tm.pdf",
+    "format": "pdf",
+    "sha256": "4ed2cb724c8d960987032cbae9496829c9a5e2f142d94724085710c161509398",
+    "bytes": 877528
+  },
+  "plan-25": {
+    "name": "Plan nauczania 25 – technik mechanik lotniczy 5Tm.pdf",
+    "format": "pdf",
+    "sha256": "43b9ff020632ee482d4133ecf156b50cdfadda0f594c27846aae080e2a1d3828",
+    "bytes": 874948
+  },
+  "plan-26": {
+    "name": "Plan nauczania 26 – mechanik pojazdów samochodowych 1Ba 1Bd 2Ba.pdf",
+    "format": "pdf",
+    "sha256": "6e46ad49855667cb13426e545236d2dd512e9a3dc223f4fdf6b5fb558c83f82e",
+    "bytes": 495025
+  },
+  "plan-27": {
+    "name": "Plan nauczania 27 – elektromechanik pojazdów samochodowych 1Bb.pdf",
+    "format": "pdf",
+    "sha256": "8c799abe6c92416ef60933eb1c8ded45351d53e183dbd6c3307f6244bb9a294b",
+    "bytes": 493667
+  },
+  "plan-28": {
+    "name": "Plan nauczania 28 – mechanik pojazdów samochodowych 3Ba 3Bd.pdf",
+    "format": "pdf",
+    "sha256": "b257375c97ca8b8b9d7c4a7b6a12d2fd439af6ed8b5bc51dca36ad0ce03929b7",
+    "bytes": 674255
+  },
+  "plan-29": {
+    "name": "Plan nauczania 29 – elektromechanik pojazdów samochodowych 3Bb.pdf",
+    "format": "pdf",
+    "sha256": "1e8f71167d5c5fd6d2b2d1c577c77b4a586612b93674e5d3ddcb68821fa92760",
+    "bytes": 495359
+  },
+  "plan-30": {
+    "name": "Plan nauczania 30 – technik pojazdów samochodowych 1BDa 2BDa 2BDb.pdf",
+    "format": "pdf",
+    "sha256": "5d488844506e5b3b252bee05989cd1378d4bbfb8c807e305ba6bfb9a18d1f529",
+    "bytes": 821562
+  },
+  "plans-all": {
+    "name": "Plany nauczania 2026-2027 – komplet.7z",
+    "format": "7z",
+    "sha256": "ab9dc92058a460a950f7558fb2351a7ef77e9c1adf519d9086df0b3ac3cc4f44",
+    "bytes": 11551302
+  },
+  "plans-index": {
+    "name": "Szkolny zestaw planów nauczania 2026-2027.pdf",
+    "format": "pdf",
+    "sha256": "8c86fdb137b2a6dacd731264b8ef39680fa6ebc6650f4f9f3955b9f65e221928",
+    "bytes": 226482
+  },
+  "protection-all": {
+    "name": "Standardy ochrony małoletnich – komplet.zip",
+    "format": "zip",
+    "sha256": "e221e0b8655f319ac5dac86c3fa43fa317e58149a5bf7220c4bde2dc86ad60bd",
+    "bytes": 5119062
+  },
+  "protection-annex-1": {
+    "name": "Załącznik 1 – Zasady rekrutacji personelu.pdf",
     "format": "pdf",
     "sha256": "61e8ea3afa796846cb78ec0b9384fe2d28bb2681b2379f7e30f2887d47bcebf8",
     "bytes": 203280
   },
-  "protection-3": {
-    "name": "Załącznik 2 Charakterystyczne symptomy krzywdzenia małoletniego.pdf",
+  "protection-annex-2": {
+    "name": "Załącznik 2 – Charakterystyczne symptomy krzywdzenia małoletniego.pdf",
     "format": "pdf",
     "sha256": "f2f8d2a114e0a0d82a57ced4e06caf4563b25ba497da9a8fc24776e1e049a2e1",
     "bytes": 454643
   },
-  "protection-4": {
-    "name": "Załącznik 3 Relacje personel-uczeń.pdf",
+  "protection-annex-3": {
+    "name": "Załącznik 3 – Relacje personel – uczeń.pdf",
     "format": "pdf",
     "sha256": "b77916c62e005e3d5f5525465e341b872f31fe1b34f3368d20d5b29c074d028f",
     "bytes": 273678
   },
-  "protection-5": {
-    "name": "Załącznik 4 Relacje uczeń-uczeń.pdf",
+  "protection-annex-4": {
+    "name": "Załącznik 4 – Relacje uczeń – uczeń.pdf",
     "format": "pdf",
     "sha256": "8cf1067c6ba53d87e720bd5f75290907a0db2a661922829444655cf6423c4a68",
     "bytes": 358703
   },
-  "protection-6": {
-    "name": "Załącznik 5 Karta interwencji.pdf",
+  "protection-annex-5": {
+    "name": "Załącznik 5 – Karta interwencji.pdf",
     "format": "pdf",
     "sha256": "b960475be7a6c27129195c709facbd1761adaa11cff23cb259ff5be9872a1f58",
     "bytes": 346393
   },
-  "protection-7": {
-    "name": "Załącznik 6 Zasady ochrony wizerunku i danych osobowych.pdf",
+  "protection-annex-6": {
+    "name": "Załącznik 6 – Zasady ochrony wizerunku i danych osobowych.pdf",
     "format": "pdf",
     "sha256": "be020b9ba6d00e5116a70a0aaa302625f7cc366d9fec0b783fe44d4d91a1397b",
     "bytes": 332442
   },
-  "protection-8": {
-    "name": "Załącznik 7 Zasady bezpiecznego korzystania z internetu.pdf",
+  "protection-annex-7": {
+    "name": "Załącznik 7 – Zasady bezpiecznego korzystania z internetu.pdf",
     "format": "pdf",
     "sha256": "2e175b579975f7ab0d988cd4bbff0ab62e8eceb36ed4e2b5fee6c4c992576c48",
     "bytes": 336290
   },
-  "protection-9": {
-    "name": "Załącznik 8 Ankieta.pdf",
+  "protection-annex-8": {
+    "name": "Załącznik 8 – Ankieta.pdf",
     "format": "pdf",
     "sha256": "f548e4c851b99ac908477a4ed0251e4e3bb08ad1bc6783312ed3403a0fd79975",
     "bytes": 506184
   },
+  "protection-annex-9": {
+    "name": "Załącznik 9 – Oświadczenie pracownika.pdf",
+    "format": "pdf",
+    "sha256": "28865173a9cc4f2ec125f2f2b16a3ade9c7a7a253bdc189446b1244603fc498f",
+    "bytes": 498193
+  },
+  "protection-blue-card": {
+    "name": "Niebieska Karta A.pdf",
+    "format": "pdf",
+    "sha256": "96224ad58126557a842e93dd39ad94c963f9e6e29afff37720dd99fa0bf58696",
+    "bytes": 511200
+  },
   "protection-main": {
-    "name": "Standardy ochrony małoletnich w ZSM nr 3 w Krakowie.pdf",
+    "name": "Standardy ochrony małoletnich w ZSM nr 3.pdf",
     "format": "pdf",
     "sha256": "317dbb1084fbebe7fb665677540082bb3330330fefeef58af181f8741014be34",
     "bytes": 560450
   },
   "protection-short": {
-    "name": "Standardy ochrony małoletnich – wersja skrócona dla uczniów.pdf",
+    "name": "Standardy ochrony małoletnich – wersja dla uczniów.pdf",
     "format": "pdf",
     "sha256": "d528d9b31cb24218e61771c4f821029716144bebc212a482daf9a45f3f58cd78",
     "bytes": 967598
   },
-  "protection-zip": {
-    "name": "Standardy.zip",
-    "format": "zip",
-    "sha256": "e221e0b8655f319ac5dac86c3fa43fa317e58149a5bf7220c4bde2dc86ad60bd",
-    "bytes": 5119062
-  },
-  "recruitment-1": {
-    "name": "rodo2024.jpg",
-    "format": "jpg",
-    "sha256": "6f6ad7c9922a9a72b401ed48720b7cf751b15a05d14a82641a1dbeeb009cb8e8",
-    "bytes": 334405
-  },
-  "recruitment-10": {
-    "name": "badania_info.pdf",
-    "format": "pdf",
-    "sha256": "c7d99f9fffc0efcc81f2491df04e573f0349b8dbea8758c7321ce52e1dc7e4f8",
-    "bytes": 266591
-  },
-  "recruitment-11": {
-    "name": "informacja_o_b.pdf",
-    "format": "pdf",
-    "sha256": "34916c2ef5cfbc6f9de559d20850c393fb5200c3cafa47c486ea3b71368aa7dd",
-    "bytes": 363400
-  },
-  "recruitment-12": {
-    "name": "wykaz_klas.pdf",
-    "format": "pdf",
-    "sha256": "00623650be2df2730f4d91756919a7d9d55dad45789a48725d0ca228119af466",
-    "bytes": 666911
-  },
-  "recruitment-14": {
-    "name": "zsmnr3maj2021v.5.pdf",
-    "format": "pdf",
-    "sha256": "42be73c0f6cf138ce78f29dc3fa42cd3b3a8fec4deac06e9218739c44ccb3605",
-    "bytes": 11692872
-  },
-  "recruitment-2": {
-    "name": "zgodawizerunek2025.pdf",
-    "format": "pdf",
-    "sha256": "e1d42b4ec42d95e49be7ebcac3923cbec528cdbffc8af37c0d1d47a4b2a852db",
-    "bytes": 616691
-  },
-  "recruitment-3": {
-    "name": "zaproszenie-ZSM-3-744x1024.jpg",
-    "format": "jpg",
-    "sha256": "3b47ad790dbde76a519c35103690c79de24422c0e0a9999c930ef2b49e8aa4d0",
-    "bytes": 135952
-  },
-  "recruitment-4": {
-    "name": "podanie_B_R.pdf",
-    "format": "pdf",
-    "sha256": "f728d005d60dd2ae9f7072d88c17b74b342ad75f8e1ea267eaf84a6b4e892be1",
-    "bytes": 250955
-  },
-  "recruitment-5": {
-    "name": "Informator_branzowa.pdf",
-    "format": "pdf",
-    "sha256": "2f2fa71fb90049fd57628a475c0f66c93091d2732ed65dd848e1874e4fc95ed6",
-    "bytes": 478643
-  },
-  "recruitment-6": {
-    "name": "Informator_rekrutacyjny_2026_2027.pdf",
-    "format": "pdf",
-    "sha256": "3ac07fb5135a16808042476ba9b480544766a553d6604c0a2ac15394405c0638",
-    "bytes": 467503
-  },
-  "recruitment-7": {
-    "name": "Podanie_2026_2027.pdf",
+  "recruitment-application": {
+    "name": "Podanie o przyjęcie 2026-2027.pdf",
     "format": "pdf",
     "sha256": "fa036373cfa2e9f6f7ffcf28b01aa0a6177173a254685a39dfbcf47987a0d238",
     "bytes": 512160
   },
-  "recruitment-8": {
-    "name": "Wniosek_2026-2027_RODO.pdf",
+  "recruitment-application-bs2": {
+    "name": "Podanie – Branżowa Szkoła II stopnia.pdf",
+    "format": "pdf",
+    "sha256": "f728d005d60dd2ae9f7072d88c17b74b342ad75f8e1ea267eaf84a6b4e892be1",
+    "bytes": 250955
+  },
+  "recruitment-classes": {
+    "name": "Wykaz klas 2026-2027.pdf",
+    "format": "pdf",
+    "sha256": "00623650be2df2730f4d91756919a7d9d55dad45789a48725d0ca228119af466",
+    "bytes": 666911
+  },
+  "recruitment-form": {
+    "name": "Wniosek rekrutacyjny z klauzulą RODO.pdf",
     "format": "pdf",
     "sha256": "d235d88504448a692d43a8fc48b4f090896ae28e1bb59272e5a54aed674e07d5",
     "bytes": 637347
   },
-  "recruitment-9": {
-    "name": "Wniosek_br.pdf",
+  "recruitment-form-bs2": {
+    "name": "Wniosek – Branżowa Szkoła II stopnia.pdf",
     "format": "pdf",
     "sha256": "ded0fa2a2a8e42707d96f6ce0743bfdcf52ae9f7cea60d3b6d04c56378cc7e1c",
     "bytes": 561099
   },
+  "recruitment-guide": {
+    "name": "Informator rekrutacyjny 2026-2027.pdf",
+    "format": "pdf",
+    "sha256": "3ac07fb5135a16808042476ba9b480544766a553d6604c0a2ac15394405c0638",
+    "bytes": 467503
+  },
+  "recruitment-guide-bs2": {
+    "name": "Informator – Branżowa Szkoła II stopnia.pdf",
+    "format": "pdf",
+    "sha256": "2f2fa71fb90049fd57628a475c0f66c93091d2732ed65dd848e1874e4fc95ed6",
+    "bytes": 478643
+  },
+  "recruitment-image-consent": {
+    "name": "Zgoda na wykorzystanie wizerunku.pdf",
+    "format": "pdf",
+    "sha256": "e1d42b4ec42d95e49be7ebcac3923cbec528cdbffc8af37c0d1d47a4b2a852db",
+    "bytes": 616691
+  },
+  "recruitment-medical-1": {
+    "name": "Rekrutacja – skierowania na badania lekarskie.pdf",
+    "format": "pdf",
+    "sha256": "c7d99f9fffc0efcc81f2491df04e573f0349b8dbea8758c7321ce52e1dc7e4f8",
+    "bytes": 266591
+  },
+  "recruitment-medical-2": {
+    "name": "Zasady wykonywania badań lekarskich do rekrutacji.pdf",
+    "format": "pdf",
+    "sha256": "34916c2ef5cfbc6f9de559d20850c393fb5200c3cafa47c486ea3b71368aa7dd",
+    "bytes": 363400
+  },
+  "recruitment-privacy-notice": {
+    "name": "Informacja administratora danych – rekrutacja.jpg",
+    "format": "jpg",
+    "sha256": "6f6ad7c9922a9a72b401ed48720b7cf751b15a05d14a82641a1dbeeb009cb8e8",
+    "bytes": 334405
+  },
   "rent-list": {
-    "name": "najem2425.pdf",
+    "name": "Wykaz wynajmowanych pomieszczeń.pdf",
     "format": "pdf",
     "sha256": "9238b361a978409bbeaf8c943d82267d367e9e87dab589b0503ab540759542f2",
     "bytes": 353613
   },
   "rent-rates": {
-    "name": "stawki.pdf",
+    "name": "Zarządzenie w sprawie stawek najmu.pdf",
     "format": "pdf",
     "sha256": "c3555765df4d2d7a571be7bc262892056f19e49d33361f740f58f72e548c33a4",
     "bytes": 243377
   },
   "statute-bs2": {
-    "name": "StatutB.pdf",
+    "name": "Statut Branżowej Szkoły II stopnia nr 9.pdf",
     "format": "pdf",
     "sha256": "52b261154738ecc704ff0c9dc6cc2d4f8838898bce75596c33096df8ad5cee65",
     "bytes": 382133
   },
   "statute-zsm3": {
-    "name": "statutzsm3.pdf",
+    "name": "Statut Zespołu Szkół Mechanicznych nr 3.pdf",
     "format": "pdf",
     "sha256": "64fb1426316488bcc58a30f6879d053eb05c911774310a48f050c7e0ed164248",
     "bytes": 805676

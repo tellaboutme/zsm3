@@ -19,9 +19,11 @@ An exception to the policy is allowed only with an entry below: what, why, when 
 
 ### `minimumReleaseAgeExclude`
 
-| Package                         | Reason                                                                                                                                                                                   | Checked    | Review                                                  |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------- |
-| `vitest` and `@vitest/*` 4.1.12 | fixes advisories in `@vitest/mocker` (code injection through mocks, Windows path traversal); released 6 days before install; every package published through GitHub OIDC with provenance | 2026-10-21 | remove after 2026-10-22, once the release is 7 days old |
+| Package                         | Reason                                                                                                                                                                                                         | Checked    | Review                                                  |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------- |
+| `vitest` and `@vitest/*` 4.1.12 | fixes advisories in `@vitest/mocker` (code injection through mocks, Windows path traversal); released 6 days before install; every package published through GitHub OIDC with provenance                       | 2026-10-21 | remove after 2026-10-22, once the release is 7 days old |
+| `fast-uri@3.1.9`                | fixes four advisories (GHSA-w74x-v6f9-j3xg and GHSA-wjr9-j795-jxcr, moderate; GHSA-xhq7-xmqj-769h and GHSA-333x-w4r6-6crp, low); released 5 days before install; published through GitHub OIDC with provenance | 2026-10-24 | remove after 2026-10-26, once the release is 7 days old |
+| `happy-dom@21.0.4`              | fixes GHSA-834v-8h66-3h79 (high severity host code execution through an unsanitized import alias after an incomplete first fix); released 4 days before install; published through GitHub OIDC with provenance | 2026-10-24 | remove after 2026-10-27, once the release is 7 days old |
 
 ### `trustPolicyExclude`
 
@@ -44,7 +46,7 @@ The same policy picked older versions in two places:
 
 ### `overrides`
 
-`qs`, `sharp` and `undici` are raised to fixed versions (all older than 7 days); Stryker and wrangler/miniflare pull them in.
+`qs` 6.16.0, `sharp` 0.35.5, `undici` 7.30.1 (wrangler and miniflare) and 8.12.2 (astro, through unifont), `zod` 4.6.7, `happy-dom` 21.0.4 and `fast-uri` 3.1.9 are raised to fixed versions; Stryker, wrangler, Vitest and Astro pull these packages in as transitive dependencies. All pinned releases are older than 7 days except the two excluded above.
 
 ### Dependabot
 
