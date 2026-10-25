@@ -78,7 +78,7 @@ Inventory of the current site and where each feature lives in the new one.
 | RSS feed                                                                                     | RSS feed for news                                                                                                         | 2     |
 | Facebook page plugin                                                                         | Facebook link plus a click-to-load preview; nothing loads from Facebook before the click                                  | 1     |
 | YouTube embeds                                                                               | click-to-load facade on `youtube-nocookie.com`                                                                            | 1     |
-| Google Maps embed                                                                            | static map image with a link to Google Maps and OpenStreetMap; interactive map on click                                   | 1     |
+| Google Maps embed                                                                            | first-party address panel linking to the school's Google Maps listing; no Google requests before clicking                 | 1     |
 | Partner and link banners (Kraków, BIP, LS Airport Services, virtual tour)                    | partners section and footer links, managed in the panel                                                                   | 3     |
 | All current URLs                                                                             | 301 redirects from every crawled URL, managed in the panel                                                                | 2     |
 

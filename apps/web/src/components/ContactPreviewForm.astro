@@ -1,0 +1,209 @@
+<dialog
+  class="preview"
+  aria-labelledby="napisz"
+  aria-describedby="preview-warning"
+  data-contact-preview
+>
+  <div class="head">
+    <div>
+      <p class="tag">Podgląd formularza</p>
+      <h2 id="napisz">Napisz do szkoły</h2>
+    </div>
+    <button class="close" type="button" aria-label="Zamknij formularz" data-close-preview>
+      ×
+    </button>
+  </div>
+  <p id="preview-warning">
+    To wersja demonstracyjna. Wiadomość nie zostanie wysłana, a wpisane dane nie są przekazywane ani
+    zapisywane. Aby skontaktować się ze szkołą,{" "}
+    <a data-preview-mailto href="mailto:s@zespolszkolmechanicznych.edu.pl">
+      otwórz program pocztowy
+    </a>
+    .
+  </p>
+  <p>
+    Adres odbiorcy: <span data-preview-recipient></span>
+  </p>
+  <div class="fields" role="group" aria-labelledby="napisz" aria-describedby="preview-warning">
+    <label for="preview-name">Imię i nazwisko</label>
+    <input id="preview-name" autocomplete="off" required />
+    <label for="preview-email">Twój adres e-mail</label>
+    <input id="preview-email" type="email" autocomplete="off" required />
+    <label for="preview-subject">Temat</label>
+    <input id="preview-subject" autocomplete="off" required />
+    <label for="preview-message">Wiadomość</label>
+    <textarea id="preview-message" rows="5" autocomplete="off" required></textarea>
+    <button type="button">Sprawdź formularz (bez wysyłania)</button>
+    <p role="status" aria-live="polite" data-preview-status></p>
+  </div>
+</dialog>
+
+<script>
+  const preview = document.querySelector<HTMLDialogElement>("[data-contact-preview]");
+  let opener: HTMLAnchorElement | null = null;
+
+  document.addEventListener("click", (event) => {
+    if (
+      preview === null ||
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+    const link = target.closest<HTMLAnchorElement>('a[href^="mailto:"]');
+    if (link === null || preview.contains(link)) {
+      return;
+    }
+    event.preventDefault();
+    opener = link;
+    const recipient = preview.querySelector<HTMLElement>("[data-preview-recipient]");
+    if (recipient !== null) {
+      recipient.textContent =
+        link.getAttribute("href")?.slice("mailto:".length).split("?")[0] ?? "";
+    }
+    preview
+      .querySelector<HTMLAnchorElement>("[data-preview-mailto]")
+      ?.setAttribute("href", link.href);
+    preview.showModal();
+    preview.querySelector<HTMLButtonElement>("[data-close-preview]")?.focus();
+  });
+
+  preview?.querySelector("[data-close-preview]")?.addEventListener("click", () => preview.close());
+  preview?.addEventListener("click", (event) => {
+    if (event.target !== preview) {
+      return;
+    }
+    const bounds = preview.getBoundingClientRect();
+    if (
+      event.clientX < bounds.left ||
+      event.clientX > bounds.right ||
+      event.clientY < bounds.top ||
+      event.clientY > bounds.bottom
+    ) {
+      preview.close();
+    }
+  });
+  preview?.addEventListener("close", () => {
+    preview
+      .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea")
+      .forEach((field) => {
+        field.value = "";
+      });
+    const status = preview.querySelector<HTMLElement>("[data-preview-status]");
+    if (status !== null) {
+      status.textContent = "";
+    }
+    opener?.focus();
+    opener = null;
+  });
+
+  preview?.querySelector<HTMLButtonElement>(".fields button")?.addEventListener("click", () => {
+    const fields = preview.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+      "input, textarea",
+    );
+    for (const field of fields) {
+      if (!field.reportValidity()) {
+        return;
+      }
+    }
+    const status = preview.querySelector<HTMLElement>("[data-preview-status]");
+    if (status !== null) {
+      status.textContent =
+        "Formularz działa tylko w podglądzie. Nic nie zostało wysłane ani zapisane.";
+    }
+  });
+</script>
+
+<style>
+  .preview {
+    width: min(100% - 2 * var(--space-4), var(--measure));
+    max-height: calc(100% - 2 * var(--space-4));
+    padding: var(--space-6);
+    border: var(--hairline) solid var(--line);
+    border-top: var(--rule) solid var(--blue);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    box-shadow: var(--shadow-float);
+    overflow: auto;
+  }
+
+  .preview[open] {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .preview::backdrop {
+    background: var(--ink);
+    opacity: 0.5;
+  }
+
+  .head {
+    display: flex;
+    gap: var(--space-4);
+    align-items: start;
+    justify-content: space-between;
+  }
+
+  .close {
+    flex: none;
+  }
+
+  .fields {
+    display: grid;
+    min-width: 0;
+    gap: var(--space-3);
+    max-width: var(--measure);
+  }
+
+  .preview p {
+    overflow-wrap: anywhere;
+  }
+
+  [data-preview-mailto] {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+  }
+
+  label {
+    font-weight: 700;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: var(--space-3);
+    border: var(--hairline) solid var(--ink-2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  button {
+    min-height: var(--target);
+    padding: var(--space-3) var(--space-5);
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--blue);
+    color: var(--blue-ink);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: var(--blue-2);
+  }
+
+  [role="status"] {
+    font-weight: 700;
+  }
+</style>

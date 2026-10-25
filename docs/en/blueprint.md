@@ -331,7 +331,7 @@ Breadcrumbs, title, intro, optional in-page navigation (for pages with four or m
 | Calendar      | `/szkola/terminarz`           | year overview (key dates), filters (audience, type), month groups, `.ics` export, PDF version                                       |
 | People        | `/szkola/kadra` and similar   | groups (leadership, subjects), person rows (name, role, subjects), contact through the secretariat                                  |
 | Meetings      | `/rodzice/wywiadowki`         | next meeting, table by class (room, teacher), contact note                                                                          |
-| Contact       | `/kontakt`                    | contact cards (secretariats, accounting, parents' council, leadership), hours, map facade, how to get there                         |
+| Contact       | `/kontakt`                    | contact cards (secretariats, accounting, parents' council, leadership), Google Maps click-through (no embed), directions            |
 | Gallery       | `/szkola/galeria/…`           | years → album grid → photo grid with lightbox (keyboard, swipe, Escape)                                                             |
 | Form          | e-wniosek, Skrzynka           | narrow layout, error summary, fields, Turnstile, success state with next steps                                                      |
 | Utility       | search, sitemap, 404          | search box with results grouped by type; full tree; 404 with search and top tasks                                                   |
@@ -343,6 +343,7 @@ Stage 1 notes for the everyday templates:
 - The bell schedule picks today's variant (shortened days) in the browser for the page and the live status everywhere; past variants are hidden.
 - The calendar filters are pure CSS like the professions listing; JavaScript hides empty months, announces the count and shows the empty state. `/szkola/terminarz.ics` is generated at build time (RFC 5545: CRLF, escaping, 75-octet folding).
 - Meetings and contact fixtures carry rooms, roles, extensions and role mailboxes only; names of staff come from the panel at runtime. Office hours are shown once the school provides them.
+- Library and clubs content pages arrange their real sections as distinct task cards; other content pages retain the reading layout. A single preview-only contact dialog in the global page shell opens from any `mailto:` link, including D1 rich text, privacy information and the footer. It only validates locally: no request or personal data is sent or stored. Without JavaScript and in production, all e-mail links remain native `mailto:` links. The map is a first-party address panel linking to the school's Google Maps listing and loads no Google resources before activation.
 
 Stage 1 notes for the utility pages:
 

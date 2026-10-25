@@ -75,4 +75,12 @@ const { cards } = Astro.props;
     min-height: var(--target);
     overflow-wrap: anywhere;
   }
+
+  .ways a[href^="tel:"] {
+    text-decoration: none;
+  }
+
+  .ways a[href^="tel:"]:hover {
+    text-decoration: underline;
+  }
 </style>

@@ -9,7 +9,8 @@ export const school = {
   secretariatExtension: "104",
   email: "s@zespolszkolmechanicznych.edu.pl",
   officeEmail: "zsm3@mjo.krakow.pl",
-  mapUrl: "https://www.openstreetmap.org/search?query=os.%20Szkolne%2037%2C%20Krak%C3%B3w",
+  mapUrl:
+    "https://www.google.com/maps/place/Technikum+Mechaniczne+Nr+17/@50.0765707,20.048393,989m/data=!3m2!1e3!4b1!4m6!3m5!1s0x4716450cf0a6cd7f:0x8c5ec628100fb271!8m2!3d50.0765707!4d20.0509679!16s%2Fg%2F1tsjcd7r?entry=ttu&g_ep=EgoyMDI2MTAyMC4wIKXMDSoASAFQAw%3D%3D",
   owner: "Gmina Miejska Kraków",
 } as const;
 

@@ -17,6 +17,7 @@ interface Props {
 
 const { page } = Astro.props;
 const parent = sectionTitleFor(sections, page.path);
+const cardLayout = page.path === "/szkola/biblioteka" || page.path === "/uczniowie/kola-i-kluby";
 ---
 
 <Base
@@ -24,7 +25,7 @@ const parent = sectionTitleFor(sections, page.path);
   description={page.intro}
   breadcrumbs={[...(parent === undefined ? [] : [parent]), { label: page.title }]}
 >
-  <div class="content-page">
+  <div class:list={["content-page", { "card-layout": cardLayout }]}>
     <header class="intro">
       <p class="tag">{page.kicker}</p>
       <h1>
@@ -34,14 +35,20 @@ const parent = sectionTitleFor(sections, page.path);
       </h1>
       <p class="lead">{page.intro}</p>
     </header>
-    {needsInPageNav(page) && <InPageNav sections={page.sections} />}
+    {needsInPageNav(page) && (
+      <div class="page-nav">
+        <InPageNav sections={page.sections} />
+      </div>
+    )}
     {page.sections.map((section) => (
       <section class="section" id={section.id} aria-labelledby={`${section.id}-tytul`}>
         <h2 id={`${section.id}-tytul`}>{section.title}</h2>
         <ContentBlocks blocks={section.blocks} />
       </section>
     ))}
-    <SiblingNav title="Zobacz też" links={siblingLinks(sections, page.path)} />
+    <div class="page-nav">
+      <SiblingNav title="Zobacz też" links={siblingLinks(sections, page.path)} />
+    </div>
   </div>
 </Base>
 
@@ -82,5 +89,44 @@ const parent = sectionTitleFor(sections, page.path);
 
   .section h2 {
     font-size: var(--step-3);
+  }
+
+  .card-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .card-layout .intro,
+  .card-layout .page-nav {
+    grid-column: 1 / -1;
+  }
+
+  .card-layout .section {
+    min-width: 0;
+    align-content: start;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border: var(--hairline) solid var(--line);
+    border-top: var(--rule) solid var(--blue);
+    background: var(--gray);
+  }
+
+  .card-layout .section h2 {
+    font-size: var(--step-2);
+  }
+
+  .card-layout .section:first-of-type,
+  .card-layout .section:last-of-type {
+    grid-column: 1 / -1;
+  }
+
+  .card-layout .section:first-of-type {
+    background: var(--bg);
+  }
+
+  @media (width <= 48rem) {
+    .card-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>
