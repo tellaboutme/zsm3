@@ -97,7 +97,7 @@ export const privacyPolicy: LegalDocument = {
           type: "paragraph",
           content: [
             text(
-              "Filmy z YouTube, mapa OpenStreetMap, dziennik Librus i Biuletyn Informacji Publicznej nie ładują się na stronach szkoły. Otwierają się dopiero po kliknięciu linku i od tej chwili obowiązują zasady prywatności tych serwisów.",
+              "Filmy z YouTube, Google Maps, dziennik Librus i Biuletyn Informacji Publicznej nie ładują się na stronach szkoły. Otwierają się dopiero po kliknięciu linku i od tej chwili obowiązują zasady prywatności tych serwisów.",
             ),
           ],
         },
