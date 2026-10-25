@@ -141,7 +141,11 @@ test("e-mail links throughout the site share one preview dialog", async ({ page 
       'main a[href="mailto:inspektor4@mjo.krakow.pl"]',
       "inspektor4@mjo.krakow.pl",
     ],
-    ["/szkola/biblioteka", 'footer a[href^="mailto:"]', "s@zespolszkolmechanicznych.edu.pl"],
+    [
+      "/szkola/biblioteka",
+      'footer a[href="mailto:s@zespolszkolmechanicznych.edu.pl"]',
+      "s@zespolszkolmechanicznych.edu.pl",
+    ],
   ] as const) {
     await page.goto(path);
     await expect(page.locator("[data-contact-preview]")).toHaveCount(1);
