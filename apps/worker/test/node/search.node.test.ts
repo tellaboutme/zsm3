@@ -5,7 +5,7 @@ import { describe, it } from "vitest";
 
 import { counterRandom, FIXED_CLOCK, memoryDatabase } from "./memory-database.ts";
 import type { Store } from "../../src/storage/database.ts";
-import { newsRepo } from "../../src/storage/news-repo.ts";
+import { newsDocument, newsRepo } from "../../src/storage/news-repo.ts";
 import { pagesRepo } from "../../src/storage/pages-repo.ts";
 import { reindex, searchRepo } from "../../src/storage/search-repo.ts";
 
@@ -82,6 +82,16 @@ describe("node sqlite", () => {
 });
 
 describe("news index sync", () => {
+  it("includes optional cover metadata only when present", ({ expect }) => {
+    expect(newsDocument("one", news("one")).body).toBe("Sport Lead. Treść o Łodzi.  ");
+    expect(
+      newsDocument(
+        "two",
+        news("two", { cover: { caption: "Warsztaty lotnicze", credit: "Archiwum szkoły" } }),
+      ).body,
+    ).toBe("Sport Lead. Treść o Łodzi. Warsztaty lotnicze Archiwum szkoły");
+  });
+
   it("indexes published news with folded text and keeps the raw title", async ({ expect }) => {
     const db = memoryDatabase();
     await newsRepo(store(db)).save(

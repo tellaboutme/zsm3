@@ -5,6 +5,7 @@ import type { SqlDatabase, SqlStatement } from "@zsm3/worker/storage/database.ts
 import type { SearchTerms } from "@zsm3/worker/storage/search-repo.ts";
 import { describe, it, vi } from "vitest";
 
+import { staticSearchEntries } from "../src/data/search-index.ts";
 import {
   FTS_RESULTS_LIMIT,
   matchGroups,
@@ -92,6 +93,16 @@ describe("mergeResults", () => {
 });
 
 describe("searchResponse", () => {
+  it("keeps a matching school event beside indexed news for exam searches", ({ expect }) => {
+    const results = searchResponse(prepare(staticSearchEntries), "egzamin", [
+      document("/aktualnosci/2026/salon", "Salon maturalny", "Egzamin."),
+    ]).results;
+
+    expect(results.map((result) => result.title)).toContain(
+      "Egzamin zawodowy, sesja zimowa: część pisemna",
+    );
+  });
+
   it("merges scored and indexed documents into the response schema", ({ expect }) => {
     const response = searchResponse(prepared, "kontakt", [
       document("/aktualnosci/2026/salon", "Salon maturalny", "Egzamin."),

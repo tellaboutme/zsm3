@@ -2,13 +2,34 @@ import { describe, it } from "vitest";
 
 import { counterRandom, FIXED_CLOCK, memoryDatabase } from "./memory-database.ts";
 import type { Store } from "../../src/storage/database.ts";
-import { searchRepo, type SearchTerms } from "../../src/storage/search-repo.ts";
+import { matchQuery, searchRepo, type SearchTerms } from "../../src/storage/search-repo.ts";
 
 function store(): Store {
   return { db: memoryDatabase(), clock: FIXED_CLOCK, random: counterRandom() };
 }
 
 describe("search queries", () => {
+  it("requires the whole term to be alphanumeric before constructing FTS syntax", ({ expect }) => {
+    expect(matchQuery([["abc!", "!abc", "abc"]])).toBe('{title body}: ("abc"*)');
+    expect(matchQuery([["abc!"], ["!abc"]])).toBeUndefined();
+  });
+
+  it("removes an indexed document", async ({ expect }) => {
+    const repo = searchRepo(store());
+    await repo.index({
+      docId: "p:removed",
+      kind: "strona",
+      href: "/removed",
+      title: "Usuwany dokument",
+      body: "Treść",
+      publishedOn: null,
+    });
+    expect(await repo.search([["usuwany"]], 10)).toHaveLength(1);
+
+    await repo.remove("p:removed");
+    expect(await repo.search([["usuwany"]], 10)).toEqual([]);
+  });
+
   it("matches prefixes of folded words", async ({ expect }) => {
     const repo = searchRepo(store());
     await repo.index({

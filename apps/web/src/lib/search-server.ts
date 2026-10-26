@@ -50,10 +50,11 @@ export function mergeResults(
   const seen = new Set<string>();
   return [...scored, ...indexed]
     .filter((entry) => {
-      if (seen.has(entry.href)) {
+      const key = entry.type === "termin" ? `${entry.href}:${entry.title}` : entry.href;
+      if (seen.has(key)) {
         return false;
       }
-      seen.add(entry.href);
+      seen.add(key);
       return true;
     })
     .slice(0, SEARCH_RESULTS_LIMIT);
