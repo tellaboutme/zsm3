@@ -48,9 +48,17 @@ export function mergeResults(
   indexed: readonly SearchEntry[],
 ): readonly SearchEntry[] {
   const seen = new Set<string>();
-  return [...scored, ...indexed]
+  const dynamicPages = new Set(indexed.map((entry) => `${entry.type}:${entry.href}`));
+  const staticEntries = scored.filter((entry) => !dynamicPages.has(`${entry.type}:${entry.href}`));
+  const ranked = [...Array.from({ length: Math.max(indexed.length, staticEntries.length) }).keys()]
+    .flatMap((position) => [indexed[position], staticEntries[position]])
+    .filter((entry) => entry !== undefined);
+  return ranked
     .filter((entry) => {
-      const key = entry.type === "termin" ? `${entry.href}:${entry.title}` : entry.href;
+      const key =
+        entry.type === "strona" || entry.type === "aktualnosc"
+          ? `${entry.type}:${entry.href}`
+          : `${entry.type}:${entry.href}:${entry.title}:${entry.text}`;
       if (seen.has(key)) {
         return false;
       }

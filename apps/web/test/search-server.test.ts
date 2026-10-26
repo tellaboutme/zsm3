@@ -73,16 +73,16 @@ describe("matchGroups", () => {
 });
 
 describe("mergeResults", () => {
-  it("keeps scored entries first, deduplicates by href and caps the results", ({ expect }) => {
+  it("prefers current indexed content, deduplicates by href and caps the results", ({ expect }) => {
     const merged = mergeResults(
-      [entry("strona", "Kontakt", "/kontakt")],
+      [entry("strona", "Stary kontakt", "/kontakt")],
       [
-        entry("strona", "Kontakt z bazą", "/kontakt"),
+        entry("strona", "Aktualny kontakt", "/kontakt"),
         entry("aktualnosc", "News", "/aktualnosci/2026/a"),
       ],
     );
 
-    expect(merged.map((item) => item.title)).toEqual(["Kontakt", "News"]);
+    expect(merged.map((item) => item.title)).toEqual(["Aktualny kontakt", "News"]);
     expect(SEARCH_RESULTS_LIMIT).toBe(50);
     expect(FTS_RESULTS_LIMIT).toBe(50);
     const many = [...Array.from({ length: 60 }).keys()].map((index) =>
@@ -109,8 +109,8 @@ describe("searchResponse", () => {
     ]);
 
     expect(response.results.map((result) => result.href)).toEqual([
-      "/kontakt",
       "/aktualnosci/2026/salon",
+      "/kontakt",
     ]);
   });
 
