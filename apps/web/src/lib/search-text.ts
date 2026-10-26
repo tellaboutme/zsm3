@@ -1,3 +1,5 @@
+import { fold, foldMarks } from "@zsm3/contracts/fold";
+
 const STEM_CUTS: readonly (readonly [number, number])[] = [
   [9, 3],
   [7, 2],
@@ -9,19 +11,7 @@ const CLASS_CODE = /(?<![\p{L}\d])([1-5]) ?([tbl][a-z]{0,2})((?:\/[a-z])+)?(?![\
 
 export const MIN_TERM_LENGTH = 2;
 
-export function foldMarks(text: string): string {
-  return text
-    .toLowerCase()
-    .replaceAll("ł", "l")
-    .normalize("NFD")
-    .replace(/\p{Mn}/gu, "");
-}
-
-export function fold(text: string): string {
-  return foldMarks(text)
-    .replace(/[^a-z0-9]+/gu, " ")
-    .trim();
-}
+export { fold, foldMarks };
 
 export function stem(term: string): string {
   const cut = STEM_CUTS.find(([minimum]) => term.length >= minimum)?.[1] ?? 0;

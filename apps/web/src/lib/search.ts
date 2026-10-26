@@ -154,3 +154,17 @@ function isSearchEntry(entry: unknown): entry is SearchEntry {
 export function isSearchIndex(value: unknown): value is readonly SearchEntry[] {
   return Array.isArray(value) && value.every(isSearchEntry);
 }
+
+export interface SearchReply {
+  readonly results: readonly SearchEntry[];
+  readonly suggestion?: string;
+}
+
+export function isSearchReply(value: unknown): value is SearchReply {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const results: unknown = Reflect.get(value, "results");
+  const suggestion: unknown = Reflect.get(value, "suggestion");
+  return isSearchIndex(results) && (suggestion === undefined || typeof suggestion === "string");
+}

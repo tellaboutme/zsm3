@@ -94,6 +94,18 @@ test.describe("search", () => {
     expect(problems).toEqual([]);
   });
 
+  test("finds seeded news together with static pages", async ({ page }) => {
+    await page.goto("/szukaj?q=egzamin");
+
+    await expect(page.getByRole("heading", { name: /^Aktualności \(\d+\)$/u })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Salon Maturzystów Perspektywy 2026" }),
+    ).toHaveAttribute("href", "/aktualnosci/2026/salon-maturzystow-2026");
+    await expect(
+      page.getByRole("link", { name: "Egzamin zawodowy, sesja zimowa: część pisemna" }),
+    ).toBeVisible();
+  });
+
   test("finds a class however its code is typed and marks it", async ({ page }) => {
     await page.goto("/szukaj?q=4TP");
 

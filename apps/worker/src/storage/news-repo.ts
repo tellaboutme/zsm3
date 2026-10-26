@@ -1,4 +1,6 @@
 import { newsSchema, type News, type PublicationStatus } from "@zsm3/contracts/content";
+import { plainText } from "@zsm3/contracts/rich-text";
+import type { SearchDocument } from "@zsm3/contracts/search";
 import { z } from "zod";
 
 import {
@@ -21,6 +23,7 @@ import {
   SELECT_YEARS,
   UPSERT_NEWS,
 } from "./news-sql.ts";
+import { insertDocument, removeDocument } from "./search-sql.ts";
 
 export interface NewsFilter {
   readonly category?: string;
@@ -48,7 +51,7 @@ export interface NewsRepo {
   years(): Promise<readonly string[]>;
 }
 
-const newsRowSchema = z.object({
+export const newsRowSchema = z.object({
   slug: z.string(),
   published_on: z.string(),
   category: z.string(),
@@ -81,6 +84,25 @@ export function newsFromRow(row: NewsRow): News {
   });
 }
 
+export function newsDocument(id: string, item: News): SearchDocument {
+  return {
+    docId: `n:${id}`,
+    kind: "aktualnosc",
+    href: `/aktualnosci/${item.date.slice(0, 4)}/${item.slug}`,
+    title: item.title,
+    body: [
+      item.category,
+      item.lead,
+      plainText(item.body),
+      item.cover?.caption ?? "",
+      item.cover?.credit ?? "",
+    ].join(" "),
+    publishedOn: item.date,
+  };
+}
+
+const SELECT_ID = "SELECT id FROM news WHERE year = ? AND slug = ?";
+
 async function saveNews(
   { db, clock, random }: Store,
   item: News,
@@ -88,23 +110,32 @@ async function saveNews(
 ): Promise<void> {
   const news = newsSchema.parse(item);
   const now = timestamp(clock);
-  await db
-    .prepare(UPSERT_NEWS)
-    .bind(
-      uuidv7(clock().getTime(), random),
-      news.slug,
-      news.date,
-      news.category,
-      news.title,
-      news.lead,
-      JSON.stringify(news.body),
-      news.cover?.caption ?? null,
-      news.cover?.credit ?? null,
-      status,
-      now,
-      now,
-    )
-    .run();
+  const existing = await firstRow(
+    db.prepare(SELECT_ID).bind(news.date.slice(0, 4), news.slug),
+    z.object({ id: z.string() }),
+  );
+  const id = existing?.id ?? uuidv7(clock().getTime(), random);
+  const doc = newsDocument(id, news);
+  await db.batch([
+    db
+      .prepare(UPSERT_NEWS)
+      .bind(
+        id,
+        news.slug,
+        news.date,
+        news.category,
+        news.title,
+        news.lead,
+        JSON.stringify(news.body),
+        news.cover?.caption ?? null,
+        news.cover?.credit ?? null,
+        status,
+        now,
+        now,
+      ),
+    removeDocument(db, doc.docId),
+    ...(status === "published" ? [insertDocument(db, doc)] : []),
+  ]);
 }
 
 async function publishedNews(

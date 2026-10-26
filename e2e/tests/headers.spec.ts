@@ -44,6 +44,18 @@ test.describe("response headers", () => {
     expect(posted.headers()["content-security-policy"]).toMatch(contentSecurityPolicy);
   });
 
+  test("the search endpoint revalidates and accepts only reads", async ({ request }) => {
+    const found = await request.get("/szukaj/wyniki.json?q=egzamin");
+    const posted = await request.post("/szukaj/wyniki.json");
+
+    expect(found.status()).toBe(200);
+    expect(found.headers()["cache-control"]).toBe("public, max-age=0, must-revalidate");
+    expect(found.headers()["content-security-policy"]).toMatch(contentSecurityPolicy);
+    expect(posted.status()).toBe(405);
+    expect(posted.headers()["allow"]).toBe("GET, HEAD");
+    expect(posted.headers()["content-security-policy"]).toMatch(contentSecurityPolicy);
+  });
+
   test("fingerprinted assets are cached forever", async ({ page, request }) => {
     await page.goto("/");
     const stylesheet = await page.locator('link[rel="stylesheet"]').first().getAttribute("href");

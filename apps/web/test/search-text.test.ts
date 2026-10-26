@@ -2,8 +2,6 @@ import { describe, it } from "vitest";
 
 import {
   classCodes,
-  fold,
-  foldMarks,
   MIN_TERM_LENGTH,
   qualificationCodes,
   queryTerms,
@@ -13,12 +11,6 @@ import {
 } from "../src/lib/search-text.ts";
 
 describe("search text", () => {
-  it("folds Polish letters, case and punctuation", ({ expect }) => {
-    expect(fold("  Zażółć GĘŚLĄ, jaźń!  ")).toBe("zazolc gesla jazn");
-    expect(fold("Łódź-2026")).toBe("lodz 2026");
-    expect(foldMarks("Łódź 3 Ta/d")).toBe("lodz 3 ta/d");
-  });
-
   it("cuts common endings from longer words and remembers them", ({ expect }) => {
     expect(stem("abcd")).toBe("abcd");
     expect(stem("dzwon")).toBe("dzwo");

@@ -114,6 +114,10 @@ Czas zapisywany jest w UTC (ISO 8601) i wyświetlany w strefie `Europe/Warsaw`. 
 | `audit_log`       | dziennik zdarzeń: kto, co i kiedy zmienił, bez danych osobowych wnioskodawców                                                                                                  |
 | `outbox_failures` | wiadomości e-mail, których nie udało się wysłać                                                                                                                                |
 
+### Renderowanie
+
+Na żądanie renderowane są: strona główna, huby sekcji, wszystkie listy i artykuły aktualności oraz endpoint wyników wyszukiwania `/szukaj/wyniki.json`. Endpoint odpytuje przez repozytorium wyszukiwania tabelę FTS5 `search_documents` (tokenizator unicode61, tekst bez znaków diakrytycznych w indeksowanych kolumnach `title` i `body`, ranking bm25) i scala te trafienia ze statycznie ocenionymi wpisami; stary statyczny endpoint `/szukaj/indeks.json` pozostaje do czasu kolejnego pull requesta zmieniającego kontrakt. Nieznane kategorie, lata, strony i artykuły zwracają 404 z wyrenderowaną stroną błędu.
+
 ## 7. Procesy
 
 ### 7.1 Złożenie wniosku
