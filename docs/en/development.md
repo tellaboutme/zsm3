@@ -56,6 +56,23 @@ lefthook runs Prettier, ESLint, Stylelint and ruff on staged files before each c
 
 `apps/worker/seed/files.json` lists the school's public files by SHA-256 and size. The files themselves are not in the repository: put them as `<sha256>.<format>` in a `zsm3_media` directory next to the repository, and `pnpm start` loads them into the local R2 after checking each hash. `ZSM3_MEDIA` points somewhere else. Without the files the pages still render and file links answer 404.
 
+## Legacy URL import
+
+`zsm3-import-legacy-urls` loads a batch of legacy addresses into the `redirects` table. It ships no data of its own; the corpus is supplied at run time. Every row is validated against the same rules as `redirectSchema` and `normalisePath` (`packages/contracts/src/content.ts`, `apps/worker/src/storage/redirects-repo.ts`): the source path must start with `/`, hold no whitespace and at most 500 characters, and is stored lower-cased with one trailing slash removed; the target must be an internal site path (lower-case segments, no trailing slash, at most 300 characters) different from the source. The self-redirect comparison uses the normalised source, i.e. it is stricter than the contract, which compares the raw values.
+
+Sources are passed with `--source` (repeatable): a CSV file whose first row is the header `from_path,to_path`, or an old-site `sitemap.xml` (`<urlset>` with `<loc>` entries — the path of each URL is used and the target comes from `--to`, `/` by default). Rows not yet in the database are imported, and rows already stored with the same target are skipped. A row that already exists with a different target is reported as a conflict (`conflict: db … != corpus …`) and left untouched unless `--update` is passed, which rewrites those rows with the repository's own UPSERT (`INSERT … ON CONFLICT (from_path) DO UPDATE SET to_path = excluded.to_path`). Duplicates inside the batch and invalid rows are rejected with reasons. Imported rows whose source path holds raw non-ASCII or percent characters are counted as warnings, because browsers request percent-encoded pathnames and such a row can never match. A summary counts imported, updated, skipped, conflicts, rejected and warnings.
+
+```bash
+uv run --directory tools --locked zsm3-import-legacy-urls --source legacy.csv --dry-run --sql-out redirects.sql
+uv run --directory tools --locked zsm3-import-legacy-urls --source legacy.csv --source sitemap.xml
+uv run --directory tools --locked zsm3-import-legacy-urls --source legacy.csv --update
+uv run --directory tools --locked zsm3-import-legacy-urls --source legacy.csv --remote --yes
+```
+
+By default the batch goes to the local D1 through `pnpm --filter @zsm3/web exec wrangler d1 execute DB --local`, with the state in `apps/web/.wrangler/state`; run the command from inside the repository. `--dry-run` writes the validated statements to `--sql-out` instead of writing to the database; it still reads the local D1 through wrangler to resolve the rows that are already present. `--remote` writes to production and additionally requires `--yes`. Valid rows are committed even when others are rejected, so a partially successful import exits 1; the exit code is also 1 for unresolved conflicts, rejections and wrangler failures, and 2 for usage errors.
+
+The initial corpus lives in [data/legacy-url-map.csv](../tools/data/legacy-url-map.csv): page paths harvested from the live WordPress navigation of `zespolszkolmechanicznych.edu.pl`, mapped onto the routes that exist on the new site (static pages, the sixteen seeded D1 pages, programme slugs and dated news permalinks). Uploads, the gallery archive (stage 5), project pages and other sections without a live target are intentionally absent until their destinations exist.
+
 ## Worker tests
 
 Every test in `apps/worker/test` runs twice: in Node, where mutation testing runs, and in the real workerd runtime, for compatibility. Tests that need workerd itself are named `*.workers.test.ts`.
