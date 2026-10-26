@@ -6,6 +6,7 @@ import {
   analyse,
   groupResults,
   isSearchIndex,
+  isSearchReply,
   PHRASE_BONUS,
   prepare,
   resultTypeLabels,
@@ -171,6 +172,17 @@ describe("search results", () => {
     expect(isSearchIndex([{ ...entry("strona", "A"), href: "https://example.com" }])).toBe(false);
     expect(isSearchIndex([{ ...entry("strona", "A"), href: 1 }])).toBe(false);
     expect(isSearchIndex([{ ...entry("strona", "A"), text: null }])).toBe(false);
+  });
+
+  it("accepts only a well-formed reply from the endpoint", ({ expect }) => {
+    expect(isSearchReply({ results: staticSearchEntries })).toBe(true);
+    expect(isSearchReply({ results: [], suggestion: "plan lekcji" })).toBe(true);
+    expect(isSearchReply({ results: [] })).toBe(true);
+    expect(isSearchReply({ results: [], suggestion: 1 })).toBe(false);
+    expect(isSearchReply({ results: [null] })).toBe(false);
+    expect(isSearchReply({})).toBe(false);
+    expect(isSearchReply([])).toBe(false);
+    expect(isSearchReply(null)).toBe(false);
   });
 
   it("indexes news by title, category, lead and body text", ({ expect }) => {

@@ -1,8 +1,11 @@
 import {
   contentPageSchema,
+  type ContentBlock,
   type ContentPage,
   type PublicationStatus,
 } from "@zsm3/contracts/content";
+import { plainText } from "@zsm3/contracts/rich-text";
+import type { SearchDocument } from "@zsm3/contracts/search";
 import { z } from "zod";
 
 import {
@@ -13,6 +16,7 @@ import {
   type SqlDatabase,
   type Store,
 } from "./database.ts";
+import { insertDocument, removeDocument } from "./search-sql.ts";
 
 export interface PagesRepo {
   save(page: ContentPage, status: PublicationStatus): Promise<void>;
@@ -21,7 +25,7 @@ export interface PagesRepo {
   published(): Promise<readonly ContentPage[]>;
 }
 
-const pageRowSchema = z.object({
+export const pageRowSchema = z.object({
   path: z.string(),
   kicker: z.string(),
   title: z.string(),
@@ -58,6 +62,40 @@ export function pageFromRow(row: PageRow): ContentPage {
   });
 }
 
+function blockText(block: ContentBlock): string {
+  switch (block.type) {
+    case "rich-text":
+      return plainText(block.document);
+    case "facts":
+      return [block.label, ...block.facts.map((fact) => `${fact.value} ${fact.label}`)].join(" ");
+    case "timeline":
+      return block.items.map((item) => `${item.label} ${item.title} ${item.text}`).join(" ");
+    case "callout":
+      return `${block.title} ${block.text}`;
+    case "files":
+      return [
+        block.label,
+        ...block.files.map((file) => [file.title, file.description ?? ""].join(" ").trim()),
+      ].join(" ");
+  }
+}
+
+export function pageDocument(page: ContentPage): SearchDocument {
+  return {
+    docId: `p:${page.path}`,
+    kind: "strona",
+    href: page.path,
+    title: page.title,
+    body: [
+      page.intro,
+      ...page.sections.map((section) =>
+        [section.title, ...section.blocks.map(blockText)].join(" "),
+      ),
+    ].join(" "),
+    publishedOn: null,
+  };
+}
+
 async function savePage(
   db: SqlDatabase,
   clock: Clock,
@@ -66,19 +104,23 @@ async function savePage(
 ): Promise<void> {
   const parsed = contentPageSchema.parse(page);
   const now = timestamp(clock);
-  await db
-    .prepare(UPSERT)
-    .bind(
-      parsed.path,
-      parsed.kicker,
-      parsed.title,
-      parsed.intro,
-      JSON.stringify(parsed.sections),
-      status,
-      now,
-      now,
-    )
-    .run();
+  const doc = pageDocument(parsed);
+  await db.batch([
+    db
+      .prepare(UPSERT)
+      .bind(
+        parsed.path,
+        parsed.kicker,
+        parsed.title,
+        parsed.intro,
+        JSON.stringify(parsed.sections),
+        status,
+        now,
+        now,
+      ),
+    removeDocument(db, doc.docId),
+    ...(status === "published" ? [insertDocument(db, doc)] : []),
+  ]);
 }
 
 export function pagesRepo({ db, clock }: Store): PagesRepo {

@@ -1,13 +1,7 @@
 import { snippet } from "../lib/search-snippet.ts";
-import {
-  groupResults,
-  isSearchIndex,
-  prepare,
-  search,
-  suggestion,
-  type SearchIndex,
-  type SearchEntry,
-} from "../lib/search.ts";
+import { groupResults, isSearchReply, type SearchEntry, type SearchReply } from "../lib/search.ts";
+
+const DEBOUNCE_MS = 150;
 
 interface SearchView {
   readonly input: HTMLInputElement;
@@ -65,10 +59,34 @@ function statusText(query: string, count: number): string {
   return `Wyniki dla „${query}”: ${String(count)}.${advice}`;
 }
 
-async function loadIndex(): Promise<SearchIndex> {
-  const response = await fetch("/szukaj/indeks.json");
+function emptyReply(): SearchReply {
+  return { results: [] };
+}
+
+async function fetchReply(query: string, signal: AbortSignal): Promise<SearchReply> {
+  const response = await fetch(`/szukaj/wyniki.json?q=${encodeURIComponent(query)}`, { signal });
   const data: unknown = await response.json();
-  return prepare(isSearchIndex(data) ? data : []);
+  return isSearchReply(data) ? data : emptyReply();
+}
+
+function show(view: SearchView, reply: SearchReply): void {
+  const query = view.input.value.trim();
+  const { target, status, hint, hintButton } = view;
+  render(target, reply.results, query);
+  status.textContent = statusText(query, reply.results.length);
+  hint.hidden = reply.suggestion === undefined;
+  hintButton.textContent = reply.suggestion ?? "";
+  if (view.sync) {
+    const url = new URL(location.href);
+    url.searchParams.set("q", query);
+    history.replaceState(null, "", query.length === 0 ? location.pathname : url);
+  }
+}
+
+function showCurrent(view: SearchView, query: string, reply: SearchReply): void {
+  if (view.input.value.trim() === query) {
+    show(view, reply);
+  }
 }
 
 function resultParts(root: HTMLElement): Omit<SearchView, "input" | "sync"> | undefined {
@@ -92,41 +110,50 @@ function viewOf(): SearchView | undefined {
   return { ...parts, input, sync: root.hasAttribute("data-search-sync") };
 }
 
-function update(view: SearchView, index: SearchIndex): void {
-  const query = view.input.value.trim();
-  const results = search(index, query);
-  const proposal = results.length === 0 ? suggestion(index, query) : undefined;
-  const { target, status, hint, hintButton } = view;
-  render(target, results, query);
-  status.textContent = statusText(query, results.length);
-  hint.hidden = proposal === undefined;
-  hintButton.textContent = proposal ?? "";
-  if (view.sync) {
-    const url = new URL(location.href);
-    url.searchParams.set("q", query);
-    history.replaceState(null, "", query.length === 0 ? location.pathname : url);
-  }
-}
-
-function bind(view: SearchView, index: () => Promise<SearchIndex>): void {
-  const refresh = async (): Promise<void> => {
-    update(view, await index());
-  };
-  view.input.addEventListener("input", () => {
-    void refresh();
-  });
+function listen(view: SearchView, update: () => Promise<void>): void {
   const { input, hintButton } = view;
   hintButton.addEventListener("click", () => {
     input.value = hintButton.textContent;
-    void refresh();
+    void update();
     input.focus();
   });
   if (view.sync) {
     view.input.form?.addEventListener("submit", (event) => {
       event.preventDefault();
-      void refresh();
+      void update();
     });
   }
+}
+
+function bind(view: SearchView): () => Promise<void> {
+  let timer: number | undefined;
+  let pending: AbortController | undefined;
+
+  const update = async (): Promise<void> => {
+    const query = view.input.value.trim();
+    if (query.length === 0) {
+      show(view, emptyReply());
+      return;
+    }
+    pending?.abort();
+    pending = new AbortController();
+    try {
+      showCurrent(view, query, await fetchReply(query, pending.signal));
+    } catch {
+      showCurrent(view, query, emptyReply());
+    }
+  };
+
+  const schedule = (): void => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      void update();
+    }, DEBOUNCE_MS);
+  };
+
+  view.input.addEventListener("input", schedule);
+  listen(view, update);
+  return update;
 }
 
 function initSearch(): void {
@@ -134,18 +161,10 @@ function initSearch(): void {
   if (view === undefined) {
     return;
   }
-  let loading: Promise<SearchIndex> | undefined;
-  const index = async (): Promise<SearchIndex> => {
-    loading ??= loadIndex();
-    return loading;
-  };
-  bind(view, index);
+  const update = bind(view);
   if (view.sync) {
-    const { input } = view;
-    input.value = new URLSearchParams(location.search).get("q") ?? "";
-    void index().then((loaded) => {
-      update(view, loaded);
-    });
+    view.input.value = new URLSearchParams(location.search).get("q") ?? "";
+    void update();
   }
 }
 
