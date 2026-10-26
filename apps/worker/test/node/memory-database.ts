@@ -31,16 +31,22 @@ export function memoryDatabase(): MemoryDatabase {
     prepare: (query) => statement(db, query, []),
     batch: async (statements) => {
       db.exec("BEGIN");
+      const results: { meta: { changes: number } }[] = [];
       try {
         for (const item of statements) {
           await item.run();
+          results.push({
+            meta: {
+              changes: Number(db.prepare("SELECT changes() AS count").get()?.["count"] ?? 0),
+            },
+          });
         }
         db.exec("COMMIT");
       } catch (error) {
         db.exec("ROLLBACK");
         throw error;
       }
-      return [];
+      return results;
     },
   };
 }

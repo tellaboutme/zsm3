@@ -27,5 +27,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": [".", "../src/storage"]
+  "include": [".", "../src/env.ts", "../src/security", "../src/storage"]
 }

@@ -1,9 +1,15 @@
 import { contentPageSchema, newsSchema } from "@zsm3/contracts/content";
 import { describe, it } from "vitest";
 
+import { counterRandom, FIXED_CLOCK, memoryDatabase } from "./memory-database.ts";
+import { SECRETS } from "./request-harness.ts";
 import { fileLink, seedFile, seedFiles, storedFile } from "../../seed/files.ts";
 import { seedNews } from "../../seed/news/index.ts";
 import { seedPages } from "../../seed/pages/index.ts";
+import { seedRequests } from "../../seed/requests.ts";
+import { requestsConfig } from "../../src/env.ts";
+import { piiCrypto } from "../../src/security/pii-crypto.ts";
+import { requestsRepo } from "../../src/storage/requests-repo.ts";
 
 describe("seed news", () => {
   it("is valid, unique per year and long enough to paginate", ({ expect }) => {
@@ -46,5 +52,31 @@ describe("seed files", () => {
       "Tekst jednolity.",
     );
     expect(() => seedFile("brak")).toThrow("Unknown seed file brak");
+  });
+});
+
+describe("seed requests", () => {
+  it("creates two demo requests with encrypted pii", async ({ expect }) => {
+    const store = { db: memoryDatabase(), clock: FIXED_CLOCK, random: counterRandom() };
+    const config = requestsConfig(SECRETS);
+
+    expect(
+      await seedRequests({
+        store,
+        pii: piiCrypto(config.piiKeys, config.activePiiKeyId, store.random),
+        emailIndexKey: config.emailIndexKey,
+      }),
+    ).toBe(2);
+
+    const all = await requestsRepo(store).list({ limit: 10 });
+    expect(all.map((record) => record.status).toSorted()).toEqual(["in_progress", "submitted"]);
+    expect(all.map((record) => record.type).toSorted()).toEqual([
+      "ENROLLMENT_CERTIFICATE",
+      "STUDENT_ID_RENEWAL",
+    ]);
+    for (const record of all) {
+      expect(record.piiCiphertext?.length).toBeGreaterThan(12);
+      expect(record.piiCiphertext).not.toBeNull();
+    }
   });
 });
