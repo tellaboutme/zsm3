@@ -5,6 +5,14 @@
     "types": ["astro/client", "node"],
     "jsx": "preserve"
   },
-  "include": [".astro/types.d.ts", "src", "integrations", "test", "*.ts"],
-  "exclude": ["dist", "worker"]
+  "include": [
+    ".astro/types.d.ts",
+    "src",
+    "integrations",
+    "test",
+    "*.ts",
+    "worker/legacy-redirect.ts",
+    "worker/legacy-route.ts"
+  ],
+  "exclude": ["dist"]
 }
