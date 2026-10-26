@@ -56,6 +56,20 @@ lefthook runs Prettier, ESLint, Stylelint and ruff on staged files before each c
 
 `apps/worker/seed/files.json` lists the school's public files by SHA-256 and size. The files themselves are not in the repository: put them as `<sha256>.<format>` in a `zsm3_media` directory next to the repository, and `pnpm start` loads them into the local R2 after checking each hash. `ZSM3_MEDIA` points somewhere else. Without the files the pages still render and file links answer 404.
 
+## Legacy URL import
+
+`zsm3-import-legacy-urls` loads a batch of legacy addresses into the `redirects` table. It ships no data of its own; the corpus is supplied at run time. Every row is validated against the same rules as `redirectSchema` and `normalisePath` (`packages/contracts/src/content.ts`, `apps/worker/src/storage/redirects-repo.ts`): the source path must start with `/`, hold no whitespace and at most 500 characters, and is stored lower-cased with one trailing slash removed; the target must be an internal site path (lower-case segments, no trailing slash, at most 300 characters) different from the source.
+
+Sources are passed with `--source` (repeatable): a CSV file whose first row is the header `from_path,to_path`, or an old-site `sitemap.xml` (`<urlset>` with `<loc>` entries — the path of each URL is used and the target comes from `--to`, `/` by default). Rows already in the database are skipped, duplicates inside the batch and invalid rows are rejected with reasons, and a summary counts imported, skipped and rejected rows.
+
+```bash
+uv run --directory tools --locked zsm3-import-legacy-urls --source legacy.csv --dry-run --sql-out redirects.sql
+uv run --directory tools --locked zsm3-import-legacy-urls --source legacy.csv --source sitemap.xml
+uv run --directory tools --locked zsm3-import-legacy-urls --source legacy.csv --remote --yes
+```
+
+By default the batch goes to the local D1 through `pnpm --filter @zsm3/web exec wrangler d1 execute DB --local`, with the state in `apps/web/.wrangler/state`; run the command from inside the repository. `--dry-run` writes the validated statements to `--sql-out` instead of touching the database. `--remote` writes to production and additionally requires `--yes`. The exit code is 2 for usage errors and 1 when anything was rejected or wrangler failed; rows are only imported when nothing failed to read.
+
 ## Worker tests
 
 Every test in `apps/worker/test` runs twice: in Node, where mutation testing runs, and in the real workerd runtime, for compatibility. Tests that need workerd itself are named `*.workers.test.ts`.
