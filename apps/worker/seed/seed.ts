@@ -68,6 +68,7 @@ if (mediaDirectory !== undefined) {
   }
 }
 let seededRequests = 0;
+let requestsAvailable = true;
 try {
   const config = requestsConfig(env);
   seededRequests = await seedRequests({
@@ -79,11 +80,12 @@ try {
   if (!(error instanceof MissingSecretError)) {
     throw error;
   }
+  requestsAvailable = false;
 }
 await dispose();
 process.stdout.write(
   `Seeded ${String(seedNews.length)} news items, ${String(seedPages.length)} pages and ${String(manifest.length)} files${mediaDirectory === undefined ? " without their contents" : ""}.${
-    seededRequests > 0
+    requestsAvailable
       ? ` Seeded ${String(seededRequests)} e-wniosek requests.`
       : " Skipped e-wniosek requests (missing secrets)."
   }\n`,

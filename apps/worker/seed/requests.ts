@@ -2,9 +2,14 @@ import { requestPiiSchema, type RequestStatus, type RequestType } from "@zsm3/co
 
 import { emailIndex, type PiiCrypto } from "../src/security/pii-crypto.ts";
 import { statusToken, tokenHash } from "../src/security/tokens.ts";
-import type { Store } from "../src/storage/database.ts";
+import { batchChanges, timestamp, type Store } from "../src/storage/database.ts";
 import { uuidv7 } from "../src/storage/ids.ts";
 import { requestsRepo } from "../src/storage/requests-repo.ts";
+
+const INSERT_SEED_REQUEST = `INSERT INTO requests
+  (id, type, status, pii_ciphertext, pii_key_id, email_index, status_token_hash, form_key, created_at, updated_at)
+  VALUES (?1, ?2, 'submitted', ?3, ?4, ?5, ?6, ?7, ?8, ?8)
+  ON CONFLICT(id) DO NOTHING`;
 
 export interface RequestSeedDeps {
   readonly store: Store;
@@ -13,6 +18,7 @@ export interface RequestSeedDeps {
 }
 
 interface RequestSeed {
+  readonly id: string;
   readonly type: RequestType;
   readonly firstName: string;
   readonly lastName: string;
@@ -24,6 +30,7 @@ interface RequestSeed {
 
 const SEEDS: readonly RequestSeed[] = [
   {
+    id: "01a1629f-c400-7a3b-88f0-1d351d9882ff",
     type: "STUDENT_ID_RENEWAL",
     firstName: "Jan",
     lastName: "Przykładowy",
@@ -32,6 +39,7 @@ const SEEDS: readonly RequestSeed[] = [
     status: "submitted",
   },
   {
+    id: "01a1629f-c400-79e1-801b-afb7dcf1c171",
     type: "ENROLLMENT_CERTIFICATE",
     firstName: "Anna",
     lastName: "Przykładowa",
@@ -43,8 +51,8 @@ const SEEDS: readonly RequestSeed[] = [
 
 export async function seedRequests(deps: RequestSeedDeps): Promise<number> {
   const requests = requestsRepo(deps.store);
+  let created = 0;
   for (const [index, seed] of SEEDS.entries()) {
-    const id = uuidv7(deps.store.clock().getTime() + index, deps.store.random);
     const token = statusToken(deps.store.random);
     const pii = requestPiiSchema.parse({
       firstName: seed.firstName,
@@ -54,19 +62,28 @@ export async function seedRequests(deps: RequestSeedDeps): Promise<number> {
       graduationYear: seed.graduationYear,
       statusToken: token,
     });
-    const encrypted = await deps.pii.encrypt(JSON.stringify(pii), id);
-    const outcome = await requests.create({
-      id,
-      type: seed.type,
-      piiCiphertext: encrypted.ciphertext,
-      piiKeyId: encrypted.keyId,
-      emailIndex: await emailIndex(deps.emailIndexKey, seed.email),
-      statusTokenHash: await tokenHash(token),
-      formKey: uuidv7(deps.store.clock().getTime() + index + 1, deps.store.random),
-    });
+    const encrypted = await deps.pii.encrypt(JSON.stringify(pii), seed.id);
+    const [inserted] = batchChanges(
+      await deps.store.db.batch([
+        deps.store.db
+          .prepare(INSERT_SEED_REQUEST)
+          .bind(
+            seed.id,
+            seed.type,
+            encrypted.ciphertext,
+            encrypted.keyId,
+            await emailIndex(deps.emailIndexKey, seed.email),
+            await tokenHash(token),
+            uuidv7(deps.store.clock().getTime() + index + 1, deps.store.random),
+            timestamp(deps.store.clock),
+          ),
+      ]),
+    );
+    if (inserted === 0) continue;
     if (seed.status !== "submitted") {
-      await requests.transition(outcome.record.id, seed.status);
+      await requests.transition(seed.id, seed.status);
     }
+    created += 1;
   }
-  return SEEDS.length;
+  return created;
 }
