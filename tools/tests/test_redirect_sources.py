@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from zsm3_tools import redirect_sources
 from zsm3_tools.redirect_sources import (
     SourceError,
     SourceRow,
@@ -162,4 +163,19 @@ def test_sitemap_rejects_broken_xml(tmp_path: Path) -> None:
     path = write_text(tmp_path, "sitemap.xml", "<urlset><url>")
 
     with pytest.raises(SourceError, match="invalid XML"):
+        read_sitemap(path, "/target")
+
+
+def test_sitemap_rejects_a_missing_root_element(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = write_text(tmp_path, "sitemap.xml", SITEMAP)
+
+    class _EmptyTree:
+        def getroot(self) -> None:
+            return None
+
+    monkeypatch.setattr(redirect_sources, "parse_xml", lambda _source: _EmptyTree())
+
+    with pytest.raises(SourceError, match="root element must be urlset"):
         read_sitemap(path, "/target")

@@ -2,8 +2,9 @@ import csv
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlsplit
-from xml.etree import ElementTree as ET
-from xml.etree.ElementTree import ParseError
+
+from defusedxml.ElementTree import ParseError
+from defusedxml.ElementTree import parse as parse_xml
 
 CSV_HEADER = ("from_path", "to_path")
 
@@ -53,11 +54,11 @@ def read_csv(path: Path) -> list[SourceRow]:
 
 def read_sitemap(path: Path, target: str) -> list[SourceRow]:
     try:
-        root = ET.parse(path).getroot()
+        root = parse_xml(path).getroot()
     except ParseError as error:
         message = f"{path}: invalid XML: {error}"
         raise SourceError(message) from error
-    if _local_name(root.tag) != "urlset":
+    if root is None or _local_name(root.tag) != "urlset":
         message = f"{path}: root element must be urlset"
         raise SourceError(message)
     return [

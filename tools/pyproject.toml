@@ -3,7 +3,7 @@ name = "zsm3-tools"
 version = "0.1.0"
 description = "Build and maintenance tooling for the ZSM3 website."
 requires-python = ">=3.13,<3.14"
-dependencies = []
+dependencies = ["defusedxml"]
 
 [project.scripts]
 zsm3-no-comments = "zsm3_tools.no_comments:main"
@@ -16,6 +16,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "ruff",
+  "types-defusedxml",
 ]
 
 [build-system]
@@ -38,7 +39,6 @@ ignore = ["COM812", "CPY", "D"]
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "PLR2004"]
 "src/zsm3_tools/redirect_import.py" = ["S603", "S608"]
-"src/zsm3_tools/redirect_sources.py" = ["S314"]
 
 [tool.mypy]
 python_version = "3.13"
