@@ -1,3 +1,4 @@
+import csv
 from pathlib import Path
 
 import pytest
@@ -86,6 +87,17 @@ def test_csv_rejects_wrong_column_counts(tmp_path: Path) -> None:
         read_csv(path)
 
 
+def test_csv_rejects_oversized_fields(tmp_path: Path) -> None:
+    path = write_text(tmp_path, "legacy.csv", f"from_path,to_path\n{'a' * 64},/c\n")
+    previous = csv.field_size_limit()
+    csv.field_size_limit(16)
+    try:
+        with pytest.raises(SourceError, match="field larger than field limit"):
+            read_csv(path)
+    finally:
+        csv.field_size_limit(previous)
+
+
 def test_read_rows_dispatches_by_suffix(tmp_path: Path) -> None:
     csv_path = write_text(tmp_path, "legacy.csv", "from_path,to_path\n")
     xml_path = write_text(tmp_path, "sitemap.xml", SITEMAP)
@@ -121,6 +133,17 @@ def test_sitemap_keeps_unparsable_urls_for_rejection(tmp_path: Path) -> None:
     )
 
     assert read_sitemap(path, "/target") == [SourceRow("http://[bad", "/target", f"{path}#3")]
+
+
+def test_sitemap_keeps_non_ascii_paths_for_the_warning(tmp_path: Path) -> None:
+    path = write_text(
+        tmp_path,
+        "sitemap.xml",
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        "<url><loc>https://old.example.com/ścieżka</loc></url></urlset>",
+    )
+
+    assert read_sitemap(path, "/target") == [SourceRow("/ścieżka", "/target", f"{path}#3")]
 
 
 def test_sitemap_rejects_a_sitemap_index(tmp_path: Path) -> None:

@@ -4,8 +4,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from collections.abc import Callable, Sequence
-from collections.abc import Set as AbstractSet
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -22,8 +21,10 @@ USAGE_ERROR = 2
 DEFAULT_TARGET = "/"
 DEFAULT_SQL_OUT = "redirects-import.sql"
 DEFAULT_PERSIST_TO = ".wrangler/state"
-SELECT_EXISTING = "SELECT from_path FROM redirects"
+SELECT_EXISTING_PAIRS = "SELECT from_path, to_path FROM redirects"
 DUPLICATE_REASON = "duplicate in batch"
+NON_ASCII_WARNING = "holds non-ascii or percent characters and may never match a request"
+ASCII_LIMIT = 127
 
 Runner = Callable[[Sequence[str]], str]
 
@@ -39,6 +40,7 @@ class Options:
     remote: bool
     yes: bool
     dry_run: bool
+    update: bool
     sql_out: Path
     persist_to: str
 
@@ -52,9 +54,20 @@ class RejectedRow:
 
 
 @dataclass(frozen=True, slots=True)
+class ConflictRow:
+    origin: str
+    from_path: str
+    db_to: str
+    corpus_to: str
+
+
+@dataclass(frozen=True, slots=True)
 class ImportPlan:
     imported: tuple[RedirectRow, ...]
+    updated: tuple[ConflictRow, ...]
     skipped: tuple[SourceRow, ...]
+    conflicts: tuple[ConflictRow, ...]
+    warnings: tuple[SourceRow, ...]
     rejected: tuple[RejectedRow, ...]
 
 
@@ -68,6 +81,7 @@ def parse_options(argv: Sequence[str]) -> Options:
     parser.add_argument("--remote", action="store_true")
     parser.add_argument("--yes", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--update", action="store_true")
     parser.add_argument("--sql-out", type=Path, default=Path(DEFAULT_SQL_OUT))
     parser.add_argument("--persist-to", default=DEFAULT_PERSIST_TO)
     arguments = parser.parse_args(argv)
@@ -77,14 +91,24 @@ def parse_options(argv: Sequence[str]) -> Options:
         remote=arguments.remote,
         yes=arguments.yes,
         dry_run=arguments.dry_run,
+        update=arguments.update,
         sql_out=arguments.sql_out,
         persist_to=arguments.persist_to,
     )
 
 
-def plan_import(rows: Sequence[SourceRow], existing: AbstractSet[str]) -> ImportPlan:
+def _suspicious(value: str) -> bool:
+    return any(ord(char) > ASCII_LIMIT for char in value) or "%" in value
+
+
+def plan_import(
+    rows: Sequence[SourceRow], existing: Mapping[str, str], *, update: bool
+) -> ImportPlan:
     imported: list[RedirectRow] = []
+    updated: list[ConflictRow] = []
     skipped: list[SourceRow] = []
+    conflicts: list[ConflictRow] = []
+    warnings: list[SourceRow] = []
     rejected: list[RejectedRow] = []
     seen: set[str] = set()
     for row in rows:
@@ -96,12 +120,27 @@ def plan_import(rows: Sequence[SourceRow], existing: AbstractSet[str]) -> Import
         if redirect.from_path in seen:
             rejected.append(RejectedRow(row.origin, row.raw_from, row.raw_to, DUPLICATE_REASON))
             continue
-        if redirect.from_path in existing:
+        seen.add(redirect.from_path)
+        stored = existing.get(redirect.from_path)
+        if stored is None:
+            imported.append(redirect)
+        elif stored == redirect.to_path:
             skipped.append(row)
             continue
-        seen.add(redirect.from_path)
-        imported.append(redirect)
-    return ImportPlan(tuple(imported), tuple(skipped), tuple(rejected))
+        elif update:
+            updated.append(ConflictRow(row.origin, redirect.from_path, stored, redirect.to_path))
+        else:
+            conflicts.append(ConflictRow(row.origin, redirect.from_path, stored, redirect.to_path))
+        if _suspicious(redirect.from_path):
+            warnings.append(row)
+    return ImportPlan(
+        tuple(imported),
+        tuple(updated),
+        tuple(skipped),
+        tuple(conflicts),
+        tuple(warnings),
+        tuple(rejected),
+    )
 
 
 def sql_string(value: str) -> str:
@@ -114,8 +153,21 @@ def insert_statement(row: RedirectRow, created_at: str) -> str:
     return f"INSERT OR IGNORE INTO redirects (from_path, to_path, created_at) VALUES ({values});"
 
 
-def import_sql(rows: Sequence[RedirectRow], created_at: str) -> str:
-    return "".join(f"{insert_statement(row, created_at)}\n" for row in rows)
+def upsert_statement(row: RedirectRow, created_at: str) -> str:
+    values = f"{sql_string(row.from_path)}, {sql_string(row.to_path)}, {sql_string(created_at)}"
+    return (
+        f"INSERT INTO redirects (from_path, to_path, created_at) VALUES ({values}) "
+        "ON CONFLICT (from_path) DO UPDATE SET to_path = excluded.to_path;"
+    )
+
+
+def import_sql(plan: ImportPlan, created_at: str) -> str:
+    statements = [insert_statement(row, created_at) for row in plan.imported]
+    statements += [
+        upsert_statement(RedirectRow(conflict.from_path, conflict.corpus_to), created_at)
+        for conflict in plan.updated
+    ]
+    return "".join(f"{statement}\n" for statement in statements)
 
 
 def write_sql(path: Path, sql: str) -> None:
@@ -141,7 +193,7 @@ def _results_of(parsed: object) -> object:
     raise WranglerError(message)
 
 
-def parse_existing_paths(payload: str) -> frozenset[str]:
+def parse_existing_pairs(payload: str) -> dict[str, str]:
     try:
         parsed: object = json.loads(payload)
     except ValueError as error:
@@ -151,13 +203,14 @@ def parse_existing_paths(payload: str) -> frozenset[str]:
     if not isinstance(rows, list):
         message = "wrangler printed an unexpected results list"
         raise WranglerError(message)
-    paths: list[str] = []
+    pairs: dict[str, str] = {}
     for row in rows:
         if isinstance(row, dict):
-            value = row.get("from_path")
-            if isinstance(value, str):
-                paths.append(value)
-    return frozenset(paths)
+            source = row.get("from_path")
+            target = row.get("to_path")
+            if isinstance(source, str) and isinstance(target, str):
+                pairs[source] = target
+    return pairs
 
 
 def scope_flags(options: Options) -> list[str]:
@@ -182,9 +235,9 @@ def run_wrangler(command: Sequence[str]) -> str:
     return completed.stdout
 
 
-def existing_paths(execute: Runner, prefix: Sequence[str], options: Options) -> frozenset[str]:
-    command = [*prefix, *scope_flags(options), "--json", "--command", SELECT_EXISTING]
-    return parse_existing_paths(execute(command))
+def existing_pairs(execute: Runner, prefix: Sequence[str], options: Options) -> dict[str, str]:
+    command = [*prefix, *scope_flags(options), "--json", "--command", SELECT_EXISTING_PAIRS]
+    return parse_existing_pairs(execute(command))
 
 
 def execute_import(execute: Runner, prefix: Sequence[str], options: Options, sql: str) -> None:
@@ -202,14 +255,25 @@ def execute_import(execute: Runner, prefix: Sequence[str], options: Options, sql
 def report(plan: ImportPlan) -> None:
     for row in plan.skipped:
         sys.stdout.write(f"skip {row.raw_from} at {row.origin}: already present\n")
+    for conflict in plan.conflicts:
+        sys.stdout.write(
+            f"conflict {conflict.origin}: db {conflict.db_to!r} != corpus {conflict.corpus_to!r}\n"
+        )
+    for conflict in plan.updated:
+        sys.stdout.write(
+            f"update {conflict.origin}: db {conflict.db_to!r} -> corpus {conflict.corpus_to!r}\n"
+        )
+    for row in plan.warnings:
+        sys.stdout.write(f"warn {row.origin}: {row.raw_from!r} {NON_ASCII_WARNING}\n")
     for problem in plan.rejected:
         sys.stdout.write(
             f"reject {problem.origin}: {problem.raw_from!r} -> {problem.raw_to!r}: "
             f"{problem.reason}\n"
         )
     sys.stdout.write(
-        f"imported {len(plan.imported)}, skipped {len(plan.skipped)}, "
-        f"rejected {len(plan.rejected)}\n"
+        f"imported {len(plan.imported)}, updated {len(plan.updated)}, "
+        f"skipped {len(plan.skipped)}, conflicts {len(plan.conflicts)}, "
+        f"rejected {len(plan.rejected)}, warnings {len(plan.warnings)}\n"
     )
 
 
@@ -222,15 +286,15 @@ def main(argv: Sequence[str] | None = None, runner: Runner | None = None) -> int
     try:
         rows = [row for source in options.sources for row in read_rows(source, options.target)]
         prefix = wrangler_prefix()
-        existing = existing_paths(execute, prefix, options)
-        plan = plan_import(rows, existing)
+        existing = existing_pairs(execute, prefix, options)
+        plan = plan_import(rows, existing, update=options.update)
         created_at = utc_timestamp()
         if options.dry_run:
-            write_sql(options.sql_out, import_sql(plan.imported, created_at))
-        elif plan.imported:
-            execute_import(execute, prefix, options, import_sql(plan.imported, created_at))
+            write_sql(options.sql_out, import_sql(plan, created_at))
+        elif plan.imported or plan.updated:
+            execute_import(execute, prefix, options, import_sql(plan, created_at))
     except (SourceError, WranglerError) as error:
         sys.stderr.write(f"{error}\n")
         return 1
     report(plan)
-    return 1 if plan.rejected else 0
+    return 1 if plan.rejected or plan.conflicts else 0

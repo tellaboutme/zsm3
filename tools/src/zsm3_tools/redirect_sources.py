@@ -31,7 +31,11 @@ def read_rows(path: Path, target: str) -> list[SourceRow]:
 
 def read_csv(path: Path) -> list[SourceRow]:
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        rows = list(csv.reader(handle))
+        try:
+            rows = list(csv.reader(handle))
+        except csv.Error as error:
+            message = f"{path}: unreadable CSV: {error}"
+            raise SourceError(message) from error
     if not rows:
         message = f"{path}: file is empty"
         raise SourceError(message)

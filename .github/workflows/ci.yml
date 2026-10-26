@@ -45,6 +45,22 @@ jobs:
       - uses: $/.github/actions/setup
       - run: pnpm test
 
+  python:
+    name: Python tools
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/setup
+      - run: uv run --directory tools --locked pytest
+      - run: uv run --directory tools --locked ruff check
+      - run: uv run --directory tools --locked ruff format --check
+      - run: uv run --directory tools --locked mypy
+
   mutation:
     name: Mutation tests
     runs-on: ubuntu-24.04

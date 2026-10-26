@@ -1,4 +1,5 @@
 import json
+import sqlite3
 import sys
 from collections.abc import Sequence
 from dataclasses import replace
@@ -9,22 +10,24 @@ import pytest
 from zsm3_tools.redirect_import import (
     DUPLICATE_REASON,
     USAGE_ERROR,
+    ConflictRow,
     ImportPlan,
     Options,
     RejectedRow,
     WranglerError,
     execute_import,
-    existing_paths,
+    existing_pairs,
     import_sql,
     insert_statement,
     main,
-    parse_existing_paths,
+    parse_existing_pairs,
     parse_options,
     plan_import,
     report,
     run_wrangler,
     scope_flags,
     sql_string,
+    upsert_statement,
     utc_timestamp,
     wrangler_prefix,
     write_sql,
@@ -40,6 +43,7 @@ BASE_OPTIONS = Options(
     remote=False,
     yes=False,
     dry_run=False,
+    update=False,
     sql_out=Path("redirects-import.sql"),
     persist_to=".wrangler/state",
 )
@@ -74,37 +78,112 @@ def csv_source(tmp_path: Path, rows: str) -> Path:
 
 
 def test_plan_imports_new_rows_in_order() -> None:
-    plan = plan_import([SourceRow("/A/", "/b", "a.csv:2"), SourceRow("/c", "/d", "a.csv:3")], set())
+    plan = plan_import(
+        [SourceRow("/A/", "/b", "a.csv:2"), SourceRow("/c", "/d", "a.csv:3")], {}, update=False
+    )
 
     assert plan.imported == (RedirectRow("/a", "/b"), RedirectRow("/c", "/d"))
+    assert plan.updated == ()
     assert plan.skipped == ()
+    assert plan.conflicts == ()
+    assert plan.warnings == ()
     assert plan.rejected == ()
 
 
-def test_plan_skips_rows_already_in_the_database() -> None:
-    row = SourceRow("/a", "/b", "a.csv:2")
+def test_plan_skips_rows_identical_to_the_database() -> None:
+    row = SourceRow("/A/", "/b", "a.csv:2")
 
-    plan = plan_import([row], {"/a"})
+    plan = plan_import([row], {"/a": "/b"}, update=False)
 
     assert plan.imported == ()
     assert plan.skipped == (row,)
-    assert plan.rejected == ()
+    assert plan.conflicts == ()
+
+
+def test_plan_reports_conflicts_without_update() -> None:
+    row = SourceRow("/a", "/b", "a.csv:2")
+
+    plan = plan_import([row], {"/a": "/c"}, update=False)
+
+    assert plan.imported == ()
+    assert plan.skipped == ()
+    assert plan.conflicts == (ConflictRow("a.csv:2", "/a", "/c", "/b"),)
+    assert plan.updated == ()
+
+
+def test_plan_upserts_conflicts_with_update() -> None:
+    row = SourceRow("/a", "/b", "a.csv:2")
+
+    plan = plan_import([row], {"/a": "/c"}, update=True)
+
+    assert plan.imported == ()
+    assert plan.skipped == ()
+    assert plan.conflicts == ()
+    assert plan.updated == (ConflictRow("a.csv:2", "/a", "/c", "/b"),)
+
+
+def test_plan_rejects_a_duplicate_of_an_existing_row() -> None:
+    first = SourceRow("/a", "/b", "a.csv:2")
+    second = SourceRow("/A", "/c", "a.csv:3")
+
+    plan = plan_import([first, second], {"/a": "/b"}, update=False)
+
+    assert plan.skipped == (first,)
+    assert [(row.origin, row.reason) for row in plan.rejected] == [("a.csv:3", DUPLICATE_REASON)]
 
 
 def test_plan_rejects_in_batch_duplicates_after_the_first() -> None:
-    plan = plan_import([SourceRow("/a", "/b", "a.csv:2"), SourceRow("/A", "/c", "a.csv:3")], set())
+    plan = plan_import(
+        [SourceRow("/a", "/b", "a.csv:2"), SourceRow("/A", "/c", "a.csv:3")], {}, update=False
+    )
 
     assert plan.imported == (RedirectRow("/a", "/b"),)
     assert [(row.origin, row.reason) for row in plan.rejected] == [("a.csv:3", DUPLICATE_REASON)]
 
 
 def test_plan_rejects_invalid_rows() -> None:
-    plan = plan_import([SourceRow("nope", "/b", "a.csv:2")], set())
+    plan = plan_import([SourceRow("nope", "/b", "a.csv:2")], {}, update=False)
 
     assert plan.imported == ()
     assert [(row.origin, row.reason) for row in plan.rejected] == [
         ("a.csv:2", "from path must start with /")
     ]
+
+
+def test_plan_warns_about_non_ascii_source_paths() -> None:
+    row = SourceRow("/ścieżka", "/a", "sitemap.xml#3")
+
+    plan = plan_import([row], {}, update=False)
+
+    assert plan.imported == (RedirectRow("/ścieżka", "/a"),)
+    assert plan.warnings == (row,)
+
+
+def test_plan_warns_about_percent_characters() -> None:
+    row = SourceRow("/a%b", "/a", "a.csv:2")
+
+    plan = plan_import([row], {}, update=False)
+
+    assert plan.warnings == (row,)
+
+
+def test_plan_warns_about_updated_conflicts_too() -> None:
+    row = SourceRow("/ząb", "/b", "a.csv:2")
+
+    plan = plan_import([row], {"/ząb": "/c"}, update=True)
+
+    assert plan.updated == (ConflictRow("a.csv:2", "/ząb", "/c", "/b"),)
+    assert plan.warnings == (row,)
+
+
+def test_plan_stays_quiet_about_clean_and_skipped_rows() -> None:
+    plan = plan_import(
+        [SourceRow("/a", "/b", "a.csv:2"), SourceRow("/c", "/d", "a.csv:3")],
+        {"/c": "/d"},
+        update=False,
+    )
+
+    assert plan.warnings == ()
 
 
 def test_insert_statement_escapes_apostrophes() -> None:
@@ -113,14 +192,62 @@ def test_insert_statement_escapes_apostrophes() -> None:
     assert statement == f"{INSERT_PREFIX}('/o''neil', '/a', 'T');"
 
 
+def test_upsert_statement_matches_the_repository_shape() -> None:
+    statement = upsert_statement(RedirectRow("/a", "/b"), "T")
+
+    assert statement == (
+        "INSERT INTO redirects (from_path, to_path, created_at) VALUES ('/a', '/b', 'T') "
+        "ON CONFLICT (from_path) DO UPDATE SET to_path = excluded.to_path;"
+    )
+
+
 def test_sql_string_doubles_apostrophes() -> None:
     assert sql_string("x'y") == "'x''y'"
 
 
-def test_import_sql_joins_one_statement_per_row() -> None:
-    sql = import_sql([RedirectRow("/a", "/b"), RedirectRow("/c", "/d")], "T")
+def test_import_sql_joins_inserts_and_upserts() -> None:
+    plan = ImportPlan(
+        imported=(RedirectRow("/a", "/b"),),
+        updated=(ConflictRow("a.csv:3", "/c", "/old", "/d"),),
+        skipped=(),
+        conflicts=(),
+        warnings=(),
+        rejected=(),
+    )
 
-    assert sql == f"{INSERT_PREFIX}('/a', '/b', 'T');\n{INSERT_PREFIX}('/c', '/d', 'T');\n"
+    sql = import_sql(plan, "T")
+
+    assert sql == (
+        f"{INSERT_PREFIX}('/a', '/b', 'T');\n"
+        "INSERT INTO redirects (from_path, to_path, created_at) VALUES ('/c', '/d', 'T') "
+        "ON CONFLICT (from_path) DO UPDATE SET to_path = excluded.to_path;\n"
+    )
+
+
+def test_import_sql_runs_on_sqlite_with_the_table_checks() -> None:
+    connection = sqlite3.connect(":memory:")
+    connection.execute(
+        "CREATE TABLE redirects ("
+        "from_path TEXT PRIMARY KEY CHECK (from_path GLOB '/*'), "
+        "to_path TEXT NOT NULL CHECK (to_path GLOB '/*' AND to_path <> from_path), "
+        "created_at TEXT NOT NULL)"
+    )
+    plan = ImportPlan(
+        imported=(RedirectRow("/o'neil", "/a"), RedirectRow("/b", "/c")),
+        updated=(ConflictRow("a.csv:3", "/b", "/old", "/d"),),
+        skipped=(),
+        conflicts=(),
+        warnings=(),
+        rejected=(),
+    )
+
+    connection.executescript(import_sql(plan, "T"))
+    rows = connection.execute(
+        "SELECT from_path, to_path, created_at FROM redirects ORDER BY from_path"
+    ).fetchall()
+    connection.close()
+
+    assert rows == [("/b", "/d", "T"), ("/o'neil", "/a", "T")]
 
 
 def test_write_sql_writes_lf_bytes(tmp_path: Path) -> None:
@@ -139,45 +266,55 @@ def test_utc_timestamp_matches_the_worker_format() -> None:
     assert stamp[10] == "T"
 
 
-def test_parse_existing_paths_reads_the_object_shape() -> None:
-    payload = json.dumps({"results": [{"from_path": "/a"}, {"other": 1}, {"from_path": "/b"}]})
+def test_parse_existing_pairs_reads_the_object_shape() -> None:
+    payload = json.dumps(
+        {
+            "results": [
+                {"from_path": "/a", "to_path": "/b"},
+                {"other": 1},
+                {"from_path": "/c", "to_path": "/d"},
+            ]
+        }
+    )
 
-    assert parse_existing_paths(payload) == {"/a", "/b"}
-
-
-def test_parse_existing_paths_reads_the_list_shape() -> None:
-    payload = json.dumps([{"results": [{"from_path": "/a"}]}])
-
-    assert parse_existing_paths(payload) == {"/a"}
-
-
-def test_parse_existing_paths_accepts_empty_results() -> None:
-    assert parse_existing_paths(json.dumps({"results": []})) == frozenset()
-    assert parse_existing_paths("[]") == frozenset()
+    assert parse_existing_pairs(payload) == {"/a": "/b", "/c": "/d"}
 
 
-def test_parse_existing_paths_ignores_non_dict_rows() -> None:
-    assert parse_existing_paths(json.dumps({"results": ["/not-a-row"]})) == frozenset()
+def test_parse_existing_pairs_reads_the_list_shape() -> None:
+    payload = json.dumps([{"results": [{"from_path": "/a", "to_path": "/b"}]}])
+
+    assert parse_existing_pairs(payload) == {"/a": "/b"}
 
 
-def test_parse_existing_paths_rejects_invalid_json() -> None:
+def test_parse_existing_pairs_accepts_empty_results() -> None:
+    assert parse_existing_pairs(json.dumps({"results": []})) == {}
+    assert parse_existing_pairs("[]") == {}
+
+
+def test_parse_existing_pairs_ignores_incomplete_rows() -> None:
+    payload = json.dumps({"results": ["/not-a-row", {"from_path": "/a"}]})
+
+    assert parse_existing_pairs(payload) == {}
+
+
+def test_parse_existing_pairs_rejects_invalid_json() -> None:
     with pytest.raises(WranglerError, match="invalid JSON"):
-        parse_existing_paths("nope")
+        parse_existing_pairs("nope")
 
 
-def test_parse_existing_paths_rejects_multiple_statement_results() -> None:
+def test_parse_existing_pairs_rejects_multiple_statement_results() -> None:
     payload = json.dumps([{"results": []}, {"results": []}])
 
     with pytest.raises(WranglerError, match="more than one"):
-        parse_existing_paths(payload)
+        parse_existing_pairs(payload)
 
 
-def test_parse_existing_paths_rejects_unknown_shapes() -> None:
+def test_parse_existing_pairs_rejects_unknown_shapes() -> None:
     with pytest.raises(WranglerError, match="unexpected --json shape"):
-        parse_existing_paths("42")
+        parse_existing_pairs("42")
 
     with pytest.raises(WranglerError, match="unexpected results list"):
-        parse_existing_paths(json.dumps({"results": 5}))
+        parse_existing_pairs(json.dumps({"results": 5}))
 
 
 def test_local_scope_flags_use_the_local_state() -> None:
@@ -230,11 +367,11 @@ def test_run_wrangler_reports_the_exit_code_without_stderr() -> None:
         run_wrangler([sys.executable, "-c", "raise SystemExit(3)"])
 
 
-def test_existing_paths_queries_the_selected_scope() -> None:
-    runner = RecordingRunner(json.dumps({"results": [{"from_path": "/a"}]}))
+def test_existing_pairs_queries_the_selected_scope() -> None:
+    runner = RecordingRunner(json.dumps({"results": [{"from_path": "/a", "to_path": "/b"}]}))
     local = replace(BASE_OPTIONS, persist_to="state")
 
-    assert existing_paths(runner, ["wrangler"], local) == {"/a"}
+    assert existing_pairs(runner, ["wrangler"], local) == {"/a": "/b"}
     assert runner.commands == [
         [
             "wrangler",
@@ -243,20 +380,24 @@ def test_existing_paths_queries_the_selected_scope() -> None:
             "state",
             "--json",
             "--command",
-            "SELECT from_path FROM redirects",
+            "SELECT from_path, to_path FROM redirects",
         ]
     ]
 
 
-def test_existing_paths_queries_remote_with_confirmation() -> None:
+def test_existing_pairs_queries_remote_with_confirmation() -> None:
     runner = RecordingRunner(json.dumps([]))
 
-    assert (
-        existing_paths(runner, ["wrangler"], replace(BASE_OPTIONS, remote=True, yes=True))
-        == frozenset()
-    )
+    assert existing_pairs(runner, ["wrangler"], replace(BASE_OPTIONS, remote=True, yes=True)) == {}
     assert runner.commands == [
-        ["wrangler", "--remote", "--yes", "--json", "--command", "SELECT from_path FROM redirects"]
+        [
+            "wrangler",
+            "--remote",
+            "--yes",
+            "--json",
+            "--command",
+            "SELECT from_path, to_path FROM redirects",
+        ]
     ]
 
 
@@ -292,19 +433,26 @@ def test_execute_import_removes_the_temporary_file_when_wrangler_fails() -> None
     assert not Path(paths[0]).exists()
 
 
-def test_report_lists_skips_rejections_and_summary(capsys: pytest.CaptureFixture[str]) -> None:
+def test_report_lists_every_outcome(capsys: pytest.CaptureFixture[str]) -> None:
     plan = ImportPlan(
         imported=(RedirectRow("/a", "/b"),),
-        skipped=(SourceRow("/c", "/d", "x.csv:2"),),
-        rejected=(RejectedRow("x.csv:3", "bad", "/e", "from path must start with /"),),
+        updated=(ConflictRow("x.csv:4", "/c", "/old", "/d"),),
+        skipped=(SourceRow("/e", "/f", "x.csv:2"),),
+        conflicts=(ConflictRow("x.csv:5", "/g", "/h", "/i"),),
+        warnings=(SourceRow("/ząb", "/j", "x.csv:3"),),
+        rejected=(RejectedRow("x.csv:6", "bad", "/k", "from path must start with /"),),
     )
 
     report(plan)
 
     assert capsys.readouterr().out == (
-        "skip /c at x.csv:2: already present\n"
-        "reject x.csv:3: 'bad' -> '/e': from path must start with /\n"
-        "imported 1, skipped 1, rejected 1\n"
+        "skip /e at x.csv:2: already present\n"
+        "conflict x.csv:5: db '/h' != corpus '/i'\n"
+        "update x.csv:4: db '/old' -> corpus '/d'\n"
+        "warn x.csv:3: '/ząb' holds non-ascii or percent characters "
+        "and may never match a request\n"
+        "reject x.csv:6: 'bad' -> '/k': from path must start with /\n"
+        "imported 1, updated 1, skipped 1, conflicts 1, rejected 1, warnings 1\n"
     )
 
 
@@ -326,6 +474,7 @@ def test_parse_options_reads_all_flags() -> None:
             "--remote",
             "--yes",
             "--dry-run",
+            "--update",
             "--sql-out",
             "plan.sql",
             "--persist-to",
@@ -340,6 +489,7 @@ def test_parse_options_reads_all_flags() -> None:
         remote=True,
         yes=True,
         dry_run=True,
+        update=True,
         sql_out=Path("plan.sql"),
         persist_to="state",
     )
@@ -353,18 +503,24 @@ def test_parse_options_requires_a_source() -> None:
 
 
 @pytest.mark.usefixtures("fake_pnpm")
-def test_main_imports_a_local_batch(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_main_imports_a_fresh_batch(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     path = csv_source(tmp_path, "/a,/b\n")
     runner = RecordingRunner(json.dumps({"results": []}))
 
     assert main(["--source", str(path), "--persist-to", "state"], runner=runner) == 0
     assert len(runner.commands) == 2
-    assert runner.commands[0][-3:] == ["--json", "--command", "SELECT from_path FROM redirects"]
+    assert runner.commands[0][-3:] == [
+        "--json",
+        "--command",
+        "SELECT from_path, to_path FROM redirects",
+    ]
     assert runner.commands[1][-2] == "--file"
     assert runner.files[0].startswith(f"{INSERT_PREFIX}('/a', '/b', '")
     assert runner.files[0].endswith("');\n")
     assert not Path(runner.commands[1][-1]).exists()
-    assert capsys.readouterr().out.endswith("imported 1, skipped 0, rejected 0\n")
+    assert capsys.readouterr().out.endswith(
+        "imported 1, updated 0, skipped 0, conflicts 0, rejected 0, warnings 0\n"
+    )
 
 
 @pytest.mark.usefixtures("fake_pnpm")
@@ -372,13 +528,53 @@ def test_main_skips_rows_already_present(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     path = csv_source(tmp_path, "/a,/b\n/c,/d\n")
-    runner = RecordingRunner(json.dumps({"results": [{"from_path": "/a"}, {"from_path": "/c"}]}))
+    runner = RecordingRunner(
+        json.dumps(
+            {
+                "results": [
+                    {"from_path": "/a", "to_path": "/b"},
+                    {"from_path": "/c", "to_path": "/d"},
+                ]
+            }
+        )
+    )
 
     assert main(["--source", str(path)], runner=runner) == 0
     assert len(runner.commands) == 1
     out = capsys.readouterr().out
     assert f"skip /a at {path}:2: already present\n" in out
-    assert out.endswith("imported 0, skipped 2, rejected 0\n")
+    assert out.endswith("imported 0, updated 0, skipped 2, conflicts 0, rejected 0, warnings 0\n")
+
+
+@pytest.mark.usefixtures("fake_pnpm")
+def test_main_reports_conflicts_without_updating(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = csv_source(tmp_path, "/a,/b\n")
+    runner = RecordingRunner(json.dumps({"results": [{"from_path": "/a", "to_path": "/c"}]}))
+
+    assert main(["--source", str(path)], runner=runner) == 1
+    assert len(runner.commands) == 1
+    out = capsys.readouterr().out
+    assert f"conflict {path}:2: db '/c' != corpus '/b'\n" in out
+    assert out.endswith("imported 0, updated 0, skipped 0, conflicts 1, rejected 0, warnings 0\n")
+
+
+@pytest.mark.usefixtures("fake_pnpm")
+def test_main_upserts_conflicts_with_update(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = csv_source(tmp_path, "/a,/b\n")
+    runner = RecordingRunner(json.dumps({"results": [{"from_path": "/a", "to_path": "/c"}]}))
+
+    assert main(["--source", str(path), "--update"], runner=runner) == 0
+    assert len(runner.commands) == 2
+    assert runner.files[0].endswith(
+        "ON CONFLICT (from_path) DO UPDATE SET to_path = excluded.to_path;\n"
+    )
+    assert capsys.readouterr().out.endswith(
+        "imported 0, updated 1, skipped 0, conflicts 0, rejected 0, warnings 0\n"
+    )
 
 
 @pytest.mark.usefixtures("fake_pnpm")
@@ -392,7 +588,20 @@ def test_main_rejects_bad_rows_and_exits_non_zero(
     out = capsys.readouterr().out
     assert f"reject {path}:3: 'nope' -> '/b': from path must start with /\n" in out
     assert f"reject {path}:4: '/A' -> '/c': duplicate in batch\n" in out
-    assert out.endswith("imported 1, skipped 0, rejected 2\n")
+    assert out.endswith("imported 1, updated 0, skipped 0, conflicts 0, rejected 2, warnings 0\n")
+
+
+@pytest.mark.usefixtures("fake_pnpm")
+def test_main_warns_about_non_ascii_rows(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = csv_source(tmp_path, "/ścieżka,/a\n")
+    runner = RecordingRunner(json.dumps({"results": []}))
+
+    assert main(["--source", str(path)], runner=runner) == 0
+    out = capsys.readouterr().out
+    assert f"warn {path}:2: '/ścieżka' holds non-ascii or percent characters" in out
+    assert out.endswith("imported 1, updated 0, skipped 0, conflicts 0, rejected 0, warnings 1\n")
 
 
 @pytest.mark.usefixtures("fake_pnpm")
@@ -411,7 +620,9 @@ def test_main_dry_run_writes_the_validated_sql(
     assert sql.startswith(f"{INSERT_PREFIX}('/a', '/b', '")
     assert f"{INSERT_PREFIX}('/c', '/d', '" in sql
     assert sql.endswith("');\n")
-    assert capsys.readouterr().out.endswith("imported 2, skipped 0, rejected 0\n")
+    assert capsys.readouterr().out.endswith(
+        "imported 2, updated 0, skipped 0, conflicts 0, rejected 0, warnings 0\n"
+    )
 
 
 @pytest.mark.usefixtures("fake_pnpm")
@@ -426,7 +637,9 @@ def test_main_dry_run_writes_an_empty_file_without_valid_rows(
 
     assert code == 1
     assert sql_out.read_bytes() == b""
-    assert capsys.readouterr().out.endswith("imported 0, skipped 0, rejected 1\n")
+    assert capsys.readouterr().out.endswith(
+        "imported 0, updated 0, skipped 0, conflicts 0, rejected 1, warnings 0\n"
+    )
 
 
 def test_main_refuses_remote_without_confirmation(
