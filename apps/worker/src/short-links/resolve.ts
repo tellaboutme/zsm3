@@ -42,8 +42,11 @@ async function findLive(deps: OpenDeps, code: string, now: Date): Promise<FoundL
   return hasLapsed(link, now) ? { kind: "gone" } : { kind: "found", link };
 }
 
-async function attemptsExceeded(deps: ResolveDeps, code: string, now: Date): Promise<boolean> {
-  const key = await sha256(`shortlink:${code}`);
+async function guessKey(code: string): Promise<Uint8Array> {
+  return sha256(`shortlink:${code}`);
+}
+
+async function guessesExceeded(deps: ResolveDeps, key: Uint8Array, now: Date): Promise<boolean> {
   const cutoff = new Date(now.getTime() - RATE_LIMIT_WINDOW_MINUTES * MINUTE_MS);
   const state = await deps.rateLimits.consume(key, now.toISOString(), cutoff.toISOString());
   return state.count > PASSWORD_ATTEMPTS;
@@ -80,12 +83,14 @@ export async function unlockLink(
   if (deps.passwordKey === undefined) {
     return { kind: "unavailable" };
   }
-  if (await attemptsExceeded(deps, normalised, now)) {
+  const key = await guessKey(normalised);
+  if (await guessesExceeded(deps, key, now)) {
     return { kind: "throttled" };
   }
   if (!(await verifyPassword(deps.passwordKey, password, digest))) {
     return { kind: "locked" };
   }
+  await deps.rateLimits.clear(key);
   return await opened(deps, found.link);
 }
 

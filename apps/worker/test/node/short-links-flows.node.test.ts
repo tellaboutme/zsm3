@@ -136,6 +136,33 @@ describe("resolving a short link", () => {
     });
   });
 
+  it("lets a whole class open the same link without spending the guess budget", async ({
+    expect,
+  }) => {
+    const current = store();
+    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp" });
+    for (let reader = 0; reader < PASSWORD_ATTEMPTS + 5; reader += 1) {
+      await expect(unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp", NOW)).resolves.toEqual({
+        kind: "redirect",
+        target: TARGET,
+      });
+    }
+  });
+
+  it("forgets the failed guesses once the right password arrives", async ({ expect }) => {
+    const current = store();
+    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp" });
+    for (let attempt = 0; attempt < PASSWORD_ATTEMPTS - 1; attempt += 1) {
+      await unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW);
+    }
+    await unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp", NOW);
+    for (let attempt = 0; attempt < PASSWORD_ATTEMPTS; attempt += 1) {
+      await expect(unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW)).resolves.toEqual({
+        kind: "locked",
+      });
+    }
+  });
+
   it("limits guesses per link, not per visitor", async ({ expect }) => {
     const current = store();
     const links = shortLinksRepo(current);
