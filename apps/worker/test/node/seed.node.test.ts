@@ -8,14 +8,17 @@ import { describe, it } from "vitest";
 
 import { counterRandom, FIXED_CLOCK, memoryDatabase } from "./memory-database.ts";
 import { SECRETS } from "./request-harness.ts";
+import { seedBells } from "../../seed/bells.ts";
 import { fileLink, seedFile, seedFiles, storedFile } from "../../seed/files.ts";
 import { seedNews } from "../../seed/news/index.ts";
 import { seedPages } from "../../seed/pages/index.ts";
 import { seedRequests } from "../../seed/requests.ts";
+import { seedStaff } from "../../seed/staff.ts";
 import { requestsConfig } from "../../src/env.ts";
 import { piiCrypto } from "../../src/security/pii-crypto.ts";
 import { cryptoRandom } from "../../src/storage/ids.ts";
 import { requestsRepo } from "../../src/storage/requests-repo.ts";
+import { staffSchema } from "../../src/storage/staff-repo.ts";
 
 describe("seed news", () => {
   it("is valid, unique per year and long enough to paginate", ({ expect }) => {
@@ -58,6 +61,43 @@ describe("seed files", () => {
       "Tekst jednolity.",
     );
     expect(() => seedFile("brak")).toThrow("Unknown seed file brak");
+  });
+});
+
+describe("seed staff", () => {
+  it("seeds an active local development administrator", ({ expect }) => {
+    expect(seedStaff.map((member) => staffSchema.parse(member))).toEqual(seedStaff);
+    expect(seedStaff).toEqual([{ email: "dev@zsm3.local", role: "admin", active: true }]);
+  });
+});
+
+describe("seed bells", () => {
+  it("plans two shortened school days a week ahead of the seeding day", ({ expect }) => {
+    const bells = seedBells(new Date("2026-10-26T10:00:00Z"), []);
+
+    expect(bells.regular).toHaveLength(14);
+    expect(bells.variants[0]?.lessons[8]).toEqual({ start: "14:35", end: "15:05" });
+    expect(bells.days).toEqual([
+      { date: "2026-11-02", variant: "skrocone-od-9" },
+      { date: "2026-11-03", variant: "skrocone-od-9" },
+    ]);
+  });
+
+  it("skips weekends and days off when planning shortened days", ({ expect }) => {
+    const calendar = [
+      { date: "2026-11-02", title: "Wolne", audience: "Wszyscy", kind: "wolne" },
+      {
+        date: "2026-11-03",
+        endDate: "2026-11-04",
+        title: "Przerwa",
+        audience: "Wszyscy",
+        kind: "przerwa",
+      },
+      { date: "2026-11-05", title: "Zebranie", audience: "Rodzice", kind: "zebranie" },
+    ] as const;
+    expect(
+      seedBells(new Date("2026-10-24T10:00:00Z"), calendar).days.map((day) => day.date),
+    ).toEqual(["2026-11-05", "2026-11-06"]);
   });
 });
 

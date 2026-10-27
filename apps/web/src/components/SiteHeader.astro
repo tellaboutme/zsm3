@@ -3,8 +3,10 @@ import HeaderTools from "./HeaderTools.astro";
 import Icon from "./Icon.astro";
 import MegaPanel from "./MegaPanel.astro";
 import MobileMenu from "./MobileMenu.astro";
-import { sections } from "../data/navigation.ts";
+import { fallbackNavigation } from "../data/navigation.ts";
 import { sectionFor } from "../lib/navigation.ts";
+
+const { sections } = Astro.locals.navigation ?? fallbackNavigation;
 
 interface Props {
   path: string;

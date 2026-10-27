@@ -1,0 +1,113 @@
+---
+import Panel from "../../../layouts/panel.astro";
+---
+
+<Panel title="Aktualności w panelu — ZSM3">
+  <div class="panel-page" data-panel-page="news">
+    <div class="panel-gate" data-panel="gate">
+      <div class="panel-note" data-panel="gate-text" role="status" aria-live="polite">
+        <p>Sprawdzam dostęp do panelu…</p>
+      </div>
+      <button type="button" data-panel="gate-retry">
+        Ponów próbę
+      </button>
+    </div>
+    <div class="panel-columns" data-panel="app" hidden>
+      <section data-panel="list">
+        <h1>Aktualności</h1>
+        <form class="panel-row" data-panel="filter">
+          <label class="panel-inline">
+            Rok publikacji
+            <input
+              name="year"
+              data-panel="filter-year"
+              inputmode="numeric"
+              maxlength="4"
+              placeholder="np. 2026"
+            />
+          </label>
+          <label class="panel-inline">
+            Status
+            <select name="status" data-panel="filter-status"></select>
+          </label>
+          <button type="submit">Pokaż wyniki</button>
+        </form>
+        <section class="panel-history" data-panel="history" hidden>
+          <h2>Historia zmian</h2>
+          <p class="panel-note" data-panel="history-status" role="status" aria-live="polite"></p>
+          <ul data-panel="history-rows"></ul>
+        </section>
+        <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
+        <ul data-panel="items"></ul>
+        <nav class="panel-pager" aria-label="Strony listy aktualności" data-panel="pager"></nav>
+        <div class="panel-actions">
+          <button type="button" data-panel="new">
+            Nowa aktualność
+          </button>
+        </div>
+      </section>
+      <section data-panel="editor">
+        <h2>Edytor aktualności</h2>
+        <form class="panel-form" data-panel="form">
+          <label class="panel-inline">
+            Tytuł
+            <input name="title" maxlength="200" required />
+          </label>
+          <label class="panel-inline">
+            Adres w URL (tworzy się z tytułu)
+            <input name="slug" maxlength="100" pattern="[a-z0-9-]+" />
+          </label>
+          <label class="panel-inline">
+            Data publikacji
+            <input type="date" name="date" required />
+          </label>
+          <label class="panel-inline">
+            Kategoria
+            <input name="category" maxlength="80" required />
+          </label>
+          <label class="panel-inline">
+            Lead
+            <textarea name="lead" maxlength="500"></textarea>
+          </label>
+          <fieldset>
+            <legend>Fotografia otwierająca (opcjonalnie)</legend>
+            <label class="panel-inline">
+              Podpis
+              <input name="caption" maxlength="200" />
+            </label>
+            <label class="panel-inline">
+              Autor zdjęcia
+              <input name="credit" maxlength="120" />
+            </label>
+          </fieldset>
+          <div class="panel-blocks" data-panel="blocks-root">
+            <h3>Tekst wiadomości</h3>
+            <ul data-panel="blocks-list"></ul>
+            <div class="panel-actions">
+              <select aria-label="Rodzaj bloku" data-panel="blocks-kind"></select>
+              <button type="button" data-panel="blocks-add">
+                Dodaj blok
+              </button>
+            </div>
+          </div>
+          <p class="panel-note" data-panel="form-status" role="status" aria-live="polite"></p>
+          <div class="panel-actions">
+            <button type="button" class="panel-save" data-panel="news-save">
+              Zapisz szkic
+            </button>
+            <button type="button" data-panel="news-publish">
+              Opublikuj
+            </button>
+            <button type="button" data-panel="news-unpublish">
+              Wycofaj publikację
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</Panel>
+
+<script>
+  import "../../../scripts/panel/news.ts";
+</script>

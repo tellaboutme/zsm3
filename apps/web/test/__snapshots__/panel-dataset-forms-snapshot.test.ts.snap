@@ -1,0 +1,895 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`describes every dataset form exactly as staff see it 1`] = `
+[
+  {
+    "intro": "Grupy kadry na stronie Kadra. Imiona i nazwiska podaj tylko za zgodą osób.",
+    "key": "kadra",
+    "page": "/szkola/kadra",
+    "root": {
+      "fields": [
+        {
+          "hint": "małe litery, cyfry i myślniki; to kotwica w adresie strony",
+          "kind": "text",
+          "label": "Identyfikator grupy",
+          "max": 60,
+          "name": "id",
+        },
+        {
+          "kind": "text",
+          "label": "Nazwa grupy",
+          "max": 120,
+          "name": "title",
+        },
+        {
+          "kind": "text",
+          "label": "Opis",
+          "max": 300,
+          "name": "summary",
+        },
+        {
+          "hint": "jeden w wierszu",
+          "kind": "lines",
+          "label": "Przedmioty",
+          "name": "subjects",
+        },
+        {
+          "fields": [
+            {
+              "kind": "text",
+              "label": "Imię i nazwisko (opcjonalnie)",
+              "max": 120,
+              "name": "name",
+              "optional": true,
+            },
+            {
+              "kind": "text",
+              "label": "Funkcja",
+              "max": 120,
+              "name": "role",
+            },
+            {
+              "kind": "text",
+              "label": "Przedmioty (opcjonalnie)",
+              "max": 300,
+              "name": "subjects",
+              "optional": true,
+            },
+          ],
+          "itemLabel": "Osoba",
+          "kind": "list",
+          "label": "Osoby",
+          "name": "people",
+        },
+      ],
+      "itemLabel": "Grupa",
+      "kind": "list",
+      "label": "Grupy",
+      "name": "groups",
+    },
+    "title": "Kadra",
+  },
+  {
+    "intro": "Najbliższe zebranie z rodzicami i sale klas na stronie Wywiadówki.",
+    "key": "wywiadowki",
+    "page": "/rodzice/wywiadowki",
+    "root": {
+      "fields": [
+        {
+          "kind": "date",
+          "label": "Data zebrania",
+          "name": "date",
+        },
+        {
+          "kind": "text",
+          "label": "Podstawa (zarządzenie)",
+          "max": 300,
+          "name": "order",
+        },
+        {
+          "fields": [
+            {
+              "kind": "time",
+              "label": "Godzina",
+              "name": "time",
+            },
+            {
+              "kind": "text",
+              "label": "Opis",
+              "max": 300,
+              "name": "text",
+            },
+          ],
+          "itemLabel": "Punkt",
+          "kind": "list",
+          "label": "Harmonogram",
+          "name": "steps",
+        },
+        {
+          "fields": [
+            {
+              "kind": "text",
+              "label": "Nazwa rocznika",
+              "max": 60,
+              "name": "grade",
+            },
+            {
+              "fields": [
+                {
+                  "kind": "text",
+                  "label": "Klasa",
+                  "max": 20,
+                  "name": "name",
+                },
+                {
+                  "kind": "text",
+                  "label": "Sala",
+                  "max": 20,
+                  "name": "room",
+                },
+              ],
+              "itemLabel": "Klasa",
+              "kind": "list",
+              "label": "Klasy",
+              "name": "classes",
+            },
+          ],
+          "itemLabel": "Rocznik",
+          "kind": "list",
+          "label": "Roczniki",
+          "name": "grades",
+        },
+      ],
+      "kind": "object",
+      "label": "Wywiadówki",
+      "name": "meetings",
+    },
+    "title": "Wywiadówki",
+  },
+  {
+    "intro": "Karty kontaktowe na stronie Kontakt.",
+    "key": "kontakty",
+    "page": "/kontakt",
+    "root": {
+      "fields": [
+        {
+          "fields": [
+            {
+              "kind": "text",
+              "label": "Nazwa",
+              "max": 120,
+              "name": "title",
+            },
+            {
+              "kind": "text",
+              "label": "Czym się zajmuje",
+              "max": 200,
+              "name": "role",
+            },
+            {
+              "fields": [
+                {
+                  "hint": "np. +48126440689,104",
+                  "kind": "text",
+                  "label": "Numer do wybierania",
+                  "max": 30,
+                  "name": "number",
+                },
+                {
+                  "kind": "text",
+                  "label": "Numer do wyświetlenia",
+                  "max": 60,
+                  "name": "label",
+                },
+              ],
+              "itemLabel": "Telefon",
+              "kind": "list",
+              "label": "Telefony",
+              "name": "phones",
+            },
+            {
+              "hint": "jeden adres w wierszu",
+              "kind": "lines",
+              "label": "Adresy e-mail",
+              "name": "emails",
+            },
+          ],
+          "itemLabel": "Karta",
+          "kind": "list",
+          "label": "Sekretariaty i działy",
+          "name": "departments",
+        },
+        {
+          "fields": [
+            {
+              "kind": "text",
+              "label": "Nazwa",
+              "max": 120,
+              "name": "title",
+            },
+            {
+              "kind": "text",
+              "label": "Czym się zajmuje",
+              "max": 200,
+              "name": "role",
+            },
+            {
+              "fields": [
+                {
+                  "hint": "np. +48126440689,104",
+                  "kind": "text",
+                  "label": "Numer do wybierania",
+                  "max": 30,
+                  "name": "number",
+                },
+                {
+                  "kind": "text",
+                  "label": "Numer do wyświetlenia",
+                  "max": 60,
+                  "name": "label",
+                },
+              ],
+              "itemLabel": "Telefon",
+              "kind": "list",
+              "label": "Telefony",
+              "name": "phones",
+            },
+            {
+              "hint": "jeden adres w wierszu",
+              "kind": "lines",
+              "label": "Adresy e-mail",
+              "name": "emails",
+            },
+          ],
+          "itemLabel": "Karta",
+          "kind": "list",
+          "label": "Kierownictwo",
+          "name": "management",
+        },
+      ],
+      "kind": "object",
+      "label": "Kontakty",
+      "name": "contacts",
+    },
+    "title": "Kontakty",
+  },
+  {
+    "intro": "Formularze na stronie Wzory dokumentów. Plik najpierw prześlij w sekcji Dokumenty.",
+    "key": "dokumenty",
+    "page": "/uczniowie/wzory-dokumentow",
+    "root": {
+      "fields": [
+        {
+          "hint": "małe litery, cyfry i myślniki; to kotwica w adresie strony",
+          "kind": "text",
+          "label": "Identyfikator grupy",
+          "max": 60,
+          "name": "id",
+        },
+        {
+          "kind": "text",
+          "label": "Nazwa grupy",
+          "max": 120,
+          "name": "title",
+        },
+        {
+          "kind": "text",
+          "label": "Opis",
+          "max": 300,
+          "name": "summary",
+        },
+        {
+          "fields": [
+            {
+              "kind": "text",
+              "label": "Kod",
+              "max": 12,
+              "name": "code",
+            },
+            {
+              "kind": "text",
+              "label": "Tytuł",
+              "max": 200,
+              "name": "title",
+            },
+            {
+              "kind": "text",
+              "label": "Opis",
+              "max": 400,
+              "multiline": true,
+              "name": "description",
+            },
+            {
+              "kind": "select",
+              "label": "Kto składa",
+              "name": "signer",
+              "options": [
+                {
+                  "label": "Uczeń lub absolwent",
+                  "value": "kazdy",
+                },
+                {
+                  "label": "Pełnoletni uczeń",
+                  "value": "uczen",
+                },
+                {
+                  "label": "Rodzic lub opiekun prawny",
+                  "value": "rodzic",
+                },
+              ],
+            },
+            {
+              "inline": true,
+              "kind": "file",
+              "label": "Plik",
+              "name": "file",
+            },
+            {
+              "kind": "date",
+              "label": "Data wersji",
+              "name": "updated",
+            },
+          ],
+          "itemLabel": "Formularz",
+          "kind": "list",
+          "label": "Formularze",
+          "name": "documents",
+        },
+      ],
+      "itemLabel": "Grupa",
+      "kind": "list",
+      "label": "Grupy",
+      "name": "groups",
+    },
+    "title": "Wzory dokumentów",
+  },
+  {
+    "intro": "Pasek partnerów i projektów na stronie głównej.",
+    "key": "partnerzy",
+    "page": "/",
+    "root": {
+      "fields": [
+        {
+          "kind": "text",
+          "label": "Nazwa",
+          "max": 120,
+          "name": "name",
+        },
+        {
+          "kind": "text",
+          "label": "Rola",
+          "max": 200,
+          "name": "role",
+        },
+        {
+          "kind": "text",
+          "label": "Adres strony (opcjonalnie, od „/” albo „https://”)",
+          "max": 500,
+          "name": "href",
+          "optional": true,
+        },
+      ],
+      "itemLabel": "Partner",
+      "kind": "list",
+      "label": "Partnerzy",
+      "name": "partners",
+    },
+    "title": "Partnerzy",
+  },
+  {
+    "intro": "Oferty na stronie Oferty pracy. Po terminie ważności oferta sama trafia do archiwum.",
+    "key": "oferty-pracy",
+    "page": "/uczniowie/oferty-pracy",
+    "root": {
+      "fields": [
+        {
+          "kind": "text",
+          "label": "Pracodawca",
+          "max": 160,
+          "name": "employer",
+        },
+        {
+          "kind": "text",
+          "label": "Stanowisko",
+          "max": 160,
+          "name": "position",
+        },
+        {
+          "kind": "text",
+          "label": "Opis (opcjonalnie)",
+          "max": 600,
+          "multiline": true,
+          "name": "description",
+          "optional": true,
+        },
+        {
+          "kind": "date",
+          "label": "Ważna do",
+          "name": "validUntil",
+        },
+        {
+          "kind": "file",
+          "label": "Plik PDF (opcjonalnie)",
+          "name": "file",
+          "optional": true,
+        },
+      ],
+      "itemLabel": "Oferta",
+      "kind": "list",
+      "label": "Oferty",
+      "name": "offers",
+    },
+    "title": "Oferty pracy",
+  },
+  {
+    "intro": "Kafelki zawodów i strony kierunków w sekcji Kandydaci. Adres kierunku zmieniaj ostrożnie: stare linki przestaną działać.",
+    "key": "kierunki",
+    "page": "/kandydaci/zawody",
+    "root": {
+      "fields": [
+        {
+          "fields": [
+            {
+              "hint": "małe litery i myślniki",
+              "kind": "text",
+              "label": "Identyfikator zawodu",
+              "max": 80,
+              "name": "slug",
+            },
+            {
+              "kind": "text",
+              "label": "Nazwa zawodu",
+              "max": 120,
+              "name": "name",
+            },
+            {
+              "kind": "select",
+              "label": "Branża",
+              "name": "field",
+              "options": [
+                {
+                  "label": "Informatyka",
+                  "value": "informatyka",
+                },
+                {
+                  "label": "Mechatronika i robotyka",
+                  "value": "mechatronika",
+                },
+                {
+                  "label": "Motoryzacja",
+                  "value": "motoryzacja",
+                },
+                {
+                  "label": "Lotnictwo",
+                  "value": "lotnictwo",
+                },
+                {
+                  "label": "Porty i terminale",
+                  "value": "logistyka",
+                },
+              ],
+            },
+            {
+              "hint": "jedno w wierszu",
+              "kind": "lines",
+              "label": "Hasła na kafelku",
+              "name": "topics",
+            },
+            {
+              "fields": [
+                {
+                  "kind": "text",
+                  "label": "Kod",
+                  "max": 12,
+                  "name": "code",
+                },
+                {
+                  "kind": "text",
+                  "label": "Nazwa",
+                  "max": 160,
+                  "name": "name",
+                },
+              ],
+              "itemLabel": "Kwalifikacja",
+              "kind": "list",
+              "label": "Kwalifikacje",
+              "name": "qualifications",
+            },
+            {
+              "fields": [
+                {
+                  "kind": "select",
+                  "label": "Szkoła",
+                  "name": "school",
+                  "options": [
+                    {
+                      "label": "Technikum",
+                      "value": "technikum",
+                    },
+                    {
+                      "label": "Branżowa szkoła I stopnia",
+                      "value": "branzowa-1",
+                    },
+                    {
+                      "label": "Branżowa szkoła II stopnia",
+                      "value": "branzowa-2",
+                    },
+                  ],
+                },
+                {
+                  "kind": "number",
+                  "label": "Lata nauki",
+                  "max": 6,
+                  "min": 1,
+                  "name": "years",
+                },
+              ],
+              "itemLabel": "Ścieżka",
+              "kind": "list",
+              "label": "Gdzie można się uczyć",
+              "name": "paths",
+            },
+          ],
+          "itemLabel": "Zawód",
+          "kind": "list",
+          "label": "Zawody",
+          "name": "professions",
+        },
+        {
+          "fields": [
+            {
+              "hint": "część po /kandydaci/zawody/",
+              "kind": "text",
+              "label": "Adres strony kierunku",
+              "max": 80,
+              "name": "slug",
+            },
+            {
+              "hint": "jak w liście zawodów",
+              "kind": "text",
+              "label": "Identyfikator zawodu",
+              "max": 80,
+              "name": "profession",
+            },
+            {
+              "kind": "select",
+              "label": "Szkoła",
+              "name": "school",
+              "options": [
+                {
+                  "label": "Technikum",
+                  "value": "technikum",
+                },
+                {
+                  "label": "Branżowa szkoła I stopnia",
+                  "value": "branzowa-1",
+                },
+                {
+                  "label": "Branżowa szkoła II stopnia",
+                  "value": "branzowa-2",
+                },
+              ],
+            },
+            {
+              "kind": "text",
+              "label": "Wprowadzenie",
+              "max": 400,
+              "multiline": true,
+              "name": "lead",
+            },
+            {
+              "fields": [
+                {
+                  "kind": "text",
+                  "label": "Tytuł",
+                  "max": 120,
+                  "name": "title",
+                },
+                {
+                  "kind": "text",
+                  "label": "Opis",
+                  "max": 400,
+                  "multiline": true,
+                  "name": "text",
+                },
+              ],
+              "itemLabel": "Temat",
+              "kind": "list",
+              "label": "Czego się uczysz",
+              "name": "learn",
+            },
+            {
+              "hint": "jedno w wierszu",
+              "kind": "lines",
+              "label": "Technologie i sprzęt",
+              "name": "tools",
+            },
+            {
+              "hint": "jedno w wierszu",
+              "kind": "lines",
+              "label": "Gdzie się uczysz zawodu",
+              "name": "practice",
+            },
+            {
+              "fields": [
+                {
+                  "kind": "text",
+                  "label": "Kod",
+                  "max": 12,
+                  "name": "code",
+                },
+                {
+                  "kind": "text",
+                  "label": "Nazwa",
+                  "max": 160,
+                  "name": "name",
+                },
+                {
+                  "kind": "text",
+                  "label": "Zakres",
+                  "max": 300,
+                  "multiline": true,
+                  "name": "scope",
+                },
+                {
+                  "fields": [
+                    {
+                      "kind": "text",
+                      "label": "Kod",
+                      "max": 12,
+                      "name": "code",
+                    },
+                    {
+                      "kind": "text",
+                      "label": "Nazwa",
+                      "max": 160,
+                      "name": "name",
+                    },
+                  ],
+                  "kind": "object",
+                  "label": "Kwalifikacja zamienna (opcjonalnie)",
+                  "name": "alternative",
+                  "optional": true,
+                },
+              ],
+              "itemLabel": "Egzamin",
+              "kind": "list",
+              "label": "Egzaminy",
+              "name": "exams",
+            },
+            {
+              "fields": [
+                {
+                  "kind": "text",
+                  "label": "Tytuł",
+                  "max": 120,
+                  "name": "title",
+                },
+                {
+                  "kind": "text",
+                  "label": "Opis",
+                  "max": 400,
+                  "multiline": true,
+                  "name": "text",
+                },
+              ],
+              "itemLabel": "Miejsce pracy",
+              "kind": "list",
+              "label": "Gdzie pracujesz",
+              "name": "careers",
+            },
+            {
+              "kind": "text",
+              "label": "Warunek przyjęcia (opcjonalnie)",
+              "max": 400,
+              "name": "entry",
+              "optional": true,
+            },
+            {
+              "kind": "select",
+              "label": "Kurs prawa jazdy",
+              "name": "drivingLicence",
+              "optional": true,
+              "options": [
+                {
+                  "label": "Kategoria A",
+                  "value": "A",
+                },
+                {
+                  "label": "Kategoria B",
+                  "value": "B",
+                },
+              ],
+            },
+            {
+              "kind": "checkbox",
+              "label": "Praktyki Erasmus+",
+              "name": "erasmus",
+            },
+          ],
+          "itemLabel": "Kierunek",
+          "kind": "list",
+          "label": "Kierunki",
+          "name": "programmes",
+        },
+      ],
+      "kind": "object",
+      "label": "Zawody i kierunki",
+      "name": "kierunki",
+    },
+    "title": "Zawody i kierunki",
+  },
+  {
+    "intro": "Menu w nagłówku, menu na telefonie, linki pomocnicze i grupy linków w stopce.",
+    "key": "nawigacja",
+    "page": "/",
+    "root": {
+      "fields": [
+        {
+          "fields": [
+            {
+              "kind": "text",
+              "label": "Identyfikator",
+              "max": 40,
+              "name": "id",
+            },
+            {
+              "kind": "text",
+              "label": "Nazwa w menu",
+              "max": 40,
+              "name": "label",
+            },
+            {
+              "kind": "text",
+              "label": "Adres sekcji",
+              "max": 300,
+              "name": "href",
+            },
+            {
+              "fields": [
+                {
+                  "kind": "text",
+                  "label": "Tytuł grupy",
+                  "max": 120,
+                  "name": "title",
+                },
+                {
+                  "fields": [
+                    {
+                      "kind": "text",
+                      "label": "Tekst linku",
+                      "max": 120,
+                      "name": "label",
+                    },
+                    {
+                      "hint": "od „/” albo „https://”",
+                      "kind": "text",
+                      "label": "Adres",
+                      "max": 500,
+                      "name": "href",
+                    },
+                    {
+                      "kind": "checkbox",
+                      "label": "Zewnętrzna strona",
+                      "name": "external",
+                      "omitFalse": true,
+                    },
+                  ],
+                  "itemLabel": "Link",
+                  "kind": "list",
+                  "label": "Linki",
+                  "name": "links",
+                },
+              ],
+              "itemLabel": "Grupa",
+              "kind": "list",
+              "label": "Kolumny menu",
+              "name": "groups",
+            },
+            {
+              "kind": "select",
+              "label": "Wyróżniony moduł w menu",
+              "name": "featured",
+              "optional": true,
+              "options": [
+                {
+                  "label": "Zawody",
+                  "value": "professions",
+                },
+                {
+                  "label": "Teraz w szkole",
+                  "value": "live-status",
+                },
+                {
+                  "label": "Najbliższe zebranie",
+                  "value": "next-meeting",
+                },
+                {
+                  "label": "Patron",
+                  "value": "patron",
+                },
+              ],
+            },
+          ],
+          "itemLabel": "Sekcja",
+          "kind": "list",
+          "label": "Sekcje menu",
+          "name": "sections",
+        },
+        {
+          "fields": [
+            {
+              "kind": "text",
+              "label": "Tekst linku",
+              "max": 120,
+              "name": "label",
+            },
+            {
+              "hint": "od „/” albo „https://”",
+              "kind": "text",
+              "label": "Adres",
+              "max": 500,
+              "name": "href",
+            },
+            {
+              "kind": "checkbox",
+              "label": "Zewnętrzna strona",
+              "name": "external",
+              "omitFalse": true,
+            },
+          ],
+          "itemLabel": "Link",
+          "kind": "list",
+          "label": "Linki pomocnicze",
+          "name": "utilityLinks",
+        },
+        {
+          "fields": [
+            {
+              "kind": "text",
+              "label": "Tytuł grupy",
+              "max": 120,
+              "name": "title",
+            },
+            {
+              "fields": [
+                {
+                  "kind": "text",
+                  "label": "Tekst linku",
+                  "max": 120,
+                  "name": "label",
+                },
+                {
+                  "hint": "od „/” albo „https://”",
+                  "kind": "text",
+                  "label": "Adres",
+                  "max": 500,
+                  "name": "href",
+                },
+                {
+                  "kind": "checkbox",
+                  "label": "Zewnętrzna strona",
+                  "name": "external",
+                  "omitFalse": true,
+                },
+              ],
+              "itemLabel": "Link",
+              "kind": "list",
+              "label": "Linki",
+              "name": "links",
+            },
+          ],
+          "itemLabel": "Grupa",
+          "kind": "list",
+          "label": "Stopka",
+          "name": "footerGroups",
+        },
+      ],
+      "kind": "object",
+      "label": "Nawigacja",
+      "name": "navigation",
+    },
+    "title": "Menu i stopka",
+  },
+]
+`;

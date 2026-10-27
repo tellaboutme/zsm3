@@ -5,6 +5,7 @@ import {
   canonicalUrl,
   jsonLd,
   rssXml,
+  schoolYearSchemas,
   shouldNoindex,
   sitemapEntries,
   sitemapXml,
@@ -149,5 +150,49 @@ describe("structured data", () => {
     expect(jsonLd({ name: "</script><img src=x>&" })).toBe(
       '{"name":"\\u003c/script\\u003e\\u003cimg src=x\\u003e\\u0026"}',
     );
+  });
+});
+
+describe("school year events as structured data", () => {
+  const events = [
+    { date: "2026-09-01", title: "Rozpoczęcie roku", audience: "Wszyscy", kind: "rok-szkolny" },
+    {
+      date: "2026-12-23",
+      title: "Przerwa świąteczna",
+      audience: "Wszyscy",
+      kind: "przerwa",
+      note: "Do 31 grudnia.",
+    },
+    {
+      date: "2027-06-25",
+      title: "Zakończenie roku",
+      audience: "Wszyscy",
+      kind: "rok-szkolny",
+      note: "O godzinie 9:00.",
+    },
+  ] as const;
+
+  it("describes only the dates that open and close the year", ({ expect }) => {
+    expect(schoolYearSchemas(events, "/szkola/terminarz").map((schema) => schema)).toEqual([
+      {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        name: "Rozpoczęcie roku",
+        startDate: "2026-09-01",
+        url: "https://www.zespolszkolmechanicznych.edu.pl/szkola/terminarz",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        name: "Zakończenie roku",
+        startDate: "2027-06-25",
+        description: "O godzinie 9:00.",
+        url: "https://www.zespolszkolmechanicznych.edu.pl/szkola/terminarz",
+      },
+    ]);
+  });
+
+  it("says nothing when the year holds no such date", ({ expect }) => {
+    expect(schoolYearSchemas([], "/szkola/terminarz")).toEqual([]);
   });
 });

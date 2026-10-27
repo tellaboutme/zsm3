@@ -1,9 +1,13 @@
 ---
 import ContactCards from "../components/ContactCards.astro";
 import Icon from "../components/Icon.astro";
-import { departments, management } from "../data/contacts.ts";
 import { school } from "../data/site.ts";
 import Base from "../layouts/Base.astro";
+import { contacts } from "../server/datasets.ts";
+
+export const prerender = false;
+
+const { departments, management } = await contacts();
 ---
 
 <Base

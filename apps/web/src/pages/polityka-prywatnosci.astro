@@ -8,6 +8,8 @@ import Base from "../layouts/Base.astro";
 import { longDate } from "../lib/calendar.ts";
 import { statusLabel } from "../lib/legal.ts";
 
+export const prerender = false;
+
 const document = privacyPolicy;
 const sections = document.sections.map((section) => ({
   ...section,

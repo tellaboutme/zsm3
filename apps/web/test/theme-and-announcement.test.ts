@@ -1,6 +1,12 @@
 import { describe, it } from "vitest";
 
-import { DISMISSED_KEY, readDismissed, withDismissed } from "../src/lib/announcement.ts";
+import {
+  DISMISSED_KEY,
+  dayOffAnnouncement,
+  publicAnnouncement,
+  readDismissed,
+  withDismissed,
+} from "../src/lib/announcement.ts";
 import { nextTheme, themeLabel } from "../src/lib/theme.ts";
 
 describe("theme cycle", () => {
@@ -34,5 +40,46 @@ describe("dismissed announcements", () => {
   it("adds an id once", ({ expect }) => {
     expect(withDismissed(new Set(["a"]), "b")).toBe('["a","b"]');
     expect(withDismissed(new Set(["a"]), "a")).toBe('["a"]');
+  });
+});
+
+describe("published announcements", () => {
+  it("keys the banner by its version so an edited notice shows again", ({ expect }) => {
+    const stored = {
+      id: "01920000-0000-7000-8000-000000000001",
+      updatedAt: "2026-10-22T08:00:00.000Z",
+      severity: "urgent",
+      text: "Szkoła zamknięta.",
+      startsOn: "2026-10-22",
+      endsOn: "2026-10-22",
+    } as const;
+    expect(publicAnnouncement(stored)).toEqual({
+      id: "01920000-0000-7000-8000-000000000001.2026-10-22T08:00:00.000Z",
+      severity: "urgent",
+      text: "Szkoła zamknięta.",
+    });
+    expect(
+      publicAnnouncement({ ...stored, link: { label: "Więcej", href: "/kontakt" } }).link,
+    ).toEqual({ label: "Więcej", href: "/kontakt" });
+  });
+});
+
+describe("day-off notices", () => {
+  const daysOff = [{ from: "2026-11-02", to: "2026-11-03", title: "Dni wolne" }];
+
+  it("announces a day off on the day and the day before", ({ expect }) => {
+    expect(dayOffAnnouncement(daysOff, "2026-11-01", "2026-11-02")).toEqual({
+      id: "wolne.2026-11-02.Jutro",
+      severity: "info",
+      text: "Jutro nie ma zajęć: Dni wolne.",
+      link: { label: "Terminarz", href: "/szkola/terminarz" },
+    });
+    expect(dayOffAnnouncement(daysOff, "2026-11-03", "2026-11-04")?.text).toBe(
+      "Dziś nie ma zajęć: Dni wolne.",
+    );
+    expect(dayOffAnnouncement(daysOff, "2026-11-02", "2026-11-03")?.id).toBe(
+      "wolne.2026-11-02.Dziś",
+    );
+    expect(dayOffAnnouncement(daysOff, "2026-10-30", "2026-10-31")).toBeUndefined();
   });
 });

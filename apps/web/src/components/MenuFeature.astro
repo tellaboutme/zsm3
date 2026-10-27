@@ -1,6 +1,5 @@
 ---
 import LiveStatus from "./LiveStatus.astro";
-import { schoolYearEvents } from "../data/calendar/index.ts";
 import { isoDay, longDate, nextEvent } from "../lib/calendar.ts";
 import type { Featured } from "../lib/navigation.ts";
 
@@ -9,7 +8,7 @@ interface Props {
 }
 
 const { feature } = Astro.props;
-const meeting = nextEvent(schoolYearEvents, isoDay(new Date()), "Rodzice");
+const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzice");
 ---
 
 {feature === "live-status" && <LiveStatus />}

@@ -10,7 +10,7 @@
     "test": "vitest run --coverage",
     "test:mutation": "stryker run",
     "db:migrate": "wrangler d1 migrations apply DB --local --persist-to .wrangler/state",
-    "start": "wrangler dev -c dist/server/wrangler.json --persist-to .wrangler/state --ip 127.0.0.1 --port 8787"
+    "start": "wrangler dev -c dist/server/wrangler.json --persist-to .wrangler/state --ip 127.0.0.1 --port 8787 --var ACCESS_TEAM_DOMAIN:http://127.0.0.1:8799 --var ACCESS_AUDIENCE:zsm3-dev --var PANEL_ORIGIN:http://127.0.0.1:8787"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.4",
@@ -20,7 +20,8 @@
     "@fontsource/ibm-plex-mono": "5.3.0",
     "@zsm3/contracts": "workspace:*",
     "@zsm3/worker": "workspace:*",
-    "astro": "7.3.8"
+    "astro": "7.3.8",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",

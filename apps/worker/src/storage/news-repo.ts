@@ -42,6 +42,7 @@ export interface Neighbours {
 
 export interface NewsRepo {
   save(item: News, status: PublicationStatus): Promise<void>;
+  saveStatements(item: News, status: PublicationStatus): Promise<readonly SqlStatement[]>;
   published(filter: NewsFilter, page: NewsPage): Promise<readonly News[]>;
   countPublished(filter: NewsFilter): Promise<number>;
   find(year: string, slug: string): Promise<News | undefined>;
@@ -107,7 +108,7 @@ async function saveNews(
   { db, clock, random }: Store,
   item: News,
   status: PublicationStatus,
-): Promise<void> {
+): Promise<readonly SqlStatement[]> {
   const news = newsSchema.parse(item);
   const now = timestamp(clock);
   const existing = await firstRow(
@@ -116,7 +117,7 @@ async function saveNews(
   );
   const id = existing?.id ?? uuidv7(clock().getTime(), random);
   const doc = newsDocument(id, news);
-  await db.batch([
+  return [
     db
       .prepare(UPSERT_NEWS)
       .bind(
@@ -135,7 +136,7 @@ async function saveNews(
       ),
     removeDocument(db, doc.docId),
     ...(status === "published" ? [insertDocument(db, doc)] : []),
-  ]);
+  ];
 }
 
 async function publishedNews(
@@ -181,7 +182,10 @@ async function distinctValues(db: SqlDatabase, query: string): Promise<readonly 
 export function newsRepo(store: Store): NewsRepo {
   const { db } = store;
   return {
-    save: async (item, status) => saveNews(store, item, status),
+    save: async (item, status) => {
+      await db.batch([...(await saveNews(store, item, status))]);
+    },
+    saveStatements: async (item, status) => saveNews(store, item, status),
     published: async (filter, page) => publishedNews(db, filter, page),
     countPublished: async (filter) => countNews(db, filter),
     find: async (year, slug) => oneNews(db.prepare(SELECT_ONE).bind(year, slug)),

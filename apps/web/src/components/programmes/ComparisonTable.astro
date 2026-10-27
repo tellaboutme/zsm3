@@ -1,6 +1,5 @@
 ---
-import { professions } from "../../data/professions.ts";
-import { fieldLabels, schoolLabels } from "../../lib/professions.ts";
+import { fieldLabels, schoolLabels, type Profession } from "../../lib/professions.ts";
 import {
   examCodes,
   professionOf,
@@ -12,9 +11,10 @@ import {
 
 interface Props {
   programmes: readonly Programme[];
+  professions: readonly Profession[];
 }
 
-const { programmes } = Astro.props;
+const { programmes, professions } = Astro.props;
 ---
 
 <details class="compare">

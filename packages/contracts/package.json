@@ -11,6 +11,14 @@
     "./fold": "./src/fold.ts",
     "./search": "./src/search.ts",
     "./requests": "./src/requests.ts",
+    "./panel": "./src/panel.ts",
+    "./announcements": "./src/announcements.ts",
+    "./bells": "./src/bells.ts",
+    "./revisions": "./src/revisions.ts",
+    "./audit": "./src/audit.ts",
+    "./datasets": "./src/datasets.ts",
+    "./programmes": "./src/programmes.ts",
+    "./navigation": "./src/navigation.ts",
     "./short-links": "./src/short-links.ts"
   },
   "scripts": {

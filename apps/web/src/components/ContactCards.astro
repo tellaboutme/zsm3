@@ -1,5 +1,7 @@
 ---
-import type { ContactCard } from "../data/contacts.ts";
+import type { Contacts } from "@zsm3/contracts/datasets";
+
+type ContactCard = Contacts["departments"][number];
 
 interface Props {
   cards: readonly ContactCard[];

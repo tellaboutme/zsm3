@@ -1,3 +1,5 @@
+import type { Navigation } from "@zsm3/contracts/navigation";
+
 import { externalServices } from "./site.ts";
 import type { NavGroup, NavLink, NavSection } from "../lib/navigation.ts";
 
@@ -188,3 +190,9 @@ export const footerGroups: readonly NavGroup[] = [
     ],
   },
 ];
+
+export const fallbackNavigation: Navigation = {
+  sections: [...sections],
+  utilityLinks: [...utilityLinks],
+  footerGroups: [...footerGroups],
+};

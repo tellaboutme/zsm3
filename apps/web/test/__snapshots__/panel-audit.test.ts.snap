@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`labels every panel action 1`] = `
+{
+  "announcements.create": "dodał(a) ogłoszenie",
+  "announcements.delete": "usunął(ęła) ogłoszenie",
+  "announcements.update": "zmienił(a) ogłoszenie",
+  "bells.save": "zapisał(a) dzwonki",
+  "datasets.save": "zapisał(a) dane strony",
+  "events.save": "zapisał(a) terminarz",
+  "files.upload": "dodał(a) plik",
+  "news.create": "utworzył(a) aktualność",
+  "news.publish": "opublikował(a) aktualność",
+  "news.restore": "przywrócił(a) wersję aktualności",
+  "news.unpublish": "wycofał(a) aktualność",
+  "news.update": "zmienił(a) aktualność",
+  "pages.restore": "przywrócił(a) wersję strony",
+  "pages.save": "zapisał(a) stronę",
+  "redirects.delete": "usunął(ęła) przekierowanie",
+  "redirects.save": "zapisał(a) przekierowanie",
+  "staff.save": "zmienił(a) dostęp pracownika",
+}
+`;

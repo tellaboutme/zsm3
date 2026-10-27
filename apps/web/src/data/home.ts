@@ -1,12 +1,6 @@
 import { externalServices } from "./site.ts";
 import type { NavGroup, NavLink } from "../lib/navigation.ts";
 
-export interface Partner {
-  readonly name: string;
-  readonly role: string;
-  readonly href?: string;
-}
-
 export const quickLinks: readonly NavLink[] = [
   { label: "Dzwonki", href: "/uczniowie/dzwonki" },
   { label: "Wzory dokumentów", href: "/uczniowie/wzory-dokumentow" },
@@ -42,16 +36,4 @@ export const audiencePanels: readonly NavGroup[] = [
       { label: "Rada Rodziców", href: "/rodzice/rada-rodzicow" },
     ],
   },
-];
-
-export const partners: readonly Partner[] = [
-  {
-    name: "Erasmus+",
-    role: "wyjazdy i praktyki zagraniczne uczniów od 2014 roku",
-  },
-  {
-    name: "Centrum Kompetencji Zawodowych",
-    role: "kursy zawodowe dla uczniów w projekcie współfinansowanym przez Unię Europejską",
-  },
-  { name: "LS Airport Services", role: "partner kierunków lotniczych" },
 ];

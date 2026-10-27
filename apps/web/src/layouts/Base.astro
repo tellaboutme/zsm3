@@ -32,14 +32,9 @@ interface Props {
   structuredData?: object | readonly object[];
 }
 
-const {
-  title,
-  description,
-  noindex = false,
-  breadcrumbs,
-  announcement,
-  structuredData,
-} = Astro.props;
+const { title, description, noindex = false, breadcrumbs, structuredData } = Astro.props;
+const announcement = Astro.props.announcement ?? Astro.locals.announcement;
+const bells = Astro.locals.bells;
 const canonical = canonicalUrl(Astro.url);
 const breadcrumbData =
   breadcrumbs === undefined
@@ -113,7 +108,7 @@ const schemas = [
     <link rel="preload" href={sourceSans} as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
   </head>
-  <body>
+  <body data-bells={bells === undefined ? undefined : JSON.stringify(bells)}>
     <div class="scroll-sentinel" aria-hidden="true" data-scroll-sentinel></div>
     <a class="skip-link" href="#tresc">
       Przejdź do treści

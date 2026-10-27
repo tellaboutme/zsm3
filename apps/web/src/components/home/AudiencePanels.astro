@@ -1,6 +1,9 @@
 ---
-import { audiencePanels, partners } from "../../data/home.ts";
+import { audiencePanels } from "../../data/home.ts";
+import { partners as loadPartners } from "../../server/datasets.ts";
 import Icon from "../Icon.astro";
+
+const partners = await loadPartners();
 ---
 
 <section class="audiences" aria-label="Na skróty dla kandydatów, uczniów i rodziców">

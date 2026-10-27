@@ -3,9 +3,14 @@ import "../../styles/document-filters.css";
 import Callout from "../../components/content/Callout.astro";
 import DocumentRow from "../../components/documents/DocumentRow.astro";
 import RadioFilters from "../../components/RadioFilters.astro";
-import { documentGroups, documentSteps } from "../../data/documents.ts";
+import { documentSteps } from "../../data/documents.ts";
 import Base from "../../layouts/Base.astro";
 import { documentCount, signerLabels } from "../../lib/documents.ts";
+import { documentGroups as loadDocuments } from "../../server/datasets.ts";
+
+export const prerender = false;
+
+const documentGroups = await loadDocuments();
 
 const groups = [
   {

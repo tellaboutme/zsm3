@@ -1,25 +1,34 @@
+import { seedSchoolYear } from "@zsm3/worker/seed/calendar/index.ts";
+import { seedDatasets } from "@zsm3/worker/seed/datasets/index.ts";
 import { seedPages } from "@zsm3/worker/seed/pages/index.ts";
 import { describe, it } from "vitest";
 
-import { staticSearchEntries } from "../src/data/search-index.ts";
-import { contentPageEntry } from "../src/lib/search-sources.ts";
+import { baseSearchEntries } from "../src/data/search-index.ts";
+import { contentPageEntry, datasetEntries, eventEntry } from "../src/lib/search-sources.ts";
 import { prepare, search } from "../src/lib/search.ts";
 
+const staticSearchEntries = baseSearchEntries(seedDatasets.kierunki);
+
+const datasets = datasetEntries({
+  staff: seedDatasets.kadra,
+  meetings: seedDatasets.wywiadowki,
+  contacts: seedDatasets.kontakty,
+  documents: seedDatasets.dokumenty,
+});
+
 describe("site search index", () => {
-  const index = prepare([...staticSearchEntries, ...seedPages.map(contentPageEntry)]);
+  const index = prepare([
+    ...staticSearchEntries,
+    ...seedPages.map(contentPageEntry),
+    ...seedSchoolYear.map(eventEntry),
+    ...datasets,
+  ]);
   const first = (query: string): string | undefined => search(index, query)[0]?.title;
 
   it("indexes every kind of static content", ({ expect }) => {
-    const types = new Set(staticSearchEntries.map((item) => item.type));
+    const types = new Set([...staticSearchEntries, ...datasets].map((item) => item.type));
 
-    expect([...types].toSorted()).toEqual([
-      "dokument",
-      "kierunek",
-      "klasa",
-      "kontakt",
-      "strona",
-      "termin",
-    ]);
+    expect([...types].toSorted()).toEqual(["dokument", "kierunek", "klasa", "kontakt", "strona"]);
   });
 
   it("answers the questions people ask the school", ({ expect }) => {

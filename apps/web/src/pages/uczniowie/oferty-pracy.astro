@@ -1,0 +1,119 @@
+---
+import Base from "../../layouts/Base.astro";
+import { isoDay, longDate } from "../../lib/calendar.ts";
+import { fileSize } from "../../lib/documents.ts";
+import { offerBoard, type JobOffer } from "../../lib/job-offers.ts";
+import { jobOffers } from "../../server/datasets.ts";
+
+export const prerender = false;
+
+const board = offerBoard(await jobOffers(), isoDay(new Date()));
+
+function offerKey(offer: JobOffer): string {
+  return `${offer.employer}-${offer.position}-${offer.validUntil}`;
+}
+---
+
+<Base
+  title="Oferty pracy — ZSM3"
+  description="Oferty pracy, staży i praktyk od pracodawców współpracujących ze szkołą, z terminem ważności i dokumentem PDF."
+  breadcrumbs={[{ label: "Uczniowie", href: "/uczniowie" }, { label: "Oferty pracy" }]}
+>
+  <div class="offers">
+    <header class="intro">
+      <p class="tag">Uczniowie · praca, staże i praktyki</p>
+      <h1>
+        <span class="rise">
+          <span>Oferty pracy</span>
+        </span>
+      </h1>
+      <p class="lead">
+        Oferty od pracodawców, którzy szukają uczniów i absolwentów szkoły. Oferta znika z listy po
+        terminie ważności i trafia do archiwum.
+      </p>
+    </header>
+    <section aria-labelledby="aktualne">
+      <h2 id="aktualne">Aktualne oferty</h2>
+      {board.current.length === 0 ? (
+        <p class="empty">Obecnie nie ma ofert pracy.</p>
+      ) : (
+        <ul class="list">
+          {board.current.map((offer) => (
+            <li class="offer" data-key={offerKey(offer)}>
+              <h3>{offer.position}</h3>
+              <p class="employer">{offer.employer}</p>
+              {offer.description !== undefined && <p>{offer.description}</p>}
+              <p class="meta">
+                Ważna do <time datetime={offer.validUntil}>{longDate(offer.validUntil)}</time>
+              </p>
+              {offer.file !== undefined && (
+                <a href={offer.file.href}>Oferta w PDF ({fileSize(offer.file.bytes)})</a>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+    {board.archive.length > 0 && (
+      <details class="archive">
+        <summary>Archiwum ofert ({board.archive.length})</summary>
+        <ul class="list">
+          {board.archive.map((offer) => (
+            <li class="offer" data-key={offerKey(offer)}>
+              <h3>{offer.position}</h3>
+              <p class="employer">{offer.employer}</p>
+              <p class="meta">
+                Ważna do <time datetime={offer.validUntil}>{longDate(offer.validUntil)}</time>
+              </p>
+            </li>
+          ))}
+        </ul>
+      </details>
+    )}
+  </div>
+</Base>
+
+<style>
+  .offers {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    max-width: 52rem;
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .list {
+    display: grid;
+    gap: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .offer {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .employer,
+  .meta {
+    color: var(--ink-2);
+  }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+  }
+
+  .archive summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+</style>

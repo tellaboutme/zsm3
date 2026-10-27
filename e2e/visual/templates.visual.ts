@@ -39,6 +39,11 @@ for (const colorScheme of ["light", "dark"] as const) {
           await page.goto(template.path);
           await page.waitForLoadState("networkidle");
           await page.evaluate(async () => document.fonts.ready);
+          await page.locator("[data-banner]").evaluateAll((banners) => {
+            for (const banner of banners) {
+              banner.remove();
+            }
+          });
 
           await expect(page).toHaveScreenshot(
             `${template.name}-${colorScheme}-${String(width)}.png`,

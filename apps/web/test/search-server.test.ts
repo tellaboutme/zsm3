@@ -5,7 +5,7 @@ import type { SqlDatabase, SqlStatement } from "@zsm3/worker/storage/database.ts
 import type { SearchTerms } from "@zsm3/worker/storage/search-repo.ts";
 import { describe, it, vi } from "vitest";
 
-import { staticSearchEntries } from "../src/data/search-index.ts";
+import { datasetRow, staticSearchEntries } from "./search-fixtures.ts";
 import {
   FTS_RESULTS_LIMIT,
   matchGroups,
@@ -19,13 +19,16 @@ import { prepare, type SearchEntry } from "../src/lib/search.ts";
 import { ON_DEMAND_CACHE, sitePageHeaders, withHeaders } from "../src/lib/security-headers.ts";
 
 const db = vi.hoisted(() => {
-  const empty: SqlStatement = {
-    bind: () => empty,
+  const statement = (query: string, values: readonly unknown[]): SqlStatement => ({
+    bind: (...next) => statement(query, next),
     all: async () => Promise.resolve({ results: [] }),
-    first: async () => Promise.resolve(null),
+    first: async () => Promise.resolve(datasetRow(query, values)),
     run: async () => Promise.resolve(undefined),
+  });
+  const database: SqlDatabase = {
+    prepare: (query) => statement(query, []),
+    batch: async () => Promise.resolve([]),
   };
-  const database: SqlDatabase = { prepare: () => empty, batch: async () => Promise.resolve([]) };
   return database;
 });
 

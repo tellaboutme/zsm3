@@ -1,4 +1,4 @@
-import type { News } from "@zsm3/contracts/content";
+import type { News, SchoolEvent } from "@zsm3/contracts/content";
 
 import { newsHref } from "./news.ts";
 
@@ -85,4 +85,17 @@ export function jsonLd(value: object): string {
     .replace(/</gu, "\\u003c")
     .replace(/>/gu, "\\u003e")
     .replace(/&/gu, "\\u0026");
+}
+
+export function schoolYearSchemas(events: readonly SchoolEvent[], path: string): readonly object[] {
+  return events
+    .filter((event) => event.kind === "rok-szkolny")
+    .map((event) => ({
+      "@context": "https://schema.org",
+      "@type": "Event",
+      name: event.title,
+      startDate: event.date,
+      ...(event.note === undefined ? {} : { description: event.note }),
+      url: absoluteUrl(SITE_ORIGIN, path),
+    }));
 }

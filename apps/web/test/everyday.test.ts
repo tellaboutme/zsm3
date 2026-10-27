@@ -1,12 +1,12 @@
+import { seedSchoolYear as schoolYearEvents } from "@zsm3/worker/seed/calendar/index.ts";
 import { describe, it } from "vitest";
 
 import { regularSchedule } from "../src/data/bell-schedule.ts";
-import { bellVariants } from "../src/data/bell-variants.ts";
-import { schoolYearEvents } from "../src/data/calendar/index.ts";
 import { sections } from "../src/data/navigation.ts";
 import {
   lessonsFrom,
   REGULAR_LABEL,
+  type BellVariant,
   scheduleFor,
   scheduleRows,
   upcomingVariants,
@@ -27,6 +27,28 @@ import {
   siblingLinks,
   type ContentPage,
 } from "../src/lib/content.ts";
+
+const shortenedAfternoon = lessonsFrom([
+  ["07:30", "08:15"],
+  ["08:20", "09:05"],
+  ["09:10", "09:55"],
+  ["10:00", "10:45"],
+  ["10:55", "11:40"],
+  ["12:00", "12:45"],
+  ["12:55", "13:40"],
+  ["13:45", "14:30"],
+  ["14:35", "15:05"],
+  ["15:10", "15:40"],
+  ["15:45", "16:15"],
+  ["16:20", "16:50"],
+  ["16:55", "17:25"],
+  ["17:30", "18:00"],
+]);
+
+const bellVariants: readonly BellVariant[] = [
+  { date: "2026-09-08", label: "Lekcje skrócone od 9. lekcji", lessons: shortenedAfternoon },
+  { date: "2026-09-09", label: "Lekcje skrócone od 9. lekcji", lessons: shortenedAfternoon },
+];
 
 describe("bell schedule", () => {
   it("numbers lessons from their times", ({ expect }) => {

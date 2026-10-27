@@ -1,10 +1,9 @@
 import { initDialogs } from "./dialogs.ts";
 import { initMegaMenus } from "./mega-menu.ts";
 import { initPreferences } from "./preferences-ui.ts";
-import { regularSchedule } from "../data/bell-schedule.ts";
-import { bellVariants } from "../data/bell-variants.ts";
+import { fallbackBells } from "../data/bell-schedule.ts";
 import { DISMISSED_KEY, readDismissed, withDismissed } from "../lib/announcement.ts";
-import { scheduleFor } from "../lib/bells.ts";
+import { readBellData, todaySchedule } from "../lib/bells.ts";
 import { isoDay } from "../lib/calendar.ts";
 import { describeStatus, liveStatus, warsawClock } from "../lib/live-status.ts";
 
@@ -46,9 +45,10 @@ function initLiveStatus(): void {
   if (roots.length === 0) {
     return;
   }
+  const bells = readBellData(document.body.dataset["bells"]) ?? fallbackBells;
   const tick = (): void => {
     const now = new Date();
-    const today = scheduleFor(bellVariants, regularSchedule, isoDay(now));
+    const today = todaySchedule(bells, isoDay(now));
     const view = describeStatus(liveStatus(today.lessons, warsawClock(now)));
     for (const root of roots) {
       root.dataset["state"] = view.state;
