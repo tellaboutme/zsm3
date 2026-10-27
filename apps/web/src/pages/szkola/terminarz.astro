@@ -2,10 +2,21 @@
 import "../../styles/calendar-filters.css";
 import KeyDates from "../../components/calendar/KeyDates.astro";
 import RadioFilters from "../../components/RadioFilters.astro";
-import { calendarPdf, schoolYearEvents } from "../../data/calendar/index.ts";
+import { calendarPdf } from "../../data/calendar/index.ts";
 import Base from "../../layouts/Base.astro";
-import { byMonth, eventKindLabels, eventKinds, longDate } from "../../lib/calendar.ts";
+import {
+  byMonth,
+  eventKindLabels,
+  eventKinds,
+  isoDay,
+  longDate,
+  schoolYearName,
+} from "../../lib/calendar.ts";
 
+export const prerender = false;
+
+const schoolYearEvents = Astro.locals.events ?? [];
+const yearName = schoolYearName(isoDay(new Date()));
 const keyDates = schoolYearEvents.filter((event) => event.key === true);
 const groups = [
   {
@@ -29,13 +40,13 @@ const groups = [
 ---
 
 <Base
-  title="Terminarz roku szkolnego 2026/2027 — ZSM3"
-  description="Rozpoczęcie i zakończenie roku, przerwy, dni wolne, zebrania z rodzicami, klasyfikacja, praktyki i egzaminy w roku szkolnym 2026/2027."
+  title={`Terminarz roku szkolnego ${yearName} — ZSM3`}
+  description={`Rozpoczęcie i zakończenie roku, przerwy, dni wolne, zebrania z rodzicami, klasyfikacja, praktyki i egzaminy w roku szkolnym ${yearName}.`}
   breadcrumbs={[{ label: "Szkoła", href: "/szkola" }, { label: "Terminarz" }]}
 >
   <div class="calendar">
     <header class="intro">
-      <p class="tag">Szkoła · rok szkolny 2026/2027</p>
+      <p class="tag">Szkoła · rok szkolny {yearName}</p>
       <h1>
         <span class="rise">
           <span>Terminarz</span>

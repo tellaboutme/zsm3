@@ -1,3 +1,5 @@
+import type { SchoolEvent as ContractEvent } from "@zsm3/contracts/content";
+
 export type Audience = "Wszyscy" | "Uczniowie" | "Rodzice";
 
 export const eventKinds = [
@@ -24,15 +26,7 @@ export const eventKindLabels: Readonly<Record<EventKind, string>> = {
   praktyki: "Praktyki zawodowe",
 };
 
-export interface SchoolEvent {
-  readonly date: string;
-  readonly endDate?: string;
-  readonly title: string;
-  readonly audience: Audience;
-  readonly kind: EventKind;
-  readonly note?: string;
-  readonly key?: true;
-}
+export type SchoolEvent = ContractEvent;
 
 export interface MonthGroup {
   readonly month: string;
@@ -126,4 +120,14 @@ export function matchesCalendarFilter(
   const forAudience =
     audience === "wszyscy" || event.audience === audience || event.audience === "Wszyscy";
   return forAudience && (kind === "wszystkie" || event.kind === kind);
+}
+
+export function schoolYearStart(day: string): number {
+  const year = Number(day.slice(0, 4));
+  return day.slice(5, 7) >= "08" ? year : year - 1;
+}
+
+export function schoolYearName(day: string): string {
+  const start = schoolYearStart(day);
+  return `${String(start)}/${String(start + 1)}`;
 }

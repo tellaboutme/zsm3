@@ -59,7 +59,7 @@ Status: **zatwierdzony projekt, etap 0 zrealizowany.** Kolejne etapy ruszają po
                                                                     └──► Brevo (UE) e-mail
 ```
 
-Jeden Worker pod jednym adresem: brak problemów z CORS, jedno wdrożenie, jedna polityka nagłówków. Gotowe pliki serwuje sieć Cloudflare bez uruchamiania kodu; Worker generuje strony z treścią z bazy D1 (z buforowaniem) i obsługuje `/api/*`, `/media/*` oraz `/panel*`.
+Jeden Worker pod jednym adresem: brak problemów z CORS, jedno wdrożenie, jedna polityka nagłówków. Gotowe pliki serwuje sieć Cloudflare bez uruchamiania kodu; Worker generuje strony z treścią z bazy D1 przy każdym żądaniu, bez buforowania na brzegu sieci (ADR 0003) i obsługuje `/api/*`, `/media/*` oraz `/panel*`.
 
 ## 4. Technologie
 
@@ -110,7 +110,7 @@ Czas zapisywany jest w UTC (ISO 8601) i wyświetlany w strefie `Europe/Warsaw`. 
 | `requests`        | wnioski: typ, status, **zaszyfrowane** dane osobowe (imię, nazwisko, klasa lub rok ukończenia, e-mail, uwaga), skrót tokenu statusu, daty; dane osobowe są usuwane po terminie |
 | `albums`          | albumy: rok szkolny, tytuł, opis, okładka, data publikacji                                                                                                                     |
 | `photos`          | zdjęcia: album, kolejność, wymiary, tekst alternatywny, klucze plików w R2, skrót SHA-256                                                                                      |
-| `staff`           | pracownicy: e-mail, rola (`admin`, `secretariat`, `gallery_editor`), aktywność                                                                                                 |
+| `staff`           | pracownicy: e-mail, rola (`admin`, `secretariat`, `editor`, `gallery_editor`), aktywność                                                                                       |
 | `audit_log`       | dziennik zdarzeń: kto, co i kiedy zmienił, bez danych osobowych wnioskodawców                                                                                                  |
 | `outbox_failures` | wiadomości e-mail, których nie udało się wysłać                                                                                                                                |
 

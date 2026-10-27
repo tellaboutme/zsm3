@@ -1,3 +1,5 @@
+import type { Profession } from "@zsm3/contracts/programmes";
+
 export const fields = [
   "informatyka",
   "mechatronika",
@@ -6,30 +8,17 @@ export const fields = [
   "logistyka",
 ] as const;
 
-export type Field = (typeof fields)[number];
+export type Field = Profession["field"];
 
 export type FieldFilter = Field | "wszystkie";
 
-export type School = "technikum" | "branzowa-1" | "branzowa-2";
+export type { Profession } from "@zsm3/contracts/programmes";
 
-export interface Qualification {
-  readonly code: string;
-  readonly name: string;
-}
+export type School = Profession["paths"][number]["school"];
 
-export interface StudyPath {
-  readonly school: School;
-  readonly years: number;
-}
+export type Qualification = Profession["qualifications"][number];
 
-export interface Profession {
-  readonly slug: string;
-  readonly name: string;
-  readonly field: Field;
-  readonly topics: readonly string[];
-  readonly qualifications: readonly Qualification[];
-  readonly paths: readonly StudyPath[];
-}
+export type StudyPath = Profession["paths"][number];
 
 export const fieldLabels: Readonly<Record<Field, string>> = {
   informatyka: "Informatyka",

@@ -1,9 +1,9 @@
 ---
 import SectionHead from "./SectionHead.astro";
-import { schoolYearEvents } from "../../data/calendar/index.ts";
 import { isoDay, longDate, upcomingEvents } from "../../lib/calendar.ts";
 
 const VISIBLE = 5;
+const schoolYearEvents = Astro.locals.events ?? [];
 const events = upcomingEvents(schoolYearEvents, "", schoolYearEvents.length);
 const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIBLE));
 ---

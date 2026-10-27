@@ -1,0 +1,39 @@
+---
+import Panel from "../../../layouts/panel.astro";
+---
+
+<Panel title="Przekierowania w panelu — ZSM3">
+  <div class="panel-page" data-panel-page="redirects">
+    <div class="panel-gate" data-panel="gate">
+      <div class="panel-note" data-panel="gate-text" role="status" aria-live="polite">
+        <p>Sprawdzam dostęp do panelu…</p>
+      </div>
+      <button type="button" data-panel="gate-retry">
+        Ponów próbę
+      </button>
+    </div>
+    <div data-panel="app" hidden>
+      <h1>Przekierowania</h1>
+      <p>Stare adresy prowadzą użytkowników pod nowy adres.</p>
+      <form class="panel-row" data-panel="redirect-form">
+        <label class="panel-inline">
+          Były adres
+          <input name="from" data-panel="from" maxlength="200" placeholder="/stara-podstrona" />
+        </label>
+        <label class="panel-inline">
+          Nowy adres
+          <input name="to" data-panel="to" maxlength="200" placeholder="/nowa-podstrona" />
+        </label>
+        <button type="submit" class="panel-save">
+          Dodaj przekierowanie
+        </button>
+      </form>
+      <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
+      <ul data-panel="redirect-rows"></ul>
+    </div>
+  </div>
+</Panel>
+
+<script>
+  import "../../../scripts/panel/przekierowania.ts";
+</script>

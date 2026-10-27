@@ -1,7 +1,6 @@
+import { seedDatasets } from "@zsm3/worker/seed/datasets/index.ts";
 import { describe, it } from "vitest";
 
-import { professions } from "../src/data/professions.ts";
-import { programmes } from "../src/data/programmes/index.ts";
 import type { Profession } from "../src/lib/professions.ts";
 import {
   examCodes,
@@ -17,6 +16,8 @@ import {
   yearsLabel,
   type Programme,
 } from "../src/lib/programmes.ts";
+
+const { professions, programmes } = seedDatasets.kierunki;
 
 function programme(slug: string): Programme {
   const found = programmes.find((item) => item.slug === slug);

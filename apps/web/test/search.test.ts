@@ -1,6 +1,7 @@
+import { seedDatasets } from "@zsm3/worker/seed/datasets/index.ts";
 import { describe, it } from "vitest";
 
-import { staticSearchEntries } from "../src/data/search-index.ts";
+import { baseSearchEntries } from "../src/data/search-index.ts";
 import { newsEntry, SEARCH_NEWS_LIMIT } from "../src/lib/news-search.ts";
 import {
   analyse,
@@ -18,6 +19,8 @@ import {
   TITLE_WEIGHT,
   type SearchEntry,
 } from "../src/lib/search.ts";
+
+const staticSearchEntries = baseSearchEntries(seedDatasets.kierunki);
 
 const entry = (type: SearchEntry["type"], title: string, text = ""): SearchEntry => ({
   type,

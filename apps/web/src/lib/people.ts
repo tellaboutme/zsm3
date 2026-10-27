@@ -1,16 +1,8 @@
-export interface Person {
-  readonly name?: string;
-  readonly role: string;
-  readonly subjects?: string;
-}
+import type { StaffDirectory } from "@zsm3/contracts/datasets";
 
-export interface StaffGroup {
-  readonly id: string;
-  readonly title: string;
-  readonly summary: string;
-  readonly subjects: readonly string[];
-  readonly people: readonly Person[];
-}
+export type StaffGroup = StaffDirectory[number];
+
+export type Person = StaffGroup["people"][number];
 
 export function personLine({ role, subjects }: Person): string {
   return subjects === undefined ? role : `${role}, ${subjects}`;

@@ -1,25 +1,14 @@
+import type { DocumentGroups } from "@zsm3/contracts/datasets";
+
 export const signers = ["uczen", "rodzic"] as const;
 
 export type Signer = (typeof signers)[number] | "kazdy";
 
 export type SignerFilter = (typeof signers)[number] | "wszyscy";
 
-export interface SchoolDocument {
-  readonly code: string;
-  readonly title: string;
-  readonly description: string;
-  readonly signer: Signer;
-  readonly href: string;
-  readonly bytes: number;
-  readonly updated: string;
-}
+export type DocumentGroup = DocumentGroups[number];
 
-export interface DocumentGroup {
-  readonly id: string;
-  readonly title: string;
-  readonly summary: string;
-  readonly documents: readonly SchoolDocument[];
-}
+export type SchoolDocument = DocumentGroup["documents"][number];
 
 export const signerLabels: Readonly<Record<Signer, string>> = {
   uczen: "Pełnoletni uczeń",

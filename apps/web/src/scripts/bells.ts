@@ -1,6 +1,5 @@
-import { regularSchedule } from "../data/bell-schedule.ts";
-import { bellVariants } from "../data/bell-variants.ts";
-import { scheduleFor } from "../lib/bells.ts";
+import { fallbackBells } from "../data/bell-schedule.ts";
+import { readBellData, todaySchedule } from "../lib/bells.ts";
 import { isoDay } from "../lib/calendar.ts";
 
 function initBellsPage(): void {
@@ -10,7 +9,8 @@ function initBellsPage(): void {
     return;
   }
   const today = isoDay(new Date());
-  label.textContent = scheduleFor(bellVariants, regularSchedule, today).label;
+  const bells = readBellData(document.body.dataset["bells"]) ?? fallbackBells;
+  label.textContent = todaySchedule(bells, today).label;
   const variants = [...document.querySelectorAll<HTMLElement>("[data-variant]")];
   for (const variant of variants) {
     variant.hidden = (variant.dataset["date"] ?? "") < today;

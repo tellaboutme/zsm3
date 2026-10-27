@@ -1,3 +1,4 @@
+import type { BellData } from "../lib/bells.ts";
 import type { Lesson } from "../lib/live-status.ts";
 
 export const regularSchedule: readonly Lesson[] = [
@@ -16,3 +17,5 @@ export const regularSchedule: readonly Lesson[] = [
   { number: 13, start: "18:00", end: "18:45" },
   { number: 14, start: "18:50", end: "19:35" },
 ];
+
+export const fallbackBells: BellData = { regular: regularSchedule, variants: [], daysOff: [] };

@@ -5,8 +5,6 @@ import ExamCards from "../../../components/programme/ExamCards.astro";
 import ProgrammeAside from "../../../components/programme/ProgrammeAside.astro";
 import ProgrammeHero from "../../../components/programme/ProgrammeHero.astro";
 import TopicGrid from "../../../components/programme/TopicGrid.astro";
-import { professions } from "../../../data/professions.ts";
-import { programmes } from "../../../data/programmes/index.ts";
 import Base from "../../../layouts/Base.astro";
 import { schoolLabels } from "../../../lib/professions.ts";
 import {
@@ -18,19 +16,19 @@ import {
   yearsLabel,
   type Programme,
 } from "../../../lib/programmes.ts";
+import { programmeData } from "../../../server/datasets.ts";
+import { notFound } from "../../../server/news.ts";
 
-interface Props {
-  programme: Programme;
+export const prerender = false;
+
+const { professions, programmes } = await programmeData();
+const found: Programme | undefined = programmes.find(
+  (candidate) => candidate.slug === Astro.params["slug"],
+);
+if (found === undefined) {
+  return notFound();
 }
-
-export function getStaticPaths(): { params: { slug: string }; props: Props }[] {
-  return programmes.map((programme) => ({
-    params: { slug: programme.slug },
-    props: { programme },
-  }));
-}
-
-const { programme } = Astro.props;
+const programme = found;
 const profession = professionOf(professions, programme);
 const siblings = siblingProgrammes(programmes, professions, programme);
 const practice = [

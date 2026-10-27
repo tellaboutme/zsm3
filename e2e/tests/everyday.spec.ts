@@ -81,12 +81,17 @@ test.describe("bell schedule", () => {
   });
 
   test("switches to the shortened plan on its day", async ({ page }) => {
-    await page.clock.setFixedTime(new Date("2026-09-08T08:00:00Z"));
     await page.goto("/uczniowie/dzwonki");
+    const variants = page.locator("[data-variant]");
+
+    await expect(variants.filter({ visible: true })).toHaveCount(2);
+    await expect(page.getByText("Nie ma zaplanowanych dni ze skróconymi lekcjami.")).toBeHidden();
+    const day = await variants.first().getAttribute("data-date");
+    await page.clock.setFixedTime(new Date(`${String(day)}T08:00:00Z`));
+    await page.reload();
 
     await expect(page.locator("[data-today-label]")).toHaveText("Lekcje skrócone od 9. lekcji");
-    await expect(page.locator("[data-variant]").filter({ visible: true })).toHaveCount(2);
-    await expect(page.getByText("Nie ma zaplanowanych dni ze skróconymi lekcjami.")).toBeHidden();
+    await expect(page.locator("[data-live-status]").first()).not.toHaveAttribute("data-state", "");
   });
 });
 

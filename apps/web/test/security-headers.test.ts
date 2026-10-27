@@ -6,6 +6,7 @@ import { bootScript } from "../src/lib/preferences.ts";
 import {
   contentSecurityPolicy,
   ON_DEMAND_CACHE,
+  PANEL_CACHE,
   pageHeaders,
   renderHeaders,
   sha256Base64,
@@ -54,6 +55,12 @@ describe("rendered _headers file", () => {
         "/_astro/*",
         "  Cache-Control: public, max-age=31536000, immutable",
         "",
+        "/panel",
+        "  Cache-Control: no-store",
+        "",
+        "/panel/*",
+        "  Cache-Control: no-store",
+        "",
       ].join("\n"),
     );
   });
@@ -72,6 +79,10 @@ describe("headers for pages rendered on demand", () => {
 
   it("make browsers revalidate every rendered page", ({ expect }) => {
     expect(ON_DEMAND_CACHE).toBe("public, max-age=0, must-revalidate");
+  });
+
+  it("keep the panel pages out of every cache", ({ expect }) => {
+    expect(PANEL_CACHE).toBe("no-store");
   });
 
   it("replace existing values and keep the response", async ({ expect }) => {

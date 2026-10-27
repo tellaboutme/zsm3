@@ -1,5 +1,7 @@
+import type { Contacts, DocumentGroups, Meetings, StaffDirectory } from "@zsm3/contracts/datasets";
 import { plainText } from "@zsm3/contracts/rich-text";
 
+import { longDate, type SchoolEvent } from "./calendar.ts";
 import type { ContentBlock, ContentPage } from "./content.ts";
 import type { Lesson } from "./live-status.ts";
 import type { StaffGroup } from "./people.ts";
@@ -96,4 +98,36 @@ export function bellsEntry(lessons: readonly Lesson[]): SearchEntry {
       .map((lesson) => `Lekcja ${String(lesson.number)}: ${lesson.start}–${lesson.end}`)
       .join(" · "),
   };
+}
+
+export function eventEntry(event: SchoolEvent): SearchEntry {
+  return {
+    type: "termin",
+    title: event.title,
+    href: "/szkola/terminarz",
+    text: [longDate(event.date), event.note ?? "", event.audience].join(" "),
+  };
+}
+
+export interface DatasetSources {
+  readonly staff: StaffDirectory;
+  readonly meetings: Meetings;
+  readonly contacts: Contacts;
+  readonly documents: DocumentGroups;
+}
+
+export function datasetEntries(sources: DatasetSources): readonly SearchEntry[] {
+  return [
+    ...classEntries(sources.meetings.grades, longDate(sources.meetings.date)),
+    ...[...sources.contacts.departments, ...sources.contacts.management].map(contactEntry),
+    ...sources.staff.map(staffEntry),
+    ...sources.documents.flatMap((group) =>
+      group.documents.map((document) => ({
+        type: "dokument" as const,
+        title: `${document.code}: ${document.title}`,
+        href: `/uczniowie/wzory-dokumentow#${group.id}`,
+        text: `${group.title} ${document.description}`,
+      })),
+    ),
+  ];
 }

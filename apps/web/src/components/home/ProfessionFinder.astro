@@ -1,9 +1,10 @@
 ---
 import SectionHead from "./SectionHead.astro";
-import { professions } from "../../data/professions.ts";
 import { fieldCounts, fieldLabels, fields, pathLabel } from "../../lib/professions.ts";
+import { programmeData } from "../../server/datasets.ts";
 import ProfessionTile from "../ProfessionTile.astro";
 
+const { professions } = await programmeData();
 const counts = fieldCounts(professions);
 const options = [
   { value: "wszystkie", label: "Wszystkie", count: professions.length },

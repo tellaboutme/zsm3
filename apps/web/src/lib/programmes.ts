@@ -1,34 +1,14 @@
+import type { Programme } from "@zsm3/contracts/programmes";
+
 import { fieldLabels, schoolLabels, type Profession, type School } from "./professions.ts";
 
-export interface Topic {
-  readonly title: string;
-  readonly text: string;
-}
+export type { Programme } from "@zsm3/contracts/programmes";
 
-export interface QualificationRef {
-  readonly code: string;
-  readonly name: string;
-}
+export type Topic = Programme["learn"][number];
 
-export interface Exam extends QualificationRef {
-  readonly scope: string;
-  readonly alternative?: QualificationRef;
-}
+export type Exam = Programme["exams"][number];
 
-export interface Programme {
-  readonly slug: string;
-  readonly profession: string;
-  readonly school: School;
-  readonly lead: string;
-  readonly learn: readonly Topic[];
-  readonly tools: readonly string[];
-  readonly practice: readonly string[];
-  readonly exams: readonly Exam[];
-  readonly careers: readonly Topic[];
-  readonly entry?: string;
-  readonly drivingLicence?: "A" | "B";
-  readonly erasmus: boolean;
-}
+export type QualificationRef = Pick<Exam, "code" | "name">;
 
 export interface Fact {
   readonly value: string;

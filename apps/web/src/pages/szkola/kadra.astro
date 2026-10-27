@@ -1,8 +1,12 @@
 ---
 import Callout from "../../components/content/Callout.astro";
 import PersonRow from "../../components/people/PersonRow.astro";
-import { staffGroups } from "../../data/staff.ts";
 import Base from "../../layouts/Base.astro";
+import { staffDirectory } from "../../server/datasets.ts";
+
+export const prerender = false;
+
+const staffGroups = await staffDirectory();
 ---
 
 <Base

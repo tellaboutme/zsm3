@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 
+import { seedDatasets } from "@zsm3/worker/seed/datasets/index.ts";
 import { seedPages } from "@zsm3/worker/seed/pages/index.ts";
 import { describe, it } from "vitest";
 
@@ -12,7 +13,7 @@ const corpus = readFileSync(
   "utf8",
 );
 const destinations = new Set([
-  ...mapHrefs(buildSiteMap(seedPages)),
+  ...mapHrefs(buildSiteMap(seedPages, seedDatasets.kierunki)),
   ...seedNews.map((article) => `/aktualnosci/${article.date.slice(0, 4)}/${article.slug}`),
   "/uczniowie/wzory-dokumentow",
   "/rodzice/wywiadowki",

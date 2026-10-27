@@ -1,7 +1,7 @@
+import { seedSchoolYear as schoolYearEvents } from "@zsm3/worker/seed/calendar/index.ts";
+import { seedDatasets } from "@zsm3/worker/seed/datasets/index.ts";
 import { describe, it } from "vitest";
 
-import { schoolYearEvents } from "../src/data/calendar/index.ts";
-import { professions } from "../src/data/professions.ts";
 import { upcomingEvents } from "../src/lib/calendar.ts";
 import {
   fieldCounts,
@@ -11,6 +11,8 @@ import {
   matchesField,
   pathLabel,
 } from "../src/lib/professions.ts";
+
+const { professions } = seedDatasets.kierunki;
 
 describe("professions", () => {
   it("lists thirteen distinct professions in five fields", ({ expect }) => {

@@ -6,16 +6,21 @@ import { fileURLToPath } from "node:url";
 
 import { getPlatformProxy } from "wrangler";
 
+import { seedBells } from "./bells.ts";
+import { seedSchoolYear } from "./calendar/index.ts";
 import { seedFiles, storedFile, type SeedFile } from "./files.ts";
 import { seedNews } from "./news/index.ts";
 import { seedPages } from "./pages/index.ts";
 import { seedRequests } from "./requests.ts";
+import { seedStaff } from "./staff.ts";
 import { MissingSecretError, requestsConfig, type RequestsSecretEnv } from "../src/env.ts";
 import { piiCrypto } from "../src/security/pii-crypto.ts";
+import { bellsRepo } from "../src/storage/bells-repo.ts";
 import { liveStore, type SqlDatabase } from "../src/storage/database.ts";
 import { filesRepo } from "../src/storage/files-repo.ts";
 import { newsRepo } from "../src/storage/news-repo.ts";
 import { pagesRepo } from "../src/storage/pages-repo.ts";
+import { staffRepo } from "../src/storage/staff-repo.ts";
 
 interface MediaBucket {
   put(key: string, value: Uint8Array): Promise<unknown>;
@@ -56,11 +61,14 @@ const store = liveStore(env.DB);
 const news = newsRepo(store);
 const pages = pagesRepo(store);
 const files = filesRepo(store);
+const staff = staffRepo(store);
 const manifest = Object.values(seedFiles);
 await Promise.all([
   ...seedNews.map(async (item) => news.save(item, "published")),
   ...seedPages.map(async (page) => pages.save(page, "published")),
   ...manifest.map(async (file) => files.save(storedFile(file))),
+  ...seedStaff.map(async (member) => staff.save(member)),
+  bellsRepo(store).saveStatement(seedBells(new Date(), seedSchoolYear)).run(),
 ]);
 if (mediaDirectory !== undefined) {
   for (const file of manifest) {
@@ -84,7 +92,7 @@ try {
 }
 await dispose();
 process.stdout.write(
-  `Seeded ${String(seedNews.length)} news items, ${String(seedPages.length)} pages and ${String(manifest.length)} files${mediaDirectory === undefined ? " without their contents" : ""}.${
+  `Seeded ${String(seedNews.length)} news items, ${String(seedPages.length)} pages, ${String(seedStaff.length)} staff accounts and ${String(manifest.length)} files${mediaDirectory === undefined ? " without their contents" : ""}.${
     requestsAvailable
       ? ` Seeded ${String(seededRequests)} e-wniosek requests.`
       : " Skipped e-wniosek requests (missing secrets)."

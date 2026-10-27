@@ -14,12 +14,14 @@ import {
   timestamp,
   type Clock,
   type SqlDatabase,
+  type SqlStatement,
   type Store,
 } from "./database.ts";
 import { insertDocument, removeDocument } from "./search-sql.ts";
 
 export interface PagesRepo {
   save(page: ContentPage, status: PublicationStatus): Promise<void>;
+  saveStatements(page: ContentPage, status: PublicationStatus): readonly SqlStatement[];
   find(path: string): Promise<ContentPage | undefined>;
   publishedPaths(): Promise<readonly string[]>;
   published(): Promise<readonly ContentPage[]>;
@@ -96,16 +98,16 @@ export function pageDocument(page: ContentPage): SearchDocument {
   };
 }
 
-async function savePage(
+function savePage(
   db: SqlDatabase,
   clock: Clock,
   page: ContentPage,
   status: PublicationStatus,
-): Promise<void> {
+): readonly SqlStatement[] {
   const parsed = contentPageSchema.parse(page);
   const now = timestamp(clock);
   const doc = pageDocument(parsed);
-  await db.batch([
+  return [
     db
       .prepare(UPSERT)
       .bind(
@@ -120,12 +122,15 @@ async function savePage(
       ),
     removeDocument(db, doc.docId),
     ...(status === "published" ? [insertDocument(db, doc)] : []),
-  ]);
+  ];
 }
 
 export function pagesRepo({ db, clock }: Store): PagesRepo {
   return {
-    save: async (page, status) => savePage(db, clock, page, status),
+    save: async (page, status) => {
+      await db.batch([...savePage(db, clock, page, status)]);
+    },
+    saveStatements: (page, status) => savePage(db, clock, page, status),
     find: async (path) => {
       const row = await firstRow(db.prepare(SELECT_ONE).bind(path), pageRowSchema);
       return row === undefined ? undefined : pageFromRow(row);

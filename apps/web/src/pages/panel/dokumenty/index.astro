@@ -1,0 +1,42 @@
+---
+import Panel from "../../../layouts/panel.astro";
+---
+
+<Panel title="Dokumenty w panelu — ZSM3">
+  <div class="panel-page" data-panel-page="files">
+    <div class="panel-gate" data-panel="gate">
+      <div class="panel-note" data-panel="gate-text" role="status" aria-live="polite">
+        <p>Sprawdzam dostęp do panelu…</p>
+      </div>
+      <button type="button" data-panel="gate-retry">
+        Ponów próbę
+      </button>
+    </div>
+    <div data-panel="app" hidden>
+      <h1>Dokumenty</h1>
+      <form class="panel-form" data-panel="file-form">
+        <label class="panel-inline">
+          Plik do przesłania (do 100 MB)
+          <input type="file" name="file" required />
+        </label>
+        <p class="panel-note" data-panel="upload-status" role="status" aria-live="polite"></p>
+        <div class="panel-actions">
+          <button type="submit" class="panel-save">
+            Wyślij plik
+          </button>
+        </div>
+      </form>
+      <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
+      <ul data-panel="file-items"></ul>
+      <div class="panel-actions">
+        <button type="button" data-panel="file-refresh">
+          Odśwież listę
+        </button>
+      </div>
+    </div>
+  </div>
+</Panel>
+
+<script>
+  import "../../../scripts/panel/dokumenty.ts";
+</script>

@@ -1,11 +1,16 @@
 import { schoolEventSchema, type SchoolEvent } from "@zsm3/contracts/content";
 import { z } from "zod";
 
-import { allRows, timestamp, type Store } from "./database.ts";
+import { allRows, timestamp, type SqlStatement, type Store } from "./database.ts";
 import { uuidv7 } from "./ids.ts";
 
 export interface EventsRepo {
   replaceYear(from: string, to: string, events: readonly SchoolEvent[]): Promise<void>;
+  replaceStatements(
+    from: string,
+    to: string,
+    events: readonly SchoolEvent[],
+  ): readonly SqlStatement[];
   between(from: string, to: string): Promise<readonly SchoolEvent[]>;
 }
 
@@ -42,11 +47,11 @@ export function eventFromRow(row: EventRow): SchoolEvent {
   });
 }
 
-async function replaceYear(
+function replaceStatements(
   { db, clock, random }: Store,
   range: readonly [string, string],
   events: readonly SchoolEvent[],
-): Promise<void> {
+): readonly SqlStatement[] {
   const now = timestamp(clock);
   const inserts = events.map((item) => {
     const event = schoolEventSchema.parse(item);
@@ -65,12 +70,15 @@ async function replaceYear(
         now,
       );
   });
-  await db.batch([db.prepare(DELETE_RANGE).bind(...range), ...inserts]);
+  return [db.prepare(DELETE_RANGE).bind(...range), ...inserts];
 }
 
 export function eventsRepo(store: Store): EventsRepo {
   return {
-    replaceYear: async (from, to, events) => replaceYear(store, [from, to], events),
+    replaceYear: async (from, to, events) => {
+      await store.db.batch([...replaceStatements(store, [from, to], events)]);
+    },
+    replaceStatements: (from, to, events) => replaceStatements(store, [from, to], events),
     between: async (from, to) =>
       (await allRows(store.db.prepare(SELECT_RANGE).bind(from, to), eventRowSchema)).map(
         eventFromRow,

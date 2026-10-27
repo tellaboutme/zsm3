@@ -1,3 +1,4 @@
+import { seedDatasets } from "@zsm3/worker/seed/datasets/index.ts";
 import { describe, it } from "vitest";
 
 import { privacyPolicy } from "../src/data/legal/privacy.ts";
@@ -8,11 +9,14 @@ import { flattenMap, mapHrefs } from "../src/lib/site-map.ts";
 describe("site map", () => {
   it("lists every page once", ({ expect }) => {
     const hrefs = mapHrefs(
-      buildSiteMap([
-        { path: "/szkola/historia", title: "Historia", intro: "Od 1950 roku." },
-        { path: "/uczniowie/podreczniki", title: "Podręczniki", intro: "Wykazy." },
-        { path: "/rodo", title: "RODO", intro: "Ochrona danych." },
-      ]),
+      buildSiteMap(
+        [
+          { path: "/szkola/historia", title: "Historia", intro: "Od 1950 roku." },
+          { path: "/uczniowie/podreczniki", title: "Podręczniki", intro: "Wykazy." },
+          { path: "/rodo", title: "RODO", intro: "Ochrona danych." },
+        ],
+        seedDatasets.kierunki,
+      ),
     );
 
     expect(new Set(hrefs).size).toBe(hrefs.length);

@@ -15,7 +15,13 @@ export interface OutboxEnqueueFailedEvent {
   readonly errorName: string;
 }
 
-export type LogEvent = UnhandledErrorEvent | TurnstileUnavailableEvent | OutboxEnqueueFailedEvent;
+export interface AccessConfigEvent {
+  readonly event: "access_config_missing";
+  readonly requestId: string;
+}
+
+export type LogEvent =
+  UnhandledErrorEvent | TurnstileUnavailableEvent | OutboxEnqueueFailedEvent | AccessConfigEvent;
 
 export function logEvent(entry: LogEvent): void {
   console.error(JSON.stringify(entry));

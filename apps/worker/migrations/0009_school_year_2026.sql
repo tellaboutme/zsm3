@@ -1,0 +1,32 @@
+INSERT INTO events
+  (id, starts_on, ends_on, title, audience, kind, note, key_date, created_at, updated_at)
+VALUES
+  ('0199a000-0000-7000-8000-000000000001', '2026-09-01', NULL, 'Uroczyste rozpoczęcie roku szkolnego', 'Wszyscy', 'rok-szkolny', 'Godz. 9:00.', 1, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000002', '2026-09-07', '2026-10-02', 'Praktyki zawodowe klas czwartych', 'Uczniowie', 'praktyki', 'Klasy 4 Tb, 4 Td, 4 Tc, 4 Tp.', 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000003', '2026-09-09', NULL, 'Zebrania informacyjne z rodzicami', 'Rodzice', 'zebranie', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000004', '2026-10-05', '2026-10-30', 'Praktyki zawodowe klas trzecich i czwartych', 'Uczniowie', 'praktyki', 'Klasy 3 Ta/d, 3 Tb, 3 Tm/s, 3 Tp, 4 Ta/m, 4 Ts.', 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000005', '2026-10-14', NULL, 'Dzień Edukacji Narodowej', 'Wszyscy', 'wolne', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000006', '2026-10-15', NULL, 'Dzień wolny od zajęć dydaktycznych', 'Wszyscy', 'wolne', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000007', '2026-10-23', NULL, 'Ślubowanie klas pierwszych i Dzień Patrona', 'Wszyscy', 'uroczystosc', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000008', '2026-11-18', NULL, 'Zebrania informacyjne z rodzicami', 'Rodzice', 'zebranie', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000009', '2026-12-18', NULL, 'Oceny śródroczne klas piątych i BS II', 'Uczniowie', 'oceny', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000010', '2026-12-21', NULL, 'Wigilie klasowe', 'Uczniowie', 'uroczystosc', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000011', '2026-12-22', NULL, 'Dzień wolny od zajęć dydaktycznych', 'Wszyscy', 'wolne', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000012', '2026-12-23', '2026-12-31', 'Zimowa przerwa świąteczna', 'Wszyscy', 'przerwa', NULL, 1, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000013', '2027-01-07', '2027-01-13', 'Egzamin zawodowy, sesja zimowa: część pisemna', 'Uczniowie', 'egzamin', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000014', '2027-01-29', NULL, 'Oceny śródroczne klas I–IV, BS I i BS II', 'Uczniowie', 'oceny', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000015', '2027-02-10', NULL, 'Zebrania informacyjne z rodzicami', 'Rodzice', 'zebranie', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000016', '2027-02-15', '2027-02-28', 'Ferie zimowe', 'Wszyscy', 'przerwa', NULL, 1, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000017', '2027-03-25', '2027-03-30', 'Wiosenna przerwa świąteczna', 'Wszyscy', 'przerwa', NULL, 1, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000018', '2027-04-14', NULL, 'Zebrania informacyjne z rodzicami', 'Rodzice', 'zebranie', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000019', '2027-04-19', NULL, 'Proponowane oceny roczne klas piątych', 'Uczniowie', 'oceny', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000020', '2027-04-30', NULL, 'Zakończenie nauki w klasach programowo najwyższych', 'Uczniowie', 'rok-szkolny', 'Klasy piąte technikum i BS II.', 1, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000021', '2027-05-04', NULL, 'Matura: język polski, poziom podstawowy', 'Uczniowie', 'egzamin', 'Dzień wolny od zajęć dydaktycznych.', 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000022', '2027-05-05', NULL, 'Matura: matematyka, poziom podstawowy', 'Uczniowie', 'egzamin', 'Dzień wolny od zajęć dydaktycznych.', 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000023', '2027-05-06', NULL, 'Matura: język angielski, poziom podstawowy', 'Uczniowie', 'egzamin', 'Dzień wolny od zajęć dydaktycznych.', 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000024', '2027-05-07', NULL, 'Matura: język angielski, poziom rozszerzony', 'Uczniowie', 'egzamin', 'Dzień wolny od zajęć dydaktycznych.', 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000025', '2027-05-28', NULL, 'Dzień wolny od zajęć dydaktycznych', 'Wszyscy', 'wolne', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000026', '2027-06-02', '2027-06-10', 'Egzamin zawodowy, sesja letnia: część pisemna', 'Uczniowie', 'egzamin', '3 i 4 czerwca to dni wolne od zajęć dydaktycznych.', 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000027', '2027-06-14', NULL, 'Proponowane oceny roczne klas I–IV', 'Uczniowie', 'oceny', NULL, 0, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z'),
+  ('0199a000-0000-7000-8000-000000000028', '2027-06-25', NULL, 'Zakończenie roku szkolnego', 'Wszyscy', 'rok-szkolny', NULL, 1, '2026-10-26T00:00:00.000Z', '2026-10-26T00:00:00.000Z')
+ON CONFLICT (id) DO NOTHING;

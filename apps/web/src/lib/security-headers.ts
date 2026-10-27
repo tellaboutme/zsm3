@@ -48,6 +48,8 @@ export const staticHeaders: readonly HeaderEntry[] = [
 
 export const ON_DEMAND_CACHE = "public, max-age=0, must-revalidate";
 
+export const PANEL_CACHE = "no-store";
+
 export function pageHeaders(options: HeaderOptions): readonly HeaderEntry[] {
   return [["Content-Security-Policy", contentSecurityPolicy(options)], ...staticHeaders];
 }
@@ -63,6 +65,12 @@ export function renderHeaders(options: HeaderOptions): string {
     "",
     "/_astro/*",
     "  Cache-Control: public, max-age=31536000, immutable",
+    "",
+    "/panel",
+    `  Cache-Control: ${PANEL_CACHE}`,
+    "",
+    "/panel/*",
+    `  Cache-Control: ${PANEL_CACHE}`,
     "",
   ].join("\n");
 }

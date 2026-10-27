@@ -3,11 +3,12 @@ import SiteMapTree from "../components/SiteMapTree.astro";
 import { buildSiteMap } from "../data/site-map.ts";
 import Base from "../layouts/Base.astro";
 import { flattenMap } from "../lib/site-map.ts";
+import { programmeData } from "../server/datasets.ts";
 import { pagesReader } from "../server/pages.ts";
 
 export const prerender = false;
 
-const siteMap = buildSiteMap(await pagesReader().published());
+const siteMap = buildSiteMap(await pagesReader().published(), await programmeData());
 ---
 
 <Base

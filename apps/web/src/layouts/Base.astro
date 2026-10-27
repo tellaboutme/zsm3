@@ -29,7 +29,9 @@ interface Props {
   announcement?: Announcement;
 }
 
-const { title, description, noindex = false, breadcrumbs, announcement } = Astro.props;
+const { title, description, noindex = false, breadcrumbs } = Astro.props;
+const announcement = Astro.props.announcement ?? Astro.locals.announcement;
+const bells = Astro.locals.bells;
 ---
 
 <!doctype html>
@@ -44,7 +46,7 @@ const { title, description, noindex = false, breadcrumbs, announcement } = Astro
     <link rel="preload" href={sourceSans} as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
   </head>
-  <body>
+  <body data-bells={bells === undefined ? undefined : JSON.stringify(bells)}>
     <div class="scroll-sentinel" aria-hidden="true" data-scroll-sentinel></div>
     <a class="skip-link" href="#tresc">
       Przejdź do treści

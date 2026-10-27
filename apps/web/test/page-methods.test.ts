@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { isReadMethod, methodNotAllowed } from "../src/lib/page-methods.ts";
+import { isReadMethod, isSitePage, methodNotAllowed } from "../src/lib/page-methods.ts";
 
 describe("page methods", () => {
   it("allows only reading pages", ({ expect }) => {
@@ -16,5 +16,15 @@ describe("page methods", () => {
     expect(response.status).toBe(405);
     expect(response.headers.get("Allow")).toBe("GET, HEAD");
     expect(await response.text()).toBe("");
+  });
+
+  it("loads the site frame state only for site pages", ({ expect }) => {
+    expect(isSitePage("/")).toBe(true);
+    expect(isSitePage("/aktualnosci/2026/salon")).toBe(true);
+    expect(isSitePage("/panel")).toBe(false);
+    expect(isSitePage("/panel/aktualnosci")).toBe(false);
+    expect(isSitePage("/panelowy")).toBe(true);
+    expect(isSitePage("/szukaj/indeks.json")).toBe(false);
+    expect(isSitePage("/szkola/terminarz.ics")).toBe(false);
   });
 });

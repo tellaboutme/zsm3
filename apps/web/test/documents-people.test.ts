@@ -1,7 +1,6 @@
+import { seedDatasets } from "@zsm3/worker/seed/datasets/index.ts";
 import { describe, it } from "vitest";
 
-import { documentGroups } from "../src/data/documents.ts";
-import { staffGroups } from "../src/data/staff.ts";
 import {
   documentCount,
   fileSize,
@@ -10,6 +9,9 @@ import {
   signerLabels,
 } from "../src/lib/documents.ts";
 import { initials, personLine } from "../src/lib/people.ts";
+
+const documentGroups = seedDatasets.dokumenty;
+const staffGroups = seedDatasets.kadra;
 
 describe("documents", () => {
   it("lists ten forms with unique codes W1–W10", ({ expect }) => {

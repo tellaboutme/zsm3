@@ -1,0 +1,37 @@
+---
+import Panel from "../../../layouts/panel.astro";
+---
+
+<Panel title="Terminarz w panelu — ZSM3">
+  <div class="panel-page" data-panel-page="events">
+    <div class="panel-gate" data-panel="gate">
+      <div class="panel-note" data-panel="gate-text" role="status" aria-live="polite">
+        <p>Sprawdzam dostęp do panelu…</p>
+      </div>
+      <button type="button" data-panel="gate-retry">
+        Ponów próbę
+      </button>
+    </div>
+    <div data-panel="app" hidden>
+      <h1>Terminarz roku szkolnego</h1>
+      <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
+      <div class="panel-row">
+        <label class="panel-inline">
+          Rok szkolny
+          <select data-part="year"></select>
+        </label>
+        <button type="button" data-panel="event-add">
+          Dodaj wydarzenie
+        </button>
+        <button type="button" class="panel-save" data-panel="event-save">
+          Zapisz rok szkolny
+        </button>
+      </div>
+      <ul data-panel="event-rows"></ul>
+    </div>
+  </div>
+</Panel>
+
+<script>
+  import "../../../scripts/panel/terminarz.ts";
+</script>

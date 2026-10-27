@@ -1,0 +1,77 @@
+---
+import Panel from "../../../layouts/panel.astro";
+---
+
+<Panel title="Strony w panelu — ZSM3">
+  <div class="panel-page" data-panel-page="pages">
+    <div class="panel-gate" data-panel="gate">
+      <div class="panel-note" data-panel="gate-text" role="status" aria-live="polite">
+        <p>Sprawdzam dostęp do panelu…</p>
+      </div>
+      <button type="button" data-panel="gate-retry">
+        Ponów próbę
+      </button>
+    </div>
+    <div class="panel-columns" data-panel="app" hidden>
+      <section data-panel="list">
+        <h1>Strony</h1>
+        <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
+        <ul data-panel="page-list"></ul>
+        <div class="panel-actions">
+          <button type="button" data-panel="page-new">
+            Nowa strona
+          </button>
+        </div>
+      </section>
+      <section data-panel="editor">
+        <h2>Edytor strony</h2>
+        <form class="panel-form" data-panel="page-form">
+          <label class="panel-inline">
+            Adres strony (zaczyna się od „/”)
+            <input name="path" maxlength="200" placeholder="/szkola/plan" required />
+          </label>
+          <label class="panel-inline">
+            Nadtytuł
+            <input name="kicker" maxlength="120" />
+          </label>
+          <label class="panel-inline">
+            Tytuł
+            <input name="title" maxlength="200" required />
+          </label>
+          <label class="panel-inline">
+            Wstęp
+            <textarea name="intro" maxlength="500"></textarea>
+          </label>
+          <label class="panel-inline">
+            Status
+            <select name="status">
+              <option value="draft">Szkic</option>
+              <option value="published">Opublikowana</option>
+            </select>
+          </label>
+          <div data-panel="sections">
+            <h3>Sekcje treści</h3>
+          </div>
+          <p class="panel-note" data-panel="form-status" role="status" aria-live="polite"></p>
+          <div class="panel-actions">
+            <button type="button" data-panel="section-add">
+              Dodaj sekcję
+            </button>
+            <button type="button" class="panel-save" data-panel="pages-save">
+              Zapisz stronę
+            </button>
+          </div>
+        </form>
+        <section class="panel-history" data-panel="history" hidden>
+          <h2>Historia zmian</h2>
+          <p class="panel-note" data-panel="history-status" role="status" aria-live="polite"></p>
+          <ul data-panel="history-rows"></ul>
+        </section>
+      </section>
+    </div>
+  </div>
+</Panel>
+
+<script>
+  import "../../../scripts/panel/pages.ts";
+</script>

@@ -24,6 +24,7 @@ pnpm exec playwright install chromium firefox webkit
 | ----------------------------------- | ------------------------------------------------------------------------------------------ |
 | `pnpm dev`                          | builds the preview site and runs `pnpm start`                                              |
 | `pnpm start`                        | applies migrations to the local D1, loads the seed data and serves http://127.0.0.1:8787   |
+| `pnpm dev:auth`                     | local stand-in for Cloudflare Access for the [staff panel](panel.md): prints a panel token |
 | `pnpm build` / `pnpm build:preview` | production build / preview build (adds the pattern library at `/wzornik`)                  |
 | `pnpm format` / `pnpm format:check` | Prettier                                                                                   |
 | `pnpm lint`                         | ESLint (TypeScript and Astro), Stylelint, ruff, no-comments check for Python               |

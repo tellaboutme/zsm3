@@ -1,6 +1,8 @@
 ---
-import { footerGroups } from "../data/navigation.ts";
+import { fallbackNavigation } from "../data/navigation.ts";
 import { school } from "../data/site.ts";
+
+const { footerGroups } = Astro.locals.navigation ?? fallbackNavigation;
 ---
 
 <footer class="site-footer">

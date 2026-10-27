@@ -151,7 +151,7 @@ photos
   INDEX (album_id, position)
 
 staff
-  email PK (lower case), role (admin | secretariat | gallery_editor), active, created_at, updated_at
+  email PK (lower case), role (admin | secretariat | editor | gallery_editor), active, created_at, updated_at
 
 audit_log
   id, at, actor_email, action, entity, entity_id, details_json (no applicant personal data)
@@ -181,6 +181,14 @@ pages
 
 redirects
   from_path PK (old WordPress address, lower case, no trailing slash), to_path, created_at
+
+announcements
+  id TEXT PK (UUIDv7), severity (info | important | urgent), text, link_label NULL, link_href NULL,
+  starts_on, ends_on (>= starts_on, both inclusive), created_at, updated_at
+  INDEX (ends_on, starts_on)
+
+bell_schedule
+  id = 1, data_json (regular lessons, named variants, days that use a variant), updated_at
 ```
 
 Repositories in `apps/worker/src/storage` take a `Store` (`db`, `clock`, `random`), use static SQL with `.bind()` only, and parse every row with a schema. They run against real SQLite (`node:sqlite`) in the Node tests, where coverage and mutation testing run, and against D1 in the workerd tests.
@@ -189,7 +197,7 @@ Repositories in `apps/worker/src/storage` take a `Store` (`db`, `clock`, `random
 
 `@astrojs/cloudflare` builds the site into `apps/web/dist/client` (prerendered pages and assets) and `apps/web/dist/server` (the Worker). The Worker entry `apps/web/worker/index.ts` sends `/api/*` to the Hono application from `@zsm3/worker/app` and every other request to Astro's handler, which serves a prerendered file when one exists and otherwise renders the page from D1.
 
-Rendered on demand: the home page, the section hubs, every news listing and article, and the search results endpoint `/szukaj/wyniki.json`. The endpoint queries the `search_documents` FTS5 table (unicode61 tokenizer, folded text in the indexed `title` and `body`, bm25 ranking) through the search repository and alternates those matches with statically scored entries, reserving discovery space for programmes and events even when FTS is full. A D1 match replaces stale static content at the same URL; distinct calendar dates remain separate. The old static `/szukaj/indeks.json` endpoint remains until the follow-up contract PR. Unknown categories, years, pages and articles return 404 with the prerendered error page. Before such a 404 reaches the visitor, the Worker checks the `redirects` table for public GET and HEAD requests and answers with a permanent redirect when the resolved target is an existing page; chains are followed up to eight hops and any lookup failure falls back to the original 404. Astro middleware gives these responses the same headers as `_headers` gives static files, computed from the same module. Pages read D1 only through the repositories and the structural `SqlDatabase` interface; `src/cloudflare-workers.d.ts` exposes nothing else to Astro code.
+Rendered on demand: every page of the site except the error page and the pattern library, because each page carries the active announcement, the published bell schedule and the events of the current school year (header menu, home timeline, calendar), and the search results endpoint `/szukaj/wyniki.json`. The page middleware reads them once per page request (`src/server/site-state.ts`) and passes them to the layout through `Astro.locals`; the layout prints the banner and puts the schedule in `data-bells` on `<body>`, where the live status reads it, falling back to the regular schedule built into the script. The search endpoint queries the `search_documents` FTS5 table (unicode61 tokenizer, folded text in the indexed `title` and `body`, bm25 ranking) through the search repository and alternates those matches with statically scored entries, reserving discovery space for programmes and events even when FTS is full. A D1 match replaces stale static content at the same URL; distinct calendar dates remain separate. The old static `/szukaj/indeks.json` endpoint remains until the follow-up contract PR. Unknown categories, years, pages and articles return 404 with the prerendered error page. Before such a 404 reaches the visitor, the Worker checks the `redirects` table for public GET and HEAD requests and answers with a permanent redirect when the resolved target is an existing page; chains are followed up to eight hops and any lookup failure falls back to the original 404. Astro middleware gives these responses the same headers as `_headers` gives static files, computed from the same module. Pages read D1 only through the repositories and the structural `SqlDatabase` interface; `src/cloudflare-workers.d.ts` exposes nothing else to Astro code. Pages are not cached at the edge; see [ADR 0003](adr/0003-no-edge-cache-for-pages.md).
 
 Content pages (`/szkola/historia`, and top-level pages such as `/rodo`) are read from the `pages` table; the site map and the search index include every published page.
 

@@ -12,6 +12,7 @@
   "dependencies": {
     "@zsm3/contracts": "workspace:*",
     "hono": "4.13.13",
+    "jose": "6.2.12",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -33,6 +34,8 @@
     "./requests-app": "./src/requests-app.ts",
     "./storage/*": "./src/storage/*",
     "./seed/files.ts": "./seed/files.ts",
-    "./seed/pages/index.ts": "./seed/pages/index.ts"
+    "./seed/pages/index.ts": "./seed/pages/index.ts",
+    "./seed/calendar/index.ts": "./seed/calendar/index.ts",
+    "./seed/datasets/index.ts": "./seed/datasets/index.ts"
   }
 }

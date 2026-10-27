@@ -1,9 +1,10 @@
 import { storedFileSchema, type StoredFile } from "@zsm3/contracts/media";
 
-import { firstRow, timestamp, type Store } from "./database.ts";
+import { firstRow, timestamp, type SqlStatement, type Store } from "./database.ts";
 
 export interface FilesRepo {
   save(file: StoredFile): Promise<void>;
+  saveStatement(file: StoredFile): SqlStatement;
   find(key: string): Promise<StoredFile | undefined>;
 }
 
@@ -12,15 +13,19 @@ const UPSERT = `INSERT INTO files (key, name, format, bytes, created_at) VALUES 
 
 const SELECT_ONE = "SELECT key, name, format, bytes FROM files WHERE key = ?";
 
-export function filesRepo({ db, clock }: Store): FilesRepo {
+function saveFile({ db, clock }: Store, file: StoredFile): SqlStatement {
+  const parsed = storedFileSchema.parse(file);
+  return db
+    .prepare(UPSERT)
+    .bind(parsed.key, parsed.name, parsed.format, parsed.bytes, timestamp(clock));
+}
+
+export function filesRepo(store: Store): FilesRepo {
   return {
     save: async (file) => {
-      const parsed = storedFileSchema.parse(file);
-      await db
-        .prepare(UPSERT)
-        .bind(parsed.key, parsed.name, parsed.format, parsed.bytes, timestamp(clock))
-        .run();
+      await store.db.batch([saveFile(store, file)]);
     },
-    find: async (key) => firstRow(db.prepare(SELECT_ONE).bind(key), storedFileSchema),
+    saveStatement: (file) => saveFile(store, file),
+    find: async (key) => firstRow(store.db.prepare(SELECT_ONE).bind(key), storedFileSchema),
   };
 }

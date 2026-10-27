@@ -3,11 +3,14 @@ import "../../../styles/programme-filters.css";
 import ProfessionTile from "../../../components/ProfessionTile.astro";
 import ComparisonTable from "../../../components/programmes/ComparisonTable.astro";
 import ProgrammeFilters from "../../../components/programmes/ProgrammeFilters.astro";
-import { professions } from "../../../data/professions.ts";
-import { programmes } from "../../../data/programmes/index.ts";
 import Base from "../../../layouts/Base.astro";
 import { schoolLabels } from "../../../lib/professions.ts";
 import { professionOf, programmeHref, schoolYears, yearsLabel } from "../../../lib/programmes.ts";
+import { programmeData } from "../../../server/datasets.ts";
+
+export const prerender = false;
+
+const { professions, programmes } = await programmeData();
 ---
 
 <Base
@@ -53,7 +56,7 @@ import { professionOf, programmeHref, schoolYears, yearsLabel } from "../../../l
     <p class="empty" data-no-programmes hidden>
       Ta szkoła nie prowadzi kierunków w wybranej branży. Wybierz inną branżę albo szkołę.
     </p>
-    <ComparisonTable programmes={programmes} />
+    <ComparisonTable programmes={programmes} professions={professions} />
     <a class="cta nudge" href="/kandydaci/rekrutacja">
       Zasady rekrutacji, terminy i dokumenty <span aria-hidden="true">→</span>
     </a>

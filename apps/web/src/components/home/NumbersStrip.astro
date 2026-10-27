@@ -1,7 +1,9 @@
 ---
-import { professions } from "../../data/professions.ts";
 import { fields } from "../../lib/professions.ts";
+import { programmeData } from "../../server/datasets.ts";
 import FactStrip from "../FactStrip.astro";
+
+const { professions } = await programmeData();
 
 const numbers = [
   { value: String(professions.length), label: "zawodów w technikum i szkole branżowej" },

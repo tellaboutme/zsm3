@@ -1,3 +1,7 @@
+import type { StoredAnnouncement } from "@zsm3/contracts/announcements";
+
+import { dayOffOn, type DayOff } from "./bells.ts";
+
 export type Severity = "info" | "important" | "urgent";
 
 export interface Announcement {
@@ -27,4 +31,33 @@ export function readDismissed(serialized: string | null): ReadonlySet<string> {
 
 export function withDismissed(dismissed: ReadonlySet<string>, id: string): string {
   return JSON.stringify([...new Set([...dismissed, id])]);
+}
+
+export function publicAnnouncement(item: StoredAnnouncement): Announcement {
+  return {
+    id: `${item.id}.${item.updatedAt}`,
+    severity: item.severity,
+    text: item.text,
+    ...(item.link === undefined ? {} : { link: item.link }),
+  };
+}
+
+export function dayOffAnnouncement(
+  daysOff: readonly DayOff[],
+  today: string,
+  tomorrow: string,
+): Announcement | undefined {
+  const now = dayOffOn(daysOff, today);
+  const next = now === undefined ? dayOffOn(daysOff, tomorrow) : undefined;
+  const dayOff = now ?? next;
+  if (dayOff === undefined) {
+    return undefined;
+  }
+  const when = now === undefined ? "Jutro" : "Dziś";
+  return {
+    id: `wolne.${dayOff.from}.${when}`,
+    severity: "info",
+    text: `${when} nie ma zajęć: ${dayOff.title}.`,
+    link: { label: "Terminarz", href: "/szkola/terminarz" },
+  };
 }

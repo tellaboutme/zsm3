@@ -1,0 +1,75 @@
+---
+import Panel from "../../../layouts/panel.astro";
+import { SEVERITY_OPTIONS } from "../../../lib/panel/announcements.ts";
+---
+
+<Panel title="Ogłoszenia w panelu — ZSM3">
+  <div class="panel-page" data-panel-page="announcements">
+    <div class="panel-gate" data-panel="gate">
+      <div class="panel-note" data-panel="gate-text" role="status" aria-live="polite">
+        <p>Sprawdzam dostęp do panelu…</p>
+      </div>
+      <button type="button" data-panel="gate-retry">
+        Ponów próbę
+      </button>
+    </div>
+    <div data-panel="app" hidden>
+      <h1>Ogłoszenia</h1>
+      <p>
+        Pasek nad nagłówkiem na każdej stronie szkoły, widoczny od pierwszego do ostatniego dnia
+        włącznie. Naraz widać jedno ogłoszenie: najpierw pilne, potem ważne, potem najnowsze.
+      </p>
+      <form class="panel-form" data-panel="announcement-form">
+        <fieldset>
+          <legend data-panel="form-legend">Nowe ogłoszenie</legend>
+          <label>
+            Rodzaj
+            <select name="severity" data-panel="severity">
+              {SEVERITY_OPTIONS.map((option) => (
+                <option value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Treść (do 300 znaków)
+            <textarea name="text" maxlength="300" required></textarea>
+          </label>
+          <div class="panel-row">
+            <label class="panel-inline">
+              Pierwszy dzień
+              <input name="startsOn" type="date" required />
+            </label>
+            <label class="panel-inline">
+              Ostatni dzień
+              <input name="endsOn" type="date" required />
+            </label>
+          </div>
+          <div class="panel-row">
+            <label class="panel-inline">
+              Tekst linku (opcjonalnie)
+              <input name="linkLabel" maxlength="80" />
+            </label>
+            <label class="panel-inline">
+              Adres linku
+              <input name="linkHref" maxlength="500" placeholder="/uczniowie/dzwonki" />
+            </label>
+          </div>
+        </fieldset>
+        <div class="panel-actions">
+          <button type="submit" class="panel-save">
+            Zapisz ogłoszenie
+          </button>
+          <button type="button" data-panel="announcement-cancel" hidden>
+            Anuluj edycję
+          </button>
+        </div>
+      </form>
+      <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
+      <ul data-panel="announcement-rows"></ul>
+    </div>
+  </div>
+</Panel>
+
+<script>
+  import "../../../scripts/panel/ogloszenia.ts";
+</script>

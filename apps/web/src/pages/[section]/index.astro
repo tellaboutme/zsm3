@@ -4,11 +4,13 @@ import TaskGroups from "../../components/hub/TaskGroups.astro";
 import MenuFeature from "../../components/MenuFeature.astro";
 import NewsCard from "../../components/news/NewsCard.astro";
 import { hubs } from "../../data/hubs.ts";
-import { sections } from "../../data/navigation.ts";
+import { fallbackNavigation } from "../../data/navigation.ts";
 import Base from "../../layouts/Base.astro";
 import { latestNews } from "../../lib/news-listing.ts";
 import { newsReader, notFound } from "../../server/news.ts";
 import { pagesReader } from "../../server/pages.ts";
+
+const { sections } = Astro.locals.navigation ?? fallbackNavigation;
 
 export const prerender = false;
 

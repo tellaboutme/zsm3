@@ -12,7 +12,6 @@ export const pagesAwaitingImport: readonly string[] = [
   "/szkola/projekty",
   "/szkola/projekty/erasmus",
   "/uczniowie/materialy",
-  "/uczniowie/oferty-pracy",
   "/uczniowie/wychowawcy",
   "/zamowienia-publiczne",
 ];

@@ -1,13 +1,17 @@
 ---
 import BellTable from "../../components/bells/BellTable.astro";
 import LiveStatus from "../../components/LiveStatus.astro";
-import { regularSchedule } from "../../data/bell-schedule.ts";
-import { bellVariants } from "../../data/bell-variants.ts";
+import { fallbackBells } from "../../data/bell-schedule.ts";
 import Base from "../../layouts/Base.astro";
-import { REGULAR_LABEL } from "../../lib/bells.ts";
+import { REGULAR_LABEL, todaySchedule } from "../../lib/bells.ts";
 import { isoDay, longDate } from "../../lib/calendar.ts";
 
+export const prerender = false;
+
 const buildDay = isoDay(new Date());
+const bells = Astro.locals.bells ?? fallbackBells;
+const { regular, variants: bellVariants } = bells;
+const todayLabel = todaySchedule(bells, buildDay).label;
 ---
 
 <Base
@@ -30,10 +34,10 @@ const buildDay = isoDay(new Date());
     <div class="now">
       <LiveStatus size="large" />
       <p class="today">
-        Dziś obowiązuje: <strong data-today-label>{REGULAR_LABEL}</strong>
+        Dziś obowiązuje: <strong data-today-label>{todayLabel}</strong>
       </p>
     </div>
-    <BellTable caption={REGULAR_LABEL} lessons={regularSchedule} />
+    <BellTable caption={REGULAR_LABEL} lessons={regular} />
     <section class="variants" aria-labelledby="zmiany">
       <h2 id="zmiany">Dni ze zmienionym planem</h2>
       {bellVariants.map((variant) => (

@@ -1,5 +1,5 @@
-import { professions } from "./professions.ts";
-import { programmes } from "./programmes/index.ts";
+import type { Programmes } from "@zsm3/contracts/programmes";
+
 import { schoolLabels } from "../lib/professions.ts";
 import { professionOf, programmeHref } from "../lib/programmes.ts";
 import type { MapNode } from "../lib/site-map.ts";
@@ -22,13 +22,15 @@ function topLevelNodes(pages: readonly MapPage[]): readonly MapNode[] {
   return pages.filter((page) => page.path.split("/").length === 2).map(pageNode);
 }
 
-const programmeNodes: readonly MapNode[] = programmes.map((programme) => ({
-  label: `${professionOf(professions, programme).name} (${schoolLabels[programme.school]})`,
-  href: programmeHref(programme),
-  description: programme.lead,
-}));
+function programmeNodes({ professions, programmes }: Programmes): readonly MapNode[] {
+  return programmes.map((programme) => ({
+    label: `${professionOf(professions, programme).name} (${schoolLabels[programme.school]})`,
+    href: programmeHref(programme),
+    description: programme.lead,
+  }));
+}
 
-const baseMap: readonly MapNode[] = [
+const BASE_MAP: readonly MapNode[] = [
   {
     label: "Strona główna",
     href: "/",
@@ -43,7 +45,6 @@ const baseMap: readonly MapNode[] = [
         label: "Zawody i kierunki",
         href: "/kandydaci/zawody",
         description: "15 kierunków w technikum oraz branżowej szkole I i II stopnia.",
-        children: programmeNodes,
       },
     ],
   },
@@ -70,6 +71,11 @@ const baseMap: readonly MapNode[] = [
         label: "Stan wniosku",
         href: "/e-wniosek/status",
         description: "Sprawdź stan złożonego wniosku o dokument szkolny.",
+      },
+      {
+        label: "Oferty pracy",
+        href: "/uczniowie/oferty-pracy",
+        description: "Oferty pracy, staży i praktyk od pracodawców współpracujących ze szkołą.",
       },
     ],
   },
@@ -135,8 +141,21 @@ const SECTION_ROOTS: ReadonlySet<string> = new Set([
   "/szkola",
 ]);
 
-export function buildSiteMap(pages: readonly MapPage[]): readonly MapNode[] {
-  const withPages = baseMap.map((node) =>
+const PROGRAMMES_HREF = "/kandydaci/zawody";
+
+function withProgrammes(nodes: readonly MapNode[], kierunki: Programmes): readonly MapNode[] {
+  return nodes.map((node) => {
+    if (node.href === PROGRAMMES_HREF) {
+      return { ...node, children: programmeNodes(kierunki) };
+    }
+    return node.children === undefined
+      ? node
+      : { ...node, children: withProgrammes(node.children, kierunki) };
+  });
+}
+
+export function buildSiteMap(pages: readonly MapPage[], kierunki: Programmes): readonly MapNode[] {
+  const withPages = withProgrammes(BASE_MAP, kierunki).map((node) =>
     SECTION_ROOTS.has(node.href)
       ? {
           ...node,

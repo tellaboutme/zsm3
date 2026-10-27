@@ -1,0 +1,34 @@
+---
+import Panel from "../../../layouts/panel.astro";
+---
+
+<Panel title="Dziennik zmian w panelu — ZSM3">
+  <div class="panel-page" data-panel-page="audit">
+    <div class="panel-gate" data-panel="gate">
+      <div class="panel-note" data-panel="gate-text" role="status" aria-live="polite">
+        <p>Sprawdzam dostęp do panelu…</p>
+      </div>
+      <button type="button" data-panel="gate-retry">
+        Ponów próbę
+      </button>
+    </div>
+    <div data-panel="app" hidden>
+      <h1>Dziennik zmian</h1>
+      <p>
+        Kto, kiedy i co zmienił w panelu. Najnowsze wpisy są na górze; dziennik przechowuje je przez
+        2 lata.
+      </p>
+      <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
+      <ul data-panel="audit-rows"></ul>
+      <div class="panel-actions">
+        <button type="button" data-panel="audit-more" hidden>
+          Pokaż starsze
+        </button>
+      </div>
+    </div>
+  </div>
+</Panel>
+
+<script>
+  import "../../../scripts/panel/dziennik.ts";
+</script>

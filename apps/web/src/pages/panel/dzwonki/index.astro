@@ -1,0 +1,60 @@
+---
+import Panel from "../../../layouts/panel.astro";
+---
+
+<Panel title="Dzwonki w panelu — ZSM3">
+  <div class="panel-page" data-panel-page="bells">
+    <div class="panel-gate" data-panel="gate">
+      <div class="panel-note" data-panel="gate-text" role="status" aria-live="polite">
+        <p>Sprawdzam dostęp do panelu…</p>
+      </div>
+      <button type="button" data-panel="gate-retry">
+        Ponów próbę
+      </button>
+    </div>
+    <div data-panel="app" hidden>
+      <h1>Dzwonki</h1>
+      <p>
+        Każdą lekcję wpisz w osobnym wierszu, np. <code>07:30–08:15</code>. Zmiany widać na stronie
+        i w odliczaniu „Teraz w szkole” od razu po zapisaniu.
+      </p>
+      <form class="panel-form" data-panel="bells-form">
+        <fieldset>
+          <legend>Zwykły plan lekcji</legend>
+          <label>
+            Lekcje
+            <textarea name="regular" rows="14" required></textarea>
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>Warianty (np. lekcje skrócone)</legend>
+          <ul data-panel="variant-rows"></ul>
+          <div class="panel-actions">
+            <button type="button" data-panel="variant-add">
+              Dodaj wariant
+            </button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Dni ze zmienionym planem</legend>
+          <ul data-panel="day-rows"></ul>
+          <div class="panel-actions">
+            <button type="button" data-panel="day-add">
+              Dodaj dzień
+            </button>
+          </div>
+        </fieldset>
+        <div class="panel-actions">
+          <button type="submit" class="panel-save">
+            Zapisz dzwonki
+          </button>
+        </div>
+      </form>
+      <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</Panel>
+
+<script>
+  import "../../../scripts/panel/dzwonki.ts";
+</script>

@@ -1,10 +1,14 @@
 ---
-import { schoolYearEvents } from "../../data/calendar/index.ts";
-import { gradeRooms, meetingPlan } from "../../data/meetings.ts";
 import Base from "../../layouts/Base.astro";
 import { isoDay, longDate } from "../../lib/calendar.ts";
+import { meetings as meetingData } from "../../server/datasets.ts";
 
-const meetings = schoolYearEvents.filter((event) => event.kind === "zebranie");
+export const prerender = false;
+
+const meetingPlan = await meetingData();
+const gradeRooms = meetingPlan.grades;
+
+const meetings = (Astro.locals.events ?? []).filter((event) => event.kind === "zebranie");
 const today = isoDay(new Date());
 const next = meetings.find((event) => event.date >= today);
 ---
