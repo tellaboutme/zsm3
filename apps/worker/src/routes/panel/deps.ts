@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 
-import type { AppBindings } from "../../app-env.ts";
+import type { AppBindings, MediaBucket } from "../../app-env.ts";
 import type { AccessVerifier } from "../../security/access-jwt.ts";
 import type { AnnouncementsRepo } from "../../storage/announcements-repo.ts";
 import type { AuditRepo } from "../../storage/audit-repo.ts";
@@ -16,22 +16,13 @@ import type { RedirectsRepo } from "../../storage/redirects-repo.ts";
 import type { RevisionsRepo } from "../../storage/revisions-repo.ts";
 import type { StaffRepo, StaffRole } from "../../storage/staff-repo.ts";
 
+export type { MediaBucket };
+
 export const DEFAULT_PANEL_ORIGIN = "https://zsm3.pl";
 
 export function panelOrigin(env: AppBindings): string {
   const configured = env.PANEL_ORIGIN.trim();
   return configured.length > 0 ? configured : DEFAULT_PANEL_ORIGIN;
-}
-
-export interface MediaObject {
-  readonly body: ReadableStream;
-  readonly size: number;
-  readonly httpEtag: string;
-}
-
-export interface MediaBucket {
-  get(key: string, options?: unknown): Promise<MediaObject | null>;
-  put(key: string, value: ArrayBuffer, options?: unknown): Promise<unknown>;
 }
 
 export interface PanelRepos {

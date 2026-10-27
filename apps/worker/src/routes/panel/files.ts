@@ -35,8 +35,12 @@ export function uploadSize(bytes: number): UploadSize {
 }
 
 function formatFrom(name: string): MediaFormat | undefined {
+  const dot = name.lastIndexOf(".");
+  if (dot === -1) {
+    return undefined;
+  }
   const lowered = name.toLowerCase();
-  const format = mediaFormatSchema.safeParse(lowered.slice(lowered.lastIndexOf(".") + 1));
+  const format = mediaFormatSchema.safeParse(lowered.slice(dot + 1));
   return format.success ? format.data : undefined;
 }
 
