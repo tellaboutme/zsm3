@@ -48,7 +48,7 @@ async function verifiedBytes(directory: string, file: SeedFile): Promise<Uint8Ar
 }
 
 const { env, dispose } = await getPlatformProxy<
-  { DB: SqlDatabase; MEDIA: MediaBucket } & RequestsSecretEnv
+  { DB: SqlDatabase; MEDIA: MediaBucket; SHORT_LINK_KEY?: string } & RequestsSecretEnv
 >({
   configPath,
   persist: { path: statePath },
@@ -68,7 +68,7 @@ if (mediaDirectory !== undefined) {
     await env.MEDIA.put(storedFile(file).key, await verifiedBytes(mediaDirectory, file));
   }
 }
-const seededLinks = await seedShortLinks(store);
+const seededLinks = await seedShortLinks(store, env.SHORT_LINK_KEY);
 let seededRequests = 0;
 let requestsAvailable = true;
 try {
