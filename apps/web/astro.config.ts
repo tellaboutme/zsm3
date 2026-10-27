@@ -20,6 +20,7 @@ export default defineConfig({
       TURNSTILE_SITE_KEY: envField.string({ context: "server", access: "public", default: "" }),
       REQUEST_NOTICE_URL: envField.string({ context: "server", access: "public", default: "" }),
       REQUEST_TERMS_URL: envField.string({ context: "server", access: "public", default: "" }),
+      SHORT_LINK_KEY: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

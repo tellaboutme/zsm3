@@ -2,6 +2,7 @@ import { Hono, type Context } from "hono";
 
 import type { AppEnv } from "../app-env.ts";
 import { requestsConfig } from "../env.ts";
+import { isSameOrigin, originOf } from "../http/origin.ts";
 import { problemResponse } from "../http/problem.ts";
 import { requestStatus } from "../requests/request-status.ts";
 import { submitRequest, type SubmitRefusalReason } from "../requests/submit.ts";
@@ -28,22 +29,6 @@ type RefusalStatus = 400 | 403 | 409 | 429;
 
 function clientIp(c: Context<AppEnv>): string {
   return c.req.header("CF-Connecting-IP") ?? "";
-}
-
-function originOf(c: Context<AppEnv>): string {
-  return new URL(c.req.url).origin;
-}
-
-function isSameOrigin(c: Context<AppEnv>): boolean {
-  const origin = c.req.header("Origin");
-  if (origin === undefined) {
-    return false;
-  }
-  try {
-    return new URL(origin).origin === originOf(c);
-  } catch {
-    return false;
-  }
 }
 
 async function readJson(c: Context<AppEnv>): Promise<JsonBody> {
