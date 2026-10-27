@@ -30,6 +30,11 @@ const unfiltered = category === undefined && year === undefined;
         <span>{heading}</span>
       </span>
     </h1>
+    {unfiltered && (
+      <p class="feed">
+        <a href="/aktualnosci/rss.xml">Kanał RSS aktualności</a>
+      </p>
+    )}
   </header>
   <div class="filters">
     <nav aria-label="Kategorie">
@@ -97,6 +102,14 @@ const unfiltered = category === undefined && year === undefined;
     font-size: var(--step-title);
     font-stretch: var(--stretch-wide);
     hyphens: auto;
+  }
+
+  .feed {
+    color: var(--ink-2);
+  }
+
+  .feed a {
+    color: inherit;
   }
 
   .filters {

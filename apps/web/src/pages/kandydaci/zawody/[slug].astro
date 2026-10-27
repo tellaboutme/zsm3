@@ -7,6 +7,7 @@ import ProgrammeHero from "../../../components/programme/ProgrammeHero.astro";
 import TopicGrid from "../../../components/programme/TopicGrid.astro";
 import { professions } from "../../../data/professions.ts";
 import { programmes } from "../../../data/programmes/index.ts";
+import { school } from "../../../data/site.ts";
 import Base from "../../../layouts/Base.astro";
 import { schoolLabels } from "../../../lib/professions.ts";
 import {
@@ -18,6 +19,7 @@ import {
   yearsLabel,
   type Programme,
 } from "../../../lib/programmes.ts";
+import { SITE_ORIGIN } from "../../../lib/seo.ts";
 
 interface Props {
   programme: Programme;
@@ -42,6 +44,25 @@ const practice = [
 <Base
   title={`${profession.name} — ${schoolLabels[programme.school]} — ZSM3`}
   description={programme.lead}
+  structuredData={[
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      name: profession.name,
+      description: programme.lead,
+      provider: { "@type": "HighSchool", name: school.name },
+      url: new URL(programmeHref(programme), SITE_ORIGIN).href,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: programmeFaq(programme, profession).map((entry) => ({
+        "@type": "Question",
+        name: entry.question,
+        acceptedAnswer: { "@type": "Answer", text: entry.answer },
+      })),
+    },
+  ]}
   breadcrumbs={[
     { label: "Kandydaci", href: "/kandydaci" },
     { label: "Zawody", href: "/kandydaci/zawody" },

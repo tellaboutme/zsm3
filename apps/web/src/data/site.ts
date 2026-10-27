@@ -4,6 +4,8 @@ export const school = {
   patron: "gen. Władysława Sikorskiego",
   street: "os. Szkolne 37",
   postalCode: "31-978",
+  latitude: 50.0765707,
+  longitude: 20.0509679,
   phone: "+48126440689",
   phoneLabel: "12 644 06 89",
   secretariatExtension: "104",
