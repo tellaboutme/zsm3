@@ -98,7 +98,8 @@ function render(view: View, value: StatusResponse): void {
 async function check(view: View): Promise<void> {
   const state = view;
   const token = validToken(view);
-  if (token === undefined) return;
+  const invalid = token === undefined;
+  if (invalid) return;
   state.error.hidden = true;
   state.submit.disabled = true;
   try {
@@ -122,7 +123,8 @@ async function withdrawRequest(view: View): Promise<void> {
   const state = view;
   if (!window.confirm("Wycofać wniosek? Tej czynności nie można cofnąć.")) return;
   const token = validToken(view);
-  if (token === undefined) return;
+  const invalid = token === undefined;
+  if (invalid) return;
   state.withdraw.disabled = true;
   try {
     const response = await post("/api/requests/withdraw", token);
