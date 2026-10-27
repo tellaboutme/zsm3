@@ -31,11 +31,11 @@ describe("sha256Base64", () => {
 });
 
 describe("content security policy", () => {
-  it("allows only own scripts and listed inline hashes", ({ expect }) => {
+  it("allows own scripts, Turnstile and listed inline hashes", ({ expect }) => {
     const policy = contentSecurityPolicy({ scriptHashes: ["AAA=", "BBB="] });
 
     expect(policy).toBe(
-      "default-src 'none'; script-src 'self' 'sha256-AAA=' 'sha256-BBB='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types 'none'",
+      "default-src 'none'; script-src 'self' https://challenges.cloudflare.com 'sha256-AAA=' 'sha256-BBB='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types 'none'",
     );
   });
 });

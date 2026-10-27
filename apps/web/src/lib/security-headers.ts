@@ -14,11 +14,17 @@ export async function sha256Base64(text: string): Promise<string> {
 export function contentSecurityPolicy({ scriptHashes }: HeaderOptions): string {
   const directives: readonly (readonly string[])[] = [
     ["default-src", "'none'"],
-    ["script-src", "'self'", ...scriptHashes.map((hash) => `'sha256-${hash}'`)],
+    [
+      "script-src",
+      "'self'",
+      "https://challenges.cloudflare.com",
+      ...scriptHashes.map((hash) => `'sha256-${hash}'`),
+    ],
     ["style-src", "'self'"],
     ["img-src", "'self'"],
     ["font-src", "'self'"],
-    ["connect-src", "'self'"],
+    ["connect-src", "'self'", "https://challenges.cloudflare.com"],
+    ["frame-src", "https://challenges.cloudflare.com"],
     ["manifest-src", "'self'"],
     ["base-uri", "'none'"],
     ["form-action", "'self'"],

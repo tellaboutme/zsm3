@@ -1,0 +1,74 @@
+---
+import Base from "../../layouts/Base.astro";
+import "../../styles/request.css";
+---
+
+<Base
+  title="Stan e-wniosku – ZSM3"
+  description="Sprawdź stan wniosku o dokument szkolny i wycofaj wniosek."
+  breadcrumbs={[{ label: "E-wniosek", href: "/e-wniosek" }, { label: "Stan wniosku" }]}
+  noindex
+>
+  <div class="request-page">
+    <header class="request-intro">
+      <p class="tag">E-wniosek · stan dokumentu</p>
+      <h1>Stan wniosku</h1>
+      <p>Link do tej strony jest prywatny. Nie udostępniaj go innym osobom.</p>
+    </header>
+    <noscript>
+      <p>
+        Sprawdzenie stanu wniosku wymaga JavaScriptu. Skontaktuj się z{" "}
+        <a href="/kontakt">sekretariatem</a>.
+      </p>
+    </noscript>
+    <form data-status-form method="post" action="/api/requests/status" novalidate>
+      <label for="request-token">Kod z linku do wniosku</label>
+      <p id="token-hint">
+        Jeśli otworzysz link otrzymany po wysłaniu wniosku, kod uzupełni się automatycznie.
+      </p>
+      <input
+        id="request-token"
+        name="token"
+        autocomplete="off"
+        spellcheck="false"
+        required
+        aria-describedby="token-hint token-error"
+      />
+      <span id="token-error" class="field-error" aria-live="polite"></span>
+      <button type="submit" data-status-submit>
+        Sprawdź stan
+      </button>
+    </form>
+    <p class="request-errors" data-status-error tabindex="-1" role="alert" hidden></p>
+    <section data-status-result hidden tabindex="-1" aria-labelledby="status-result-title">
+      <h2 id="status-result-title">Informacje o wniosku</h2>
+      <dl class="request-details">
+        <div>
+          <dt>Dokument</dt>
+          <dd data-status-type></dd>
+        </div>
+        <div>
+          <dt>Stan</dt>
+          <dd data-status-value></dd>
+        </div>
+        <div>
+          <dt>Ostatnia zmiana</dt>
+          <dd data-status-date></dd>
+        </div>
+      </dl>
+      <p data-status-message hidden></p>
+      <button type="button" data-withdraw hidden>
+        Wycofaj wniosek
+      </button>
+      <p data-withdraw-hint hidden>
+        Wycofanie wniosku jest nieodwracalne. Dane podane we wniosku zostaną usunięte.
+      </p>
+    </section>
+    <p>
+      Nie możesz znaleźć linku? Skontaktuj się z <a href="/kontakt">sekretariatem</a>.
+    </p>
+  </div>
+</Base>
+<script>
+  import "../../scripts/request-status.ts";
+</script>

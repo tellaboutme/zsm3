@@ -16,6 +16,10 @@ export default defineConfig({
   env: {
     schema: {
       PATTERN_LIBRARY: envField.boolean({ context: "server", access: "public", default: false }),
+      REQUESTS_ENABLED: envField.boolean({ context: "server", access: "public", default: false }),
+      TURNSTILE_SITE_KEY: envField.string({ context: "server", access: "public", default: "" }),
+      REQUEST_NOTICE_URL: envField.string({ context: "server", access: "public", default: "" }),
+      REQUEST_TERMS_URL: envField.string({ context: "server", access: "public", default: "" }),
     },
   },
 });

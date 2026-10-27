@@ -59,7 +59,7 @@ const students: NavSection = {
       title: "Dokumenty",
       links: [
         { label: "Wzory dokumentów", href: "/uczniowie/wzory-dokumentow" },
-        { label: "E-wniosek", href: "/uczniowie/e-wniosek" },
+        { label: "E-wniosek", href: "/e-wniosek" },
         { label: "Statut", href: "/szkola/statut" },
       ],
     },
@@ -159,7 +159,7 @@ export const sections: readonly NavSection[] = [
 export const utilityLinks: readonly NavLink[] = [
   { label: "Librus", href: externalServices.librus, external: true },
   { label: "BIP", href: externalServices.bip, external: true },
-  { label: "E-wniosek", href: "/uczniowie/e-wniosek" },
+  { label: "E-wniosek", href: "/e-wniosek" },
   { label: "Skrzynka #OgarniamŻycie", href: "/skrzynka" },
 ];
 

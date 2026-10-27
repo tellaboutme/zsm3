@@ -16,7 +16,7 @@ export const hubs: readonly Hub[] = [
   {
     section: "uczniowie",
     intro: "Dzwonki, dokumenty, e-wniosek i wszystko, czego potrzebujesz na co dzień w szkole.",
-    action: { label: "E-wniosek", href: "/uczniowie/e-wniosek" },
+    action: { label: "E-wniosek", href: "/e-wniosek" },
   },
   {
     section: "rodzice",

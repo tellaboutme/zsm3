@@ -7,3 +7,6 @@ TURNSTILE_SITE_KEY=replace-with-the-cloudflare-turnstile-site-key
 BREVO_API_KEY=replace-with-the-brevo-smtp-api-key
 STATUS_EMAIL_FROM=no-reply@example.com
 SECRETARIAT_EMAIL=sekretariat@example.com
+REQUESTS_ENABLED=false
+REQUEST_NOTICE_URL=
+REQUEST_TERMS_URL=

@@ -183,7 +183,7 @@ test.describe("page frame", () => {
     const response = await request.get("/");
 
     expect(response.headers()["content-security-policy"]).toContain(
-      `script-src 'self' 'sha256-${digest}';`,
+      `script-src 'self' https://challenges.cloudflare.com 'sha256-${digest}';`,
     );
   });
 });
