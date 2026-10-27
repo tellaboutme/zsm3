@@ -10,12 +10,11 @@ const DAY_MS = 86_400_000;
 const LIFETIME_DAYS = 180;
 const AUTHOR = "sekretariat@zespolszkolmechanicznych.edu.pl";
 const HASH_BYTES = 32;
-const DEMO_PASSWORD = "zsm3-demo";
 
 interface LinkSeed {
   readonly code: string;
   readonly target: string;
-  readonly locked: boolean;
+  readonly phrase: string | null;
   readonly revoked: boolean;
 }
 
@@ -23,27 +22,31 @@ const SEEDS: readonly LinkSeed[] = [
   {
     code: "materia",
     target: "https://example.org/materialy/plan-lekcji.pdf",
-    locked: false,
+    phrase: null,
     revoked: false,
   },
   {
     code: "zhasqem",
     target: "https://example.org/materialy/karta-pracy.pdf",
-    locked: true,
+    phrase: "zsm3-demo",
     revoked: false,
   },
   {
     code: "wygasny",
     target: "https://example.org/materialy/plan-lekcji.pdf",
-    locked: false,
+    phrase: null,
     revoked: true,
   },
 ];
 
-async function demoDigest(store: Store, key: string | undefined): Promise<PasswordDigest> {
+async function demoDigest(
+  store: Store,
+  key: string | undefined,
+  phrase: string,
+): Promise<PasswordDigest> {
   return key === undefined
     ? { salt: store.random(PASSWORD_SALT_BYTES), hash: store.random(HASH_BYTES) }
-    : await hashPassword(key, DEMO_PASSWORD, store.random);
+    : await hashPassword(key, phrase, store.random);
 }
 
 export async function seedShortLinks(store: Store, key: string | undefined): Promise<number> {
@@ -57,7 +60,7 @@ export async function seedShortLinks(store: Store, key: string | undefined): Pro
     await links.create({
       code: seed.code,
       target: seed.target,
-      password: seed.locked ? await demoDigest(store, key) : null,
+      password: seed.phrase === null ? null : await demoDigest(store, key, seed.phrase),
       createdBy: AUTHOR,
       expiresAt: new Date(Date.parse(at) + LIFETIME_DAYS * DAY_MS).toISOString(),
     });
