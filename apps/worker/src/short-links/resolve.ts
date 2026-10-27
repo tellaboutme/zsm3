@@ -10,8 +10,11 @@ export const PASSWORD_ATTEMPTS = 30;
 
 const MINUTE_MS = 60_000;
 
-export interface ResolveDeps {
+export interface OpenDeps {
   readonly links: ShortLinksRepo;
+}
+
+export interface ResolveDeps extends OpenDeps {
   readonly rateLimits: RateLimitsRepo;
   readonly passwordKey: string | undefined;
 }
@@ -28,7 +31,7 @@ export type UnlockOutcome =
 
 type FoundLink = { readonly kind: "found"; readonly link: ShortLinkRecord } | LapsedOutcome;
 
-async function findLive(deps: ResolveDeps, code: string, now: Date): Promise<FoundLink> {
+async function findLive(deps: OpenDeps, code: string, now: Date): Promise<FoundLink> {
   if (!shortCodeSchema.safeParse(code).success) {
     return { kind: "missing" };
   }
@@ -46,12 +49,12 @@ async function attemptsExceeded(deps: ResolveDeps, code: string, now: Date): Pro
   return state.count > PASSWORD_ATTEMPTS;
 }
 
-async function opened(deps: ResolveDeps, link: ShortLinkRecord): Promise<OpenOutcome> {
+async function opened(deps: OpenDeps, link: ShortLinkRecord): Promise<OpenOutcome> {
   await deps.links.countClick(link.code);
   return { kind: "redirect", target: link.target };
 }
 
-export async function openLink(deps: ResolveDeps, code: string, now: Date): Promise<OpenOutcome> {
+export async function openLink(deps: OpenDeps, code: string, now: Date): Promise<OpenOutcome> {
   const found = await findLive(deps, normaliseCode(code), now);
   if (found.kind !== "found") {
     return found;

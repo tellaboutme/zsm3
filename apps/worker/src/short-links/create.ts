@@ -29,14 +29,20 @@ type DigestOutcome =
   | { readonly kind: "ready"; readonly digest: PasswordDigest | null }
   | { readonly kind: "unavailable" };
 
-async function digestFor(deps: CreateDeps, password: string | undefined): Promise<DigestOutcome> {
-  if (password === undefined) {
-    return { kind: "ready", digest: null };
-  }
-  const key = deps.passwordKey;
+async function lockedDigest(
+  key: string | undefined,
+  password: string,
+  random: RandomBytes,
+): Promise<DigestOutcome> {
   return key === undefined
     ? { kind: "unavailable" }
-    : { kind: "ready", digest: await hashPassword(key, password, deps.random) };
+    : { kind: "ready", digest: await hashPassword(key, password, random) };
+}
+
+async function digestFor(deps: CreateDeps, password: string | undefined): Promise<DigestOutcome> {
+  return password === undefined
+    ? { kind: "ready", digest: null }
+    : await lockedDigest(deps.passwordKey, password, deps.random);
 }
 
 async function freeCode(deps: CreateDeps): Promise<string | undefined> {

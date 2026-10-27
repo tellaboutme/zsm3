@@ -14,7 +14,7 @@ import { liveStore } from "../storage/database.ts";
 import { rateLimitsRepo } from "../storage/rate-limits-repo.ts";
 import { shortLinksRepo } from "../storage/short-links-repo.ts";
 
-const PASSWORD_FIELD = "haslo";
+const FIELD_NAME = "haslo";
 
 export const shortLinkRoutes = new Hono<AppEnv>().post("/:code", async (c) => {
   if (!isOwnSubmission(c)) {
@@ -26,7 +26,7 @@ export const shortLinkRoutes = new Hono<AppEnv>().post("/:code", async (c) => {
   const code = c.req.param("code");
   const store = liveStore(c.env.DB);
   const submitted = await c.req.parseBody();
-  const password = submittedPassword(submitted[PASSWORD_FIELD]);
+  const password = submittedPassword(submitted[FIELD_NAME]);
   const deps = {
     links: shortLinksRepo(store),
     rateLimits: rateLimitsRepo(store),
