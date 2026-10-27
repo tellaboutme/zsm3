@@ -28,6 +28,9 @@
   },
   "exports": {
     "./app": "./src/app.ts",
+    "./env": "./src/env.ts",
+    "./jobs/retention": "./src/jobs/retention.ts",
+    "./requests-app": "./src/requests-app.ts",
     "./storage/*": "./src/storage/*",
     "./seed/files.ts": "./seed/files.ts",
     "./seed/pages/index.ts": "./seed/pages/index.ts"

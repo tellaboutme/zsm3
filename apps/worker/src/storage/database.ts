@@ -1,8 +1,8 @@
-import type { z } from "zod";
+import { z } from "zod";
 
 import { cryptoRandom, type RandomBytes } from "./ids.ts";
 
-export type SqlValue = string | number | null;
+export type SqlValue = string | number | null | Uint8Array;
 
 export interface SqlStatement {
   bind(...values: SqlValue[]): SqlStatement;
@@ -14,6 +14,12 @@ export interface SqlStatement {
 export interface SqlDatabase {
   prepare(query: string): SqlStatement;
   batch(statements: SqlStatement[]): Promise<unknown>;
+}
+
+const batchChangesSchema = z.array(z.object({ meta: z.object({ changes: z.number() }) }));
+
+export function batchChanges(result: unknown): readonly number[] {
+  return batchChangesSchema.parse(result).map((row) => row.meta.changes);
 }
 
 export type Clock = () => Date;

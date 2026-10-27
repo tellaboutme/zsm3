@@ -9,6 +9,9 @@ import { getPlatformProxy } from "wrangler";
 import { seedFiles, storedFile, type SeedFile } from "./files.ts";
 import { seedNews } from "./news/index.ts";
 import { seedPages } from "./pages/index.ts";
+import { seedRequests } from "./requests.ts";
+import { MissingSecretError, requestsConfig, type RequestsSecretEnv } from "../src/env.ts";
+import { piiCrypto } from "../src/security/pii-crypto.ts";
 import { liveStore, type SqlDatabase } from "../src/storage/database.ts";
 import { filesRepo } from "../src/storage/files-repo.ts";
 import { newsRepo } from "../src/storage/news-repo.ts";
@@ -43,7 +46,9 @@ async function verifiedBytes(directory: string, file: SeedFile): Promise<Uint8Ar
   return bytes;
 }
 
-const { env, dispose } = await getPlatformProxy<{ DB: SqlDatabase; MEDIA: MediaBucket }>({
+const { env, dispose } = await getPlatformProxy<
+  { DB: SqlDatabase; MEDIA: MediaBucket } & RequestsSecretEnv
+>({
   configPath,
   persist: { path: statePath },
 });
@@ -62,7 +67,26 @@ if (mediaDirectory !== undefined) {
     await env.MEDIA.put(storedFile(file).key, await verifiedBytes(mediaDirectory, file));
   }
 }
+let seededRequests = 0;
+let requestsAvailable = true;
+try {
+  const config = requestsConfig(env);
+  seededRequests = await seedRequests({
+    store,
+    pii: piiCrypto(config.piiKeys, config.activePiiKeyId, store.random),
+    emailIndexKey: config.emailIndexKey,
+  });
+} catch (error) {
+  if (!(error instanceof MissingSecretError)) {
+    throw error;
+  }
+  requestsAvailable = false;
+}
 await dispose();
 process.stdout.write(
-  `Seeded ${String(seedNews.length)} news items, ${String(seedPages.length)} pages and ${String(manifest.length)} files${mediaDirectory === undefined ? " without their contents" : ""}.\n`,
+  `Seeded ${String(seedNews.length)} news items, ${String(seedPages.length)} pages and ${String(manifest.length)} files${mediaDirectory === undefined ? " without their contents" : ""}.${
+    requestsAvailable
+      ? ` Seeded ${String(seededRequests)} e-wniosek requests.`
+      : " Skipped e-wniosek requests (missing secrets)."
+  }\n`,
 );

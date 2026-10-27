@@ -1,0 +1,9 @@
+PII_KEY_PRIMARY=replace-with-a-random-string-of-at-least-32-characters
+PII_KEY_SECONDARY=replace-with-a-random-string-of-at-least-32-characters
+EMAIL_INDEX_KEY=replace-with-a-random-string-of-at-least-32-characters
+RATE_LIMIT_SALT=replace-with-a-random-string-of-at-least-32-characters
+TURNSTILE_SECRET_KEY=replace-with-the-cloudflare-turnstile-secret-key
+TURNSTILE_SITE_KEY=replace-with-the-cloudflare-turnstile-site-key
+BREVO_API_KEY=replace-with-the-brevo-smtp-api-key
+STATUS_EMAIL_FROM=no-reply@example.com
+SECRETARIAT_EMAIL=sekretariat@example.com

@@ -4,9 +4,15 @@ import type { Context } from "hono";
 import type { AppEnv } from "../app-env.ts";
 
 const titles = {
+  400: "Bad Request",
+  403: "Forbidden",
   404: "Not Found",
+  409: "Conflict",
   413: "Content Too Large",
+  415: "Unsupported Media Type",
+  429: "Too Many Requests",
   500: "Internal Server Error",
+  503: "Service Unavailable",
 } as const;
 
 export type ProblemStatus = keyof typeof titles;

@@ -9,7 +9,8 @@
     "./content": "./src/content.ts",
     "./media": "./src/media.ts",
     "./fold": "./src/fold.ts",
-    "./search": "./src/search.ts"
+    "./search": "./src/search.ts",
+    "./requests": "./src/requests.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

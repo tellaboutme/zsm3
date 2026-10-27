@@ -18,29 +18,41 @@ export interface MemoryDatabase extends SqlDatabase {
   readonly sqlite: DatabaseSync;
 }
 
-export function memoryDatabase(): MemoryDatabase {
-  const db = new DatabaseSync(":memory:");
+export function memoryDatabase(path = ":memory:"): MemoryDatabase {
+  const db = new DatabaseSync(path);
   const migrations = readdirSync(MIGRATIONS)
     .filter((file) => file.endsWith(".sql"))
     .toSorted();
-  for (const file of migrations) {
-    db.exec(readFileSync(new URL(file, MIGRATIONS), "utf8"));
+  if (
+    db
+      .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'requests'")
+      .get() === undefined
+  ) {
+    for (const file of migrations) {
+      db.exec(readFileSync(new URL(file, MIGRATIONS), "utf8"));
+    }
   }
   return {
     sqlite: db,
     prepare: (query) => statement(db, query, []),
     batch: async (statements) => {
       db.exec("BEGIN");
+      const results: { meta: { changes: number } }[] = [];
       try {
         for (const item of statements) {
           await item.run();
+          results.push({
+            meta: {
+              changes: Number(db.prepare("SELECT changes() AS count").get()?.["count"] ?? 0),
+            },
+          });
         }
         db.exec("COMMIT");
       } catch (error) {
         db.exec("ROLLBACK");
         throw error;
       }
-      return [];
+      return results;
     },
   };
 }

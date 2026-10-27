@@ -19,13 +19,10 @@ beforeAll(async () => {
     throw new Error("D1 search backfill must follow the search index migration");
   }
   const requestsPosition = migrationNames.indexOf("0004_requests.sql");
-  if (requestsPosition >= 0 && backfillPosition >= requestsPosition) {
+  if (requestsPosition !== backfillPosition + 1) {
     throw new Error("D1 search backfill must precede the requests migration");
   }
-  await applyD1Migrations(
-    env.DB,
-    env.TEST_MIGRATIONS.filter((migration) => migration.name !== backfillName),
-  );
+  await applyD1Migrations(env.DB, env.TEST_MIGRATIONS.slice(0, backfillPosition));
   for (const [id, slug, status] of [
     ["published", "archiwum", "published"],
     ["older", "starsze", "published"],
@@ -83,11 +80,15 @@ beforeAll(async () => {
 });
 
 describe("search backfill on existing D1", () => {
-  it("sorts after the existing index and before the planned requests migration", ({ expect }) => {
+  it("runs search index, backfill and requests migrations in order", async ({ expect }) => {
     const names = env.TEST_MIGRATIONS.map((migration) => migration.name);
     expect(names).toEqual(names.toSorted());
     expect(names.indexOf(backfillName)).toBe(names.indexOf("0003_search_index.sql") + 1);
-    expect(backfillName.localeCompare("0004_requests.sql")).toBeLessThan(0);
+    expect(names.indexOf("0004_requests.sql")).toBe(names.indexOf(backfillName) + 1);
+    const requests = await env.DB.prepare("SELECT name FROM sqlite_master WHERE name = ?")
+      .bind("requests")
+      .first();
+    expect(requests).toEqual({ name: "requests" });
   });
 
   it("indexes existing published pages and news, without overwriting newer indexed content", async ({
