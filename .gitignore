@@ -28,3 +28,4 @@ __pycache__/
 Thumbs.db
 .zap/*
 !.zap/rules.tsv
+opencode.jsonc
