@@ -47,13 +47,16 @@ export function sitemapEntries(
   return [...entries.values()];
 }
 
+const XML_ENTITIES: Readonly<Record<string, string>> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&apos;",
+};
+
 function xml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
+  return Array.from(value, (character) => XML_ENTITIES[character] ?? character).join("");
 }
 
 function sitemapUrl(origin: string, { path, lastmod }: SitemapEntry): string {

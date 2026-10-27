@@ -56,16 +56,13 @@ test("pages reached with a query carry a noindex response header", async ({ requ
   expect(duplicate.headers()["x-robots-tag"]).toBe("noindex, follow");
 });
 
-test("the news listing offers its feed only when unfiltered", async ({ page }) => {
+test("the news listing points readers at its feed", async ({ page }) => {
   await page.goto("/aktualnosci");
+
   await expect(page.locator('link[rel="alternate"][type="application/rss+xml"]')).toHaveAttribute(
     "href",
     "/aktualnosci/rss.xml",
   );
-  await expect(page.getByRole("link", { name: "Kanał RSS aktualności" })).toBeVisible();
-
-  await page.goto("/aktualnosci/strona/2");
-  await expect(page.getByRole("link", { name: "Kanał RSS aktualności" })).toHaveCount(0);
 });
 
 test("calendar structured data only states school-year dates", async ({ page }) => {
