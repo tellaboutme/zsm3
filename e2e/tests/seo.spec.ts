@@ -48,12 +48,18 @@ test("canonical and noindex metadata follow the address", async ({ page }) => {
   );
 });
 
-test("pages reached with a query carry a noindex response header", async ({ request }) => {
-  const indexed = await request.get("/kontakt");
-  const duplicate = await request.get("/kontakt?utm_source=mail");
+test("a page rendered on demand carries a noindex header under a query", async ({ request }) => {
+  const indexed = await request.get("/aktualnosci");
+  const duplicate = await request.get("/aktualnosci?utm_source=mail");
 
   expect(indexed.headers()["x-robots-tag"]).toBeUndefined();
   expect(duplicate.headers()["x-robots-tag"]).toBe("noindex, follow");
+});
+
+test("a prerendered page names its canonical address under a query", async ({ page }) => {
+  await page.goto("/kontakt?utm_source=mail");
+
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${ORIGIN}/kontakt`);
 });
 
 test("the news listing points readers at its feed", async ({ page }) => {
