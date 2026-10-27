@@ -81,7 +81,22 @@ Every test in `apps/worker/test` runs twice: in Node, where mutation testing run
 
 ## Pull requests
 
-`main` changes only through pull requests. A pull request is merged when every CI job is green: format, lint, types, unit and integration tests, mutation tests, end-to-end tests, ZAP, static security analysis, dependency review and CodeQL.
+`main` changes only through pull requests. Direct pushes and force-pushes to `main` are
+blocked by branch protection. A pull request is merged when every CI job is green: format,
+lint, types, unit and integration tests, mutation tests, end-to-end tests, ZAP, static
+security analysis, dependency review and CodeQL, and the branch is up to date with `main`.
+
+The `static` job also runs two guards that do not appear elsewhere:
+
+- `pnpm lint:repo` (`tools/src/zsm3_tools/repo_rules.py`) scans every tracked file for
+  Cyrillic text, mentions of an AI assistant, and a `robots.txt` that has drifted from
+  `Disallow: /` before the stage 7 launch.
+- `.github/scripts/check-commit-messages.sh` scans the commit messages introduced by the
+  pull request (or the push) for the same AI-assistance markers.
+
+Before asking for the merge, run a code review over the diff (`/code-review`, or
+`/code-review ultra` for a change that touches security, data or the panel) and resolve its
+findings; a pull request that only has green CI has not been reviewed.
 
 ## ZAP rules that do not fail the build
 

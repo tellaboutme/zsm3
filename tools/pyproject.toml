@@ -8,6 +8,7 @@ dependencies = ["defusedxml"]
 [project.scripts]
 zsm3-no-comments = "zsm3_tools.no_comments:main"
 zsm3-import-legacy-urls = "zsm3_tools.redirect_import:main"
+zsm3-repo-rules = "zsm3_tools.repo_rules:main"
 
 [dependency-groups]
 dev = [
@@ -39,6 +40,8 @@ ignore = ["COM812", "CPY", "D"]
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "PLR2004"]
 "src/zsm3_tools/redirect_import.py" = ["S603", "S608"]
+"src/zsm3_tools/repo_rules.py" = ["S603"]
+"tests/test_repo_rules.py" = ["S603", "S607"]
 
 [tool.mypy]
 python_version = "3.13"
