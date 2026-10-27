@@ -105,10 +105,10 @@ const schemas = [
         href="/aktualnosci/rss.xml"
       />
     )}
+    <script is:inline set:html={bootScript} />
     {schemas.map((schema) => (
       <script type="application/ld+json" set:html={jsonLd(schema)} />
     ))}
-    <script is:inline set:html={bootScript} />
     <link rel="preload" href={archivo} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sourceSans} as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
