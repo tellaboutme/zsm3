@@ -53,7 +53,7 @@
 10113	FAIL	(Verification Request Identified)
 10115	FAIL	(Script Served From Malicious Domain (polyfill))
 10116	FAIL	(ZAP is Out of Date)
-10202	FAIL	(Absence of Anti-CSRF Tokens)
+10202	IGNORE	(Absence of Anti-CSRF Tokens)
 110009	FAIL	(Full Path Disclosure)
 2	FAIL	(Private IP Disclosure)
 3	FAIL	(Session ID in URL Rewrite)

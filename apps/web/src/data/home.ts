@@ -29,7 +29,7 @@ export const audiencePanels: readonly NavGroup[] = [
     links: [
       { label: "Dzwonki", href: "/uczniowie/dzwonki" },
       { label: "Plan lekcji w Librusie", href: externalServices.librus, external: true },
-      { label: "E-wniosek", href: "/uczniowie/e-wniosek" },
+      { label: "E-wniosek", href: "/e-wniosek" },
       { label: "Wzory dokumentów", href: "/uczniowie/wzory-dokumentow" },
     ],
   },

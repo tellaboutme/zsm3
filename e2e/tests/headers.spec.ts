@@ -1,7 +1,7 @@
 import { expect, test } from "./fixtures.ts";
 
 const contentSecurityPolicy =
-  /^default-src 'none'; script-src 'self' 'sha256-[\w+/]{43}='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types 'none'$/u;
+  /^default-src 'none'; script-src 'self' https:\/\/challenges.cloudflare.com 'sha256-[\w+/]{43}='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self' https:\/\/challenges.cloudflare.com; frame-src https:\/\/challenges.cloudflare.com; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types 'none'$/u;
 
 const pageHeaders = {
   "strict-transport-security": "max-age=63072000; includeSubDomains; preload",

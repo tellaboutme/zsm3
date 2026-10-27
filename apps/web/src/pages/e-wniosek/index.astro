@@ -1,0 +1,204 @@
+---
+import { requestTypes, requestTypeMeta, schoolClasses } from "@zsm3/contracts/requests";
+import {
+  REQUEST_NOTICE_URL,
+  REQUEST_TERMS_URL,
+  REQUESTS_ENABLED,
+  TURNSTILE_SITE_KEY,
+} from "astro:env/server";
+
+import Base from "../../layouts/Base.astro";
+import "../../styles/request.css";
+
+const localDocument = (path: string): boolean =>
+  path.startsWith("/") && !path.startsWith("//") && !path.includes("?") && !path.includes("#");
+
+const available =
+  REQUESTS_ENABLED &&
+  TURNSTILE_SITE_KEY.length > 0 &&
+  localDocument(REQUEST_NOTICE_URL) &&
+  localDocument(REQUEST_TERMS_URL);
+---
+
+<Base
+  title="E-wniosek – ZSM3"
+  description="Złóż wniosek o dokument szkolny lub sprawdź stan wcześniejszego wniosku."
+  breadcrumbs={[{ label: "E-wniosek" }]}
+  noindex
+>
+  <div class="request-page">
+    <header class="request-intro">
+      <p class="tag">Uczniowie · dokumenty</p>
+      <h1>E-wniosek</h1>
+      <p>
+        {available
+          ? "Złóż wniosek o dokument szkolny."
+          : "Sprawdź informacje o dokumentach szkolnych."}{" "}
+        <a href="/e-wniosek/status">Sprawdź stan złożonego wniosku</a>.
+      </p>
+    </header>
+    {!available ? (
+      <section class="request-notice" aria-labelledby="request-unavailable">
+        <h2 id="request-unavailable">Wnioski online są niedostępne</h2>
+        <p>
+          Nie wpisuj tutaj swoich danych. Aby uzyskać dokument, skontaktuj się z{" "}
+          <a href="/kontakt">sekretariatem szkoły</a>.
+        </p>
+      </section>
+    ) : (
+      <section aria-labelledby="request-heading">
+        <h2 id="request-heading">Dane do wniosku</h2>
+        <p>Dokumenty są wydawane osobiście w sekretariacie po sprawdzeniu tożsamości.</p>
+        <noscript>
+          <p>
+            Wysłanie wniosku wymaga JavaScriptu. Skontaktuj się z{" "}
+            <a href="/kontakt">sekretariatem</a>.
+          </p>
+        </noscript>
+        <form data-request-form method="post" action="/api/requests" novalidate>
+          <div class="request-errors" id="request-errors" tabindex="-1" role="alert" hidden></div>
+          <label for="request-type">
+            Rodzaj dokumentu <span aria-hidden="true">*</span>
+          </label>
+          <select id="request-type" name="type" required aria-describedby="type-error">
+            <option value="">Wybierz dokument</option>
+            {requestTypes.map((type) => (
+              <option value={type}>{requestTypeMeta[type].label}</option>
+            ))}
+          </select>
+          <span id="type-error" class="field-error" aria-live="polite"></span>
+          <label for="request-firstName">
+            Imię <span aria-hidden="true">*</span>
+          </label>
+          <input
+            id="request-firstName"
+            name="firstName"
+            autocomplete="given-name"
+            maxlength="100"
+            required
+            aria-describedby="firstName-error"
+          />
+          <span id="firstName-error" class="field-error" aria-live="polite"></span>
+          <label for="request-lastName">
+            Nazwisko <span aria-hidden="true">*</span>
+          </label>
+          <input
+            id="request-lastName"
+            name="lastName"
+            autocomplete="family-name"
+            maxlength="100"
+            required
+            aria-describedby="lastName-error"
+          />
+          <span id="lastName-error" class="field-error" aria-live="polite"></span>
+          <label for="request-email">
+            Adres e-mail <span aria-hidden="true">*</span>
+          </label>
+          <input
+            id="request-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            aria-describedby="email-error"
+          />
+          <span id="email-error" class="field-error" aria-live="polite"></span>
+          <div data-class-field hidden>
+            <label for="request-className">
+              Klasa <span aria-hidden="true">*</span>
+            </label>
+            <select id="request-className" name="className" aria-describedby="className-error">
+              <option value="">Wybierz klasę</option>
+              {schoolClasses.map((schoolClass) => (
+                <option value={schoolClass}>{schoolClass.toUpperCase()}</option>
+              ))}
+            </select>
+            <span id="className-error" class="field-error" aria-live="polite"></span>
+          </div>
+          <div data-year-field hidden>
+            <label for="request-graduationYear">
+              Rok ukończenia szkoły (jeśli nie wybierasz klasy)
+            </label>
+            <input
+              id="request-graduationYear"
+              name="graduationYear"
+              type="number"
+              min="1990"
+              max="2100"
+              inputmode="numeric"
+              aria-describedby="graduationYear-error"
+            />
+            <span id="graduationYear-error" class="field-error" aria-live="polite"></span>
+          </div>
+          <label for="request-note">Dodatkowa informacja (opcjonalnie)</label>
+          <p id="note-hint">Nie wpisuj danych wrażliwych. Maksymalnie 500 znaków.</p>
+          <textarea
+            id="request-note"
+            name="note"
+            maxlength="500"
+            rows="4"
+            aria-describedby="note-hint note-error"
+          ></textarea>
+          <span id="note-error" class="field-error" aria-live="polite"></span>
+          <div class="request-trap" aria-hidden="true">
+            <label for="request-honeypot">Pozostaw puste</label>
+            <input id="request-honeypot" name="honeypot" tabindex="-1" autocomplete="off" />
+          </div>
+          <p>
+            Przeczytaj <a href={REQUEST_NOTICE_URL}>informację o przetwarzaniu danych</a> i{" "}
+            <a href={REQUEST_TERMS_URL}>zasady składania wniosku</a>.
+          </p>
+          <label class="request-check" for="request-noticesAccepted">
+            <input
+              id="request-noticesAccepted"
+              name="noticesAccepted"
+              type="checkbox"
+              required
+              aria-describedby="noticesAccepted-error"
+            />{" "}
+            Zapoznałem się z informacją i zasadami składania wniosku.
+          </label>
+          <span id="noticesAccepted-error" class="field-error" aria-live="polite"></span>
+          <div
+            class="cf-turnstile"
+            data-sitekey={TURNSTILE_SITE_KEY}
+            data-action="request"
+            data-response-field="false"
+          ></div>
+          <p>
+            Jeżeli weryfikacja nie działa, skontaktuj się z <a href="/kontakt">sekretariatem</a>.
+          </p>
+          <button type="submit" data-submit>
+            Wyślij wniosek
+          </button>
+        </form>
+        <section
+          data-request-success
+          hidden
+          tabindex="-1"
+          aria-labelledby="request-success-heading"
+        >
+          <h2 id="request-success-heading">Wniosek został przyjęty</h2>
+          <p>
+            Zapisz ten odnośnik. Link do sprawdzenia stanu wniosku zostanie również wysłany na
+            podany adres e-mail.
+          </p>
+          <a data-status-link href="/e-wniosek/status">
+            Sprawdź stan wniosku
+          </a>
+        </section>
+      </section>
+    )}
+  </div>
+</Base>
+{available && (
+  <script
+    is:inline
+    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+    async
+    defer
+  ></script>
+)}
+{available && <script>
+  import "../../scripts/request-form.ts";
+</script>}

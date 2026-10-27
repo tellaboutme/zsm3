@@ -61,6 +61,16 @@ const baseMap: readonly MapNode[] = [
         href: "/uczniowie/wzory-dokumentow",
         description: "Formularze PDF: duplikaty, zwolnienia, wydanie dokumentów, oświadczenia.",
       },
+      {
+        label: "E-wniosek",
+        href: "/e-wniosek",
+        description: "Złóż wniosek o dokument szkolny lub sprawdź stan wcześniejszego wniosku.",
+      },
+      {
+        label: "Stan wniosku",
+        href: "/e-wniosek/status",
+        description: "Sprawdź stan złożonego wniosku o dokument szkolny.",
+      },
     ],
   },
   {
