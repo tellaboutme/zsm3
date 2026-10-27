@@ -39,7 +39,7 @@ INSERT_PREFIX = "INSERT OR IGNORE INTO redirects (from_path, to_path, created_at
 
 BASE_OPTIONS = Options(
     sources=(Path("legacy.csv"),),
-    target="/",
+    target=None,
     remote=False,
     yes=False,
     dry_run=False,
@@ -661,6 +661,20 @@ def test_main_reports_source_errors(tmp_path: Path, capsys: pytest.CaptureFixtur
     assert main(["--source", str(path)], runner=runner) == 1
     assert runner.commands == []
     assert "unsupported source type" in capsys.readouterr().err
+
+
+def test_main_requires_a_verified_target_for_sitemaps(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = tmp_path / "sitemap.xml"
+    path.write_text(
+        "<urlset><url><loc>https://old.example/old</loc></url></urlset>", encoding="utf-8"
+    )
+    runner = RecordingRunner("")
+
+    assert main(["--source", str(path)], runner=runner) == 1
+    assert runner.commands == []
+    assert "sitemap sources require --to" in capsys.readouterr().err
 
 
 @pytest.mark.usefixtures("fake_pnpm")

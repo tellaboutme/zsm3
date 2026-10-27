@@ -74,6 +74,11 @@ def test_csv_rejects_an_empty_file(tmp_path: Path) -> None:
         read_csv(path)
 
 
+def test_csv_reports_missing_file_as_source_error(tmp_path: Path) -> None:
+    with pytest.raises(SourceError, match="unreadable CSV"):
+        read_csv(tmp_path / "missing.csv")
+
+
 def test_csv_rejects_a_missing_header(tmp_path: Path) -> None:
     path = write_text(tmp_path, "legacy.csv", "old,new\n/a,/b\n")
 
@@ -164,6 +169,11 @@ def test_sitemap_rejects_broken_xml(tmp_path: Path) -> None:
 
     with pytest.raises(SourceError, match="invalid XML"):
         read_sitemap(path, "/target")
+
+
+def test_sitemap_reports_missing_file_as_source_error(tmp_path: Path) -> None:
+    with pytest.raises(SourceError, match="invalid XML"):
+        read_sitemap(tmp_path / "missing.xml", "/target")
 
 
 def test_sitemap_rejects_a_missing_root_element(

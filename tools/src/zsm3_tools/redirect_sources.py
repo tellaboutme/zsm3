@@ -31,12 +31,12 @@ def read_rows(path: Path, target: str) -> list[SourceRow]:
 
 
 def read_csv(path: Path) -> list[SourceRow]:
-    with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        try:
+    try:
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
             rows = list(csv.reader(handle))
-        except csv.Error as error:
-            message = f"{path}: unreadable CSV: {error}"
-            raise SourceError(message) from error
+    except (OSError, csv.Error) as error:
+        message = f"{path}: unreadable CSV: {error}"
+        raise SourceError(message) from error
     if not rows:
         message = f"{path}: file is empty"
         raise SourceError(message)
@@ -55,7 +55,7 @@ def read_csv(path: Path) -> list[SourceRow]:
 def read_sitemap(path: Path, target: str) -> list[SourceRow]:
     try:
         root = parse_xml(path).getroot()
-    except ParseError as error:
+    except (OSError, ParseError) as error:
         message = f"{path}: invalid XML: {error}"
         raise SourceError(message) from error
     if root is None or _local_name(root.tag) != "urlset":
