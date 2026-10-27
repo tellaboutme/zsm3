@@ -6,6 +6,7 @@ import { liveStore } from "@zsm3/worker/storage/database.ts";
 import { redirectsRepo } from "@zsm3/worker/storage/redirects-repo.ts";
 
 import { routeLegacyRequest } from "./legacy-route.ts";
+import { withQueryNoindex } from "./seo-response.ts";
 
 const api = createApp();
 const requestsApi = createRequestsApp();
@@ -28,7 +29,7 @@ export default {
     }
     const response = await handle(request, env, context);
     const repo = redirectsRepo(liveStore(env.DB));
-    return routeLegacyRequest(
+    const page = await routeLegacyRequest(
       request,
       response,
       async (path) => {
@@ -41,6 +42,7 @@ export default {
         return result.ok;
       },
     );
+    return withQueryNoindex(request, page);
   },
   scheduled: (event, env, context) => {
     context.waitUntil(

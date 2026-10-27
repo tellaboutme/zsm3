@@ -12,6 +12,7 @@ import {
   longDate,
   schoolYearName,
 } from "../../lib/calendar.ts";
+import { schoolYearSchemas } from "../../lib/seo.ts";
 
 export const prerender = false;
 
@@ -43,6 +44,7 @@ const groups = [
   title={`Terminarz roku szkolnego ${yearName} — ZSM3`}
   description={`Rozpoczęcie i zakończenie roku, przerwy, dni wolne, zebrania z rodzicami, klasyfikacja, praktyki i egzaminy w roku szkolnym ${yearName}.`}
   breadcrumbs={[{ label: "Szkoła", href: "/szkola" }, { label: "Terminarz" }]}
+  structuredData={schoolYearSchemas(keyDates, "/szkola/terminarz")}
 >
   <div class="calendar">
     <header class="intro">

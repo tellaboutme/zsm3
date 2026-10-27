@@ -15,9 +15,11 @@ import Breadcrumbs from "../components/Breadcrumbs.astro";
 import ContactPreviewForm from "../components/ContactPreviewForm.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
+import { school } from "../data/site.ts";
 import type { Announcement } from "../lib/announcement.ts";
 import type { Crumb } from "../lib/breadcrumbs.ts";
 import { bootScript } from "../lib/preferences.ts";
+import { canonicalUrl, jsonLd, shouldNoindex, SITE_ORIGIN } from "../lib/seo.ts";
 
 import "../styles/global.css";
 
@@ -27,11 +29,53 @@ interface Props {
   noindex?: boolean;
   breadcrumbs?: readonly Crumb[];
   announcement?: Announcement;
+  structuredData?: object | readonly object[];
 }
 
-const { title, description, noindex = false, breadcrumbs } = Astro.props;
+const { title, description, noindex = false, breadcrumbs, structuredData } = Astro.props;
 const announcement = Astro.props.announcement ?? Astro.locals.announcement;
 const bells = Astro.locals.bells;
+const canonical = canonicalUrl(Astro.url);
+const breadcrumbData =
+  breadcrumbs === undefined
+    ? undefined
+    : {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumbs.map((crumb, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: crumb.label,
+          item: new URL(crumb.href ?? Astro.url.pathname, SITE_ORIGIN).href,
+        })),
+      };
+const schoolData =
+  Astro.url.pathname === "/"
+    ? {
+        "@context": "https://schema.org",
+        "@type": "HighSchool",
+        name: school.name,
+        url: canonical,
+        telephone: school.phone,
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: school.latitude,
+          longitude: school.longitude,
+        },
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: school.street,
+          postalCode: school.postalCode,
+          addressLocality: school.city,
+          addressCountry: "PL",
+        },
+      }
+    : undefined;
+const schemas = [
+  schoolData,
+  breadcrumbData,
+  ...(Array.isArray(structuredData) ? structuredData : [structuredData]),
+].filter((schema) => schema !== undefined);
 ---
 
 <!doctype html>
@@ -40,8 +84,26 @@ const bells = Astro.locals.bells;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    {(noindex || shouldNoindex(Astro.url)) && <meta name="robots" content="noindex, follow" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="pl_PL" />
+    <meta name="twitter:card" content="summary" />
+    {Astro.url.pathname === "/aktualnosci" && (
+      <link
+        rel="alternate"
+        type="application/rss+xml"
+        title="Aktualności ZSM3"
+        href="/aktualnosci/rss.xml"
+      />
+    )}
     <script is:inline set:html={bootScript} />
+    {schemas.map((schema) => (
+      <script type="application/ld+json" set:html={jsonLd(schema)} />
+    ))}
     <link rel="preload" href={archivo} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sourceSans} as="font" type="font/woff2" crossorigin />
     <title>{title}</title>

@@ -7,7 +7,12 @@ export default defineConfig({
     setupFiles: ["test/setup.ts"],
     coverage: {
       provider: "istanbul",
-      include: ["src/lib/**/*.ts", "worker/legacy-redirect.ts", "worker/legacy-route.ts"],
+      include: [
+        "src/lib/**/*.ts",
+        "worker/legacy-redirect.ts",
+        "worker/legacy-route.ts",
+        "worker/seo-response.ts",
+      ],
       reporter: ["text", "lcov"],
       thresholds: { 100: true },
     },

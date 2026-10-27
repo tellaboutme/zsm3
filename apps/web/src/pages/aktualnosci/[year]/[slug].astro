@@ -5,6 +5,7 @@ import Base from "../../../layouts/Base.astro";
 import { longDate } from "../../../lib/calendar.ts";
 import { loadArticle } from "../../../lib/news-listing.ts";
 import { categoryHref, newsHref, newsYear } from "../../../lib/news.ts";
+import { SITE_ORIGIN } from "../../../lib/seo.ts";
 import { newsReader, notFound } from "../../../server/news.ts";
 
 export const prerender = false;
@@ -20,6 +21,14 @@ const { newer, older } = article.neighbours;
 <Base
   title={`${item.title} — ZSM3`}
   description={item.lead}
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: item.title,
+    description: item.lead,
+    datePublished: item.date,
+    mainEntityOfPage: new URL(newsHref(item), SITE_ORIGIN).href,
+  }}
   breadcrumbs={[
     { label: "Aktualności", href: "/aktualnosci" },
     { label: newsYear(item), href: `/aktualnosci/${newsYear(item)}` },

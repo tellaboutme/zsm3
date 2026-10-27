@@ -12,7 +12,8 @@
     "test",
     "*.ts",
     "worker/legacy-redirect.ts",
-    "worker/legacy-route.ts"
+    "worker/legacy-route.ts",
+    "worker/seo-response.ts"
   ],
   "exclude": ["dist"]
 }

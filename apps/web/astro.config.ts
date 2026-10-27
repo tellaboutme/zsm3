@@ -4,6 +4,7 @@ import { defineConfig, envField } from "astro/config";
 import { securityHeaders } from "./integrations/security-headers.ts";
 
 export default defineConfig({
+  site: "https://www.zespolszkolmechanicznych.edu.pl",
   output: "static",
   trailingSlash: "never",
   compressHTML: true,
