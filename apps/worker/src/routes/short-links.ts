@@ -2,7 +2,7 @@ import { Hono } from "hono";
 
 import type { AppEnv } from "../app-env.ts";
 import { isFormBody } from "../http/form-body.ts";
-import { isSameOrigin } from "../http/origin.ts";
+import { isOwnSubmission } from "../http/origin.ts";
 import { problemResponse } from "../http/problem.ts";
 import {
   passwordRedirect,
@@ -17,7 +17,7 @@ import { shortLinksRepo } from "../storage/short-links-repo.ts";
 const PASSWORD_FIELD = "haslo";
 
 export const shortLinkRoutes = new Hono<AppEnv>().post("/:code", async (c) => {
-  if (!isSameOrigin(c)) {
+  if (!isOwnSubmission(c)) {
     return problemResponse(c, 403);
   }
   if (!isFormBody(c.req.header("Content-Type"))) {

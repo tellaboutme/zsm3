@@ -19,6 +19,7 @@ interface PostOptions {
   readonly origin?: string | null;
   readonly noKey?: boolean;
   readonly noContentType?: boolean;
+  readonly fetchSite?: string;
 }
 
 function harness() {
@@ -27,7 +28,13 @@ function harness() {
   const post = async (
     code: string,
     body: string,
-    { contentType = FORM, origin = ORIGIN, noKey = false, noContentType = false }: PostOptions = {},
+    {
+      contentType = FORM,
+      origin = ORIGIN,
+      noKey = false,
+      noContentType = false,
+      fetchSite,
+    }: PostOptions = {},
   ): Promise<Response> =>
     await app.request(
       `${ORIGIN}/api/short-links/${code}`,
@@ -36,6 +43,7 @@ function harness() {
         headers: {
           ...(noContentType ? {} : { "Content-Type": contentType }),
           ...(origin === null ? {} : { Origin: origin }),
+          ...(fetchSite === undefined ? {} : { "Sec-Fetch-Site": fetchSite }),
         },
         body,
       },
@@ -127,6 +135,33 @@ describe("checking a short link password", () => {
     const h = harness();
 
     expect((await h.post("..%2Fpanel", "haslo=x")).headers.get("Location")).toBe("/s/..%2Fpanel");
+  });
+
+  it("accepts a form the browser marks as same-origin without an origin header", async ({
+    expect,
+  }) => {
+    const h = harness();
+    await seed(h.store, "k7mq4ra", "klasa4tp");
+
+    const response = await h.post("k7mq4ra", "haslo=klasa4tp", {
+      origin: null,
+      fetchSite: "same-origin",
+    });
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("Location")).toBe(TARGET);
+  });
+
+  it("refuses a form the browser marks as cross-site", async ({ expect }) => {
+    const h = harness();
+    await seed(h.store, "k7mq4ra", "klasa4tp");
+
+    expect(
+      (await h.post("k7mq4ra", "haslo=klasa4tp", { origin: null, fetchSite: "cross-site" })).status,
+    ).toBe(403);
+    expect(
+      (await h.post("k7mq4ra", "haslo=klasa4tp", { origin: null, fetchSite: "none" })).status,
+    ).toBe(403);
   });
 
   it("refuses a request from another site", async ({ expect }) => {
