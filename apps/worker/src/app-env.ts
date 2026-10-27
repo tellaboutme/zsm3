@@ -5,7 +5,10 @@ import type { SqlDatabase } from "./storage/database.ts";
 export interface AppBindings extends RequestsSecretEnv {
   readonly DB: SqlDatabase;
   readonly MEDIA: {
-    get(key: string, options?: unknown): Promise<{
+    get(
+      key: string,
+      options?: unknown,
+    ): Promise<{
       readonly body: ReadableStream<Uint8Array>;
       readonly size: number;
       readonly httpEtag: string;
