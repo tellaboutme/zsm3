@@ -72,6 +72,9 @@ conflict, the documents win.
   shell, WebKit and mobile projects; Firefox runs in CI).
 - Commit with Conventional Commits (lefthook pre-commit, commitlint on the message), push,
   and open the pull request with `gh pr create`.
+- Run a code review over the diff before asking for the merge (`/code-review`, or
+  `/code-review ultra` for security-, data- or panel-touching changes); green CI is not a
+  review.
 - Merge (squash) only when every CI check is green; after merge, sync `main` and delete the
   branch.
 - Dependabot pull requests: merge when green and consistent with the policy, otherwise close
