@@ -34,6 +34,18 @@ function originOf(c: Context<AppEnv>): string {
   return new URL(c.req.url).origin;
 }
 
+function isSameOrigin(c: Context<AppEnv>): boolean {
+  const origin = c.req.header("Origin");
+  if (origin === undefined) {
+    return false;
+  }
+  try {
+    return new URL(origin).origin === originOf(c);
+  } catch {
+    return false;
+  }
+}
+
 async function readJson(c: Context<AppEnv>): Promise<JsonBody> {
   const contentType = c.req.header("Content-Type") ?? "";
   if (!contentType.startsWith(JSON_CONTENT_TYPE)) {
@@ -97,6 +109,9 @@ async function tokenRateLimited(c: Context<AppEnv>, purpose: RateLimitPurpose): 
 
 export const requestsRoutes = new Hono<AppEnv>()
   .post("/", async (c) => {
+    if (!isSameOrigin(c)) {
+      return problemResponse(c, 403);
+    }
     const parsed = await readJson(c);
     if (!parsed.ok) {
       return problemResponse(c, parsed.status);
@@ -130,6 +145,9 @@ export const requestsRoutes = new Hono<AppEnv>()
     return c.json(outcome.response, 200);
   })
   .post("/withdraw", async (c) => {
+    if (!isSameOrigin(c)) {
+      return problemResponse(c, 403);
+    }
     if (await tokenRateLimited(c, "withdraw")) {
       return problemResponse(c, 429);
     }

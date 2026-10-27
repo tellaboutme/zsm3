@@ -115,7 +115,7 @@ describe("POST /api/requests/withdraw", () => {
   it("rejects invalid media types and malformed json", async ({ expect }) => {
     const wrongType = await createRequestsApp().request(
       `${ORIGIN}/api/requests/withdraw`,
-      { method: "POST", headers: { "Content-Type": "text/plain" }, body: "{}" },
+      { method: "POST", headers: { "Content-Type": "text/plain", Origin: ORIGIN }, body: "{}" },
       env,
     );
     const invalid = await jsonPost("/api/requests/withdraw", "{", "198.51.100.66");

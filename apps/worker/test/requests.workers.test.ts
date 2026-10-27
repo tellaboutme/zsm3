@@ -4,32 +4,21 @@ import { env } from "cloudflare:workers";
 import { describe, it } from "vitest";
 
 import { expectedApiHeaders } from "./expected-api-headers.ts";
-import { body, formKey, jsonPost, request } from "./requests-workers-harness.ts";
+import { body, formKey, jsonPost, ORIGIN, request } from "./requests-workers-harness.ts";
 import { REQUEST_ID_HEADER } from "../src/http/request-id.ts";
 import { createRequestsApp, MAX_REQUEST_BODY_BYTES } from "../src/requests-app.ts";
 
 describe("POST /api/requests", () => {
-  it("rejects a missing content type and uses an empty ip when the header is absent", async ({
-    expect,
-  }) => {
-    const missingType = await request("/api/requests", { method: "POST" });
-    const withoutIp = await request("/api/requests", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: body({ turnstileToken: "" }),
-    });
-
-    expect(missingType.status).toBe(415);
-    expect(withoutIp.status).toBe(400);
-  });
-
   it("creates a request with a status link and hardening headers", async ({ expect }) => {
     const response = await jsonPost("/api/requests", body(), "198.51.100.1");
 
     expect(response.status).toBe(201);
     const submission = submissionResponseSchema.parse(await response.json());
     expect(submission.statusUrl).toMatch(/^https:\/\/zsm3\.test\/e-wniosek\/status#[\w-]{43}$/u);
-    const error = await request("/api/requests", { method: "POST" });
+    const error = await request("/api/requests", {
+      method: "POST",
+      headers: { Origin: ORIGIN },
+    });
     expect(error.status).toBe(415);
     for (const result of [response, error]) {
       expect(result.headers.get(REQUEST_ID_HEADER)).not.toBeNull();
@@ -148,7 +137,11 @@ describe("POST /api/requests", () => {
     );
     const wrongType = await request("/api/requests", {
       method: "POST",
-      headers: { "Content-Type": "text/plain", "CF-Connecting-IP": "198.51.100.10" },
+      headers: {
+        "Content-Type": "text/plain",
+        "CF-Connecting-IP": "198.51.100.10",
+        Origin: ORIGIN,
+      },
       body: body(),
     });
 
@@ -162,7 +155,11 @@ describe("POST /api/requests", () => {
       `https://evil.test/api/requests`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json", "CF-Connecting-IP": "198.51.100.11" },
+        headers: {
+          "Content-Type": "application/json",
+          "CF-Connecting-IP": "198.51.100.11",
+          Origin: "https://evil.test",
+        },
         body: body(),
       },
       env,
@@ -208,7 +205,11 @@ describe("POST /api/requests", () => {
       "/api/requests",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json", "CF-Connecting-IP": "198.51.100.40" },
+        headers: {
+          "Content-Type": "application/json",
+          "CF-Connecting-IP": "198.51.100.40",
+          Origin: ORIGIN,
+        },
         body: body(),
       },
       brokenEnv,

@@ -8,6 +8,11 @@ import { createRequestsApp, MAX_REQUEST_BODY_BYTES } from "../../src/requests-ap
 
 const app = createRequestsApp();
 
+interface PostOptions {
+  readonly contentType?: string;
+  readonly origin?: string | null;
+}
+
 function harness() {
   const DB = memoryDatabase();
   const env = { ...SECRETS, DB, MEDIA: { get: async () => await Promise.resolve(null) } };
@@ -15,11 +20,19 @@ function harness() {
     path: string,
     body: string,
     ip = "198.51.100.10",
-    contentType = "application/json",
+    { contentType = "application/json", origin = ORIGIN }: PostOptions = {},
   ): Promise<Response> =>
     await app.request(
       `${ORIGIN}/api/requests${path}`,
-      { method: "POST", headers: { "Content-Type": contentType, "CF-Connecting-IP": ip }, body },
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": contentType,
+          "CF-Connecting-IP": ip,
+          ...(origin === null ? {} : { Origin: origin }),
+        },
+        body,
+      },
       env,
     );
   return { DB, env, post };
@@ -55,7 +68,7 @@ afterEach(() => {
 describe("request HTTP routes in Node", () => {
   it("validates JSON and refuses invalid, trapped and foreign challenges", async ({ expect }) => {
     const { post } = harness();
-    expect((await post("", "{}", "1", "text/plain")).status).toBe(415);
+    expect((await post("", "{}", "1", { contentType: "text/plain" })).status).toBe(415);
     expect((await post("", "{", "2")).status).toBe(400);
     const probe = await post("", payload(), "3");
     expect(fetch).toHaveBeenCalled();
@@ -65,7 +78,11 @@ describe("request HTTP routes in Node", () => {
     expect((await post("", payload({ type: "INVALID" }), "5")).status).toBe(400);
     const foreign = await app.request(
       "https://foreign.test/api/requests",
-      { method: "POST", headers: { "Content-Type": "application/json" }, body: payload() },
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Origin: "https://foreign.test" },
+        body: payload(),
+      },
       { ...SECRETS, DB: memoryDatabase(), MEDIA: { get: async () => await Promise.resolve(null) } },
     );
     expect(foreign.status).toBe(403);
@@ -116,12 +133,16 @@ describe("request HTTP routes in Node", () => {
     const status = await post("/status", valid);
     expect(status.status).toBe(200);
     expect(await status.json()).toMatchObject({ type: "STUDENT_ID_RENEWAL", status: "submitted" });
-    expect((await post("/status", "{}", "198.51.100.41", "text/plain")).status).toBe(415);
+    expect(
+      (await post("/status", "{}", "198.51.100.41", { contentType: "text/plain" })).status,
+    ).toBe(415);
     expect((await post("/status", "{", "198.51.100.42")).status).toBe(400);
     expect(
       (await post("/status", JSON.stringify({ token: "a".repeat(43) }), "198.51.100.43")).status,
     ).toBe(404);
-    expect((await post("/withdraw", "{}", "198.51.100.44", "text/plain")).status).toBe(415);
+    expect(
+      (await post("/withdraw", "{}", "198.51.100.44", { contentType: "text/plain" })).status,
+    ).toBe(415);
     expect((await post("/withdraw", "{", "198.51.100.45")).status).toBe(400);
     expect(
       (await post("/withdraw", JSON.stringify({ token: "b".repeat(43) }), "198.51.100.46")).status,
@@ -156,7 +177,11 @@ describe("request HTTP routes in Node", () => {
     expect((await post("/withdraw", JSON.stringify({ token }))).status).toBe(409);
     const unavailable = await app.request(
       `${ORIGIN}/api/requests`,
-      { method: "POST", headers: { "Content-Type": "application/json" }, body: payload() },
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Origin: ORIGIN },
+        body: payload(),
+      },
       { ...env, EMAIL_INDEX_KEY: "" },
     );
     expect(unavailable.status).toBe(503);

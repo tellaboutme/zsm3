@@ -41,7 +41,7 @@ export async function request(
 export async function jsonPost(path: string, payload: string, ip: string): Promise<Response> {
   return request(path, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "CF-Connecting-IP": ip },
+    headers: { "Content-Type": "application/json", "CF-Connecting-IP": ip, Origin: ORIGIN },
     body: payload,
   });
 }
