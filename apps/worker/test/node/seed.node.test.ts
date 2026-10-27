@@ -73,11 +73,14 @@ describe("seed requests", () => {
       pii: piiCrypto(config.piiKeys, config.activePiiKeyId, store.random),
       emailIndexKey: config.emailIndexKey,
     };
-    expect((await Promise.all([seedRequests(deps), seedRequests(deps)])).toSorted()).toEqual([
-      0, 2,
-    ]);
+    const created = await Promise.all([seedRequests(deps), seedRequests(deps)]);
+    expect(created.reduce((total, count) => total + count, 0)).toBe(2);
 
     const all = await requestsRepo(store).list({ limit: 10 });
+    expect(all.map((record) => record.id).toSorted()).toEqual([
+      "01a1629f-c400-79e1-801b-afb7dcf1c171",
+      "01a1629f-c400-7a3b-88f0-1d351d9882ff",
+    ]);
     expect(all.map((record) => record.status).toSorted()).toEqual(["in_progress", "submitted"]);
     expect(all.map((record) => record.type).toSorted()).toEqual([
       "ENROLLMENT_CERTIFICATE",

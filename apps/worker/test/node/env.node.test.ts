@@ -4,7 +4,7 @@ import { MissingSecretError, requestsConfig, type RequestsSecretEnv } from "../.
 
 const VALID: RequestsSecretEnv = {
   PII_KEY_PRIMARY: "primary-key-0123456789-0123456789-0123456789",
-  PII_KEY_SECONDARY: "secondary-key-0123456789-0123456789",
+  PII_KEY_SECONDARY: `test-${"s".repeat(32)}`,
   EMAIL_INDEX_KEY: "email-index-key-0123456789-0123456789",
   RATE_LIMIT_SALT: "rate-limit-salt-0123456789-01234567890",
   TURNSTILE_SECRET_KEY: "turnstile-secret",

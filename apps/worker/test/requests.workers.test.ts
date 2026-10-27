@@ -3,6 +3,7 @@ import { submissionResponseSchema } from "@zsm3/contracts/requests";
 import { env } from "cloudflare:workers";
 import { describe, it } from "vitest";
 
+import { expectedApiHeaders } from "./expected-api-headers.ts";
 import { body, formKey, jsonPost, request } from "./requests-workers-harness.ts";
 import { REQUEST_ID_HEADER } from "../src/http/request-id.ts";
 import { createRequestsApp, MAX_REQUEST_BODY_BYTES } from "../src/requests-app.ts";
@@ -28,9 +29,15 @@ describe("POST /api/requests", () => {
     expect(response.status).toBe(201);
     const submission = submissionResponseSchema.parse(await response.json());
     expect(submission.statusUrl).toMatch(/^https:\/\/zsm3\.test\/e-wniosek\/status#[\w-]{43}$/u);
-    expect(response.headers.get(REQUEST_ID_HEADER)).not.toBeNull();
-    expect(response.headers.get("Content-Security-Policy")).toContain("default-src 'none'");
-    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    const error = await request("/api/requests", { method: "POST" });
+    expect(error.status).toBe(415);
+    for (const result of [response, error]) {
+      expect(result.headers.get(REQUEST_ID_HEADER)).not.toBeNull();
+      for (const [name, value] of Object.entries(expectedApiHeaders)) {
+        expect(result.headers.get(name), name).toBe(value);
+      }
+    }
+    expect(error.headers.get("Content-Type")).toBe(PROBLEM_CONTENT_TYPE);
   });
 
   it("answers a repeated form key without the stored status token", async ({ expect }) => {

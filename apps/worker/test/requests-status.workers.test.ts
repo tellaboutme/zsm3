@@ -1,5 +1,5 @@
 import { problemDetailsSchema, PROBLEM_CONTENT_TYPE } from "@zsm3/contracts/problem";
-import { submissionResponseSchema } from "@zsm3/contracts/requests";
+import { statusResponseSchema, submissionResponseSchema } from "@zsm3/contracts/requests";
 import { env } from "cloudflare:workers";
 import { describe, it, vi } from "vitest";
 
@@ -46,10 +46,17 @@ describe("POST /api/requests/status", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({
+    const record = await requestsRepo(liveStore(env.DB)).findByTokenHash(await tokenHash(token));
+    if (record === undefined) return expect.unreachable();
+    const result = statusResponseSchema.parse(await response.json());
+    expect(result).toEqual({
       type: "STUDENT_ID_RENEWAL",
       status: "submitted",
+      updatedAt: record.updatedAt,
+      collectionMessage: "",
     });
+    expect(JSON.stringify(result)).not.toContain(token);
+    expect(JSON.stringify(result)).not.toContain("jan@example.com");
   });
 
   it("hides unknown or malformed tokens behind a 404", async ({ expect }) => {

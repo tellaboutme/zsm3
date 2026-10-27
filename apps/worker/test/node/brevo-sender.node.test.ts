@@ -12,6 +12,13 @@ const message = {
 };
 
 describe("brevoSender", () => {
+  it("preserves a delivery error's code and cause", ({ expect }) => {
+    const cause = new TypeError("network failure");
+    const error = new EmailDeliveryError("brevo_unreachable", cause);
+    expect(error.name).toBe("EmailDeliveryError");
+    expect(error.errorCode).toBe("brevo_unreachable");
+    expect(error.cause).toBe(cause);
+  });
   it("posts a json payload with the api key", async ({ expect }) => {
     const doFetch = vi.fn(async (...args: Parameters<typeof fetch>) => {
       expect(args).toHaveLength(2);
@@ -23,7 +30,11 @@ describe("brevoSender", () => {
     expect(doFetch).toHaveBeenCalledTimes(1);
     expect(doFetch.mock.calls[0]?.[0]).toBe("https://api.brevo.com/v3/smtp/email");
     expect(doFetch.mock.calls[0]?.[1]?.method).toBe("POST");
-    expect(doFetch.mock.calls[0]?.[1]?.headers).toMatchObject({ "api-key": "brevo-key" });
+    expect(doFetch.mock.calls[0]?.[1]?.headers).toMatchObject({
+      "api-key": "brevo-key",
+      accept: "application/json",
+      "content-type": "application/json",
+    });
     const payload = z
       .unknown()
       .parse(JSON.parse(z.string().parse(doFetch.mock.calls[0]?.[1]?.body)));

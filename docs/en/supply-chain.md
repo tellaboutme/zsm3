@@ -52,6 +52,10 @@ The same policy picked older versions in two places:
 
 `@types/node` major updates are ignored: the types must match the Node.js 24 LTS runtime.
 
+### Gitleaks historical test fixtures
+
+Four `generic-api-key` findings from commit `74e0a35870dc52bfd56a00a5ee3a4ac88a0845c9` are ignored by exact commit, path, rule and line fingerprints in `.gitleaksignore`: `apps/worker/test/node/env.node.test.ts:7` and `apps/worker/vitest.config.ts:30,31,36`. These are synthetic test-only values, not issued credentials; rewriting published history would be disruptive. Checked: 2026-10-26. Review: 2027-01-26, or sooner if test fixtures or the Gitleaks rule change. CI explicitly loads the ignore file from the repository mount and continues to scan the full history for every other finding.
+
 ## Known scanner limitations
 
 - **OSV-Scanner** reads only the first YAML document of a pnpm 12 `pnpm-lock.yaml` (15 internal packages). `.github/scripts/osv-scan.sh` extracts the last document (~1,000 packages) and fails if it has no `importers:` section.

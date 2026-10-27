@@ -78,6 +78,19 @@ describe("turnstileVerifier", () => {
     await expect(missing.verify(input({}), NOW)).resolves.toBe(false);
   });
 
+  it("accepts a challenge exactly at either end of the five-minute window", async ({ expect }) => {
+    const justIssued = turnstileVerifier(
+      "secret",
+      doFetchReply(200, okBody({ challenge_ts: NOW.toISOString() })),
+    );
+    const oldest = turnstileVerifier(
+      "secret",
+      doFetchReply(200, okBody({ challenge_ts: "2026-10-22T07:55:00.000Z" })),
+    );
+    await expect(justIssued.verify(input({}), NOW)).resolves.toBe(true);
+    await expect(oldest.verify(input({}), NOW)).resolves.toBe(true);
+  });
+
   it("rejects a mismatched action or hostname", async ({ expect }) => {
     const wrongAction = turnstileVerifier("secret", doFetchReply(200, okBody({ action: "other" })));
     const wrongHost = turnstileVerifier(

@@ -15,6 +15,8 @@ describe("templateFor", () => {
     expect(content.text).toContain("Wymiana legitymacji szkolnej");
     expect(content.text).toContain(context.requestId);
     expect(content.text).toContain(context.statusLink);
+    expect(content.text).toMatch(/^Dziękujemy za złożenie wniosku przez formularz e-wniosek\.\n/u);
+    expect(content.text).toContain("\nStatus wniosku można sprawdzić na stronie:\n");
   });
 
   it("notifies the secretariat without any personal data", ({ expect }) => {
@@ -25,6 +27,8 @@ describe("templateFor", () => {
     expect(content.text).not.toContain("Jan");
     expect(content.text).not.toContain("@");
     expect(content.text).not.toContain("status#");
+    expect(content.text).toMatch(/^Złożono nowy wniosek przez formularz e-wniosek\.\n/u);
+    expect(content.text.split("\n")).toHaveLength(3);
   });
 
   it("announces a ready document", ({ expect }) => {
@@ -41,5 +45,25 @@ describe("templateFor", () => {
     expect(content.text).toContain("odrzucony");
     expect(content.text).not.toContain("Jan");
     expect(content.text).not.toContain("@");
+    expect(content.text).toContain(
+      "\nStatus wniosku można sprawdzić pod linkiem otrzymanym w potwierdzeniu złożenia wniosku.",
+    );
+  });
+
+  it("uses the document-specific label in applicant and secretariat mail", ({ expect }) => {
+    for (const [type, label] of [
+      ["STUDENT_ID_RENEWAL", "Wymiana legitymacji szkolnej"],
+      ["STUDENT_ID_DUPLICATE", "Duplikat legitymacji szkolnej"],
+      ["ENROLLMENT_CERTIFICATE", "Zaświadczenie o uczęszczaniu do szkoły"],
+    ] as const) {
+      const input = { ...context, type };
+      const confirmation = templateFor("SUBMISSION_CONFIRMATION", input);
+      const notice = templateFor("SECRETARIAT_NOTICE", input);
+      expect(confirmation.text).toContain(`Rodzaj wniosku: ${label}`);
+      expect(confirmation.text).toContain(input.statusLink);
+      expect(notice.subject).toBe(`Nowy wniosek: ${label}`);
+      expect(notice.text).toContain(`Rodzaj wniosku: ${label}`);
+      expect(notice.text).not.toContain(input.statusLink);
+    }
   });
 });
