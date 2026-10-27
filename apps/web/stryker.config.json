@@ -5,7 +5,12 @@
   "checkers": ["typescript"],
   "tsconfigFile": "tsconfig.json",
   "ignorePatterns": ["worker/tsconfig.json"],
-  "mutate": ["src/lib/**/*.ts", "worker/legacy-redirect.ts", "worker/legacy-route.ts"],
+  "mutate": [
+    "src/lib/**/*.ts",
+    "worker/legacy-redirect.ts",
+    "worker/legacy-route.ts",
+    "worker/seo-response.ts"
+  ],
   "reporters": ["clear-text", "progress", "html"],
   "htmlReporter": { "fileName": "reports/mutation/index.html" },
   "thresholds": { "high": 100, "low": 95, "break": 90 },
