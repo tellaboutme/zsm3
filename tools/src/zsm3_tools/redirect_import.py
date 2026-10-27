@@ -18,7 +18,6 @@ from zsm3_tools.redirect_sources import SourceError, SourceRow, read_rows
 
 DATABASE = "DB"
 USAGE_ERROR = 2
-DEFAULT_TARGET = "/"
 DEFAULT_SQL_OUT = "redirects-import.sql"
 DEFAULT_PERSIST_TO = ".wrangler/state"
 SELECT_EXISTING_PAIRS = "SELECT from_path, to_path FROM redirects"
@@ -36,7 +35,7 @@ class WranglerError(RuntimeError):
 @dataclass(frozen=True, slots=True)
 class Options:
     sources: tuple[Path, ...]
-    target: str
+    target: str | None
     remote: bool
     yes: bool
     dry_run: bool
@@ -77,7 +76,7 @@ def parse_options(argv: Sequence[str]) -> Options:
         description="Import a batch of legacy URLs into the redirects D1 table.",
     )
     parser.add_argument("--source", action="append", type=Path, required=True)
-    parser.add_argument("--to", default=DEFAULT_TARGET)
+    parser.add_argument("--to")
     parser.add_argument("--remote", action="store_true")
     parser.add_argument("--yes", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
@@ -277,6 +276,15 @@ def report(plan: ImportPlan) -> None:
     )
 
 
+def source_rows(options: Options) -> list[SourceRow]:
+    if options.target is None and any(
+        source.suffix.lower() == ".xml" for source in options.sources
+    ):
+        message = "sitemap sources require --to with a verified destination"
+        raise SourceError(message)
+    return [row for source in options.sources for row in read_rows(source, options.target or "")]
+
+
 def main(argv: Sequence[str] | None = None, runner: Runner | None = None) -> int:
     options = parse_options(sys.argv[1:] if argv is None else argv)
     if options.remote and not options.yes:
@@ -284,7 +292,7 @@ def main(argv: Sequence[str] | None = None, runner: Runner | None = None) -> int
         return USAGE_ERROR
     execute = run_wrangler if runner is None else runner
     try:
-        rows = [row for source in options.sources for row in read_rows(source, options.target)]
+        rows = source_rows(options)
         prefix = wrangler_prefix()
         existing = existing_pairs(execute, prefix, options)
         plan = plan_import(rows, existing, update=options.update)
