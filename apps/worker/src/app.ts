@@ -11,6 +11,7 @@ import { healthRoutes } from "./routes/health.ts";
 import { mediaRoutes } from "./routes/media.ts";
 import { MAX_UPLOAD_BODY_BYTES, PANEL_UPLOAD_PREFIX } from "./routes/panel/files.ts";
 import { panelApp, type PanelAppOptions } from "./routes/panel/index.ts";
+import { shortLinkRoutes } from "./routes/short-links.ts";
 
 export const MAX_BODY_BYTES = 16 * 1024;
 
@@ -25,6 +26,7 @@ export function createApp(panel: PanelAppOptions = {}): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
   app.use(assignRequestId, apiSecurityHeaders, noStore, bodyLimitForPath);
   app.route("/api", healthRoutes);
+  app.route("/api/short-links", shortLinkRoutes);
   app.route("/media", mediaRoutes);
   app.route("/api/panel", panelApp(panel));
   app.notFound((c) => problemResponse(c, 404));

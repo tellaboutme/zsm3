@@ -1,0 +1,50 @@
+---
+import Base from "../../layouts/Base.astro";
+import { passwordError, shortLinkView } from "../../lib/short-link-page.ts";
+import { openShortLink } from "../../server/short-links.ts";
+
+import "../../styles/request.css";
+
+export const prerender = false;
+
+const code = Astro.params["code"] ?? "";
+const outcome = await openShortLink(code);
+if (outcome.kind === "redirect") {
+  return Astro.redirect(outcome.target, 302);
+}
+const view = shortLinkView(outcome);
+const error = passwordError(Astro.url.searchParams.get("blad"));
+Astro.response.status = view.status;
+---
+
+<Base title={`${view.heading} — ZSM3`} description="Skrócony link do materiałów szkolnych." noindex>
+  <div class="request-page">
+    <header class="request-intro">
+      <p class="tag">Materiały · skrócony link</p>
+      <h1>{view.heading}</h1>
+      <p>{view.message}</p>
+    </header>
+    {view.showForm ? (
+      <form method="post" action={`/api/short-links/${code}`}>
+        <label for="haslo">Hasło do materiału</label>
+        <input
+          id="haslo"
+          name="haslo"
+          type="password"
+          autocomplete="off"
+          required
+          aria-describedby="haslo-error"
+          aria-invalid={error === undefined ? undefined : "true"}
+        />
+        <span id="haslo-error" class="field-error" aria-live="polite">
+          {error}
+        </span>
+        <button type="submit">Otwórz materiał</button>
+      </form>
+    ) : (
+      <p>
+        <a href="/kontakt">Skontaktuj się ze szkołą</a>
+      </p>
+    )}
+  </div>
+</Base>

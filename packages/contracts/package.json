@@ -18,7 +18,8 @@
     "./audit": "./src/audit.ts",
     "./datasets": "./src/datasets.ts",
     "./programmes": "./src/programmes.ts",
-    "./navigation": "./src/navigation.ts"
+    "./navigation": "./src/navigation.ts",
+    "./short-links": "./src/short-links.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

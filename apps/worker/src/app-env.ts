@@ -16,6 +16,7 @@ export interface MediaBucket {
 export interface AppBindings extends RequestsSecretEnv {
   readonly DB: SqlDatabase;
   readonly MEDIA: MediaBucket;
+  readonly SHORT_LINK_KEY?: string | undefined;
   readonly PANEL_ORIGIN: string;
   readonly ACCESS_TEAM_DOMAIN: string;
   readonly ACCESS_AUDIENCE: string;
