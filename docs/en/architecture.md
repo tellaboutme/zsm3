@@ -181,6 +181,16 @@ pages
 
 redirects
   from_path PK (old WordPress address, lower case, no trailing slash), to_path, created_at
+
+short_links
+  code PK              7 characters from 2-9 a-k m n p-z, so 0/1/l/o are never read wrongly
+  target_url           https only, validated by the contract schema
+  password_salt BLOB   16 random bytes; NULL together with password_hash
+  password_hash BLOB   HMAC-SHA256(SHORT_LINK_KEY, base64url(salt):password)
+  created_by           the staff member who made the link
+  created_at, expires_at TEXT, revoked_at NULL, clicks INTEGER
+  CHECK ((password_hash IS NULL) = (password_salt IS NULL)), CHECK (expires_at > created_at)
+  INDEX (expires_at), INDEX (created_by, created_at)
 ```
 
 Repositories in `apps/worker/src/storage` take a `Store` (`db`, `clock`, `random`), use static SQL with `.bind()` only, and parse every row with a schema. They run against real SQLite (`node:sqlite`) in the Node tests, where coverage and mutation testing run, and against D1 in the workerd tests.
@@ -255,6 +265,14 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 - `GET /media/g/<sha256>-(s|l).webp` checks `photos` (album published, photo not deleted), then serves R2 through the Cache API with `Content-Type: image/webp`, `nosniff`, `Cache-Control: public, max-age=31536000, immutable` and `Cross-Origin-Resource-Policy: same-origin`.
 - **Archive import** by `tools/import_gallery.py`: downloads from the current site (at most 4 parallel connections), Pillow (EXIF rotation, metadata removal, WebP 400/1600), upload to R2 over the S3 API, SQL for D1. The script is idempotent and resumes where it stopped.
 
+### 7.7 Opening a short link
+
+1. `GET /s/<code>` is rendered on demand by Astro. The code is lower-cased and trimmed, so a code read out loud and typed in capitals still resolves.
+2. A link that is unknown or malformed answers 404, one that expired or was revoked answers 410, both as a page in the site's own design rather than a problem document.
+3. A link without a password redirects (302) to its target and counts the click.
+4. A link with a password renders a form. The form posts to `POST /api/short-links/<code>` in the Worker, because the Astro middleware refuses every method other than GET. The route requires an `Origin` equal to the site and a form body, then answers 303 — to the target when the password matches, otherwise back to the page with an error flag in the query, so a refresh never resubmits the password.
+5. Guesses are limited to 30 per link per 10 minutes through `rate_limits`, keyed by SHA-256 of the code. The limit is per link rather than per visitor: nothing derived from an address is stored, and a distributed guesser gains nothing.
+
 ## 8. Security
 
 ### 8.1 Threat model
@@ -285,6 +303,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 - A request's personal data is one JSON document encrypted with AES-256-GCM (WebCrypto), a random 96-bit IV per record and `request.id` as AAD. The key `PII_KEY_<id>` is a Worker secret; `pii_key_id` in each row allows key rotation without downtime.
 - `email_index` is HMAC-SHA256 with a separate `EMAIL_INDEX_KEY`.
 - Status tokens come from `crypto.getRandomValues`; only their SHA-256 is stored.
+- A short link's password is stored as HMAC-SHA256 of `base64url(salt):password` under the `SHORT_LINK_KEY` Worker secret, with 16 random salt bytes per row. A slow KDF would be the usual choice, but 200k PBKDF2 iterations cost far more than the 10 ms of CPU a request gets on the Workers free plan; keying the digest with a secret that never reaches D1 protects a stolen database instead, which is what these passwords are worth. Link codes come from `crypto.getRandomValues` and 32 divides 256, so the alphabet is drawn without bias.
 - The panel decrypts personal data only for the request or list page being viewed; searching by surname happens in the browser on the loaded page.
 
 ### 8.4 Retention (defaults, approved by the IOD)
@@ -298,6 +317,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 | `audit_log`                                    | 2 years                                                |
 | Worker logs                                    | Cloudflare's retention (a few days), no personal data  |
 | Deleted photos                                 | 30 days in R2, then physically removed                 |
+| Expired or revoked short links                 | 30 days after they stop working, then the row is gone  |
 
 A daily Cron job enforces retention and records every run in `audit_log`.
 

@@ -20,6 +20,7 @@ import {
   rateLimitsRepo,
 } from "../storage/rate-limits-repo.ts";
 import { requestsRepo, type RequestsRepo } from "../storage/requests-repo.ts";
+import { LAPSED_PRUNE_BATCH, shortLinksRepo } from "../storage/short-links-repo.ts";
 
 export const RETENTION_BATCH = 100;
 export const RETENTION_BATCHES_PER_RUN = 10;
@@ -27,6 +28,7 @@ export const RETENTION_BATCHES_PER_RUN = 10;
 const DAY_MS = 86_400_000;
 const YEAR_MS = 365 * DAY_MS;
 const RETENTION_JOB = "retention";
+export const LAPSED_RETENTION_MS = 30 * DAY_MS;
 
 const SELECT_CRON_STATE = "SELECT last_run_date FROM cron_state WHERE job = ?";
 const UPSERT_CRON_STATE = `INSERT INTO cron_state (job, last_run_date) VALUES (?1, ?2)
@@ -90,6 +92,10 @@ export async function runScheduledMaintenance(
   await rateLimitsRepo(store).prune(
     new Date(now.getTime() - RATE_LIMIT_RETENTION_MS).toISOString(),
     RATE_LIMIT_PRUNE_BATCH,
+  );
+  await shortLinksRepo(store).pruneLapsed(
+    new Date(now.getTime() - LAPSED_RETENTION_MS).toISOString(),
+    LAPSED_PRUNE_BATCH,
   );
   const today = utcDate(now);
   if ((await cron.lastRunDate(RETENTION_JOB)) === today) {

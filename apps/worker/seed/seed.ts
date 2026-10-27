@@ -10,6 +10,7 @@ import { seedFiles, storedFile, type SeedFile } from "./files.ts";
 import { seedNews } from "./news/index.ts";
 import { seedPages } from "./pages/index.ts";
 import { seedRequests } from "./requests.ts";
+import { seedShortLinks } from "./short-links.ts";
 import { MissingSecretError, requestsConfig, type RequestsSecretEnv } from "../src/env.ts";
 import { piiCrypto } from "../src/security/pii-crypto.ts";
 import { liveStore, type SqlDatabase } from "../src/storage/database.ts";
@@ -47,7 +48,7 @@ async function verifiedBytes(directory: string, file: SeedFile): Promise<Uint8Ar
 }
 
 const { env, dispose } = await getPlatformProxy<
-  { DB: SqlDatabase; MEDIA: MediaBucket } & RequestsSecretEnv
+  { DB: SqlDatabase; MEDIA: MediaBucket; SHORT_LINK_KEY?: string } & RequestsSecretEnv
 >({
   configPath,
   persist: { path: statePath },
@@ -67,6 +68,7 @@ if (mediaDirectory !== undefined) {
     await env.MEDIA.put(storedFile(file).key, await verifiedBytes(mediaDirectory, file));
   }
 }
+const seededLinks = await seedShortLinks(store, env.SHORT_LINK_KEY);
 let seededRequests = 0;
 let requestsAvailable = true;
 try {
@@ -84,7 +86,7 @@ try {
 }
 await dispose();
 process.stdout.write(
-  `Seeded ${String(seedNews.length)} news items, ${String(seedPages.length)} pages and ${String(manifest.length)} files${mediaDirectory === undefined ? " without their contents" : ""}.${
+  `Seeded ${String(seedNews.length)} news items, ${String(seedPages.length)} pages, ${String(manifest.length)} files${mediaDirectory === undefined ? " without their contents" : ""} and ${String(seededLinks)} short links.${
     requestsAvailable
       ? ` Seeded ${String(seededRequests)} e-wniosek requests.`
       : " Skipped e-wniosek requests (missing secrets)."

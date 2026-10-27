@@ -10,3 +10,4 @@ SECRETARIAT_EMAIL=sekretariat@example.com
 REQUESTS_ENABLED=false
 REQUEST_NOTICE_URL=
 REQUEST_TERMS_URL=
+SHORT_LINK_KEY=replace-with-a-random-string-of-at-least-32-characters

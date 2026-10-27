@@ -7,3 +7,5 @@ export const CONSUME_RATE_LIMIT = `INSERT INTO rate_limits (key_hash, window_sta
 
 export const PRUNE_RATE_LIMITS = `DELETE FROM rate_limits WHERE key_hash IN
   (SELECT key_hash FROM rate_limits WHERE window_started_at < ?1 ORDER BY window_started_at LIMIT ?2)`;
+
+export const CLEAR_RATE_LIMIT = "DELETE FROM rate_limits WHERE key_hash = ?1";
