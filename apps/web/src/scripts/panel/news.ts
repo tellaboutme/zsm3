@@ -1,6 +1,7 @@
 import "../../lib/panel/zod-jitless.ts";
 import { wireBlocks } from "./blocks-ui.ts";
 import { area } from "./dom.ts";
+import { revealEditor } from "./editor-navigation.ts";
 import { denyContent, gateView } from "./gate-ui.ts";
 import { wireEditor } from "./news-form.ts";
 import { wireList } from "./news-list.ts";
@@ -14,10 +15,12 @@ function boot(section: HTMLElement): void {
   const list = wireList(section, (ref) => {
     editor.open(ref);
     history.open(ref);
+    revealEditor(section);
   });
   const history = wireRevisions(section, "news", (ref) => {
     editor.open(ref);
     void list.refresh();
+    revealEditor(section);
   });
   const editor = wireEditor(section, blocks, () => {
     void list.refresh();
