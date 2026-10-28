@@ -82,7 +82,7 @@
 .panel-main {
   display: grid;
   gap: var(--space-5);
-  padding-block: var(--space-5) var(--space-8);
+  padding-block: var(--space-5);
 }
 
 .panel-page,

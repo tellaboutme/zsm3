@@ -11,11 +11,16 @@ interface Props {
 
 const { item, variant = "standard", headingLevel = 3 } = Astro.props;
 const Heading = headingLevel === 2 ? "h2" : "h3";
-const cover = variant === "lead" ? item.cover : undefined;
+const showCover = variant !== "compact";
 ---
 
 <article class:list={["card", variant]}>
-  {cover !== undefined && <MediaPlaceholder shape="wide" caption={cover.caption} />}
+  {showCover && (
+    <MediaPlaceholder
+      shape="banner"
+      caption={variant === "lead" ? item.cover?.caption : undefined}
+    />
+  )}
   <div class="text">
     <p class="tag meta">
       <time datetime={item.date}>{longDate(item.date)}</time>
@@ -90,5 +95,13 @@ const cover = variant === "lead" ? item.cover : undefined;
 
   .card.compact {
     gap: var(--space-2);
+  }
+
+  @media (width >= 56rem) {
+    .card.lead {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-6);
+      align-items: center;
+    }
   }
 </style>
