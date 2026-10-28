@@ -46,6 +46,11 @@ const BASE_MAP: readonly MapNode[] = [
         href: "/kandydaci/zawody",
         description: "15 kierunków w technikum oraz branżowej szkole I i II stopnia.",
       },
+      {
+        label: "Szkoła w obiektywie",
+        href: "/kandydaci/szkola-w-obiektywie",
+        description: "Budynek, warsztaty i pracownie zawodowe oczami kandydata.",
+      },
     ],
   },
   {
@@ -103,6 +108,11 @@ const BASE_MAP: readonly MapNode[] = [
         label: "Terminarz",
         href: "/szkola/terminarz",
         description: "Najważniejsze daty roku szkolnego 2026/2027.",
+      },
+      {
+        label: "Galeria",
+        href: "/szkola/galeria",
+        description: "Albumy z pracowni, warsztatów i wydarzeń szkolnych.",
       },
     ],
   },

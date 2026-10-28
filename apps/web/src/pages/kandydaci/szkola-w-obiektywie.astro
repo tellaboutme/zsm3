@@ -1,0 +1,133 @@
+---
+import Icon from "../../components/Icon.astro";
+import MediaPlaceholder from "../../components/MediaPlaceholder.astro";
+import { externalServices } from "../../data/site.ts";
+import Base from "../../layouts/Base.astro";
+
+const shots = [
+  {
+    title: "Budynek i otoczenie",
+    note: "Osiedle Szkolne 37, wejście główne i skwer z pomnikiem patrona.",
+  },
+  { title: "Warsztaty samochodowe", note: "Stanowiska diagnostyczne i podnośniki." },
+  { title: "Pracownia mechatroniki", note: "Układy sterowania, pneumatyka i roboty." },
+  { title: "Pracownia lotnicza", note: "Sprzęt do obsługi technicznej statków powietrznych." },
+  { title: "Pracownie informatyczne", note: "Sieci komputerowe i stanowiska programistyczne." },
+  { title: "Biblioteka i przestrzenie wspólne", note: "Miejsca do nauki między zajęciami." },
+];
+
+export const prerender = false;
+---
+
+<Base
+  title="Szkoła w obiektywie — ZSM3"
+  description="Zdjęcia budynku, warsztatów i pracowni Zespołu Szkół Mechanicznych nr 3 w Krakowie dla kandydatów."
+  breadcrumbs={[{ label: "Kandydaci", href: "/kandydaci" }, { label: "Szkoła w obiektywie" }]}
+>
+  <div class="lens">
+    <header class="intro">
+      <p class="tag">Kandydaci · jak wygląda szkoła</p>
+      <h1>
+        <span class="rise">
+          <span>Szkoła w obiektywie</span>
+        </span>
+      </h1>
+      <p class="lead">
+        Zanim złożysz podanie, zobacz, gdzie będziesz się uczyć: warsztaty, pracownie zawodowe i
+        budynek szkoły. Zdjęcia przygotowujemy do publikacji.
+      </p>
+      <p class="tour">
+        <a href={externalServices.virtualTour} rel="noopener">
+          Wirtualny spacer po szkole
+          <span aria-hidden="true">
+            <Icon name="external" />
+          </span>
+        </a>
+      </p>
+    </header>
+    <section aria-labelledby="ujecia">
+      <h2 id="ujecia">Co zobaczysz</h2>
+      <ul class="grid">
+        {shots.map((shot) => (
+          <li class="reveal">
+            <h3>{shot.title}</h3>
+            <MediaPlaceholder shape="wide" />
+            <p class="note">{shot.note}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .lens {
+    display: grid;
+    gap: var(--space-7);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .tag {
+    color: var(--ink-2);
+  }
+
+  h1 {
+    font-size: var(--step-title);
+    font-stretch: var(--stretch-wide);
+  }
+
+  .lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .tour a {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: var(--target);
+    color: var(--link);
+  }
+
+  section {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  h2 {
+    font-size: var(--step-3);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .grid li {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    min-width: 0;
+    padding-top: var(--space-4);
+    border-top: var(--hairline) solid var(--line);
+  }
+
+  h3 {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .note {
+    color: var(--ink-2);
+  }
+</style>

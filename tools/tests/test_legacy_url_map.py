@@ -13,7 +13,7 @@ def test_legacy_url_map_imports_without_rejections_or_duplicate_paths() -> None:
     rows = read_csv(CORPUS)
     plan = plan_import(rows, {}, update=False)
 
-    assert len(rows) == 56
+    assert len(rows) == 57
     assert len(plan.imported) == len(rows)
     assert not plan.rejected
     assert not plan.conflicts
@@ -57,8 +57,8 @@ def test_unresolved_sources_are_accounted_for_without_importing_them() -> None:
         unresolved = list(csv.DictReader(handle))
     sources = {row["from_path"] for row in unresolved}
 
-    assert len(mapped) == 56
-    assert len(unresolved) == len(sources) == 50
+    assert len(mapped) == 57
+    assert len(unresolved) == len(sources) == 49
     assert not mapped.intersection(sources)
     assert all(row["reason"] and row["previous_to_path"] for row in unresolved)
     assert {"/wychowawcy-klas/", "/rodo/"}.issubset(sources)
