@@ -15,52 +15,58 @@ const { departments, management } = await contacts();
   description="Telefony i adresy e-mail sekretariatów, księgowości, Rady Rodziców i kierownictwa Zespołu Szkół Mechanicznych nr 3 w Krakowie."
   breadcrumbs={[{ label: "Kontakt" }]}
 >
-  <div class="contact">
-    <header class="intro">
-      <p class="tag">Kontakt · os. Szkolne 37</p>
-      <h1>
-        <span class="rise">
-          <span>Kontakt</span>
-        </span>
-      </h1>
-      <div class="main">
-        <a class="phone" href={`tel:${school.phone}`}>
-          {school.phoneLabel}
+  <div class="contact-shell">
+    <div class="contact">
+      <header class="intro">
+        <p class="tag">Kontakt · os. Szkolne 37</p>
+        <h1>
+          <span class="rise">
+            <span>Kontakt</span>
+          </span>
+        </h1>
+        <div class="main">
+          <a class="phone" href={`tel:${school.phone}`}>
+            {school.phoneLabel}
+          </a>
+          <a href={`mailto:${school.email}`}>{school.email}</a>
+        </div>
+      </header>
+      <section aria-labelledby="dzialy">
+        <h2 id="dzialy">Sekretariaty i działy</h2>
+        <ContactCards cards={departments} />
+      </section>
+      <section aria-labelledby="kierownictwo">
+        <h2 id="kierownictwo">Kierownictwo i administracja</h2>
+        <ContactCards cards={management} />
+      </section>
+      <section class="where" aria-labelledby="dojazd">
+        <h2 id="dojazd">Jak do nas trafić</h2>
+        <address>
+          {school.name}
+          <br />
+          im. {school.patron}
+          <br />
+          {school.street}, {school.postalCode} {school.city}
+        </address>
+        <a class="map nudge" href={school.mapUrl}>
+          Zobacz dojazd w Google Maps
+          <Icon name="external" />
+          <span class="visually-hidden">(otwiera serwis zewnętrzny)</span>
         </a>
-        <a href={`mailto:${school.email}`}>{school.email}</a>
-      </div>
-    </header>
-    <section aria-labelledby="dzialy">
-      <h2 id="dzialy">Sekretariaty i działy</h2>
-      <ContactCards cards={departments} />
-    </section>
-    <section aria-labelledby="kierownictwo">
-      <h2 id="kierownictwo">Kierownictwo i administracja</h2>
-      <ContactCards cards={management} />
-    </section>
-    <section class="where" aria-labelledby="dojazd">
-      <h2 id="dojazd">Jak do nas trafić</h2>
-      <address>
-        {school.name}
-        <br />
-        im. {school.patron}
-        <br />
-        {school.street}, {school.postalCode} {school.city}
-      </address>
-      <a class="map nudge" href={school.mapUrl}>
-        Zobacz dojazd w Google Maps
-        <Icon name="external" />
-        <span class="visually-hidden">(otwiera serwis zewnętrzny)</span>
-      </a>
-      <p class="note">
-        Google Maps otwiera się dopiero po kliknięciu. Samo wyświetlenie tej strony nie łączy się z
-        Google.
-      </p>
-    </section>
+        <p class="note">
+          Google Maps otwiera się dopiero po kliknięciu. Samo wyświetlenie tej strony nie łączy się
+          z Google.
+        </p>
+      </section>
+    </div>
   </div>
 </Base>
 
 <style>
+  .contact-shell {
+    container-type: inline-size;
+  }
+
   .contact {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -128,5 +134,34 @@ const { departments, management } = await contacts();
     align-items: center;
     min-height: var(--target);
     font-weight: 700;
+  }
+
+  @media (width >= 56rem) {
+    .contact {
+      grid-template-columns: minmax(0, min(50cqw + 9.5rem, 100cqw - 25rem, 52.9rem)) minmax(
+          18rem,
+          1fr
+        );
+      align-items: start;
+    }
+
+    .intro {
+      grid-column: 1 / -1;
+    }
+
+    section[aria-labelledby="dzialy"] {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    section[aria-labelledby="kierownictwo"] {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .where {
+      grid-column: 2;
+      grid-row: 2 / span 2;
+    }
   }
 </style>
