@@ -11,7 +11,7 @@ interface Props {
 
 const { item, variant = "standard", headingLevel = 3 } = Astro.props;
 const Heading = headingLevel === 2 ? "h2" : "h3";
-const cover = variant === "compact" ? undefined : item.cover;
+const cover = variant === "lead" ? item.cover : undefined;
 ---
 
 <article class:list={["card", variant]}>
