@@ -1,0 +1,70 @@
+.site-background {
+  position: fixed;
+  z-index: var(--z-background);
+  inset: 0;
+  overflow: hidden;
+  contain: strict;
+  pointer-events: none;
+}
+
+.site-background .wash {
+  position: absolute;
+  width: var(--wash-size);
+  height: var(--wash-size);
+  border-radius: var(--radius-round);
+  will-change: transform;
+}
+
+.site-background .wash-a {
+  top: var(--wash-bleed);
+  left: var(--wash-bleed);
+  background: radial-gradient(circle closest-side, var(--wash-blue), transparent);
+  animation: wash-a 34s var(--ease) infinite alternate;
+}
+
+.site-background .wash-b {
+  right: var(--wash-bleed);
+  bottom: var(--wash-bleed);
+  background: radial-gradient(circle closest-side, var(--wash-orange), transparent);
+  animation: wash-b 44s var(--ease) infinite alternate;
+}
+
+.site-background .hatch {
+  position: absolute;
+  inset: var(--wash-bleed);
+  background: repeating-linear-gradient(45deg, var(--wash-hatch) 0 1px, transparent 1px 18px);
+  will-change: transform;
+  animation: hatch 90s linear infinite;
+}
+
+@keyframes wash-a {
+  to {
+    transform: translate3d(18vmax, 10vmax, 0);
+  }
+}
+
+@keyframes wash-b {
+  to {
+    transform: translate3d(-16vmax, -12vmax, 0);
+  }
+}
+
+@keyframes hatch {
+  to {
+    transform: translate3d(25.46px, 25.46px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-background .wash,
+  .site-background .hatch {
+    animation: none;
+  }
+}
+
+:root[data-motion="reduce"] .site-background .wash,
+:root[data-motion="reduce"] .site-background .hatch,
+:root[data-background="static"] .site-background .wash,
+:root[data-background="static"] .site-background .hatch {
+  animation: none;
+}
