@@ -1,4 +1,5 @@
 ---
+import { panelSections } from "../../data/panel-sections.ts";
 import Panel from "../../layouts/panel.astro";
 ---
 
@@ -18,44 +19,15 @@ import Panel from "../../layouts/panel.astro";
         Z tego miejsca redagujesz aktualności, strony, terminarz, dokumenty, ogłoszenia i dzwonki
         szkoły.
       </p>
-      <nav aria-label="Sekcje panelu" data-panel="sections">
+      <nav aria-label="Wszystkie sekcje panelu" data-panel="sections">
         <ul class="panel-nav">
-          <li>
-            <a href="/panel/aktualnosci">Aktualności</a>
-          </li>
-          <li>
-            <a href="/panel/strony">Strony</a>
-          </li>
-          <li>
-            <a href="/panel/terminarz">Terminarz</a>
-          </li>
-          <li>
-            <a href="/panel/dokumenty">Dokumenty</a>
-          </li>
-          <li>
-            <a href="/panel/ogloszenia">Ogłoszenia</a>
-          </li>
-          <li>
-            <a href="/panel/zestawy">Dane stron (kadra, kontakty, dokumenty, oferty pracy…)</a>
-          </li>
-          <li>
-            <a href="/panel/dzwonki">Dzwonki</a>
-          </li>
-          <li>
-            <a href="/panel/pracownicy" data-admin>
-              Pracownicy i role
-            </a>
-          </li>
-          <li>
-            <a href="/panel/dziennik" data-admin>
-              Dziennik zmian
-            </a>
-          </li>
-          <li>
-            <a href="/panel/przekierowania" data-admin>
-              Przekierowania
-            </a>
-          </li>
+          {panelSections.map((section) => (
+            <li>
+              <a href={section.href} data-admin={section.admin === true ? "" : undefined}>
+                {section.label}
+              </a>
+            </li>
+          ))}
         </ul>
       </nav>
       <p class="panel-meta">Każda zmiana trafia na stronę od razu po zapisaniu.</p>
