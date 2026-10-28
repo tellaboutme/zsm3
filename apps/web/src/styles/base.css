@@ -103,6 +103,12 @@
 }
 
 @layer utilities {
+  .tap-target {
+    display: inline-block;
+    min-height: var(--target);
+    padding-block: max(0px, (var(--target) - 1lh) / 2);
+  }
+
   .visually-hidden {
     position: absolute;
     width: 1px;

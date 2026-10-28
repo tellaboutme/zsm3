@@ -19,7 +19,7 @@ const { footerGroups } = Astro.locals.navigation ?? fallbackNavigation;
         <br />
         {school.postalCode}&nbsp;{school.city}
         <br />
-        <a href={school.mapUrl} rel="external">
+        <a class="tap-target" href={school.mapUrl} rel="external">
           Mapa dojazdu
         </a>
       </address>
@@ -29,13 +29,17 @@ const { footerGroups } = Astro.locals.navigation ?? fallbackNavigation;
         Sekretariat
       </h2>
       <address>
-        <a href={`tel:${school.phone}`}>
+        <a class="tap-target" href={`tel:${school.phone}`}>
           {school.phoneLabel} wew. {school.secretariatExtension}
         </a>
         <br />
-        <a href={`mailto:${school.email}`}>{school.email}</a>
+        <a class="tap-target" href={`mailto:${school.email}`}>
+          {school.email}
+        </a>
         <br />
-        <a href={`mailto:${school.officeEmail}`}>{school.officeEmail}</a>
+        <a class="tap-target" href={`mailto:${school.officeEmail}`}>
+          {school.officeEmail}
+        </a>
       </address>
     </section>
     {footerGroups.map((group) => (
@@ -44,7 +48,11 @@ const { footerGroups } = Astro.locals.navigation ?? fallbackNavigation;
         <ul>
           {group.links.map((link) => (
             <li>
-              <a href={link.href} rel={link.external === true ? "external" : undefined}>
+              <a
+                class="tap-target"
+                href={link.href}
+                rel={link.external === true ? "external" : undefined}
+              >
                 {link.label}
               </a>
             </li>
@@ -117,10 +125,6 @@ const { footerGroups } = Astro.locals.navigation ?? fallbackNavigation;
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  li + li {
-    margin-top: var(--space-2);
   }
 
   a {
