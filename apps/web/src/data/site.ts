@@ -22,3 +22,25 @@ export const externalServices = {
   virtualTour: "https://zespolszkolmechanicznych.wkraj.pl/html5/index.php?id=81594",
   boardingHouse: "https://bsp2.pl/pl/",
 } as const;
+
+export interface ExternalProfile {
+  readonly name: string;
+  readonly handle: string;
+  readonly href: string;
+}
+
+export const socialProfiles: readonly ExternalProfile[] = [
+  { name: "Facebook", handle: "@zsm3krk", href: "https://www.facebook.com/zsm3krk" },
+  { name: "Instagram", handle: "@zsm3krk", href: "https://www.instagram.com/zsm3krk/" },
+  { name: "X", handle: "@MechanikTrzyKrk", href: "https://twitter.com/MechanikTrzyKrk" },
+];
+
+export const officialSites: readonly ExternalProfile[] = [
+  { name: "BIP", handle: "bip.krakow.pl", href: externalServices.bip },
+  { name: "Organ prowadzący", handle: "krakow.pl", href: "https://www.krakow.pl/" },
+  {
+    name: "Wirtualny spacer",
+    handle: "zespolszkolmechanicznych.wkraj.pl",
+    href: externalServices.virtualTour,
+  },
+];
