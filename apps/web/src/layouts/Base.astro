@@ -13,6 +13,7 @@ import AccessibilityDialog from "../components/AccessibilityDialog.astro";
 import AnnouncementBanner from "../components/AnnouncementBanner.astro";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import ContactPreviewForm from "../components/ContactPreviewForm.astro";
+import SiteBackground from "../components/SiteBackground.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import { school } from "../data/site.ts";
@@ -109,6 +110,7 @@ const schemas = [
     <title>{title}</title>
   </head>
   <body data-bells={bells === undefined ? undefined : JSON.stringify(bells)}>
+    <SiteBackground />
     <div class="scroll-sentinel" aria-hidden="true" data-scroll-sentinel></div>
     <a class="skip-link" href="#tresc">
       Przejdź do treści

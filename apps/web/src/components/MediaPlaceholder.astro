@@ -1,0 +1,79 @@
+---
+interface Props {
+  shape?: "wide" | "banner" | "strip" | "band" | "square" | "tall";
+  label?: string | undefined;
+  caption?: string | undefined;
+}
+
+const { shape = "wide", label = "Preview Image", caption } = Astro.props;
+---
+
+<figure class="media">
+  <div class="frame" data-shape={shape}>
+    <span class="mark" aria-hidden="true"></span>
+    <span class="label">{label}</span>
+  </div>
+  {caption !== undefined && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .media {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .frame {
+    display: grid;
+    place-content: center;
+    place-items: center;
+    gap: var(--space-2);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--gray);
+  }
+
+  .frame[data-shape="wide"] {
+    aspect-ratio: 3 / 2;
+  }
+
+  .frame[data-shape="banner"] {
+    aspect-ratio: 16 / 9;
+  }
+
+  .frame[data-shape="strip"] {
+    aspect-ratio: 21 / 9;
+  }
+
+  .frame[data-shape="band"] {
+    aspect-ratio: 3 / 1;
+  }
+
+  .frame[data-shape="square"] {
+    aspect-ratio: 1 / 1;
+  }
+
+  .frame[data-shape="tall"] {
+    aspect-ratio: 4 / 5;
+  }
+
+  .mark {
+    width: var(--space-6);
+    height: var(--space-6);
+    border: var(--rule) solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .label {
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  figcaption {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+</style>

@@ -72,7 +72,7 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-7);
-    padding-block: var(--space-7) var(--space-8);
+    padding-block: var(--space-7);
   }
 
   .intro {
@@ -100,7 +100,7 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
     min-height: var(--target);
     padding: var(--space-3) var(--space-5);
     border-radius: var(--radius);
-    background: var(--orange);
+    background: var(--orange-surface);
     color: var(--orange-ink);
     font-weight: 800;
     text-decoration: none;

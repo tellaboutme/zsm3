@@ -69,27 +69,31 @@ import Panel from "../../../layouts/panel.astro";
             Lead
             <textarea name="lead" maxlength="500"></textarea>
           </label>
-          <fieldset>
-            <legend>Fotografia otwierająca (opcjonalnie)</legend>
-            <label class="panel-inline">
-              Podpis
-              <input name="caption" maxlength="200" />
-            </label>
-            <label class="panel-inline">
-              Autor zdjęcia
-              <input name="credit" maxlength="120" />
-            </label>
-          </fieldset>
-          <div class="panel-blocks" data-panel="blocks-root">
-            <h3>Tekst wiadomości</h3>
-            <ul data-panel="blocks-list"></ul>
-            <div class="panel-actions">
-              <select aria-label="Rodzaj bloku" data-panel="blocks-kind"></select>
-              <button type="button" data-panel="blocks-add">
-                Dodaj blok
-              </button>
+          <details class="panel-fold">
+            <summary>Fotografia otwierająca (opcjonalnie)</summary>
+            <div class="panel-fold-body">
+              <label class="panel-inline">
+                Podpis
+                <input name="caption" maxlength="200" />
+              </label>
+              <label class="panel-inline">
+                Autor zdjęcia
+                <input name="credit" maxlength="120" />
+              </label>
             </div>
-          </div>
+          </details>
+          <details class="panel-fold" open>
+            <summary>Tekst wiadomości</summary>
+            <div class="panel-fold-body panel-blocks" data-panel="blocks-root">
+              <ul data-panel="blocks-list"></ul>
+              <div class="panel-actions">
+                <select aria-label="Rodzaj bloku" data-panel="blocks-kind"></select>
+                <button type="button" data-panel="blocks-add">
+                  Dodaj blok
+                </button>
+              </div>
+            </div>
+          </details>
           <p class="panel-note" data-panel="form-status" role="status" aria-live="polite"></p>
           <div class="panel-actions">
             <button type="button" class="panel-save" data-panel="news-save">

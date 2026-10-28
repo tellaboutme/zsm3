@@ -1,6 +1,7 @@
 ---
 import { longDate } from "../../lib/calendar.ts";
 import { newsHref, type NewsItem } from "../../lib/news.ts";
+import MediaPlaceholder from "../MediaPlaceholder.astro";
 
 interface Props {
   item: NewsItem;
@@ -10,9 +11,16 @@ interface Props {
 
 const { item, variant = "standard", headingLevel = 3 } = Astro.props;
 const Heading = headingLevel === 2 ? "h2" : "h3";
+const showCover = variant !== "compact";
 ---
 
 <article class:list={["card", variant]}>
+  {showCover && (
+    <MediaPlaceholder
+      shape="banner"
+      caption={variant === "lead" ? item.cover?.caption : undefined}
+    />
+  )}
   <div class="text">
     <p class="tag meta">
       <time datetime={item.date}>{longDate(item.date)}</time>
@@ -87,5 +95,13 @@ const Heading = headingLevel === 2 ? "h2" : "h3";
 
   .card.compact {
     gap: var(--space-2);
+  }
+
+  @media (width >= 56rem) {
+    .card.lead {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-6);
+      align-items: center;
+    }
   }
 </style>

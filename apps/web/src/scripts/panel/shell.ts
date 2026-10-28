@@ -11,11 +11,25 @@ function presentMe(me: PanelMe): void {
   logout.hidden = false;
 }
 
+function pruneTabs(role: string): void {
+  if (role === "admin") {
+    return;
+  }
+  const tabs = document.querySelector<HTMLElement>('[data-panel="tabs"]');
+  if (tabs === null) {
+    return;
+  }
+  for (const link of tabs.querySelectorAll<HTMLAnchorElement>("a[data-admin]")) {
+    link.closest("li")?.remove();
+  }
+}
+
 export function wireShell(view: GateView, enter: ShellEnter): void {
   wireGate(view, (role, me) => {
     if (me !== undefined) {
       presentMe(me);
     }
+    pruneTabs(role);
     enter(role, me);
   });
 }
