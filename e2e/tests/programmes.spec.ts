@@ -146,4 +146,33 @@ test.describe("programme pages", () => {
       expect(overflow, slug).toBe(0);
     }
   });
+
+  test("fact strips stay within the viewport across programmes and themes", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto("/kandydaci/zawody");
+    const paths = await page
+      .locator('a[href^="/kandydaci/zawody/"]')
+      .evaluateAll((links) =>
+        [
+          ...new Set(links.map((link) => (link instanceof HTMLAnchorElement ? link.pathname : ""))),
+        ].filter((path) => path.startsWith("/kandydaci/zawody/")),
+      );
+    expect(paths.length).toBeGreaterThan(0);
+
+    for (const width of [360, 768, 1280, 1920]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const colorScheme of ["light", "dark"] as const) {
+        await page.emulateMedia({ colorScheme, reducedMotion: "reduce" });
+        for (const path of width === 360 || width === 1920
+          ? ["/kandydaci/zawody/technik-mechatronik"]
+          : paths) {
+          await page.goto(path);
+          const overflow = await page.evaluate(
+            () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          );
+          expect(overflow, `${path} at ${String(width)}px in ${colorScheme}`).toBe(0);
+        }
+      }
+    }
+  });
 });
