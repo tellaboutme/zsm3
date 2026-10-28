@@ -11,14 +11,18 @@ const { items } = Astro.props;
 <nav class="crumbs" aria-label="Okruszki">
   <ol>
     <li>
-      <a href="/">Strona główna</a>
+      <a class="tap-target" href="/">
+        Strona główna
+      </a>
     </li>
     {items.map((item) => (
       <li>
         {item.href === undefined ? (
           <span aria-current="page">{item.label}</span>
         ) : (
-          <a href={item.href}>{item.label}</a>
+          <a class="tap-target" href={item.href}>
+            {item.label}
+          </a>
         )}
       </li>
     ))}
