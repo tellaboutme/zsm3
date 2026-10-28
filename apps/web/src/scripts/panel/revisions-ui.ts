@@ -20,6 +20,7 @@ interface Parts {
   readonly status: HTMLElement;
   readonly target: RevisionTarget;
   readonly onRestored: (id: string) => void;
+  readonly onLoaded: (() => void) | undefined;
 }
 
 function rowNode(parts: Parts, id: string, item: RevisionSummary): HTMLElement {
@@ -53,6 +54,7 @@ async function load(parts: Parts, id: string): Promise<void> {
       ? "Brak wcześniejszych wersji. Pojawią się po pierwszej zmianie."
       : "Przywrócenie zachowuje obecny status publikacji, a bieżąca treść trafia do historii.",
   ]);
+  parts.onLoaded?.();
 }
 
 async function restoreVersion(parts: Parts, id: string, revision: number): Promise<void> {
@@ -74,6 +76,7 @@ export function wireRevisions(
   section: HTMLElement,
   target: RevisionTarget,
   onRestored: (id: string) => void,
+  onLoaded?: () => void,
 ): RevisionsUi {
   const root = area(section, "history");
   const parts: Parts = {
@@ -82,6 +85,7 @@ export function wireRevisions(
     status: area(root, "history-status"),
     target,
     onRestored,
+    onLoaded,
   };
   return {
     open: (id) => {

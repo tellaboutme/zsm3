@@ -1,4 +1,5 @@
 import "../../lib/panel/zod-jitless.ts";
+import { revealEditor } from "./editor-navigation.ts";
 import { denyContent, gateView } from "./gate-ui.ts";
 import { wirePageForm } from "./pages-form.ts";
 import { wirePageList } from "./pages-list.ts";
@@ -14,11 +15,20 @@ function boot(section: HTMLElement): void {
   const list = wirePageList(section, (path) => {
     form.open(path);
     history.open(path);
+    revealEditor(section);
   });
-  const history = wireRevisions(section, "pages", (path) => {
-    form.open(path);
-    void list.refresh();
-  });
+  const history = wireRevisions(
+    section,
+    "pages",
+    (path) => {
+      form.open(path);
+      void list.refresh();
+      revealEditor(section);
+    },
+    () => {
+      revealEditor(section);
+    },
+  );
   wireShell(view, (role) => {
     if (!canEditContent(role)) {
       denyContent(view);
