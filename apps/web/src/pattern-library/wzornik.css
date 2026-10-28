@@ -128,7 +128,7 @@
 }
 
 .pattern-library .on-orange {
-  background: var(--orange);
+  background: var(--orange-surface);
   color: var(--orange-ink);
 }
 
