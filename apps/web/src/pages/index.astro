@@ -5,6 +5,7 @@ import HomeHero from "../components/home/HomeHero.astro";
 import NewsSection from "../components/home/NewsSection.astro";
 import NumbersStrip from "../components/home/NumbersStrip.astro";
 import ProfessionFinder from "../components/home/ProfessionFinder.astro";
+import SocialStrip from "../components/home/SocialStrip.astro";
 import Base from "../layouts/Base.astro";
 import { latestNews } from "../lib/news-listing.ts";
 import { newsReader } from "../server/news.ts";
@@ -25,6 +26,7 @@ const [featured, ...recent] = await latestNews(newsReader(), 5);
     <NewsSection items={recent} />
     <EventTimeline />
     <AudiencePanels />
+    <SocialStrip />
   </div>
 </Base>
 
@@ -37,6 +39,6 @@ const [featured, ...recent] = await latestNews(newsReader(), 5);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-8);
-    padding-bottom: var(--space-8);
+    padding-bottom: var(--space-7);
   }
 </style>

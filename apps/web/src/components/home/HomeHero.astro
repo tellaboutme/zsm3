@@ -4,6 +4,7 @@ import { school } from "../../data/site.ts";
 import { longDate } from "../../lib/calendar.ts";
 import { newsHref, type NewsItem } from "../../lib/news.ts";
 import LiveStatus from "../LiveStatus.astro";
+import MediaPlaceholder from "../MediaPlaceholder.astro";
 
 interface Props {
   featured: NewsItem;
@@ -36,8 +37,10 @@ const { featured } = Astro.props;
       <span class="tag meta">
         <time datetime={featured.date}>{longDate(featured.date)}</time> · {featured.category}
       </span>
+      <span class="shot">
+        <MediaPlaceholder shape="banner" />
+      </span>
       <span class="title">{featured.title}</span>
-      <span class="lead">{featured.lead}</span>
       <span class="more">
         Czytaj dalej <span aria-hidden="true">→</span>
       </span>
@@ -90,12 +93,17 @@ const { featured } = Astro.props;
 
   .featured {
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-3);
     align-content: start;
     padding-top: var(--space-5);
     border-top: var(--rule) solid var(--orange);
     color: var(--ink);
     text-decoration: none;
+  }
+
+  .shot {
+    display: block;
+    width: 100%;
   }
 
   .more {
@@ -109,7 +117,7 @@ const { featured } = Astro.props;
 
   .title {
     font-family: var(--font-display);
-    font-size: var(--step-3);
+    font-size: var(--step-2);
     font-stretch: var(--stretch-display);
     font-weight: 800;
     line-height: var(--leading-snug);
@@ -124,11 +132,6 @@ const { featured } = Astro.props;
 
   .featured:hover .title {
     text-decoration-color: var(--orange);
-  }
-
-  .lead {
-    max-width: var(--measure);
-    color: var(--ink-2);
   }
 
   .side {

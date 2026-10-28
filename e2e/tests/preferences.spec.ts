@@ -21,7 +21,7 @@ test.describe("accessibility settings", () => {
   });
 
   test("apply at once and survive a reload", async ({ page, problems }) => {
-    const dialog = page.getByRole("dialog", { name: "Ustawienia dostępności" });
+    const dialog = page.getByRole("dialog", { name: "Wygląd i dostępność" });
     await dialog.getByLabel("Największy").check();
     await dialog.getByLabel("Wysoki kontrast").check();
 
@@ -41,7 +41,7 @@ test.describe("accessibility settings", () => {
   });
 
   test("reset to the defaults", async ({ page }) => {
-    const dialog = page.getByRole("dialog", { name: "Ustawienia dostępności" });
+    const dialog = page.getByRole("dialog", { name: "Wygląd i dostępność" });
     await dialog.getByLabel("Czytelny krój pisma").check();
 
     await expect(page.locator("html")).toHaveAttribute("data-font", "readable");
@@ -55,7 +55,7 @@ test.describe("accessibility settings", () => {
   });
 
   test("close on the backdrop", async ({ page }) => {
-    const dialog = page.getByRole("dialog", { name: "Ustawienia dostępności" });
+    const dialog = page.getByRole("dialog", { name: "Wygląd i dostępność" });
     await page.mouse.click(4, DESKTOP.height - 4);
 
     await expect(dialog).toBeHidden();
@@ -65,7 +65,7 @@ test.describe("accessibility settings", () => {
     test(`stay accessible in ${colorScheme} theme`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
 
-      await expect(page.getByRole("dialog", { name: "Ustawienia dostępności" })).toBeVisible();
+      await expect(page.getByRole("dialog", { name: "Wygląd i dostępność" })).toBeVisible();
       expect(await axeViolations(page)).toEqual([]);
     });
   }

@@ -45,13 +45,14 @@ from_path,to_path
 /zajecia-i-przerwy/,/uczniowie/dzwonki
 /wykaz-podrecznikow/,/uczniowie/podreczniki
 /plany-nauczania/,/uczniowie/plany-nauczania
+/materialy-dla-uczniow-2/,/uczniowie/materialy
 /strefa-kursow/,/uczniowie/strefa-kursow
 /szkolny-klub-przedsiebiorczosci/,/uczniowie/kola-i-kluby
 /szkolny-klub-historyczny/,/uczniowie/kola-i-kluby
 /dla-rodzicow/,/rodzice
-/kierownictwo-szkoly/,/szkola/kadra
+/kierownictwo-szkoly/,/rodzice/kierownictwo
 /rada-rodzicow/,/rodzice/rada-rodzicow
-/informacje/,/rodzice
+/informacje/,/rodzice/informacje
 /wywiadowki/,/rodzice/wywiadowki
 /2026/10/17/swiatowy-dzien-przywracania-czynnosci-serca/,/aktualnosci/2026/swiatowy-dzien-przywracania-czynnosci-serca
 /2026/10/11/druzyna-mistrzow/,/aktualnosci/2026/druzyna-mistrzow

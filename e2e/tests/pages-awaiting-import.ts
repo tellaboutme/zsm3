@@ -1,17 +1,6 @@
 export const pagesAwaitingImport: readonly string[] = [
-  "/deklaracja-dostepnosci",
   "/kandydaci/dzien-otwarty",
-  "/kandydaci/szkola-w-obiektywie",
-  "/konkursy",
-  "/rodo",
-  "/rodzice/informacje",
-  "/rodzice/kierownictwo",
-  "/skrzynka",
-  "/szkola/galeria",
-  "/szkola/o-szkole",
-  "/szkola/projekty",
   "/szkola/projekty/erasmus",
-  "/uczniowie/materialy",
   "/uczniowie/wychowawcy",
   "/zamowienia-publiczne",
 ];
