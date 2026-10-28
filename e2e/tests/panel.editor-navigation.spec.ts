@@ -28,67 +28,71 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-test("news editor appears after selecting an item on a phone", async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 740 });
-  await page.route("**/api/panel/news?*", async (route) =>
-    route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify({ items: news, total: news.length, page: 1, pageSize: 20 }),
-    }),
-  );
-  await page.route("**/api/panel/news/2026/entry-1", async (route) =>
-    route.fulfill({ contentType: "application/json", body: JSON.stringify({ item: news[0] }) }),
-  );
-  await page.goto("/panel/aktualnosci");
-  await expect(
-    page.getByRole("button", { name: "Edytuj aktualność Entry 1 z 2026-10-28" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Edytuj aktualność Entry 1 z 2026-10-28" }).click();
-  await expect(page.locator('[data-panel="editor"] input[name="title"]')).toHaveValue("Entry 1");
-  const top = await page
-    .locator('[data-panel="editor"]')
-    .evaluate((editor) => editor.getBoundingClientRect().top);
-  expect(top).toBeGreaterThan(-1);
-  expect(top).toBeLessThan(740);
-});
-
-test("page editor appears after selecting an item on a phone", async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 740 });
-  await page.route("**/api/panel/pages", async (route) =>
-    route.fulfill({ contentType: "application/json", body: JSON.stringify({ items: pages }) }),
-  );
-  await page.route("**/api/panel/pages/**", async (route) =>
-    route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify({
-        item: {
-          ...pages[0],
-          kicker: "School",
-          intro: "School page introduction",
-          sections: [
-            {
-              id: "section",
-              title: "Section",
-              blocks: [
-                {
-                  type: "rich-text",
-                  document: [
-                    { type: "paragraph", content: [{ type: "text", text: "School page body" }] },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
+for (const width of [360, 700]) {
+  test(`news editor appears after selecting an item at ${String(width)}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 740 });
+    await page.route("**/api/panel/news?*", async (route) =>
+      route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ items: news, total: news.length, page: 1, pageSize: 20 }),
       }),
-    }),
-  );
-  await page.goto("/panel/strony");
-  await page.getByRole("button", { name: "Edytuj stronę /szkola/example-1", exact: true }).click();
-  await expect(page.locator('[data-panel="editor"] input[name="title"]')).toHaveValue("Page 1");
-  const top = await page
-    .locator('[data-panel="editor"]')
-    .evaluate((editor) => editor.getBoundingClientRect().top);
-  expect(top).toBeGreaterThan(-1);
-  expect(top).toBeLessThan(740);
-});
+    );
+    await page.route("**/api/panel/news/2026/entry-1", async (route) =>
+      route.fulfill({ contentType: "application/json", body: JSON.stringify({ item: news[0] }) }),
+    );
+    await page.goto("/panel/aktualnosci");
+    await expect(
+      page.getByRole("button", { name: "Edytuj aktualność Entry 1 z 2026-10-28" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Edytuj aktualność Entry 1 z 2026-10-28" }).click();
+    await expect(page.locator('[data-panel="editor"] input[name="title"]')).toHaveValue("Entry 1");
+    const top = await page
+      .locator('[data-panel="editor"]')
+      .evaluate((editor) => editor.getBoundingClientRect().top);
+    expect(top).toBeGreaterThan(-1);
+    expect(top).toBeLessThan(740);
+  });
+
+  test(`page editor appears after selecting an item at ${String(width)}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 740 });
+    await page.route("**/api/panel/pages", async (route) =>
+      route.fulfill({ contentType: "application/json", body: JSON.stringify({ items: pages }) }),
+    );
+    await page.route("**/api/panel/pages/**", async (route) =>
+      route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          item: {
+            ...pages[0],
+            kicker: "School",
+            intro: "School page introduction",
+            sections: [
+              {
+                id: "section",
+                title: "Section",
+                blocks: [
+                  {
+                    type: "rich-text",
+                    document: [
+                      { type: "paragraph", content: [{ type: "text", text: "School page body" }] },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        }),
+      }),
+    );
+    await page.goto("/panel/strony");
+    await page
+      .getByRole("button", { name: "Edytuj stronę /szkola/example-1", exact: true })
+      .click();
+    await expect(page.locator('[data-panel="editor"] input[name="title"]')).toHaveValue("Page 1");
+    const top = await page
+      .locator('[data-panel="editor"]')
+      .evaluate((editor) => editor.getBoundingClientRect().top);
+    expect(top).toBeGreaterThan(-1);
+    expect(top).toBeLessThan(740);
+  });
+}
