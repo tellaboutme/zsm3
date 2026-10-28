@@ -33,6 +33,7 @@ const { label, facts } = Astro.props;
     flex-direction: column-reverse;
     gap: var(--space-2);
     justify-content: start;
+    min-width: 0;
     padding: var(--space-5) var(--space-4);
     container-type: inline-size;
     border-bottom: var(--hairline) solid var(--line);
@@ -41,8 +42,9 @@ const { label, facts } = Astro.props;
   dd {
     margin: 0;
     color: var(--link);
+    overflow-wrap: break-word;
     font-family: var(--font-display);
-    font-size: min(var(--step-3), 14cqi);
+    font-size: min(var(--step-3), 11cqi);
     font-stretch: var(--stretch-wide);
     font-weight: 900;
     line-height: var(--leading-tight);
