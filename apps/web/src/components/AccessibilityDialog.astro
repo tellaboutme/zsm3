@@ -8,7 +8,12 @@ const switches = [
   { name: "font", value: "readable", label: "Czytelny krój pisma", hint: "Atkinson Hyperlegible." },
   { name: "underline", value: "on", label: "Podkreślaj linki", hint: "Linki zawsze podkreślone." },
   { name: "grayscale", value: "on", label: "Skala szarości", hint: "Strona bez kolorów." },
-  { name: "motion", value: "reduce", label: "Ogranicz animacje", hint: "Zatrzymuje ruch i tło." },
+  {
+    name: "motion",
+    value: "reduce",
+    label: "Ogranicz animacje",
+    hint: "Wyłącza przejścia i efekty wejścia treści.",
+  },
 ] as const;
 const textSizes = [
   { value: "", label: "Standardowy" },

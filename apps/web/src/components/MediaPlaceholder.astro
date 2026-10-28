@@ -1,8 +1,8 @@
 ---
 interface Props {
-  shape?: "wide" | "square" | "tall";
-  label?: string;
-  caption?: string;
+  shape?: "wide" | "banner" | "strip" | "band" | "square" | "tall";
+  label?: string | undefined;
+  caption?: string | undefined;
 }
 
 const { shape = "wide", label = "Preview Image", caption } = Astro.props;
@@ -35,6 +35,18 @@ const { shape = "wide", label = "Preview Image", caption } = Astro.props;
 
   .frame[data-shape="wide"] {
     aspect-ratio: 3 / 2;
+  }
+
+  .frame[data-shape="banner"] {
+    aspect-ratio: 16 / 9;
+  }
+
+  .frame[data-shape="strip"] {
+    aspect-ratio: 21 / 9;
+  }
+
+  .frame[data-shape="band"] {
+    aspect-ratio: 3 / 1;
   }
 
   .frame[data-shape="square"] {

@@ -21,8 +21,8 @@
   --danger-surface: light-dark(#b42318, #ff8a80);
   --danger-ink: light-dark(#fff, #0b1220);
   --shadow-float: 0 1.25rem 2.5rem light-dark(#0b122029, #0009);
-  --wash-blue: light-dark(#0b4fb31c, #1d4fa840);
-  --wash-orange: light-dark(#f26b1d14, #ff8a3d2b);
+  --wash-blue: light-dark(#3b8ad92e, #1d4fa840);
+  --wash-orange: light-dark(#3b8ad912, #ff8a3d2b);
   --wash-hatch: light-dark(#0b12200d, #eef2f80f);
   --wash-bleed: -20vmax;
   --wash-size: 70vmax;
