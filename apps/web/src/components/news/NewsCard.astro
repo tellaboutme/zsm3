@@ -1,6 +1,7 @@
 ---
 import { longDate } from "../../lib/calendar.ts";
 import { newsHref, type NewsItem } from "../../lib/news.ts";
+import MediaPlaceholder from "../MediaPlaceholder.astro";
 
 interface Props {
   item: NewsItem;
@@ -10,9 +11,11 @@ interface Props {
 
 const { item, variant = "standard", headingLevel = 3 } = Astro.props;
 const Heading = headingLevel === 2 ? "h2" : "h3";
+const cover = variant === "lead" ? item.cover : undefined;
 ---
 
 <article class:list={["card", variant]}>
+  {cover !== undefined && <MediaPlaceholder shape="wide" caption={cover.caption} />}
   <div class="text">
     <p class="tag meta">
       <time datetime={item.date}>{longDate(item.date)}</time>

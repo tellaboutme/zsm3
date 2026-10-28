@@ -1,6 +1,5 @@
 from_path,previous_to_path,reason
 /krakowski-tydzien-zawodowcow-prezentacje-wideo/,/kandydaci,source content not available on destination
-/materialy-dla-uczniow-2/,/uczniowie,source content not available on destination
 /tatry/,/uczniowie/kola-i-kluby,archive content not available on destination
 /szkolny-klub-przedsiebiorczosci/szkolna-internetowa-gra-gieldowa/,/uczniowie/kola-i-kluby,archive content not available on destination
 /szkolny-klub-przedsiebiorczosci/szkolna-internetowa-gra-gieldowa/terminarz/,/uczniowie/kola-i-kluby,archive content not available on destination
@@ -48,4 +47,4 @@ from_path,previous_to_path,reason
 /2026/09/24/relacja-zajrzyj-do-huty-2026/,/aktualnosci/2026/relacja-zajrzyj-do-huty-2026,matching article not seeded
 /2022/05/06/ogloszenie/,/aktualnosci/2022/ogloszenie,matching article not seeded
 /wychowawcy-klas/,/szkola/kadra,class teachers not present on destination
-/rodo/,/polityka-prywatnosci,previous school RODO content not present on destination
+/rodo/,/polityka-prywatnosci,served directly at the same path so no redirect is needed
