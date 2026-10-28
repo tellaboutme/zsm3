@@ -17,11 +17,18 @@ function boot(section: HTMLElement): void {
     history.open(ref);
     revealEditor(section);
   });
-  const history = wireRevisions(section, "news", (ref) => {
-    editor.open(ref);
-    void list.refresh();
-    revealEditor(section);
-  });
+  const history = wireRevisions(
+    section,
+    "news",
+    (ref) => {
+      editor.open(ref);
+      void list.refresh();
+      revealEditor(section);
+    },
+    () => {
+      revealEditor(section);
+    },
+  );
   const editor = wireEditor(section, blocks, () => {
     void list.refresh();
   });

@@ -17,11 +17,18 @@ function boot(section: HTMLElement): void {
     history.open(path);
     revealEditor(section);
   });
-  const history = wireRevisions(section, "pages", (path) => {
-    form.open(path);
-    void list.refresh();
-    revealEditor(section);
-  });
+  const history = wireRevisions(
+    section,
+    "pages",
+    (path) => {
+      form.open(path);
+      void list.refresh();
+      revealEditor(section);
+    },
+    () => {
+      revealEditor(section);
+    },
+  );
   wireShell(view, (role) => {
     if (!canEditContent(role)) {
       denyContent(view);
