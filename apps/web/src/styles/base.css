@@ -105,6 +105,7 @@
 @layer utilities {
   .tap-target {
     display: inline-block;
+    min-width: var(--target);
     min-height: var(--target);
     padding-block: max(0px, (var(--target) - 1lh) / 2);
   }
