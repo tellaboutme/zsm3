@@ -37,6 +37,17 @@ test("a protected link asks for the password without revealing the target", asyn
   expect(await page.content()).not.toContain("karta-pracy.pdf");
 });
 
+test("the correct password redirects to the protected material", async ({ request }) => {
+  const response = await request.post("/api/short-links/zhasqem", {
+    form: { haslo: "zsm3-demo" },
+    headers: { Origin: "http://127.0.0.1:8787" },
+    maxRedirects: 0,
+  });
+
+  expect(response.status()).toBe(303);
+  expect(response.headers()["location"]).toBe("https://example.org/materialy/karta-pracy.pdf");
+});
+
 test("the password form refuses a guess and keeps the visitor on the page", async ({ page }) => {
   await page.goto("/s/zhasqem");
   await page.getByLabel("Hasło do materiału").fill("nieprawidlowe");
