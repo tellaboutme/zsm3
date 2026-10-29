@@ -99,7 +99,15 @@ jobs:
         run: pnpm build && test -d apps/web/dist/client && test ! -e apps/web/dist/client/wzornik
       - name: Production pages retain direct e-mail links
         run: CONTACT_PRODUCTION=true pnpm --filter @zsm3/e2e exec playwright test --project chromium --grep 'production pages keep mailto links without a dialog'
-      - run: pnpm test:e2e
+      - run: pnpm build:preview
+      - name: Set local short link key for end-to-end tests
+        run: |
+          umask 077
+          set -C
+          key="$(openssl rand -hex 32)"
+          printf 'SHORT_LINK_KEY=%s\n' "$key" > apps/web/.dev.vars
+          printf 'SHORT_LINK_KEY=%s\n' "$key" > apps/web/dist/server/.dev.vars
+      - run: pnpm --filter @zsm3/e2e test:e2e
       - if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:

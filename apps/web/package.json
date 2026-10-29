@@ -6,7 +6,7 @@
     "dev": "astro dev --mode preview",
     "build": "astro build",
     "build:preview": "astro build --mode preview",
-    "typecheck": "astro check && wrangler types worker/worker-configuration.d.ts --check && tsc -p worker/tsconfig.json",
+    "typecheck": "astro check && wrangler types worker/worker-configuration.d.ts --include-env=false --check && tsc -p worker/tsconfig.json",
     "test": "vitest run --coverage",
     "test:mutation": "stryker run",
     "db:migrate": "wrangler d1 migrations apply DB --local --persist-to .wrangler/state",
