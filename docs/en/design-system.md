@@ -25,7 +25,7 @@ Every review checks these. Each one is a yes/no question.
 
 5. No gradients on backgrounds or text, no glow, no glassmorphism, no drop shadows used as decoration. Elevation appears only where an element actually floats (menus, dialogs).
 6. Colour only through tokens; the brand navy and one signal colour carry meaning (action, live state), everything else is neutral.
-7. One small radius scale (0, 2, 4 px). Nothing is a pill unless it is a status tag.
+7. One small radius, 6 px (`--radius`); only shapes that are round by design, such as the switch toggles, use the full round token (`--radius-round`). Nothing is a pill unless it is a status tag.
 
 **Typography**
 
@@ -65,7 +65,7 @@ All colours, sizes, spacing, radii, durations and z-indices are CSS custom prope
 | Type   | `--font-display`, `--font-body`, `--font-mono`, `--step--1` … `--step-5` (fluid `clamp()` scale), `--leading-*`                                            |
 | Space  | `--space-1` … `--space-8` on a 4 px base                                                                                                                   |
 | Layout | `--measure` (65ch), `--grid-columns`, `--gutter`, `--page-max`                                                                                             |
-| Shape  | `--radius-0`, `--radius-1`, `--radius-2`, `--hairline`                                                                                                     |
+| Shape  | `--radius` (6 px), `--radius-round`, `--hairline`                                                                                                          |
 | Motion | `--ease`, `--duration-1`, `--duration-2`                                                                                                                   |
 
 Contrast: body text at least 7:1 (AAA) in both themes, large text and UI elements at least 4.5:1. The accessibility settings (larger text, high contrast, greyscale, underlined links, readable font) are token overrides, not separate styles.
