@@ -81,7 +81,7 @@ describe("resolving a short link", () => {
     const current = store();
     const links = shortLinksRepo(current);
     await seed(links, "k7mq4ra");
-    await links.revoke("k7mq4ra", NOW.toISOString());
+    await links.revoke("k7mq4ra", "nauczyciel@zespolszkolmechanicznych.edu.pl", NOW.toISOString());
 
     await expect(openLink(deps(current, KEY), "k7mq4ra", NOW)).resolves.toEqual({ kind: "gone" });
   });

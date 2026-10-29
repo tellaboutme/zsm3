@@ -8,10 +8,10 @@ export const SELECT_SHORT_LINK = `SELECT code, target_url, password_salt, passwo
 export const COUNT_CLICK = "UPDATE short_links SET clicks = clicks + 1 WHERE code = ?1";
 
 export const REVOKE_SHORT_LINK =
-  "UPDATE short_links SET revoked_at = ?2 WHERE code = ?1 AND revoked_at IS NULL";
+  "UPDATE short_links SET revoked_at = ?3 WHERE code = ?1 AND created_by = ?2 AND revoked_at IS NULL";
 
-export const SELECT_AUTHOR_LINKS = `SELECT code, target_url, password_salt, password_hash,
-  expires_at, revoked_at FROM short_links WHERE created_by = ?1
+export const SELECT_AUTHOR_LINKS = `SELECT code, target_url, created_at, expires_at, revoked_at,
+  clicks, (password_hash IS NOT NULL) AS password_protected FROM short_links WHERE created_by = ?1
   ORDER BY created_at DESC, code LIMIT ?2`;
 
 export const DELETE_LAPSED_SHORT_LINKS = `DELETE FROM short_links WHERE code IN
