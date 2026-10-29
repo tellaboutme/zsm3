@@ -46,11 +46,13 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
 <style>
   .timeline {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-5);
   }
 
   .events {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -59,6 +61,7 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
   .event {
     position: relative;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-1) var(--space-5);
     padding: var(--space-4) 0 var(--space-4) var(--space-6);
     border-left: var(--rule) solid var(--line);
@@ -83,6 +86,7 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
   .when {
     font-family: var(--font-mono);
     font-weight: 600;
+    overflow-wrap: anywhere;
   }
 
   .what {
@@ -91,6 +95,7 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
     font-stretch: var(--stretch-display);
     font-weight: 800;
     line-height: var(--leading-snug);
+    overflow-wrap: anywhere;
   }
 
   .who {

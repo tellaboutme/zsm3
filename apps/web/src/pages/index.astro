@@ -20,10 +20,10 @@ const [featured, ...recent] = await latestNews(newsReader(), 5);
   description="Technikum i szkoła branżowa w Nowej Hucie: 13 zawodów w informatyce, mechatronice, motoryzacji, lotnictwie i logistyce portów. Dzwonki, aktualności i terminarz szkoły."
 >
   <div class="home">
-    {featured !== undefined && <HomeHero featured={featured} />}
+    <HomeHero featured={featured} />
     <NumbersStrip />
     <ProfessionFinder />
-    <NewsSection items={recent} />
+    {recent.length > 0 && <NewsSection items={recent} />}
     <EventTimeline />
     <AudiencePanels />
     <SocialStrip />

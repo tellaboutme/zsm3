@@ -11,6 +11,17 @@ test.describe("home page", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
   });
 
+  test("keeps the featured story beside the live status and quick links", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(page.locator(".hero .featured")).toHaveCount(1);
+    await expect(page.getByRole("region", { name: "Teraz w szkole" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Na skróty" }).getByRole("link")).toHaveCount(
+      4,
+    );
+  });
+
   for (const colorScheme of ["light", "dark"] as const) {
     test(`has no accessibility violations in ${colorScheme} theme`, async ({ page, problems }) => {
       await page.emulateMedia({ colorScheme });
