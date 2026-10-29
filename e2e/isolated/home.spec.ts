@@ -64,6 +64,38 @@ async function verifyEmptyHome(page: Page): Promise<void> {
   });
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-text", "150");
+  await page.evaluate(() => {
+    localStorage.removeItem("zsm3.preferences");
+  });
+  await page.reload();
+  await page.setViewportSize({ width: 180, height: 800 });
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+    "horizontal overflow at 180px",
+  ).toBe(0);
+  const narrowComponentsFit = await page.evaluate(() => {
+    const live = document.querySelector(".live")?.getBoundingClientRect();
+    const link = document.querySelector(".live .top a")?.getBoundingClientRect();
+    const progress = document.querySelector(".live progress")?.getBoundingClientRect();
+    const socialLinks = [...document.querySelectorAll(".social li a")];
+    return (
+      live !== undefined &&
+      link !== undefined &&
+      progress !== undefined &&
+      link.right <= live.right &&
+      progress.right <= live.right &&
+      socialLinks.every((item) => {
+        const name = item.querySelector(".name")?.getBoundingClientRect();
+        const icon = item.querySelector(".go")?.getBoundingClientRect();
+        return name !== undefined && icon !== undefined && name.right <= icon.left;
+      })
+    );
+  });
+  expect(narrowComponentsFit).toBe(true);
+  await page.evaluate(() => {
+    localStorage.setItem("zsm3.preferences", '{"text":"150"}');
+  });
+  await page.reload();
   for (const width of [360, 768, 1280, 1920]) {
     await page.setViewportSize({ width, height: 800 });
     expect(

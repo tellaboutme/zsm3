@@ -38,6 +38,7 @@ const { size = "panel" } = Astro.props;
 
   .top {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--space-3);
     color: var(--blue-dim);
@@ -64,6 +65,7 @@ const { size = "panel" } = Astro.props;
 
   progress {
     width: 100%;
+    min-width: 0;
     height: var(--space-2);
     border: 0;
     border-radius: var(--radius);
