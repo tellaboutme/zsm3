@@ -1,15 +1,10 @@
-import {
-  hashPassword,
-  PASSWORD_SALT_BYTES,
-  type PasswordDigest,
-} from "../src/security/passwords.ts";
+import { hashPassword } from "../src/security/passwords.ts";
 import { timestamp, type Store } from "../src/storage/database.ts";
 import { shortLinksRepo } from "../src/storage/short-links-repo.ts";
 
 const DAY_MS = 86_400_000;
 const LIFETIME_DAYS = 180;
 const AUTHOR = "sekretariat@zespolszkolmechanicznych.edu.pl";
-const HASH_BYTES = 32;
 
 interface LinkSeed {
   readonly code: string;
@@ -39,33 +34,29 @@ const SEEDS: readonly LinkSeed[] = [
   },
 ];
 
-async function demoDigest(
-  store: Store,
-  key: string | undefined,
-  phrase: string,
-): Promise<PasswordDigest> {
-  return key === undefined
-    ? { salt: store.random(PASSWORD_SALT_BYTES), hash: store.random(HASH_BYTES) }
-    : await hashPassword(key, phrase, store.random);
-}
-
 export async function seedShortLinks(store: Store, key: string | undefined): Promise<number> {
   const links = shortLinksRepo(store);
   const at = timestamp(store.clock);
   let seeded = 0;
   for (const seed of SEEDS) {
+    if (seed.phrase !== null && key === undefined) {
+      continue;
+    }
     if ((await links.find(seed.code)) !== undefined) {
       continue;
     }
     await links.create({
       code: seed.code,
       target: seed.target,
-      password: seed.phrase === null ? null : await demoDigest(store, key, seed.phrase),
+      password:
+        seed.phrase === null || key === undefined
+          ? null
+          : await hashPassword(key, seed.phrase, store.random),
       createdBy: AUTHOR,
       expiresAt: new Date(Date.parse(at) + LIFETIME_DAYS * DAY_MS).toISOString(),
     });
     if (seed.revoked) {
-      await links.revoke(seed.code, at);
+      await links.revoke(seed.code, AUTHOR, at);
     }
     seeded += 1;
   }

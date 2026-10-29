@@ -7,7 +7,6 @@ import {
   AUTHOR_LINK_LIMIT,
   LAPSED_PRUNE_BATCH,
   shortLinksRepo,
-  toRecord,
 } from "../../src/storage/short-links-repo.ts";
 
 const KEY = "short-link-pepper-0123456789-0123456789";
@@ -21,41 +20,6 @@ function store(): Store {
 describe("short link rows", () => {
   it("has batch sizes that keep a run bounded", ({ expect }) => {
     expect([LAPSED_PRUNE_BATCH, AUTHOR_LINK_LIMIT]).toEqual([500, 200]);
-  });
-
-  it("reads a row without a password as an open link", ({ expect }) => {
-    expect(
-      toRecord({
-        code: "k7mq4ra",
-        target_url: TARGET,
-        password_salt: null,
-        password_hash: null,
-        expires_at: "2027-10-27T08:00:00.000Z",
-        revoked_at: null,
-      }),
-    ).toEqual({
-      code: "k7mq4ra",
-      target: TARGET,
-      expiresAt: "2027-10-27T08:00:00.000Z",
-      revokedAt: null,
-      password: null,
-    });
-  });
-
-  it("keeps the salt and the digest together", ({ expect }) => {
-    const record = toRecord({
-      code: "k7mq4ra",
-      target_url: TARGET,
-      password_salt: new Uint8Array([1, 2]),
-      password_hash: new Uint8Array([3, 4]),
-      expires_at: "2027-10-27T08:00:00.000Z",
-      revoked_at: null,
-    });
-
-    expect(record.password).toEqual({
-      salt: new Uint8Array([1, 2]),
-      hash: new Uint8Array([3, 4]),
-    });
   });
 });
 
@@ -84,11 +48,12 @@ describe("the short links table", () => {
   it("lists the links of one author, newest first", async ({ expect }) => {
     const current = store();
     const links = shortLinksRepo(current);
+    const password = await hashPassword(KEY, "klasa4tp", counterRandom());
     for (const code of ["k7mq4ra", "k7mq4rb"]) {
       await links.create({
         code,
         target: TARGET,
-        password: null,
+        password: code === "k7mq4ra" ? password : null,
         createdBy: AUTHOR,
         expiresAt: "2027-10-27T08:00:00.000Z",
       });
@@ -103,11 +68,40 @@ describe("the short links table", () => {
 
     const mine = await links.byAuthor(AUTHOR, AUTHOR_LINK_LIMIT);
 
-    expect(mine.map((link) => link.code)).toEqual(["k7mq4ra", "k7mq4rb"]);
+    expect(mine).toEqual([
+      {
+        code: "k7mq4ra",
+        target: TARGET,
+        createdAt: FIXED_CLOCK().toISOString(),
+        expiresAt: "2027-10-27T08:00:00.000Z",
+        revokedAt: null,
+        clicks: 0,
+        passwordProtected: true,
+      },
+      {
+        code: "k7mq4rb",
+        target: TARGET,
+        createdAt: FIXED_CLOCK().toISOString(),
+        expiresAt: "2027-10-27T08:00:00.000Z",
+        revokedAt: null,
+        clicks: 0,
+        passwordProtected: false,
+      },
+    ]);
+    expect(mine[0]).not.toHaveProperty("password");
+    expect(mine[0]).not.toHaveProperty("password_salt");
+    expect(mine[0]).not.toHaveProperty("password_hash");
     expect(await links.byAuthor(AUTHOR, 1)).toHaveLength(1);
+    expect(await links.byAuthor(AUTHOR, 0)).toEqual([]);
+    expect(await links.byAuthor(AUTHOR, 500)).toHaveLength(2);
+    await expect(links.byAuthor(AUTHOR, -1)).rejects.toThrow();
+    await links.countClick("k7mq4ra");
+    await expect(links.byAuthor(AUTHOR, 1)).resolves.toMatchObject([{ clicks: 1 }]);
   });
 
-  it("revokes a link once and leaves the first moment standing", async ({ expect }) => {
+  it("only lets the author revoke once and leaves the first moment standing", async ({
+    expect,
+  }) => {
     const current = store();
     const links = shortLinksRepo(current);
     await links.create({
@@ -117,8 +111,12 @@ describe("the short links table", () => {
       createdBy: AUTHOR,
       expiresAt: "2027-10-27T08:00:00.000Z",
     });
-    await links.revoke("k7mq4ra", "2026-10-27T08:00:00.000Z");
-    await links.revoke("k7mq4ra", "2026-10-28T08:00:00.000Z");
+    await expect(
+      links.revoke("k7mq4ra", "other@example.org", "2026-10-26T08:00:00.000Z"),
+    ).resolves.toBe(false);
+    await expect(links.revoke("missing", AUTHOR, "2026-10-26T08:00:00.000Z")).resolves.toBe(false);
+    await expect(links.revoke("k7mq4ra", AUTHOR, "2026-10-27T08:00:00.000Z")).resolves.toBe(true);
+    await expect(links.revoke("k7mq4ra", AUTHOR, "2026-10-28T08:00:00.000Z")).resolves.toBe(false);
 
     await expect(links.find("k7mq4ra")).resolves.toMatchObject({
       revokedAt: "2026-10-27T08:00:00.000Z",
@@ -149,7 +147,7 @@ describe("the short links table", () => {
       createdBy: AUTHOR,
       expiresAt: "2027-10-27T08:00:00.000Z",
     });
-    await links.revoke("k7mq4rc", "2026-10-25T00:00:00.000Z");
+    await links.revoke("k7mq4rc", AUTHOR, "2026-10-25T00:00:00.000Z");
 
     await links.pruneLapsed("2027-01-01T00:00:00.000Z", LAPSED_PRUNE_BATCH);
 
