@@ -30,13 +30,13 @@
     "prepare": "lefthook install"
   },
   "devDependencies": {
-    "@commitlint/cli": "21.2.3",
-    "@commitlint/config-conventional": "21.2.3",
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
     "@commitlint/types": "21.2.3",
     "@eslint/js": "10.0.1",
     "@types/node": "catalog:",
     "@zsm3/lint-rules": "workspace:*",
-    "eslint": "10.12.0",
+    "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "4.4.5",
     "eslint-plugin-astro": "3.2.1",
@@ -54,6 +54,6 @@
     "stylelint-config-standard": "40.0.0",
     "stylelint-declaration-strict-value": "1.12.1",
     "typescript": "catalog:",
-    "typescript-eslint": "8.71.2"
+    "typescript-eslint": "8.72.0"
   }
 }
