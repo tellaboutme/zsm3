@@ -65,7 +65,7 @@ export async function seedShortLinks(store: Store, key: string | undefined): Pro
       expiresAt: new Date(Date.parse(at) + LIFETIME_DAYS * DAY_MS).toISOString(),
     });
     if (seed.revoked) {
-      await links.revoke(seed.code, at);
+      await links.revoke(seed.code, AUTHOR, at);
     }
     seeded += 1;
   }
