@@ -1,7 +1,15 @@
+import type { PanelShortLinkCursor } from "@zsm3/contracts/panel";
 import { shortCodeSchema, targetUrlSchema } from "@zsm3/contracts/short-links";
 import { z } from "zod";
 
-import { allRows, batchChanges, firstRow, timestamp, type Store } from "./database.ts";
+import {
+  allRows,
+  batchChanges,
+  firstRow,
+  timestamp,
+  type SqlDatabase,
+  type Store,
+} from "./database.ts";
 import { bytesSchema } from "./requests-rows.ts";
 import {
   COUNT_CLICK,
@@ -9,6 +17,7 @@ import {
   INSERT_SHORT_LINK,
   REVOKE_SHORT_LINK,
   SELECT_AUTHOR_LINKS,
+  SELECT_AUTHOR_LINKS_PAGE,
   SELECT_SHORT_LINK,
 } from "./short-links-sql.ts";
 import type { LinkWindow } from "../domain/short-link.ts";
@@ -45,6 +54,11 @@ export interface ShortLinksRepo {
   countClick(code: string): Promise<void>;
   revoke(code: string, createdBy: string, at: string): Promise<boolean>;
   byAuthor(createdBy: string, limit: number): Promise<readonly AuthorShortLinkRecord[]>;
+  pageByAuthor(
+    createdBy: string,
+    cursor: PanelShortLinkCursor | null,
+    limit: number,
+  ): Promise<readonly AuthorShortLinkRecord[]>;
   pruneLapsed(cutoff: string, limit: number): Promise<void>;
 }
 
@@ -97,6 +111,26 @@ function boundedAuthorLimit(limit: number): number {
   return Math.min(z.number().int().nonnegative().parse(limit), AUTHOR_LINK_LIMIT);
 }
 
+async function authorPage(
+  db: SqlDatabase,
+  createdBy: string,
+  cursor: PanelShortLinkCursor | null,
+  limit: number,
+): Promise<readonly AuthorShortLinkRecord[]> {
+  const rows = await allRows(
+    db
+      .prepare(SELECT_AUTHOR_LINKS_PAGE)
+      .bind(
+        createdBy,
+        cursor?.createdAt ?? null,
+        cursor?.code ?? null,
+        z.number().int().min(1).max(AUTHOR_LINK_LIMIT).parse(limit) + 1,
+      ),
+    authorLinkRowSchema,
+  );
+  return rows.map(toAuthorRecord);
+}
+
 export function shortLinksRepo({ db, clock }: Store): ShortLinksRepo {
   return {
     create: async (row) => {
@@ -131,6 +165,7 @@ export function shortLinksRepo({ db, clock }: Store): ShortLinksRepo {
           authorLinkRowSchema,
         )
       ).map(toAuthorRecord),
+    pageByAuthor: async (author, cursor, size) => await authorPage(db, author, cursor, size),
     pruneLapsed: async (cutoff, limit) => {
       await db.prepare(DELETE_LAPSED_SHORT_LINKS).bind(cutoff, limit).run();
     },
