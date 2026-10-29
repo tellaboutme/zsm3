@@ -27,6 +27,7 @@ export function shouldNoindex(url: URL): boolean {
   return (
     url.search !== "" ||
     url.pathname === "/szukaj" ||
+    url.pathname === "/szkola/galeria" ||
     /^\/aktualnosci\/(?:strona\/\d+|kategoria\/|\d{4}(?:\/strona\/\d+)?$)/u.test(url.pathname)
   );
 }
@@ -42,7 +43,9 @@ export function sitemapEntries(
     }
   }
   for (const entry of published) {
-    entries.set(entry.path, entry);
+    if (!shouldNoindex(new URL(entry.path, SITE_ORIGIN))) {
+      entries.set(entry.path, entry);
+    }
   }
   return [...entries.values()];
 }
