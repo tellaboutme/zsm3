@@ -14,6 +14,11 @@ export const SELECT_AUTHOR_LINKS = `SELECT code, target_url, created_at, expires
   clicks, (password_hash IS NOT NULL) AS password_protected FROM short_links WHERE created_by = ?1
   ORDER BY created_at DESC, code LIMIT ?2`;
 
+export const SELECT_AUTHOR_LINKS_PAGE = `SELECT code, target_url, created_at, expires_at, revoked_at,
+  clicks, (password_hash IS NOT NULL) AS password_protected FROM short_links
+  WHERE created_by = ?1 AND (?2 IS NULL OR created_at < ?2 OR (created_at = ?2 AND code > ?3))
+  ORDER BY created_at DESC, code ASC LIMIT ?4`;
+
 export const DELETE_LAPSED_SHORT_LINKS = `DELETE FROM short_links WHERE code IN
   (SELECT code FROM short_links WHERE expires_at < ?1 OR revoked_at < ?1
    ORDER BY expires_at LIMIT ?2)`;
