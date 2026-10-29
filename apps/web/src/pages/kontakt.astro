@@ -129,4 +129,30 @@ const { departments, management } = await contacts();
     min-height: var(--target);
     font-weight: 700;
   }
+
+  @media (width >= 56rem) {
+    .contact {
+      grid-template-columns: minmax(0, min(62%, 52rem)) minmax(18rem, 1fr);
+      align-items: start;
+    }
+
+    .intro {
+      grid-column: 1 / -1;
+    }
+
+    section[aria-labelledby="dzialy"] {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    section[aria-labelledby="kierownictwo"] {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .where {
+      grid-column: 2;
+      grid-row: 2 / span 2;
+    }
+  }
 </style>
