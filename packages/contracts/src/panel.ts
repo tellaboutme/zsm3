@@ -200,6 +200,7 @@ export const panelRouteNames = [
   "files.upload",
   "redirects.list",
   "short-links.list",
+  "short-links.revoke",
   "redirects.save",
   "redirects.delete",
   "staff.list",

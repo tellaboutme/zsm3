@@ -10,8 +10,10 @@ import {
   type SqlDatabase,
   type Store,
 } from "./database.ts";
+import { uuidv7 } from "./ids.ts";
 import { bytesSchema } from "./requests-rows.ts";
 import {
+  AUDIT_SHORT_LINK_REVOKE,
   COUNT_CLICK,
   DELETE_LAPSED_SHORT_LINKS,
   INSERT_SHORT_LINK,
@@ -52,7 +54,7 @@ export interface ShortLinksRepo {
   create(row: NewShortLinkRow): Promise<void>;
   find(code: string): Promise<ShortLinkRecord | undefined>;
   countClick(code: string): Promise<void>;
-  revoke(code: string, createdBy: string, at: string): Promise<boolean>;
+  revoke(code: string, createdBy: string, at?: string): Promise<boolean>;
   byAuthor(createdBy: string, limit: number): Promise<readonly AuthorShortLinkRecord[]>;
   pageByAuthor(
     createdBy: string,
@@ -111,6 +113,32 @@ function boundedAuthorLimit(limit: number): number {
   return Math.min(z.number().int().nonnegative().parse(limit), AUTHOR_LINK_LIMIT);
 }
 
+async function revokeLink(
+  store: Store,
+  code: string,
+  createdBy: string,
+  at: string,
+): Promise<boolean> {
+  const { db, random } = store;
+  const result = await db.batch([
+    db
+      .prepare(AUDIT_SHORT_LINK_REVOKE)
+      .bind(
+        uuidv7(new Date(at).getTime(), random),
+        at,
+        createdBy,
+        JSON.stringify({ revoked_at: at }),
+        code,
+      ),
+    db.prepare(REVOKE_SHORT_LINK).bind(code, createdBy, at),
+  ]);
+  const changes = batchChanges(result);
+  if (changes.length !== 2 || changes[0] !== changes[1] || (changes[0] !== 0 && changes[0] !== 1)) {
+    throw new Error("Inconsistent short link revoke batch");
+  }
+  return changes[0] === 1;
+}
+
 async function authorPage(
   db: SqlDatabase,
   createdBy: string,
@@ -131,7 +159,8 @@ async function authorPage(
   return rows.map(toAuthorRecord);
 }
 
-export function shortLinksRepo({ db, clock }: Store): ShortLinksRepo {
+export function shortLinksRepo(store: Store): ShortLinksRepo {
+  const { db, clock } = store;
   return {
     create: async (row) => {
       await db
@@ -154,10 +183,8 @@ export function shortLinksRepo({ db, clock }: Store): ShortLinksRepo {
     countClick: async (code) => {
       await db.prepare(COUNT_CLICK).bind(code).run();
     },
-    revoke: async (code, createdBy, at) => {
-      const result = await db.batch([db.prepare(REVOKE_SHORT_LINK).bind(code, createdBy, at)]);
-      return batchChanges(result)[0] === 1;
-    },
+    revoke: async (code, createdBy, at) =>
+      revokeLink(store, code, createdBy, at ?? timestamp(clock)),
     byAuthor: async (createdBy, limit) =>
       (
         await allRows(
