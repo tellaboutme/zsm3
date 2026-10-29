@@ -112,7 +112,7 @@ const BASE_MAP: readonly MapNode[] = [
       {
         label: "Galeria",
         href: "/szkola/galeria",
-        description: "Albumy z pracowni, warsztatów i wydarzeń szkolnych.",
+        description: "Galeria nie zawiera obecnie opublikowanych zdjęć.",
       },
     ],
   },

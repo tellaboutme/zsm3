@@ -47,6 +47,7 @@ describe("pages kept out of the index", () => {
   it("excludes search, filtered archives, pagination and query-bearing addresses", ({ expect }) => {
     for (const path of [
       "/szukaj",
+      "/szkola/galeria",
       "/aktualnosci/strona/2",
       "/aktualnosci/kategoria/szkola",
       "/aktualnosci/2026",
@@ -67,10 +68,9 @@ describe("pages kept out of the index", () => {
 
 describe("sitemap entries", () => {
   it("keeps indexable static paths in their original order", ({ expect }) => {
-    expect(sitemapEntries(["/", "/szukaj", "/kontakt", "/aktualnosci/strona/2"], [])).toEqual([
-      { path: "/" },
-      { path: "/kontakt" },
-    ]);
+    expect(
+      sitemapEntries(["/", "/szukaj", "/szkola/galeria", "/kontakt", "/aktualnosci/strona/2"], []),
+    ).toEqual([{ path: "/" }, { path: "/kontakt" }]);
   });
 
   it("adds published pages and lets them date a static path", ({ expect }) => {
@@ -86,6 +86,23 @@ describe("sitemap entries", () => {
       { path: "/" },
       { path: "/kontakt", lastmod: "2026-10-21T12:00:00.000Z" },
       { path: "/aktualnosci/2026/artykul", lastmod: "2026-10-22T12:00:00.000Z" },
+    ]);
+  });
+
+  it("excludes noindex published paths while keeping indexable published pages", ({ expect }) => {
+    expect(
+      sitemapEntries(
+        [],
+        [
+          { path: "/szkola/galeria", lastmod: "2026-10-21T12:00:00.000Z" },
+          { path: "/szukaj", lastmod: "2026-10-21T12:00:00.000Z" },
+          { path: "/kontakt", lastmod: "2026-10-22T12:00:00.000Z" },
+          { path: "/aktualnosci/2026/artykul", lastmod: "2026-10-23T12:00:00.000Z" },
+        ],
+      ),
+    ).toEqual([
+      { path: "/kontakt", lastmod: "2026-10-22T12:00:00.000Z" },
+      { path: "/aktualnosci/2026/artykul", lastmod: "2026-10-23T12:00:00.000Z" },
     ]);
   });
 
