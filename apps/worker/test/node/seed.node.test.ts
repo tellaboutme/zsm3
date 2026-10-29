@@ -164,7 +164,7 @@ describe("seed requests", () => {
             seedRequests({ ...deps, store: { ...store, db: reopened } }),
             seedRequests({ ...deps, store: { ...store, db: reopened } }),
           ])
-        ).toSorted(),
+        ).toSorted((a, b) => a - b),
       ).toEqual([0, 0]);
       expect(reopened.sqlite.prepare("SELECT * FROM requests ORDER BY id").all()).toEqual(before);
       expect(reopened.sqlite.prepare("SELECT * FROM email_outbox").all()).toEqual([]);
