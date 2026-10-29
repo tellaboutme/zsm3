@@ -17,7 +17,7 @@ const CLOCK = (): Date => new Date("2026-10-22T08:00:00Z");
 const store = { db: env.DB, clock: CLOCK, random: cryptoRandom };
 const app = createApp({
   verifier: async (token) => {
-    if (token === "forged") {
+    if (!token.includes("@")) {
       throw new Error("Invalid signature");
     }
     return await Promise.resolve({
