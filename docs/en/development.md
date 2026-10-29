@@ -53,7 +53,19 @@ lefthook runs Prettier, ESLint, Stylelint and ruff on staged files before each c
 
 ## Local data
 
-`pnpm start` keeps the local D1 database in `apps/web/.wrangler/state`. The seed in `apps/worker/seed` writes sample news through the same repositories the site reads with; running it again updates the rows instead of duplicating them. Delete the directory to start from an empty database.
+Before `pnpm start` or `pnpm test:e2e`, add a stable local `SHORT_LINK_KEY` to the ignored `apps/web/.dev.vars` if you want the protected demo link and its end-to-end tests to work. For a new file only, run this in Bash from the repository root:
+
+```bash
+umask 077
+set -C
+printf 'SHORT_LINK_KEY=%s\n' "$(openssl rand -hex 32)" > apps/web/.dev.vars
+```
+
+If the file already exists, do not run the creation command: check whether it already has `SHORT_LINK_KEY`, and if not, append a newly generated key without replacing its other secrets. Keep the file private. `pnpm typecheck` works without `.dev.vars`; Wrangler checks runtime types independently of local secrets, and the Worker bindings are declared separately in `apps/web/worker/env.d.ts`.
+
+The seed reads `apps/web/.dev.vars`, but the running Worker reads `apps/web/dist/server/.dev.vars`. After `pnpm build:preview`, ensure the dist file has the _same_ `SHORT_LINK_KEY` without replacing any other secrets it may hold. A fresh build does not guarantee that the two files agree. For end-to-end tests, build the preview first, then verify both files match before running `pnpm --filter @zsm3/e2e test:e2e`; `pnpm test:e2e` rebuilds the preview and may leave the dist secret out of sync.
+
+`pnpm start` keeps the local D1 database in `apps/web/.wrangler/state`. The seed in `apps/worker/seed` writes sample news through the same repositories the site reads with; running it again updates the rows instead of duplicating them. Without the key, the protected demo link is not seeded; adding the key later creates it. An existing protected link is not overwritten or re-keyed, so rotating the key while retaining the database makes its password fail. Keep the same key for a persistent state; only reset `apps/web/.wrangler/state` manually when that state is disposable and an empty database is intended. Never delete local data automatically.
 
 `apps/worker/seed/files.json` lists the school's public files by SHA-256 and size. The files themselves are not in the repository: put them as `<sha256>.<format>` in a `zsm3_media` directory next to the repository, and `pnpm start` loads them into the local R2 after checking each hash. `ZSM3_MEDIA` points somewhere else. Without the files the pages still render and file links answer 404.
 
