@@ -13,6 +13,7 @@ import {
 import { panelDatasetSaveSchema } from "./datasets.ts";
 import { storedFileSchema } from "./media.ts";
 import { panelRevisionRestoreSchema } from "./revisions.ts";
+import { shortCodeSchema, targetUrlSchema } from "./short-links.ts";
 
 export const PANEL_LIST_PAGE_SIZE = 20;
 export const MAX_PANEL_PAGE_SIZE = 50;
@@ -101,6 +102,39 @@ export const panelFileViewSchema = z.strictObject({ item: storedFileSchema });
 
 export const panelRedirectListSchema = z.strictObject({ items: z.array(redirectSchema) });
 
+export const panelShortLinkItemSchema = z.strictObject({
+  code: shortCodeSchema,
+  target: targetUrlSchema,
+  createdAt: z.string(),
+  expiresAt: z.string(),
+  revokedAt: z.string().nullable(),
+  clicks: z.int().nonnegative(),
+  passwordProtected: z.boolean(),
+});
+export const panelShortLinkCursorSchema = z.strictObject({
+  createdAt: z.iso.datetime({ precision: 3 }),
+  code: shortCodeSchema,
+});
+export type PanelShortLinkCursor = z.infer<typeof panelShortLinkCursorSchema>;
+export const panelShortLinksQuerySchema = z
+  .strictObject({
+    limit: z
+      .string()
+      .regex(/^\d+$/u)
+      .transform(Number)
+      .pipe(z.int().min(1).max(200))
+      .prefault("50"),
+    beforeCreatedAt: panelShortLinkCursorSchema.shape.createdAt.optional(),
+    beforeCode: shortCodeSchema.optional(),
+  })
+  .refine((query) => (query.beforeCreatedAt === undefined) === (query.beforeCode === undefined), {
+    message: "Cursor fields must be provided together",
+  });
+export const panelShortLinksListSchema = z.strictObject({
+  items: z.array(panelShortLinkItemSchema).max(200),
+  nextCursor: panelShortLinkCursorSchema.nullable(),
+});
+
 export const panelStaffRoleSchema = z.enum(["admin", "secretariat", "editor", "gallery_editor"]);
 export type PanelStaffRole = z.infer<typeof panelStaffRoleSchema>;
 export const panelMeSchema = z.strictObject({
@@ -165,6 +199,7 @@ export const panelRouteNames = [
   "files.list",
   "files.upload",
   "redirects.list",
+  "short-links.list",
   "redirects.save",
   "redirects.delete",
   "staff.list",

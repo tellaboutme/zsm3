@@ -14,6 +14,7 @@ import { pagesRoutes } from "./pages.ts";
 import { redirectsRoutes } from "./redirects.ts";
 import { revisionsRoutes } from "./revisions.ts";
 import { sessionRoutes } from "./session.ts";
+import { shortLinksRoutes } from "./short-links.ts";
 import { staffRoutes } from "./staff.ts";
 import type { AppBindings, AppEnv } from "../../app-env.ts";
 import {
@@ -34,6 +35,7 @@ import { newsRepo } from "../../storage/news-repo.ts";
 import { pagesRepo } from "../../storage/pages-repo.ts";
 import { redirectsRepo } from "../../storage/redirects-repo.ts";
 import { revisionsRepo } from "../../storage/revisions-repo.ts";
+import { shortLinksRepo } from "../../storage/short-links-repo.ts";
 import { staffRepo } from "../../storage/staff-repo.ts";
 
 export interface PanelAppOptions {
@@ -72,6 +74,7 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
         events: eventsRepo(store),
         files: filesRepo(store),
         redirects: redirectsRepo(store),
+        shortLinks: shortLinksRepo(store),
         announcements: announcementsRepo(store),
         bells: bellsRepo(store),
         datasets: datasetsRepo(store),
@@ -95,6 +98,7 @@ export function panelApp(options: PanelAppOptions = {}): Hono<AppEnv> {
   panel.route("/", eventsRoutes());
   panel.route("/", filesRoutes());
   panel.route("/", redirectsRoutes());
+  panel.route("/", shortLinksRoutes());
   panel.route("/", staffRoutes());
   panel.route("/", announcementsRoutes());
   panel.route("/", bellsRoutes());

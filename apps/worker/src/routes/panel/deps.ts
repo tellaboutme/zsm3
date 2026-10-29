@@ -14,6 +14,7 @@ import type { NewsRepo } from "../../storage/news-repo.ts";
 import type { PagesRepo } from "../../storage/pages-repo.ts";
 import type { RedirectsRepo } from "../../storage/redirects-repo.ts";
 import type { RevisionsRepo } from "../../storage/revisions-repo.ts";
+import type { ShortLinksRepo } from "../../storage/short-links-repo.ts";
 import type { StaffRepo, StaffRole } from "../../storage/staff-repo.ts";
 
 export type { MediaBucket };
@@ -34,6 +35,7 @@ export interface PanelRepos {
   readonly events: EventsRepo;
   readonly files: FilesRepo;
   readonly redirects: RedirectsRepo;
+  readonly shortLinks: ShortLinksRepo;
   readonly announcements: AnnouncementsRepo;
   readonly bells: BellsRepo;
   readonly datasets: DatasetsRepo;
