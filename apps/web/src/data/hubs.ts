@@ -9,8 +9,7 @@ export interface Hub {
 export const hubs: readonly Hub[] = [
   {
     section: "kandydaci",
-    intro:
-      "Zawody w technikum i szkole branżowej, zasady rekrutacji, dzień otwarty i wirtualny spacer po szkole.",
+    intro: "Zawody w technikum i szkole branżowej, zasady rekrutacji i wirtualny spacer po szkole.",
     action: { label: "Rekrutacja", href: "/kandydaci/rekrutacja" },
   },
   {
@@ -20,7 +19,7 @@ export const hubs: readonly Hub[] = [
   },
   {
     section: "rodzice",
-    intro: "Terminy zebrań, wychowawcy, Rada Rodziców i dokumenty szkoły w jednym miejscu.",
+    intro: "Terminy zebrań, Rada Rodziców i dokumenty szkoły w jednym miejscu.",
     action: { label: "Wywiadówki", href: "/rodzice/wywiadowki" },
   },
   {

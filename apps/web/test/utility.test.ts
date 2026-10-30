@@ -14,6 +14,7 @@ describe("site map", () => {
           { path: "/szkola/historia", title: "Historia", intro: "Od 1950 roku." },
           { path: "/uczniowie/podreczniki", title: "Podręczniki", intro: "Wykazy." },
           { path: "/rodo", title: "RODO", intro: "Ochrona danych." },
+          { path: "/szkola/projekty/erasmus", title: "Erasmus+", intro: "Projekt." },
         ],
         seedDatasets.kierunki,
       ),
@@ -25,6 +26,7 @@ describe("site map", () => {
     expect(hrefs).toContain("/polityka-prywatnosci");
     expect(hrefs).toContain("/szkola/historia");
     expect(hrefs).toContain("/uczniowie/podreczniki");
+    expect(hrefs).not.toContain("/szkola/projekty/erasmus");
     expect(hrefs.indexOf("/rodo")).toBeGreaterThan(hrefs.indexOf("/kontakt"));
   });
 

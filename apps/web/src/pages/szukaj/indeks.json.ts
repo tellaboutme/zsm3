@@ -1,3 +1,4 @@
+import { isRoutablePagePath } from "../../lib/navigation.ts";
 import { latestNews } from "../../lib/news-listing.ts";
 import { newsEntry, SEARCH_NEWS_LIMIT } from "../../lib/news-search.ts";
 import { contentPageEntry } from "../../lib/search-sources.ts";
@@ -13,7 +14,11 @@ export async function GET(): Promise<Response> {
     pagesReader().published(),
     siteSearchEntries(),
   ]);
-  const entries = [...site, ...pages.map(contentPageEntry), ...news.map(newsEntry)];
+  const entries = [
+    ...site,
+    ...pages.filter((page) => isRoutablePagePath(page.path)).map(contentPageEntry),
+    ...news.map(newsEntry),
+  ];
   return new Response(JSON.stringify(entries), {
     headers: { "Content-Type": "application/json; charset=utf-8" },
   });

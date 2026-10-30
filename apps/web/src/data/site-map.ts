@@ -1,5 +1,6 @@
 import type { Programmes } from "@zsm3/contracts/programmes";
 
+import { isRoutablePagePath } from "../lib/navigation.ts";
 import { schoolLabels } from "../lib/professions.ts";
 import { professionOf, programmeHref } from "../lib/programmes.ts";
 import type { MapNode } from "../lib/site-map.ts";
@@ -165,13 +166,14 @@ function withProgrammes(nodes: readonly MapNode[], kierunki: Programmes): readon
 }
 
 export function buildSiteMap(pages: readonly MapPage[], kierunki: Programmes): readonly MapNode[] {
+  const routablePages = pages.filter((page) => isRoutablePagePath(page.path));
   const withPages = withProgrammes(BASE_MAP, kierunki).map((node) =>
     SECTION_ROOTS.has(node.href)
       ? {
           ...node,
-          children: [...contentNodes(pages, node.href.slice(1)), ...(node.children ?? [])],
+          children: [...contentNodes(routablePages, node.href.slice(1)), ...(node.children ?? [])],
         }
       : node,
   );
-  return [...withPages.slice(0, -1), ...topLevelNodes(pages), ...withPages.slice(-1)];
+  return [...withPages.slice(0, -1), ...topLevelNodes(routablePages), ...withPages.slice(-1)];
 }

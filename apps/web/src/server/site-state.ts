@@ -5,11 +5,14 @@ import { bellsRepo } from "@zsm3/worker/storage/bells-repo.ts";
 import { liveStore } from "@zsm3/worker/storage/database.ts";
 import { datasetsRepo } from "@zsm3/worker/storage/datasets-repo.ts";
 import { eventsRepo } from "@zsm3/worker/storage/events-repo.ts";
+import { pagesRepo } from "@zsm3/worker/storage/pages-repo.ts";
 import { env } from "cloudflare:workers";
 
+import { fallbackNavigation } from "../data/navigation.ts";
 import { publicAnnouncement, type Announcement } from "../lib/announcement.ts";
 import { bellData, type BellData } from "../lib/bells.ts";
 import { schoolYearStart, type SchoolEvent } from "../lib/calendar.ts";
+import { visibleNavigation } from "../lib/navigation.ts";
 
 export async function activeAnnouncement(day: string): Promise<Announcement | undefined> {
   const item = await announcementsRepo(liveStore(env.DB)).active(day);
@@ -26,7 +29,13 @@ export async function schoolYearEvents(day: string): Promise<readonly SchoolEven
   return eventsRepo(liveStore(env.DB)).between(from, to);
 }
 
-export async function publishedNavigation(): Promise<Navigation | undefined> {
-  const stored = await datasetsRepo(liveStore(env.DB)).get("nawigacja");
-  return stored === undefined ? undefined : navigationSchema.parse(stored.data);
+export async function publishedNavigation(): Promise<Navigation> {
+  const store = liveStore(env.DB);
+  const [stored, paths] = await Promise.all([
+    datasetsRepo(store).get("nawigacja"),
+    pagesRepo(store).publishedPaths(),
+  ]);
+  const navigation =
+    stored === undefined ? fallbackNavigation : navigationSchema.parse(stored.data);
+  return visibleNavigation(navigation, new Set(paths));
 }

@@ -1,9 +1,9 @@
 ---
 import Icon from "./Icon.astro";
 import ThemeIcon from "./ThemeIcon.astro";
-import { fallbackNavigation } from "../data/navigation.ts";
+import { publicFallbackNavigation } from "../data/navigation.ts";
 
-const { sections, utilityLinks } = Astro.locals.navigation ?? fallbackNavigation;
+const { sections, utilityLinks } = Astro.locals.navigation ?? publicFallbackNavigation;
 
 interface Props {
   currentSection: string | undefined;
