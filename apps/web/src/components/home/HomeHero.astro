@@ -7,7 +7,7 @@ import LiveStatus from "../LiveStatus.astro";
 import MediaPlaceholder from "../MediaPlaceholder.astro";
 
 interface Props {
-  featured: NewsItem;
+  featured?: NewsItem | undefined;
 }
 
 const { featured } = Astro.props;
@@ -31,20 +31,22 @@ const { featured } = Astro.props;
       <span>w Krakowie</span>
     </span>
   </h1>
-  <div class="grid">
-    <a class="featured" href={newsHref(featured)}>
-      <span class="tag">Najnowsza wiadomość</span>
-      <span class="tag meta">
-        <time datetime={featured.date}>{longDate(featured.date)}</time> · {featured.category}
-      </span>
-      <span class="shot">
-        <MediaPlaceholder shape="banner" />
-      </span>
-      <span class="title">{featured.title}</span>
-      <span class="more">
-        Czytaj dalej <span aria-hidden="true">→</span>
-      </span>
-    </a>
+  <div class:list={["grid", { "grid-empty": featured === undefined }]}>
+    {featured !== undefined && (
+      <a class="featured" href={newsHref(featured)}>
+        <span class="tag">Najnowsza wiadomość</span>
+        <span class="tag meta">
+          <time datetime={featured.date}>{longDate(featured.date)}</time> · {featured.category}
+        </span>
+        <span class="shot">
+          <MediaPlaceholder shape="banner" />
+        </span>
+        <span class="title">{featured.title}</span>
+        <span class="more">
+          Czytaj dalej <span aria-hidden="true">→</span>
+        </span>
+      </a>
+    )}
     <div class="side">
       <LiveStatus />
       <nav aria-label="Na skróty">
@@ -165,6 +167,10 @@ const { featured } = Astro.props;
     .grid {
       grid-template-columns: minmax(0, 7fr) minmax(18rem, 5fr);
       gap: var(--space-6);
+    }
+
+    .grid-empty {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>
