@@ -6,6 +6,7 @@ import { liveStore } from "@zsm3/worker/storage/database.ts";
 import { redirectsRepo } from "@zsm3/worker/storage/redirects-repo.ts";
 
 import { routeLegacyRequest } from "./legacy-route.ts";
+import { requestAlias } from "./request-alias.ts";
 import { withQueryNoindex } from "./seo-response.ts";
 
 const api = createApp();
@@ -26,6 +27,10 @@ export default {
     }
     if (API_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
       return api.fetch(request, env, context);
+    }
+    const alias = await requestAlias(request);
+    if (alias !== undefined) {
+      return alias;
     }
     const response = await handle(request, env, context);
     const repo = redirectsRepo(liveStore(env.DB));

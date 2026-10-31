@@ -1,7 +1,12 @@
 import type { Navigation } from "@zsm3/contracts/navigation";
 
 import { externalServices } from "./site.ts";
-import type { NavGroup, NavLink, NavSection } from "../lib/navigation.ts";
+import {
+  visibleNavigation,
+  type NavGroup,
+  type NavLink,
+  type NavSection,
+} from "../lib/navigation.ts";
 
 const candidates: NavSection = {
   id: "kandydaci",
@@ -196,3 +201,5 @@ export const fallbackNavigation: Navigation = {
   utilityLinks: [...utilityLinks],
   footerGroups: [...footerGroups],
 };
+
+export const publicFallbackNavigation = visibleNavigation(fallbackNavigation, new Set());

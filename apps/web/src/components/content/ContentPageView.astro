@@ -2,7 +2,7 @@
 import ContentBlocks from "./ContentBlocks.astro";
 import InPageNav from "./InPageNav.astro";
 import SiblingNav from "./SiblingNav.astro";
-import { fallbackNavigation } from "../../data/navigation.ts";
+import { publicFallbackNavigation } from "../../data/navigation.ts";
 import Base from "../../layouts/Base.astro";
 import {
   needsInPageNav,
@@ -11,7 +11,7 @@ import {
   type ContentPage,
 } from "../../lib/content.ts";
 
-const { sections } = Astro.locals.navigation ?? fallbackNavigation;
+const { sections } = Astro.locals.navigation ?? publicFallbackNavigation;
 
 interface Props {
   page: ContentPage;

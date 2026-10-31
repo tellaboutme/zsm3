@@ -2,7 +2,6 @@ import { AxeBuilder } from "@axe-core/playwright";
 import type { APIRequestContext } from "@playwright/test";
 
 import { expect, test } from "./fixtures.ts";
-import { pagesAwaitingImport } from "./pages-awaiting-import.ts";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"];
 const LINK = /href="(\/[^"#?]*)/gu;
@@ -67,7 +66,7 @@ test.describe("site map", () => {
 
     const unlisted = [...reachable].filter((path) => !listed.has(path));
 
-    expect([...missing].toSorted()).toEqual(pagesAwaitingImport);
+    expect([...missing].toSorted()).toEqual([]);
 
     expect(unlisted.filter((path) => !path.startsWith(NEWS_ARCHIVE))).toEqual([]);
     expect(unlisted.length).toBeGreaterThan(0);

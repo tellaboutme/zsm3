@@ -40,7 +40,7 @@ async function siteState(): Promise<SiteState> {
   return {
     events,
     bells: { ...(bells ?? fallbackBells), daysOff },
-    ...(navigation === undefined ? {} : { navigation }),
+    navigation,
     ...(shown === undefined ? {} : { announcement: shown }),
   };
 }

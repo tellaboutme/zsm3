@@ -10,8 +10,9 @@ import {
 import Base from "../../layouts/Base.astro";
 import "../../styles/request.css";
 
-const localDocument = (path: string): boolean =>
-  path.startsWith("/") && !path.startsWith("//") && !path.includes("?") && !path.includes("#");
+export const prerender = false;
+
+const localDocument = (path: string): boolean => /^\/(?!\/)[^?#]*$/u.test(path);
 
 const available =
   REQUESTS_ENABLED &&

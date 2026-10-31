@@ -1,13 +1,17 @@
 ---
 import { audiencePanels } from "../../data/home.ts";
+import { isVisibleHref, visibleGroups } from "../../lib/navigation.ts";
 import { partners as loadPartners } from "../../server/datasets.ts";
+import { pagesReader } from "../../server/pages.ts";
 import Icon from "../Icon.astro";
 
-const partners = await loadPartners();
+const [partners, paths] = await Promise.all([loadPartners(), pagesReader().publishedPaths()]);
+const publishedPaths = new Set(paths);
+const panels = visibleGroups(audiencePanels, publishedPaths);
 ---
 
 <section class="audiences" aria-label="Na skróty dla kandydatów, uczniów i rodziców">
-  {audiencePanels.map((panel) => (
+  {panels.map((panel) => (
     <div class="panel">
       <h2>{panel.title}</h2>
       <ul>
@@ -36,12 +40,12 @@ const partners = await loadPartners();
   <ul>
     {partners.map((partner) => (
       <li>
-        {partner.href === undefined ? (
-          <span class="name">{partner.name}</span>
-        ) : (
+        {partner.href !== undefined && isVisibleHref(partner.href, publishedPaths) ? (
           <a class="name" href={partner.href}>
             {partner.name}
           </a>
+        ) : (
+          <span class="name">{partner.name}</span>
         )}
         <span class="role">{partner.role}</span>
       </li>
