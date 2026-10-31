@@ -13,6 +13,5 @@ docker run --rm \
   --volume "${PWD}:/src:ro" \
   --volume "${workdir}:/osv:ro" \
   "${image}" scan source \
-  --config /src/osv-scanner.toml \
   --lockfile /osv/pnpm-lock.yaml \
   --lockfile /src/tools/uv.lock

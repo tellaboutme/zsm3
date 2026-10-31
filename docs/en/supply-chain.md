@@ -19,11 +19,13 @@ An exception to the policy is allowed only with an entry below: what, why, when 
 
 ### `minimumReleaseAgeExclude`
 
-| Package                         | Reason                                                                                                                                                                                                         | Checked    | Review                                                  |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------- |
-| `vitest` and `@vitest/*` 4.1.12 | fixes advisories in `@vitest/mocker` (code injection through mocks, Windows path traversal); released 6 days before install; every package published through GitHub OIDC with provenance                       | 2026-10-21 | remove after 2026-10-22, once the release is 7 days old |
-| `fast-uri@3.1.9`                | fixes four advisories (GHSA-w74x-v6f9-j3xg and GHSA-wjr9-j795-jxcr, moderate; GHSA-xhq7-xmqj-769h and GHSA-333x-w4r6-6crp, low); released 5 days before install; published through GitHub OIDC with provenance | 2026-10-24 | remove after 2026-10-26, once the release is 7 days old |
-| `happy-dom@21.0.4`              | fixes GHSA-834v-8h66-3h79 (high severity host code execution through an unsanitized import alias after an incomplete first fix); released 4 days before install; published through GitHub OIDC with provenance | 2026-10-24 | remove after 2026-10-27, once the release is 7 days old |
+| Package                                 | Reason                                                                                                                                                                                                                                                     | Checked    | Review                                                  |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------- |
+| `vitest` and `@vitest/*` 4.1.12         | fixes advisories in `@vitest/mocker` (code injection through mocks, Windows path traversal); released 6 days before install; every package published through GitHub OIDC with provenance                                                                   | 2026-10-21 | remove after 2026-10-22, once the release is 7 days old |
+| `fast-uri@3.1.9`                        | fixes four advisories (GHSA-w74x-v6f9-j3xg and GHSA-wjr9-j795-jxcr, moderate; GHSA-xhq7-xmqj-769h and GHSA-333x-w4r6-6crp, low); released 5 days before install; published through GitHub OIDC with provenance                                             | 2026-10-24 | remove after 2026-10-26, once the release is 7 days old |
+| `happy-dom@21.0.4`                      | fixes GHSA-834v-8h66-3h79 (high severity host code execution through an unsanitized import alias after an incomplete first fix); released 4 days before install; published through GitHub OIDC with provenance                                             | 2026-10-24 | remove after 2026-10-27, once the release is 7 days old |
+| `minimatch@11.0.1`                      | fixes GHSA-g3hv-75wg-m249 (denial of service through globparts amplification); the only release that carries the fix, published 3 days before install; `@eslint/config-array` (eslint) asks for `^10.2.4`, so the fix arrives through an `overrides` entry | 2026-10-31 | remove after 2026-11-03, once the release is 7 days old |
+| `@isaacs/nonrecursive-glob-match@1.0.1` | new dependency of `minimatch` 11.0.1, the release that fixes GHSA-g3hv-75wg-m249; published 4 days before install                                                                                                                                          | 2026-10-31 | remove after 2026-11-03, once the release is 7 days old |
 
 ### `trustPolicyExclude`
 
@@ -40,13 +42,11 @@ The same policy picked older versions in two places:
 
 ### Vulnerabilities without a fix
 
-| Advisory            | Package                                     | Why it is not exploitable                                                                                         | Recorded in                                   | Review                               |
-| ------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------ |
-| GHSA-vfj7-8cjw-p6xm | `braces` 3.0.3 (via stylelint → micromatch) | stack exhaustion needs attacker-supplied nested patterns; stylelint only receives fixed globs from `package.json` | `auditConfig.ignoreGhsas`, `osv-scanner.toml` | 2027-01-21 or when a fix is released |
+None recorded. The previous entry, GHSA-vfj7-8cjw-p6xm (`braces` 3.0.3 through stylelint), was withdrawn by the advisory database on 2026-10-23 as not practically exploitable, so the ignore in `auditConfig.ignoreGhsas` and `osv-scanner.toml` was removed with it.
 
 ### `overrides`
 
-`qs` 6.16.0, `sharp` 0.35.5, `undici` 7.30.1 (wrangler and miniflare) and 8.12.2 (astro, through unifont), `zod` 4.6.7, `happy-dom` 21.0.4 and `fast-uri` 3.1.9 are raised to fixed versions; Stryker, wrangler, Vitest and Astro pull these packages in as transitive dependencies. All pinned releases are older than 7 days except the two excluded above.
+`qs` 6.16.0, `sharp` 0.35.5, `undici` 7.30.1 (wrangler and miniflare) and 8.12.2 (astro, through unifont), `zod` 4.6.7, `happy-dom` 21.0.4, `fast-uri` 3.1.9 and `minimatch` 11.0.1 (eslint, through `@eslint/config-array`) are raised to fixed versions; Stryker, wrangler, Vitest, Astro and eslint pull these packages in as transitive dependencies. All pinned releases are older than 7 days except the ones excluded above.
 
 ### Dependabot
 
