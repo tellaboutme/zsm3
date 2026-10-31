@@ -12,6 +12,7 @@ import { brevoSender } from "../mail/brevo-sender.ts";
 import type { EmailSender } from "../mail/email-sender.ts";
 import { drainOutbox, MAX_DRAIN, type DrainResult } from "../mail/outbox-consumer.ts";
 import { piiCrypto, type PiiCrypto } from "../security/pii-crypto.ts";
+import { auditRepo, type AuditRepo } from "../storage/audit-repo.ts";
 import { firstRow, type SqlDatabase, type Store } from "../storage/database.ts";
 import { outboxRepo, type OutboxRepo } from "../storage/outbox-repo.ts";
 import {
@@ -29,6 +30,7 @@ const DAY_MS = 86_400_000;
 const YEAR_MS = 365 * DAY_MS;
 const RETENTION_JOB = "retention";
 export const LAPSED_RETENTION_MS = 30 * DAY_MS;
+export const AUDIT_RETENTION_YEARS = 2;
 
 const SELECT_CRON_STATE = "SELECT last_run_date FROM cron_state WHERE job = ?";
 const UPSERT_CRON_STATE = `INSERT INTO cron_state (job, last_run_date) VALUES (?1, ?2)
@@ -41,6 +43,7 @@ export interface MaintenanceEnv extends RequestsSecretEnv {
 export interface MaintenanceDeps {
   readonly requests: RequestsRepo;
   readonly outbox: OutboxRepo;
+  readonly audit: AuditRepo;
   readonly crypto: PiiCrypto;
   readonly sender: EmailSender;
   readonly config: RequestsConfig;
@@ -50,6 +53,7 @@ export interface RetentionCounters {
   readonly rejected: number;
   readonly erased: number;
   readonly deleted: number;
+  readonly auditDeleted: number;
 }
 
 export interface MaintenanceResult extends RetentionCounters, DrainResult {}
@@ -64,6 +68,7 @@ export function maintenanceDeps(env: MaintenanceEnv, store: Store): MaintenanceD
   return {
     requests: requestsRepo(store),
     outbox: outboxRepo(store),
+    audit: auditRepo(store),
     crypto: piiCrypto(config.piiKeys, config.activePiiKeyId, store.random),
     sender: brevoSender(config.brevoApiKey),
     config,
@@ -78,6 +83,7 @@ export async function runMaintenance(deps: MaintenanceDeps, now: Date): Promise<
     rejected: retained.rejected,
     erased: retained.erased,
     deleted: retained.deleted,
+    auditDeleted: retained.auditDeleted,
   };
 }
 
@@ -99,7 +105,7 @@ export async function runScheduledMaintenance(
   );
   const today = utcDate(now);
   if ((await cron.lastRunDate(RETENTION_JOB)) === today) {
-    return { ...drained, rejected: 0, erased: 0, deleted: 0 };
+    return { ...drained, rejected: 0, erased: 0, deleted: 0, auditDeleted: 0 };
   }
   const retained = await runRetention(deps, now);
   if (!retained.pending) {
@@ -110,6 +116,7 @@ export async function runScheduledMaintenance(
     rejected: retained.rejected,
     erased: retained.erased,
     deleted: retained.deleted,
+    auditDeleted: retained.auditDeleted,
   };
 }
 
@@ -120,14 +127,16 @@ async function runRetention(
   let rejected = 0;
   let erased = 0;
   let deleted = 0;
+  let auditDeleted = 0;
   for (let batch = 0; batch < RETENTION_BATCHES_PER_RUN; batch += 1) {
     const current = await runRetentionBatch(deps, now);
     rejected += current.rejected;
     erased += current.erased;
     deleted += current.deleted;
-    if (!current.pending) return { rejected, erased, deleted, pending: false };
+    auditDeleted += current.auditDeleted;
+    if (!current.pending) return { rejected, erased, deleted, auditDeleted, pending: false };
   }
-  return { rejected, erased, deleted, pending: true };
+  return { rejected, erased, deleted, auditDeleted, pending: true };
 }
 
 async function runRetentionBatch(
@@ -135,10 +144,11 @@ async function runRetentionBatch(
   now: Date,
 ): Promise<RetentionCounters & { readonly pending: boolean }> {
   const at = now.toISOString();
-  const [inactive, closed, erased] = await Promise.all([
+  const [inactive, closed, erased, auditDeleted] = await Promise.all([
     deps.requests.listInactive(daysAgo(now, OPEN_INACTIVITY_DAYS), RETENTION_BATCH),
     deps.requests.listClosedBefore(daysAgo(now, CLOSED_PII_RETENTION_DAYS), RETENTION_BATCH),
     deps.requests.listErasedBefore(yearsAgo(now, ANONYMOUS_RETENTION_YEARS), RETENTION_BATCH),
+    deps.audit.pruneBefore(yearsAgo(now, AUDIT_RETENTION_YEARS), RETENTION_BATCH),
   ]);
   const actions = retentionActions(now, [...inactive, ...closed, ...erased]);
   const rejectIds = idsOf(actions, "reject");
@@ -159,7 +169,10 @@ async function runRetentionBatch(
     rejected,
     erased: eraseIds.length,
     deleted: deleteIds.length,
-    pending: [inactive, closed, erased].some((rows) => rows.length === RETENTION_BATCH),
+    auditDeleted,
+    pending:
+      auditDeleted === RETENTION_BATCH ||
+      [inactive, closed, erased].some((rows) => rows.length === RETENTION_BATCH),
   };
 }
 
