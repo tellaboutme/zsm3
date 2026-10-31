@@ -27,6 +27,8 @@ minimumReleaseAgeExclude:
   - "@vitest/utils@4.1.12"
   - fast-uri@3.1.9
   - happy-dom@21.0.4
+  - minimatch@11.0.1
+  - "@isaacs/nonrecursive-glob-match@1.0.1"
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - chokidar@4.0.3
@@ -45,13 +47,10 @@ overrides:
   zod@<4.6.6: 4.6.7
   happy-dom@<21.0.4: 21.0.4
   fast-uri@<3.1.9: 3.1.9
+  minimatch@<11.0.1: 11.0.1
 
 allowBuilds:
   esbuild: true
   lefthook: false
   unrs-resolver: false
   workerd: true
-
-auditConfig:
-  ignoreGhsas:
-    - GHSA-vfj7-8cjw-p6xm
