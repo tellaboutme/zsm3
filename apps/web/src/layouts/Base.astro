@@ -101,12 +101,12 @@ const schemas = [
         href="/aktualnosci/rss.xml"
       />
     )}
+    <link rel="preload" href={archivo} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sourceSans} as="font" type="font/woff2" crossorigin />
     <script is:inline set:html={bootScript} />
     {schemas.map((schema) => (
       <script type="application/ld+json" set:html={jsonLd(schema)} />
     ))}
-    <link rel="preload" href={archivo} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={sourceSans} as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
   </head>
   <body data-bells={bells === undefined ? undefined : JSON.stringify(bells)}>
