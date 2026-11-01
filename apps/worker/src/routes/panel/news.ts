@@ -21,6 +21,7 @@ import {
   newsRef,
   newsRowSchema,
 } from "./news-data.ts";
+import { publishStatements } from "./publish-statements.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse } from "../../http/problem.ts";
 import { allRows } from "../../storage/database.ts";
@@ -150,24 +151,21 @@ async function publishNews(c: Context<AppEnv>): Promise<Response> {
     return problemResponse(c, 422, "Publication Status Unchanged");
   }
   const previous = newsFromRow(row);
-  await atomicWrite(deps, [
-    deps.repos.revisions.statement(
-      "news",
-      ref.id,
-      JSON.stringify({ ...previous, status: row.status }),
-      session.email,
-    ),
-    ...(await deps.repos.news.saveStatements(previous, status)),
-    deps.repos.audit.statement(
-      auditEntry({
-        session,
-        action: `news.${action}`,
-        entity: "news",
-        entityId: ref.id,
-        fields: ["status"],
-      }),
-    ),
-  ]);
+  await atomicWrite(
+    deps,
+    await publishStatements({
+      deps,
+      session,
+      ref,
+      rowStatus: row.status,
+      previous,
+      action,
+      status,
+    }),
+  );
+  if (status === "published") {
+    await deps.notifyIndexNow(`/aktualnosci/${previous.date.slice(0, 4)}/${previous.slug}`);
+  }
   return c.json({ ok: true });
 }
 

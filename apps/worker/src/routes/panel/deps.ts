@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 
 import type { AppBindings, MediaBucket } from "../../app-env.ts";
 import type { AccessVerifier } from "../../security/access-jwt.ts";
+import { indexNowSender, type IndexNowEndpoint } from "../../services/indexnow.ts";
 import type { AnnouncementsRepo } from "../../storage/announcements-repo.ts";
 import type { AuditRepo } from "../../storage/audit-repo.ts";
 import type { BellsRepo } from "../../storage/bells-repo.ts";
@@ -46,12 +47,27 @@ export interface PanelSession {
   readonly role: StaffRole;
 }
 
+export type IndexNowNotify = (path: string) => Promise<boolean>;
+
+export function indexNowNotify(env: AppBindings, endpoint?: IndexNowEndpoint): IndexNowNotify {
+  if (endpoint !== undefined) {
+    return async (path) => endpoint.submit([path]);
+  }
+  const host = env.INDEXNOW_HOST?.trim() ?? "";
+  if (host.length === 0) {
+    return async () => Promise.resolve(false);
+  }
+  const sender = indexNowSender(fetch, host);
+  return async (path) => sender.submit([new URL(path, `https://${host}`).toString()]);
+}
+
 export interface PanelDeps {
   readonly db: SqlDatabase;
   readonly repos: PanelRepos;
   readonly mediaBucket: MediaBucket;
   readonly origin: string;
   readonly verifier: AccessVerifier;
+  readonly notifyIndexNow: IndexNowNotify;
 }
 
 export interface PanelRuntimeEnv {

@@ -20,8 +20,17 @@ export interface AccessConfigEvent {
   readonly requestId: string;
 }
 
+export interface IndexNowUnavailableEvent {
+  readonly event: "indexnow_unavailable";
+  readonly errorName: string;
+}
+
 export type LogEvent =
-  UnhandledErrorEvent | TurnstileUnavailableEvent | OutboxEnqueueFailedEvent | AccessConfigEvent;
+  | UnhandledErrorEvent
+  | TurnstileUnavailableEvent
+  | OutboxEnqueueFailedEvent
+  | AccessConfigEvent
+  | IndexNowUnavailableEvent;
 
 export function logEvent(entry: LogEvent): void {
   console.error(JSON.stringify(entry));

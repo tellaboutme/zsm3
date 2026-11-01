@@ -6,7 +6,7 @@ import { authenticatePanel } from "./auth.ts";
 import { bellsRoutes } from "./bells.ts";
 import { datasetsRoutes } from "./datasets.ts";
 import type { PanelDeps } from "./deps.ts";
-import { panelOrigin } from "./deps.ts";
+import { indexNowNotify, panelOrigin } from "./deps.ts";
 import { eventsRoutes } from "./events.ts";
 import { filesRoutes } from "./files.ts";
 import { newsRoutes } from "./news.ts";
@@ -24,6 +24,7 @@ import {
   remoteAccessJwks,
 } from "../../security/access-jwt.ts";
 import type { AccessVerifier } from "../../security/access-jwt.ts";
+import type { IndexNowEndpoint } from "../../services/indexnow.ts";
 import { announcementsRepo } from "../../storage/announcements-repo.ts";
 import { auditRepo } from "../../storage/audit-repo.ts";
 import { bellsRepo } from "../../storage/bells-repo.ts";
@@ -41,6 +42,7 @@ import { staffRepo } from "../../storage/staff-repo.ts";
 export interface PanelAppOptions {
   readonly verifier?: AccessVerifier;
   readonly origin?: string;
+  readonly indexnow?: IndexNowEndpoint;
 }
 
 function envAccessVerifier(env: AppBindings): AccessVerifier {
@@ -82,6 +84,7 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
       mediaBucket: c.env.MEDIA,
       origin: options.origin ?? panelOrigin(c.env),
       verifier: options.verifier ?? (async (token) => envAccessVerifier(c.env)(token)),
+      notifyIndexNow: indexNowNotify(c.env, options.indexnow),
     };
     c.set("panelDeps", deps);
     await next();
