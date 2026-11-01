@@ -248,6 +248,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 - `/panel/*` and `/api/panel/*` sit behind a Cloudflare Access application. Staff sign in with the school's Microsoft 365 or Google Workspace (SSO with MFA) if available, otherwise with a one-time code sent to an allow-listed e-mail address. Sessions last 8 hours.
 - The Worker **itself** verifies `Cf-Access-Jwt-Assertion`: signature against the team JWKS, `aud`, `iss`, `exp`, `nbf`. Without a valid JWT the answer is 401, even if a request somehow bypassed Access. The `workers.dev` domain and preview URLs are disabled.
 - The role comes from an active `staff` row. The access matrix is one table in code, and a test covers every route.
+- The staff API for requests lives at `/api/panel/requests`: `GET /requests` (filtered list with a cursor, at most 50 per page, no personal data), `GET /requests/:id` (personal fields for `admin` and `secretariat` only, `null` once retention erased the PII) and `POST /requests/:id/status` (a validated transition that queues the `ready`/`rejected` e-mail through the outbox).
 - State-changing requests require `Origin` equal to the site and `Content-Type: application/json` (CSRF protection).
 - The `domain/request-lifecycle` state machine enforces the transitions
   `submitted → in_progress → ready → collected`, and `rejected` from any open state. The applicant is e-mailed on `ready` and `rejected`.

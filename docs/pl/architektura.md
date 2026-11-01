@@ -148,6 +148,7 @@ Wnioskodawca może wycofać wniosek przez ten sam link. Dane osobowe są usuwane
 - Panel jest chroniony przez Cloudflare Access. Pracownicy logują się kontem Microsoft 365 lub Google Workspace szkoły (z uwierzytelnianiem dwuskładnikowym), a jeśli szkoła ich nie ma, jednorazowym kodem wysyłanym na adres z listy. Sesja trwa 8 godzin.
 - Worker **sam** weryfikuje token Access przy każdym żądaniu, więc nawet obejście Access nie daje dostępu.
 - Rola wynika z listy pracowników w bazie. Każda ścieżka panelu ma przypisane role, a testy sprawdzają wszystkie kombinacje.
+- API obsługi wniosków dla pracowników działa pod `/api/panel/requests`: `GET /requests` (lista z filtrem i kursorem, maks. 50 wpisów, bez danych osobowych), `GET /requests/:id` (dane osobowe tylko dla administracji i sekretariatu, `null` po anonimizacji) i `POST /requests/:id/status` (walidowana zmiana statusu, powiadomienia o gotowości i odrzuceniu przez outbox).
 - Zmiany statusu podlegają ścisłym regułom: `złożony → w realizacji → gotowy do odbioru → odebrany`, a z każdego otwartego stanu możliwe jest odrzucenie. Wnioskodawca dostaje e-mail, gdy dokument jest gotowy lub wniosek odrzucono.
 - Każda zmiana trafia do dziennika zdarzeń.
 - **Dokument jest wydawany wyłącznie osobiście, po okazaniu dokumentu tożsamości w sekretariacie.** Wniosek online jest tylko zgłoszeniem wstępnym, więc wniosek złożony w cudzym imieniu niczego nie daje.

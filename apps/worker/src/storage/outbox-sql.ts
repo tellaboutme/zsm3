@@ -15,6 +15,11 @@ export const INSERT_INACTIVE_REJECTION = `INSERT INTO email_outbox
   WHERE EXISTS (SELECT 1 FROM requests WHERE id = ?2 AND status = 'rejected' AND closed_at = ?3)
     AND NOT EXISTS (SELECT 1 FROM email_outbox WHERE request_id = ?2 AND kind = 'REJECTED_NOTICE')`;
 
+export const INSERT_OUTBOX_AFTER_TRANSITION = `INSERT INTO email_outbox
+  (id, kind, request_id, origin, attempts, next_attempt_at)
+  SELECT ?1, ?2, ?3, ?4, 0, ?5
+  WHERE EXISTS (SELECT 1 FROM requests WHERE id = ?3 AND status = ?6 AND updated_at = ?5)`;
+
 export const SELECT_DUE = `SELECT ${COLUMNS} FROM email_outbox
   WHERE sent_at IS NULL AND failed_at IS NULL AND next_attempt_at <= ?1
     AND (lease_until IS NULL OR lease_until <= ?1)

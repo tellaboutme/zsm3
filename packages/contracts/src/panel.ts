@@ -26,15 +26,9 @@ const clampedInteger = (min: number, max: number, fallback: number) =>
     .transform((value) => Math.min(Math.max(Math.trunc(value), min), max))
     .default(fallback);
 
-const panelPageSize = z.coerce
-  .number()
-  .refine(Number.isFinite, { message: "Value must be a finite number" })
-  .transform((value) => Math.min(Math.max(Math.trunc(value), 1), MAX_PANEL_PAGE_SIZE))
-  .default(PANEL_LIST_PAGE_SIZE);
-
 export const panelListQuerySchema = z.strictObject({
   page: clampedInteger(1, 10_000, 1),
-  pageSize: panelPageSize,
+  pageSize: clampedInteger(1, MAX_PANEL_PAGE_SIZE, PANEL_LIST_PAGE_SIZE),
   status: z.enum(["draft", "published", "all"]).default("all"),
   category: z.string().trim().min(1).max(80).optional(),
   year: z
@@ -216,6 +210,9 @@ export const panelRouteNames = [
   "audit.list",
   "datasets.get",
   "datasets.save",
+  "requests.list",
+  "requests.get",
+  "requests.transition",
 ] as const;
 
 export type PanelRouteName = (typeof panelRouteNames)[number];

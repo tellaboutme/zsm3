@@ -10,16 +10,27 @@ import {
   routeCases,
   type RoleName,
 } from "./panel-matrix-cases.ts";
-import { ANNOUNCEMENT, announcementIds } from "./panel-matrix-site.ts";
+import { ANNOUNCEMENT, announcementIds, requestIds } from "./panel-matrix-site.ts";
 import type { PanelHarness } from "./panel-support.ts";
 import { panelHarness, seedStaff, staffClaims } from "./panel-support.ts";
 import { routeAllowed } from "../../src/routes/panel/matrix.ts";
+import { piiCrypto } from "../../src/security/pii-crypto.ts";
 import { announcementsRepo } from "../../src/storage/announcements-repo.ts";
 import { systemClock } from "../../src/storage/database.ts";
 import { cryptoRandom } from "../../src/storage/ids.ts";
 import { newsRepo } from "../../src/storage/news-repo.ts";
 import { pagesRepo } from "../../src/storage/pages-repo.ts";
 import { redirectsRepo } from "../../src/storage/redirects-repo.ts";
+import { requestsRepo } from "../../src/storage/requests-repo.ts";
+
+const PII_KEY = "a".repeat(32);
+
+const REQUEST_PII = JSON.stringify({
+  firstName: "Jan",
+  lastName: "Kowalski",
+  email: "jan.kowalski@zsm3.test",
+  statusToken: "a".repeat(43),
+});
 
 describe("panel route role matrix", () => {
   let harness: PanelHarness;
@@ -44,10 +55,24 @@ describe("panel route role matrix", () => {
     await pagesRepo(store).save(PAGE, "published");
     await redirectsRepo(store).save({ from: "/stara", to: "/kontakt" });
     const announcements = announcementsRepo(store);
+    const requests = requestsRepo(store);
+    const cryptoHelper = piiCrypto({ PRIMARY: PII_KEY }, "PRIMARY", cryptoRandom);
     for (const key of [...ROLES, "shared"] as const) {
       const write = announcements.createStatement(ANNOUNCEMENT);
       await write.statement.run();
       announcementIds.set(key, write.id);
+      const requestId = crypto.randomUUID();
+      const encrypted = await cryptoHelper.encrypt(REQUEST_PII, requestId);
+      await requests.create({
+        id: requestId,
+        type: "STUDENT_ID_RENEWAL",
+        piiCiphertext: encrypted.ciphertext,
+        piiKeyId: encrypted.keyId,
+        emailIndex: cryptoRandom(32),
+        statusTokenHash: cryptoRandom(32),
+        formKey: crypto.randomUUID(),
+      });
+      requestIds.set(key, requestId);
     }
     for (const role of ROLES) {
       const email = role === "none" ? "ghost@zsm3.test" : `${role}@zsm3.test`;

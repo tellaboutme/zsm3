@@ -70,6 +70,7 @@ export function panelEnv(): Env {
     ACCESS_TEAM_DOMAIN: PANEL_DOMAIN,
     ACCESS_AUDIENCE: PANEL_AUDIENCE,
     PANEL_ORIGIN: DEFAULT_PANEL_ORIGIN,
+    PII_KEY_PRIMARY: "a".repeat(32),
   };
 }
 
