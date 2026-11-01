@@ -164,7 +164,9 @@ async function publishNews(c: Context<AppEnv>): Promise<Response> {
     }),
   );
   if (status === "published") {
-    await deps.notifyIndexNow(`/aktualnosci/${previous.date.slice(0, 4)}/${previous.slug}`);
+    await deps.defer(
+      deps.notifyIndexNow(`/aktualnosci/${previous.date.slice(0, 4)}/${previous.slug}`),
+    );
   }
   return c.json({ ok: true });
 }

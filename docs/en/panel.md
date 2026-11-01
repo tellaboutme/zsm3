@@ -77,6 +77,8 @@ The submission is **off until the host is configured**. It switches on with the 
 "vars": { "INDEXNOW_HOST": "www.zespolszkolmechanicznych.edu.pl" }
 ```
 
-The value is the host the engines fetch the key file from, without a scheme. While the variable is empty or missing the panel publishes silently, which is what the pre-launch site does until it opens `robots.txt` in stage 7.
+The value is the host the engines fetch the key file from: a lower-case host name without a scheme, port or path (`indexNowHostSchema` in `@zsm3/contracts/indexnow`). While the variable is empty or missing the panel publishes silently, which is what the pre-launch site does until it opens `robots.txt` in stage 7. A value that is not a bare host name sends nothing and logs `indexnow_unavailable` with `errorName: "InvalidHost"` on every publish.
 
-The key itself is part of the repository, not a secret: `packages/contracts/src/indexnow.ts` holds its value and `apps/web/public/<key>.txt` serves it, and `apps/web/test/indexnow-key.test.ts` fails if the two drift apart. A notification never blocks a save: an unreachable endpoint, a refusal or a timeout is logged as `indexnow_unavailable` and the item is published all the same.
+The key itself is part of the repository, not a secret: `packages/contracts/src/indexnow.ts` holds its value and `apps/web/public/<key>.txt` serves it, and `apps/web/test/indexnow-key.test.ts` fails if the two drift apart. The leak-scan exception for it is recorded in [supply-chain.md](supply-chain.md).
+
+A notification never blocks a save. The publish is answered once the D1 batch commits, and the submission runs afterwards through the request's `waitUntil`. An unreachable endpoint or a timeout is logged as `indexnow_unavailable` with the error name; a refusal is logged with `errorName: "HttpStatus"` and the status code. In either case the item stays published.

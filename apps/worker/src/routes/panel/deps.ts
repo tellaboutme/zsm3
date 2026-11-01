@@ -1,7 +1,9 @@
+import { indexNowHostSchema } from "@zsm3/contracts/indexnow";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 
 import type { AppBindings, MediaBucket } from "../../app-env.ts";
+import { logEvent } from "../../logging/log.ts";
 import type { AccessVerifier } from "../../security/access-jwt.ts";
 import { indexNowSender, type IndexNowEndpoint } from "../../services/indexnow.ts";
 import type { AnnouncementsRepo } from "../../storage/announcements-repo.ts";
@@ -49,16 +51,27 @@ export interface PanelSession {
 
 export type IndexNowNotify = (path: string) => Promise<boolean>;
 
+export type BackgroundTask = (task: Promise<unknown>) => Promise<void>;
+
+async function invalidHost(): Promise<boolean> {
+  logEvent({ event: "indexnow_unavailable", errorName: "InvalidHost" });
+  return Promise.resolve(false);
+}
+
 export function indexNowNotify(env: AppBindings, endpoint?: IndexNowEndpoint): IndexNowNotify {
   if (endpoint !== undefined) {
     return async (path) => endpoint.submit([path]);
   }
-  const host = env.INDEXNOW_HOST?.trim() ?? "";
-  if (host.length === 0) {
+  const configured = env.INDEXNOW_HOST?.trim() ?? "";
+  if (configured.length === 0) {
     return async () => Promise.resolve(false);
   }
-  const sender = indexNowSender(fetch, host);
-  return async (path) => sender.submit([new URL(path, `https://${host}`).toString()]);
+  const host = indexNowHostSchema.safeParse(configured);
+  if (!host.success) {
+    return invalidHost;
+  }
+  const sender = indexNowSender(fetch, host.data);
+  return async (path) => sender.submit([`https://${host.data}${path}`]);
 }
 
 export interface PanelDeps {
@@ -68,6 +81,7 @@ export interface PanelDeps {
   readonly origin: string;
   readonly verifier: AccessVerifier;
   readonly notifyIndexNow: IndexNowNotify;
+  readonly defer: BackgroundTask;
 }
 
 export interface PanelRuntimeEnv {

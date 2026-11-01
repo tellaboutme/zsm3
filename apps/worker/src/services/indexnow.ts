@@ -26,6 +26,13 @@ export function indexNowSender(fetcher: typeof fetch, host: string): IndexNowEnd
           }),
           signal: AbortSignal.timeout(INDEXNOW_TIMEOUT_MS),
         });
+        if (!response.ok) {
+          logEvent({
+            event: "indexnow_unavailable",
+            errorName: "HttpStatus",
+            status: response.status,
+          });
+        }
         return response.ok;
       } catch (error) {
         logEvent({

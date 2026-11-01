@@ -1,11 +1,11 @@
-import { Hono, type MiddlewareHandler } from "hono";
+import { Hono, type Context, type MiddlewareHandler } from "hono";
 
 import { announcementsRoutes } from "./announcements.ts";
 import { auditRoutes } from "./audit-log.ts";
 import { authenticatePanel } from "./auth.ts";
 import { bellsRoutes } from "./bells.ts";
 import { datasetsRoutes } from "./datasets.ts";
-import type { PanelDeps } from "./deps.ts";
+import type { BackgroundTask, PanelDeps } from "./deps.ts";
 import { indexNowNotify, panelOrigin } from "./deps.ts";
 import { eventsRoutes } from "./events.ts";
 import { filesRoutes } from "./files.ts";
@@ -62,6 +62,20 @@ function envAccessVerifier(env: AppBindings): AccessVerifier {
   });
 }
 
+function backgroundTask(c: Context<AppEnv>): BackgroundTask {
+  try {
+    const execution = c.executionCtx;
+    return async (task) => {
+      execution.waitUntil(task);
+      return Promise.resolve();
+    };
+  } catch {
+    return async (task) => {
+      await task;
+    };
+  }
+}
+
 function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
   return async (c, next) => {
     const store = liveStore(c.env.DB);
@@ -85,6 +99,7 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
       origin: options.origin ?? panelOrigin(c.env),
       verifier: options.verifier ?? (async (token) => envAccessVerifier(c.env)(token)),
       notifyIndexNow: indexNowNotify(c.env, options.indexnow),
+      defer: backgroundTask(c),
     };
     c.set("panelDeps", deps);
     await next();

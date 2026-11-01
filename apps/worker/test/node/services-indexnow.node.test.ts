@@ -16,10 +16,13 @@ function doFetchReply(status: number) {
 
 describe("indexNowSender", () => {
   it("posts a json payload with the host, the key and the urls", async ({ expect }) => {
+    const logged = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const doFetch = doFetchReply(200);
     const sender = indexNowSender(doFetch, HOST);
 
     await expect(sender.submit(URLS)).resolves.toBe(true);
+    expect(logged).not.toHaveBeenCalled();
+    logged.mockRestore();
     expect(doFetch).toHaveBeenCalledExactlyOnceWith(
       INDEXNOW_ENDPOINT,
       expect.objectContaining({ method: "POST" }),
@@ -35,10 +38,17 @@ describe("indexNowSender", () => {
     });
   });
 
-  it("reports a rejection when the endpoint answers with an error status", async ({ expect }) => {
+  it("reports and logs a rejection when the endpoint answers with an error status", async ({
+    expect,
+  }) => {
+    const logged = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const sender = indexNowSender(doFetchReply(429), HOST);
 
     await expect(sender.submit(URLS)).resolves.toBe(false);
+    expect(logged).toHaveBeenCalledExactlyOnceWith(
+      JSON.stringify({ event: "indexnow_unavailable", errorName: "HttpStatus", status: 429 }),
+    );
+    logged.mockRestore();
   });
 
   it("treats a network failure as a rejection and logs it", async ({ expect }) => {

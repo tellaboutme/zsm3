@@ -23,6 +23,7 @@ export interface AccessConfigEvent {
 export interface IndexNowUnavailableEvent {
   readonly event: "indexnow_unavailable";
   readonly errorName: string;
+  readonly status?: number;
 }
 
 export type LogEvent =

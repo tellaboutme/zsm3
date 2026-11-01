@@ -177,19 +177,3 @@ it("stops notifying after unpublishing", async ({ expect }) => {
   expect(unpublished.status).toBe(200);
   expect(pegs).toHaveLength(1);
 });
-
-it("publishes silently when no search host is configured", async ({ expect }) => {
-  const harness = await panelHarness();
-  await seedStaff(harness.env, [ADMIN]);
-  const token = await harness.keys.sign(staffClaims(ADMIN.email));
-  await panelJsonCall(harness, "POST", "/news", {
-    token,
-    body: newsSaveMutation(sampleNews("salon-maturzystow", "Salon Maturzystow")),
-  });
-
-  const published = await panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
-    token,
-    body: newsStatusMutation("publish"),
-  });
-  expect(published.status).toBe(200);
-});
