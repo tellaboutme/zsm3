@@ -1,0 +1,10 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public IndexNow key, served at /<key>.txt by protocol design"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''^packages/contracts/src/indexnow\.ts$''']
+regexTarget = "secret"
+regexes = ['''^9d4f13e82c07ab65b0413f2aa7c8de19$''']
