@@ -326,7 +326,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 | Deleted photos                                 | 30 days in R2, then physically removed                 |
 | Expired or revoked short links                 | 30 days after they stop working, then the row is gone  |
 
-A daily Cron job enforces retention and records every run in `audit_log`.
+A daily Cron job enforces retention and records every run in `audit_log`. That job deletes `audit_log` rows older than two years in batches of 100 (`RETENTION_BATCH`), at most 10 batches per tick (`RETENTION_BATCHES_PER_RUN`), so a backlog drains across ticks instead of one long query; the `audit_log_at` index serves the cutoff predicate. The daily `cron_state` guard applies the request retention and the audit prune at most once per UTC day, and a remaining backlog resumes on the next tick without marking the day as done.
 
 ## 9. Privacy in the interface
 

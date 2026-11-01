@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { harness, NOW, SECRETS, setStatus } from "./maintenance-harness.ts";
+import { addAudit, auditIds, harness, NOW, SECRETS, setStatus } from "./maintenance-harness.ts";
 import { runScheduledMaintenance } from "../../src/jobs/retention.ts";
 
 describe("runScheduledMaintenance", () => {
@@ -83,6 +83,7 @@ describe("runScheduledMaintenance", () => {
       rejected: 0,
       erased: 1,
       deleted: 1,
+      auditDeleted: 0,
     });
 
     await setStatus(h, {
@@ -103,6 +104,7 @@ describe("runScheduledMaintenance", () => {
       rejected: 0,
       erased: 0,
       deleted: 0,
+      auditDeleted: 0,
     });
     expect(await h.requests.findById("fresh-open")).toMatchObject({ status: "submitted" });
 
@@ -118,7 +120,61 @@ describe("runScheduledMaintenance", () => {
       rejected: 1,
       erased: 0,
       deleted: 0,
+      auditDeleted: 0,
     });
     expect(await h.requests.findById("fresh-open")).toMatchObject({ status: "rejected" });
+  });
+
+  it("deletes audit rows older than two years in bounded batches", async ({ expect }) => {
+    const h = harness();
+    await h.store.db
+      .prepare(
+        `WITH RECURSIVE numbers(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM numbers WHERE n < 1001)
+      INSERT INTO audit_log (id, at, actor_email, action, entity, entity_id, details_json)
+      SELECT 'audit-' || n, '2020-01-01T00:00:00Z', NULL, 'test.retention', 'request', 'row-' || n, '{}' FROM numbers`,
+      )
+      .run();
+    const env = { ...SECRETS, DB: h.store.db };
+    expect((await runScheduledMaintenance(env, h.store, NOW)).auditDeleted).toBe(1000);
+    expect((await runScheduledMaintenance(env, h.store, NOW)).auditDeleted).toBe(1);
+    expect(await auditIds(h)).toHaveLength(0);
+    const empty = await runScheduledMaintenance(env, h.store, new Date(NOW.getTime() + 86_400_000));
+    expect(empty.auditDeleted).toBe(0);
+  });
+
+  it("keeps the audit row exactly at the cutoff and recent entries", async ({ expect }) => {
+    const h = harness();
+    await addAudit(h, "older", "2024-10-22T07:59:59.999Z");
+    await addAudit(h, "boundary", "2024-10-22T08:00:00.000Z");
+    await addAudit(h, "recent", "2026-10-21T08:00:00.000Z");
+
+    const result = await runScheduledMaintenance({ ...SECRETS, DB: h.store.db }, h.store, NOW);
+
+    expect(result.auditDeleted).toBe(1);
+    expect(await auditIds(h)).toEqual(["boundary", "recent"]);
+  });
+
+  it("prunes audit rows at most once per utc day", async ({ expect }) => {
+    const h = harness();
+    await addAudit(h, "first", "2020-01-01T00:00:00Z");
+    const env = { ...SECRETS, DB: h.store.db };
+    expect((await runScheduledMaintenance(env, h.store, NOW)).auditDeleted).toBe(1);
+
+    await addAudit(h, "second", "2020-01-01T00:00:00Z");
+    const sameDay = await runScheduledMaintenance(
+      env,
+      h.store,
+      new Date(NOW.getTime() + 3_600_000),
+    );
+    expect(sameDay.auditDeleted).toBe(0);
+    expect(await auditIds(h)).toEqual(["second"]);
+
+    const nextDay = await runScheduledMaintenance(
+      env,
+      h.store,
+      new Date(NOW.getTime() + 86_400_000),
+    );
+    expect(nextDay.auditDeleted).toBe(1);
+    expect(await auditIds(h)).toHaveLength(0);
   });
 });
