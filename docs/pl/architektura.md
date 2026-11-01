@@ -209,7 +209,7 @@ Każda odpowiedź ma komplet nagłówków bezpieczeństwa: HSTS, ścisłą CSP, 
 | Logi Workera                                | kilka dni (okres Cloudflare), bez danych osobowych        |
 | Usunięte zdjęcia                            | 30 dni w R2, potem trwałe usunięcie                       |
 
-Usuwanie wykonuje automatycznie zadanie uruchamiane raz na dobę; każde uruchomienie jest zapisywane w dzienniku zdarzeń.
+Usuwanie wykonuje automatycznie zadanie uruchamiane raz na dobę; każde uruchomienie jest zapisywane w dzienniku zdarzeń. To samo zadanie usuwa wpisy dziennika starsze niż dwa lata, partiami po 100 (najwyżej 10 partii na uruchomienie), korzystając z indeksu `audit_log_at`; dzienny znacznik `cron_state` ogranicza usuwanie wniosków i dziennika do jednego przebiegu na dobę, a pozostała zaległość jest dokańczana przy kolejnym uruchomieniu.
 
 ## 9. Prywatność w interfejsie
 

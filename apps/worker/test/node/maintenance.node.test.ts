@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { harness, NOW, setStatus } from "./maintenance-harness.ts";
+import { addAudit, auditIds, harness, NOW, setStatus } from "./maintenance-harness.ts";
 import { runMaintenance, type MaintenanceDeps } from "../../src/jobs/retention.ts";
 import { EmailDeliveryError } from "../../src/mail/email-sender.ts";
 import { requestsRepo } from "../../src/storage/requests-repo.ts";
@@ -95,6 +95,7 @@ describe("runMaintenance", () => {
       rejected: 1,
       erased: 2,
       deleted: 1,
+      auditDeleted: 0,
     });
     expect(await h.requests.findById("stale-open")).toMatchObject({ status: "rejected" });
     expect(await h.requests.findById("old-closed")).toMatchObject({
@@ -157,7 +158,20 @@ describe("runMaintenance", () => {
       rejected: 1,
       erased: 0,
       deleted: 0,
+      auditDeleted: 0,
     });
     expect(await h.requests.findById("stale-open")).toMatchObject({ status: "rejected" });
+  });
+
+  it("prunes audit rows older than two years and reports the count", async ({ expect }) => {
+    const h = harness();
+    await addAudit(h, "expired", "2024-10-22T07:59:59.999Z");
+    await addAudit(h, "recent", "2026-10-21T08:00:00.000Z");
+
+    const result = await runMaintenance(h.deps, NOW);
+
+    expect(result.auditDeleted).toBe(1);
+    expect(await auditIds(h)).toEqual(["recent"]);
+    expect((await runMaintenance(h.deps, NOW)).auditDeleted).toBe(0);
   });
 });

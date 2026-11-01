@@ -1,10 +1,13 @@
+import { z } from "zod";
+
 import { counterRandom, FIXED_CLOCK, memoryDatabase } from "./memory-database.ts";
 import { requestsConfig, type RequestsSecretEnv } from "../../src/env.ts";
 import type { MaintenanceDeps } from "../../src/jobs/retention.ts";
 import type { EmailSender } from "../../src/mail/email-sender.ts";
 import { emailIndex, piiCrypto } from "../../src/security/pii-crypto.ts";
 import { statusToken, tokenHash } from "../../src/security/tokens.ts";
-import type { Store } from "../../src/storage/database.ts";
+import { auditRepo } from "../../src/storage/audit-repo.ts";
+import { allRows, type Store } from "../../src/storage/database.ts";
 import { uuidv7 } from "../../src/storage/ids.ts";
 import { outboxRepo } from "../../src/storage/outbox-repo.ts";
 import { requestsRepo } from "../../src/storage/requests-repo.ts";
@@ -61,7 +64,13 @@ export function harness(): Harness {
       formKey: uuidv7(store.clock().getTime() + (formKeys += 1), store.random),
     });
   };
-  return { store, requests, outbox, deps: { requests, outbox, crypto, sender, config }, add };
+  return {
+    store,
+    requests,
+    outbox,
+    deps: { requests, outbox, audit: auditRepo(store), crypto, sender, config },
+    add,
+  };
 }
 
 interface StatusPatch {
@@ -76,4 +85,24 @@ export async function setStatus(h: Harness, patch: StatusPatch): Promise<void> {
     .prepare("UPDATE requests SET status = ?1, updated_at = ?2, closed_at = ?3 WHERE id = ?4")
     .bind(patch.status, patch.updatedAt, patch.closedAt, patch.id)
     .run();
+}
+
+const auditIdSchema = z.object({ id: z.string() });
+
+export async function addAudit(h: Harness, id: string, at: string): Promise<void> {
+  await h.store.db
+    .prepare(
+      `INSERT INTO audit_log (id, at, actor_email, action, entity, entity_id, details_json)
+      VALUES (?1, ?2, NULL, 'test.retention', 'request', ?3, '{}')`,
+    )
+    .bind(id, at, id)
+    .run();
+}
+
+export async function auditIds(h: Harness): Promise<readonly string[]> {
+  const rows = await allRows(
+    h.store.db.prepare("SELECT id FROM audit_log ORDER BY id"),
+    auditIdSchema,
+  );
+  return rows.map((row) => row.id);
 }

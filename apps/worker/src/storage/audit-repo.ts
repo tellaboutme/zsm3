@@ -1,6 +1,13 @@
 import { z } from "zod";
 
-import { allRows, timestamp, type SqlStatement, type SqlValue, type Store } from "./database.ts";
+import {
+  allRows,
+  batchChanges,
+  timestamp,
+  type SqlStatement,
+  type SqlValue,
+  type Store,
+} from "./database.ts";
 import { uuidv7 } from "./ids.ts";
 
 export const MAX_AUDIT_LIMIT = 100;
@@ -24,6 +31,7 @@ export interface AuditRepo {
   list(limit: number): Promise<readonly AuditRecord[]>;
   byEntity(entity: string, entityId: string, limit: number): Promise<readonly AuditRecord[]>;
   before(at: string, id: string, limit: number): Promise<readonly AuditRecord[]>;
+  pruneBefore(at: string, limit: number): Promise<number>;
 }
 
 const APPEND = `INSERT INTO audit_log (id, at, actor_email, action, entity, entity_id, details_json)
@@ -37,6 +45,9 @@ const LIST_BY_ENTITY = `SELECT id, at, actor_email, action, entity, entity_id, d
 
 const LIST_BEFORE = `SELECT id, at, actor_email, action, entity, entity_id, details_json
   FROM audit_log WHERE (at, id) < (?, ?) ORDER BY at DESC, id DESC LIMIT ?`;
+
+const PRUNE_BEFORE = `DELETE FROM audit_log WHERE id IN
+  (SELECT id FROM audit_log WHERE at < ?1 ORDER BY at LIMIT ?2)`;
 
 const auditEntrySchema = z.looseObject({
   actorEmail: z.string().trim().toLowerCase().nullable(),
@@ -105,5 +116,9 @@ export function auditRepo(store: Store): AuditRepo {
     byEntity: async (entity, entityId, limit) =>
       read(LIST_BY_ENTITY, entity, entityId, clampedLimit(limit)),
     before: async (at, id, limit) => read(LIST_BEFORE, at, id, clampedLimit(limit)),
+    pruneBefore: async (at, limit) => {
+      const changes = batchChanges(await db.batch([db.prepare(PRUNE_BEFORE).bind(at, limit)]));
+      return changes.reduce((total, count) => total + count, 0);
+    },
   };
 }
