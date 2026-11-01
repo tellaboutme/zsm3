@@ -281,6 +281,14 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 4. A link with a password renders a form. The form posts to `POST /api/short-links/<code>` in the Worker, because the Astro middleware refuses every method other than GET. The route accepts the submission when the `Origin` equals the site or the browser reports `Sec-Fetch-Site: same-origin`, a header a script cannot set; the site sends `Referrer-Policy: no-referrer`, under which a form navigation carries `Origin: null`, so the origin alone would refuse the one path that works without JavaScript. With a form body it then answers 303 — to the target when the password matches, otherwise back to the page with an error flag in the query, so a refresh never resubmits the password.
 5. Guesses are limited to 30 per link per 10 minutes through `rate_limits`, keyed by SHA-256 of the code. The limit is per link rather than per visitor: nothing derived from an address is stored, and a distributed guesser gains nothing.
 
+### 7.8 Social and search metadata
+
+- `Base.astro` renders canonical URL, `robots`, Open Graph (`og:type`, `og:title`, `og:description`, `og:url`, `og:locale`) and Twitter (`summary_large_image` with title, description and image) for every public page.
+- The shared card is `apps/web/public/og-default.png`, a 1200×630 file. `SOCIAL_IMAGE` in `apps/web/src/lib/seo.ts` is the single source of the path, size and alt text, so the layout and the audit test cannot drift apart.
+- Regenerate the card with `python og_image/generate.py` from `tools/` (needs Pillow and `pnpm install` for the font files); the output is byte-stable for a given script and font set.
+- `apps/web/test/seo-metadata.test.ts` walks `apps/web/src/pages`, reads each `<Base>` call and fails when an indexable page passes an empty literal title or description or repeats one that another page already uses. Pages that opt out through `noindex`, the panel, `/wzornik`, `/s` and `/e-wniosek` are excluded.
+- IndexNow pings are not wired yet; `robots.txt` stays closed until stage 7.
+
 ## 8. Security
 
 ### 8.1 Threat model
@@ -327,7 +335,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 | Deleted photos                                 | 30 days in R2, then physically removed                 |
 | Expired or revoked short links                 | 30 days after they stop working, then the row is gone  |
 
-A daily Cron job enforces retention and records every run in `audit_log`.
+A daily Cron job enforces retention and records every run in `audit_log`. That job deletes `audit_log` rows older than two years in batches of 100 (`RETENTION_BATCH`), at most 10 batches per tick (`RETENTION_BATCHES_PER_RUN`), so a backlog drains across ticks instead of one long query; the `audit_log_at` index serves the cutoff predicate. The daily `cron_state` guard applies the request retention and the audit prune at most once per UTC day, and a remaining backlog resumes on the next tick without marking the day as done.
 
 ## 9. Privacy in the interface
 
