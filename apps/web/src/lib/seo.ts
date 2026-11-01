@@ -4,6 +4,13 @@ import { newsHref } from "./news.ts";
 
 export const SITE_ORIGIN = "https://www.zespolszkolmechanicznych.edu.pl";
 
+export const SOCIAL_IMAGE = {
+  path: "/og-default.png",
+  width: 1200,
+  height: 630,
+  alt: "Zespół Szkół Mechanicznych nr 3 w Krakowie: technikum i szkoła branżowa w Nowej Hucie",
+} as const;
+
 export interface SitemapEntry {
   readonly path: string;
   readonly lastmod?: string;
