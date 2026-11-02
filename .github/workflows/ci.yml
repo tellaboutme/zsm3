@@ -167,6 +167,7 @@ jobs:
           --config p/default --config p/typescript --config p/nodejsscan
           --config p/owasp-top-ten --config p/secrets --config p/python
           --exclude-rule yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
+          --exclude-rule python.lang.security.audit.httpsconnection-detected.httpsconnection-detected
       - name: OSV-Scanner
         run: .github/scripts/osv-scan.sh
       - name: Gitleaks

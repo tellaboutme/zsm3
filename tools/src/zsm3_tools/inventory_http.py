@@ -1,4 +1,5 @@
 import http.client
+import ssl
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Protocol
@@ -76,7 +77,9 @@ class HttpTransport:
         if not robots and not is_html_path(path):
             message = "only HTML pages may be fetched"
             raise InventoryError(message)
-        connection = http.client.HTTPSConnection(HOST, timeout=REQUEST_TIMEOUT_SECONDS)
+        connection = http.client.HTTPSConnection(
+            HOST, timeout=REQUEST_TIMEOUT_SECONDS, context=ssl.create_default_context()
+        )
         try:
             connection.request("GET", path, headers={"User-Agent": AGENT})
             stream = connection.getresponse()

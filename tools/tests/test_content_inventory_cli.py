@@ -1,14 +1,23 @@
 import http.client
 import json
+import ssl
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
 from zsm3_tools import content_inventory
 from zsm3_tools.content_inventory import inventory
-from zsm3_tools.inventory_http import ORIGIN, InventoryError, Response, canonical_url
+from zsm3_tools.inventory_http import (
+    HOST,
+    ORIGIN,
+    HttpTransport,
+    InventoryError,
+    Response,
+    canonical_url,
+)
 
 ROBOTS = ORIGIN + "/robots.txt"
 
@@ -152,3 +161,27 @@ def test_cli_defaults_to_network_transport(tmp_path: Path, monkeypatch: pytest.M
     monkeypatch.setattr(sys, "argv", ["inventory", str(tmp_path / "o.json")])
     assert content_inventory.main() == 1
     assert created == ["http"]
+
+
+def test_network_transport_verifies_certificates_and_host(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    created: list[tuple[tuple[object, ...], dict[str, object]]] = []
+    connection = Mock()
+    connection.request.side_effect = OSError("offline")
+
+    def connect(*args: object, **kwargs: object) -> Mock:
+        created.append((args, kwargs))
+        return connection
+
+    monkeypatch.setattr(http.client, "HTTPSConnection", connect)
+    with pytest.raises(OSError, match="offline"):
+        HttpTransport().get(ORIGIN + "/", 1)
+
+    [(args, kwargs)] = created
+    context = kwargs["context"]
+    assert args == (HOST,)
+    assert isinstance(context, ssl.SSLContext)
+    assert context.verify_mode == ssl.CERT_REQUIRED
+    assert context.check_hostname
+    assert context.minimum_version >= ssl.TLSVersion.TLSv1_2
