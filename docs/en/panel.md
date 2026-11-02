@@ -30,11 +30,24 @@ Local development has no Cloudflare Access, so `pnpm dev:auth` stands in for it:
 | Role             | Can do                                                                             |
 | ---------------- | ---------------------------------------------------------------------------------- |
 | `admin`          | everything, plus staff and roles, redirects and the audit log                      |
-| `secretariat`    | all site content; request handling once e-wniosek ships                            |
+| `secretariat`    | all site content, plus handling e-wniosek requests                                 |
 | `editor`         | all site content: news, pages, calendar, documents, announcements, bells, datasets |
 | `gallery_editor` | the gallery once it ships; no content editing                                      |
 
 The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/matrix.ts`, and a test calls every route with every role. Administrators cannot remove their own admin role or disable themselves, so the panel always keeps one administrator.
+
+## Handling requests
+
+`/panel/wnioski` is the staff side of e-wniosek, shown to `admin` and `secretariat` only; the tab is hidden from other roles, and the API answers them 403 regardless. It reads and writes nothing but the staff API from architecture.md §7.4.
+
+- **List.** Summaries only — type, dates, id and status, never personal data — newest first, with a status filter. **Pokaż starsze** follows the composite cursor: it sends the previous page's `nextBefore` and `nextBeforeId` back as `before` and `beforeId`, so requests created in the same millisecond are neither skipped nor repeated.
+- **Detail.** Personal data appears only here. An erased record (`piiErasedAt` set) says when it was erased; a record whose fields come back `null` without an erasure date could not be decrypted, and the panel says so instead of showing empty fields.
+- **Transitions.** The buttons come from `staffNextStatuses` in `@zsm3/contracts/panel-requests`, the same table the Worker's lifecycle checks, minus `withdrawn`, which belongs to the applicant. Marking a request ready, confirming collection and rejecting all ask for confirmation first, because they mail the applicant or close the request.
+- **Stale views.** Every transition sends the status the staff member was shown as `expectedStatus`. The Worker answers `409` when the stored status differs, and the D1 batch that writes the audit row, the notice and the update is conditioned on that same status, so a decision taken on an outdated view changes nothing and mails no one. The status alone is a sufficient token because the lifecycle never returns to a status it has left (a contract test checks that), so a request cannot go A → B → A behind a reader's back, and unlike `updatedAt` it cannot collide when two writes share a millisecond. `409` and `422` reload the detail instead of retrying.
+
+The end-to-end specs for the page (`e2e/tests/panel.requests-*.spec.ts`) assert a clean console, with one recorded exception: WebKit reports a `style-src-attr` violation for the native `<select>` control's own rendering ("Refused to apply a stylesheet because its hash…"). The page sets no style attribute, and `/panel/pracownicy` on `main` shows the same report. `pageProblems` in `e2e/tests/panel-requests-fake.ts` drops exactly that message, in WebKit only (checked 2026-11-02, review 2027-02-02).
+
+Nothing from a request reaches the URL, browser storage or the console. The list and detail schemas are parsed only in this page's scripts: importing them into the shared `lib/panel/models.ts` moves zod's schema construction ahead of the `jitless` switch in every panel bundle, and the Trusted Types policy then reports the blocked `Function` probe.
 
 ## Enabling the panel in production
 

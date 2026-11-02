@@ -51,7 +51,7 @@ const here = Astro.url.pathname.replace(/\/$/u, "");
             <a
               href={section.href}
               aria-current={here === section.href ? "page" : undefined}
-              data-admin={section.admin === true ? "" : undefined}
+              data-roles={section.roles?.join(" ")}
             >
               {section.short}
             </a>

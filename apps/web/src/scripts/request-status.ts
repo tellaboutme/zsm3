@@ -1,3 +1,4 @@
+import { requestStatusLabels } from "@zsm3/contracts/request-labels";
 import {
   documentTypeLabels,
   statusResponseSchema,
@@ -12,14 +13,7 @@ const error = document.querySelector<HTMLElement>("[data-status-error]");
 const result = document.querySelector<HTMLElement>("[data-status-result]");
 const withdraw = result?.querySelector<HTMLButtonElement>("[data-withdraw]");
 const submit = form?.querySelector<HTMLButtonElement>("[data-status-submit]");
-const labels: Readonly<Record<RequestStatus, string>> = {
-  submitted: "Złożony",
-  in_progress: "W trakcie",
-  ready: "Gotowy do odbioru",
-  collected: "Odebrany",
-  rejected: "Odrzucony",
-  withdrawn: "Wycofany",
-};
+const labels: Readonly<Record<RequestStatus, string>> = requestStatusLabels;
 
 interface View {
   readonly token: HTMLInputElement;

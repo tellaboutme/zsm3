@@ -1,8 +1,12 @@
+import type { PanelStaffRole } from "@zsm3/contracts/panel";
+
 import { STAFF_ROLE_LABELS } from "./staff.ts";
 
 export type GateState = "loading" | "anonymous" | "denied" | "ready" | "error";
 
 export const CONTENT_ROLES: readonly string[] = ["admin", "secretariat", "editor"];
+
+export const REQUEST_ROLES: readonly PanelStaffRole[] = ["admin", "secretariat"];
 
 const ROLE_LABELS: Readonly<Record<string, string>> = STAFF_ROLE_LABELS;
 
@@ -17,6 +21,10 @@ export function gateDecision(status: number, email: unknown): GateState {
     return "denied";
   }
   return "error";
+}
+
+export function sectionAllowed(roles: string | undefined, role: string): boolean {
+  return roles === undefined || roles.split(" ").includes(role);
 }
 
 export function canEditContent(role: string): boolean {

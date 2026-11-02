@@ -151,7 +151,7 @@ export function siteCases(
       call: async (token) =>
         panelJsonCall(harness, "POST", `/requests/${requestFor(rolesByToken, token)}/status`, {
           token,
-          body: { to: "in_progress" },
+          body: { to: "in_progress", expectedStatus: "submitted" },
         }),
     },
   ];

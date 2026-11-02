@@ -29,7 +29,7 @@ Rolę ma każdy pracownik wpisany do listy w panelu. Panel zna cztery role:
 | Rola             | Co możesz robić                                                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | administrator    | Wszystko w panelu, a dodatkowo prowadzi listę pracowników i ich role (**Pracownicy i role**) oraz przekierowania starych adresów.               |
-| sekretariat      | Redaguje treści strony, a od etapu 4 obsługuje wnioski e-wniosek.                                                                               |
+| sekretariat      | Redaguje treści strony i obsługuje wnioski e-wniosek (rozdział 15).                                                                             |
 | redaktor treści  | Redaguje treści strony: aktualności, strony, terminarz, dokumenty, ogłoszenia i dzwonki. To rola nauczycieli i pracowników prowadzących stronę. |
 | redaktor galerii | Prowadzi galerię: tworzy albumy, dodaje zdjęcia, publikuje je (etap 5). To rola nauczycieli odpowiedzialnych za fotoreportaż.                   |
 
@@ -254,7 +254,7 @@ Pytanie „kto to zmienił?” rozwiązuje dziennik zdarzeń (rozdział 8): admi
 „Brak dostępu” oznacza, że twoja rola nie obejmuje tej ścieżki. Wracaj do obszarów przypisanych twojej roli:
 
 - treści na co dzień według przydziału ustalonego przez szkołę,
-- e-wniosek (od etapu 4) — sekretariat,
+- wnioski e-wniosek — sekretariat i administrator,
 - galeria (od etapu 5) — redaktor galerii,
 - dostępy, role i ustawienia systemowe — administrator.
 
@@ -312,11 +312,46 @@ Gdy publikujesz aktualność, strona sama zgłasza jej adres wyszukiwarkom (Bing
 - Gdy wyszukiwarka nie odpowiada, zapis i tak się udaje — publikacja nigdy nie zależy od jej dostępności.
 - Do czasu uruchomienia strony (etap 7) zgłoszenia są wyłączone, bo strona jest jeszcze zamknięta dla robotów. Włączenie należy do administratora i nie wymaga zmian w panelu.
 
+## 15. Wnioski e-wniosek
+
+Zakładka **Wnioski** zbiera wnioski złożone przez formularz na stronie: wymianę i duplikat legitymacji oraz zaświadczenie o uczęszczaniu do szkoły. Widzą ją tylko sekretariat i administrator; redaktor treści jej nie ma.
+
+### Lista
+
+- Najnowsze wnioski są na górze. Przycisk **Pokaż starsze** dokłada kolejne, a **Odśwież listę** wczytuje ją od nowa.
+- Pole **Status** zawęża listę do jednego statusu, np. „Gotowy do odbioru”.
+- Lista pokazuje tylko rodzaj wniosku, datę, numer i status. Dane wnioskodawcy są wyłącznie w szczegółach wniosku.
+
+### Szczegóły i dane osobowe
+
+Przycisk **Szczegóły** otwiera wniosek: imię i nazwisko, e-mail, klasę albo rok ukończenia szkoły i uwagi wnioskodawcy. Nie przepisuj tych danych do innych miejsc i nie wysyłaj ich dalej.
+
+- **„Dane osobowe usunięto…”** — wnioskodawca wycofał wniosek albo minął okres przechowywania. Danych nie da się przywrócić; zostają tylko rodzaj, daty i status.
+- **„Nie udało się odczytać danych osobowych…”** — dane są w bazie, ale system nie może ich odczytać. Nie zmieniaj wtedy statusu na ślepo: zgłoś numer wniosku administratorowi.
+
+### Zmiana statusu
+
+Pod szczegółami są tylko te przyciski, na które pozwala obecny status:
+
+| Status                        | Możliwe kroki                                         |
+| ----------------------------- | ----------------------------------------------------- |
+| Złożony                       | **Przyjmij do realizacji**, **Odrzuć wniosek**        |
+| W trakcie                     | **Oznacz jako gotowy do odbioru**, **Odrzuć wniosek** |
+| Gotowy do odbioru             | **Potwierdź odbiór**, **Odrzuć wniosek**              |
+| Odebrany, Odrzucony, Wycofany | brak — wniosek jest zamknięty                         |
+
+- **Oznacz jako gotowy do odbioru** i **Odrzuć wniosek** wysyłają wnioskodawcy e-mail, a **Potwierdź odbiór** i **Odrzuć wniosek** zamykają wniosek na stałe. Dlatego panel najpierw pokazuje ostrzeżenie i prosi o potwierdzenie; **Anuluj** albo klawisz Esc niczego nie zmienia.
+- Dokument wydaje się wyłącznie osobiście, po okazaniu dokumentu tożsamości. **Potwierdź odbiór** klikasz dopiero po wydaniu.
+- Wycofać wniosek może tylko wnioskodawca, przez link do statusu z e-maila. Panel nie ma takiego przycisku.
+- Zmiana jest zapisywana tylko wtedy, gdy wniosek ma nadal status, który widziałeś. Jeśli ktoś inny zdążył go zmienić — nawet sekundę wcześniej — serwer niczego nie zapisuje i nie wysyła żadnego e-maila, a panel pokazuje komunikat „Ktoś inny zmienił ten wniosek w międzyczasie”, wczytuje aktualny stan i czeka na twoją decyzję.
+- Przy braku połączenia panel o tym napisze. Odśwież wtedy listę i sprawdź status, zanim spróbujesz ponownie.
+
+Każda zmiana statusu trafia do dziennika zdarzeń (rozdział 8) bez danych wnioskodawcy.
+
 ## Co jeszcze powstanie
 
 Ten podręcznik na razie opisuje etap 3. W kolejnych etapach dojdzie reszta panelu (zgodnie z [architekturą](architektura.md), rozdział 14):
 
-- **Etap 4 — e-wniosek**: obsługa wniosków przez sekretariat, statusy (złożony, w realizacji, gotowy do odbioru, odebrany), e-maile do wnioskodawców, wydawanie dokumentu wyłącznie osobiście po okazaniu dokumentu tożsamości.
 - **Etap 5 — galeria**: albumy według lat szkolnych, dodawanie zdjęć przeciąganiem w przeglądarce, która sama je zmniejsza, publikacja po potwierdzeniu zgód wizerunku.
 - **Etap 6 — narzędzia społeczności**: krótkie linki `/s/<kod>` tworzone przez pracowników, Skrzynka #OgarniamŻycie moderowana w panelu, statystyki bez plików cookie.
 - **Etap 7 — uruchomienie**: szkolenie pracowników, przegląd PDF, rejestracja w wyszukiwarkach i przełączenie DNS.

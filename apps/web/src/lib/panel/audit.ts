@@ -35,8 +35,12 @@ export function auditAction(action: string): string {
   return ACTION_LABELS[action] ?? action;
 }
 
+export function panelMoment(iso: string): string {
+  return MOMENT.format(new Date(iso));
+}
+
 export function auditHead(item: AuditItem): string {
-  return `${MOMENT.format(new Date(item.at))} · ${item.actorEmail ?? "system"}`;
+  return `${panelMoment(item.at)} · ${item.actorEmail ?? "system"}`;
 }
 
 export function auditLine(item: AuditItem): string {
