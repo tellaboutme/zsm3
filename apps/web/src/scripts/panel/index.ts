@@ -2,16 +2,13 @@ import "../../lib/panel/zod-jitless.ts";
 import { area } from "./dom.ts";
 import { denyContent, gateView } from "./gate-ui.ts";
 import { wireShell } from "./shell.ts";
-import { canEditContent } from "../../lib/panel/gate.ts";
+import { canEditContent, sectionAllowed } from "../../lib/panel/gate.ts";
 
 function prune(nav: HTMLElement, role: string): void {
-  if (role === "admin") {
-    return;
-  }
-  const links = nav.querySelectorAll<HTMLAnchorElement>("a[data-admin]");
-  for (const link of links) {
-    const item = link.closest("li");
-    item?.remove();
+  for (const link of nav.querySelectorAll<HTMLAnchorElement>("a[data-roles]")) {
+    if (!sectionAllowed(link.dataset["roles"], role)) {
+      link.closest("li")?.remove();
+    }
   }
 }
 

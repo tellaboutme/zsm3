@@ -1,0 +1,94 @@
+.panel-request {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-4);
+  border: var(--hairline) solid var(--line);
+  border-block-start: var(--rule) solid var(--blue);
+  border-radius: var(--radius);
+}
+
+.panel-request > h2:focus-visible {
+  outline: var(--ring) solid var(--focus);
+  outline-offset: var(--space-1);
+}
+
+[data-panel="request-rows"] {
+  margin: 0;
+  padding: 0;
+  border-block-start: var(--hairline) solid var(--line);
+  list-style: none;
+}
+
+.panel-item-current {
+  box-shadow: inset var(--rule) 0 0 var(--orange);
+  background: var(--gray);
+}
+
+.panel-status {
+  padding: 0 var(--space-2);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius);
+  font-size: var(--step-n1);
+  font-family: var(--font-mono);
+}
+
+.panel-status[data-status="ready"] {
+  border: var(--rule) solid var(--orange);
+  background: var(--highlight);
+}
+
+.panel-status[data-status="submitted"] {
+  border-color: var(--blue);
+}
+
+.panel-facts {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+
+.panel-facts > dt {
+  color: var(--ink-2);
+  font-size: var(--step-n1);
+}
+
+.panel-facts > dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.panel-warning {
+  padding: var(--space-3);
+  border-inline-start: var(--rule) solid var(--danger);
+  background: var(--gray);
+}
+
+.panel-confirm {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: var(--rule) solid var(--orange);
+  border-radius: var(--radius);
+  background: var(--gray);
+}
+
+.panel-actions > button.panel-danger,
+.panel-confirm .panel-actions > button.panel-save {
+  border: var(--hairline) solid var(--danger-surface);
+  background: var(--danger-surface);
+  color: var(--danger-ink);
+  font-weight: 700;
+}
+
+@media (width < 30rem) {
+  .panel-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .panel-facts > dd {
+    margin-block-end: var(--space-2);
+  }
+}

@@ -23,7 +23,7 @@ import Panel from "../../layouts/panel.astro";
         <ul class="panel-nav">
           {panelSections.map((section) => (
             <li>
-              <a href={section.href} data-admin={section.admin === true ? "" : undefined}>
+              <a href={section.href} data-roles={section.roles?.join(" ")}>
                 {section.label}
               </a>
             </li>

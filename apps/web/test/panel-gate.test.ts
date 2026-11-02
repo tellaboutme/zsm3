@@ -12,6 +12,7 @@ import {
   gateDecision,
   gatePhrases,
   rolePhrase,
+  sectionAllowed,
 } from "../src/lib/panel/gate.ts";
 import { validationPhrases } from "../src/lib/panel/validation.ts";
 
@@ -33,6 +34,15 @@ it("labels roles and permissions", ({ expect }) => {
   expect(canEditContent("gallery_editor")).toBe(false);
   expect(rolePhrase("gallery_editor")).toBe("redaktor galerii");
   expect(rolePhrase("nieznana")).toBeUndefined();
+});
+
+it("shows a panel section only to its listed roles", ({ expect }) => {
+  expect(sectionAllowed(undefined, "editor")).toBe(true);
+  expect(sectionAllowed("admin", "admin")).toBe(true);
+  expect(sectionAllowed("admin", "secretariat")).toBe(false);
+  expect(sectionAllowed("admin secretariat", "secretariat")).toBe(true);
+  expect(sectionAllowed("admin secretariat", "editor")).toBe(false);
+  expect(sectionAllowed("admin secretariat", "")).toBe(false);
 });
 
 it("phrases every gate state in Polish", ({ expect }) => {

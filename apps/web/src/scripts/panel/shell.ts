@@ -1,5 +1,6 @@
 import { area } from "./dom.ts";
 import { userLine, wireGate, type GateView } from "./gate-ui.ts";
+import { sectionAllowed } from "../../lib/panel/gate.ts";
 import type { PanelMe } from "../../lib/panel/models.ts";
 
 export type ShellEnter = (role: string, me: PanelMe | undefined) => void;
@@ -12,15 +13,14 @@ function presentMe(me: PanelMe): void {
 }
 
 function pruneTabs(role: string): void {
-  if (role === "admin") {
-    return;
-  }
   const tabs = document.querySelector<HTMLElement>('[data-panel="tabs"]');
   if (tabs === null) {
     return;
   }
-  for (const link of tabs.querySelectorAll<HTMLAnchorElement>("a[data-admin]")) {
-    link.closest("li")?.remove();
+  for (const link of tabs.querySelectorAll<HTMLAnchorElement>("a[data-roles]")) {
+    if (!sectionAllowed(link.dataset["roles"], role)) {
+      link.closest("li")?.remove();
+    }
   }
 }
 

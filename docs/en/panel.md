@@ -30,11 +30,22 @@ Local development has no Cloudflare Access, so `pnpm dev:auth` stands in for it:
 | Role             | Can do                                                                             |
 | ---------------- | ---------------------------------------------------------------------------------- |
 | `admin`          | everything, plus staff and roles, redirects and the audit log                      |
-| `secretariat`    | all site content; request handling once e-wniosek ships                            |
+| `secretariat`    | all site content, plus handling e-wniosek requests                                 |
 | `editor`         | all site content: news, pages, calendar, documents, announcements, bells, datasets |
 | `gallery_editor` | the gallery once it ships; no content editing                                      |
 
 The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/matrix.ts`, and a test calls every route with every role. Administrators cannot remove their own admin role or disable themselves, so the panel always keeps one administrator.
+
+## Handling requests
+
+`/panel/wnioski` is the staff side of e-wniosek, shown to `admin` and `secretariat` only; the tab is hidden from other roles, and the API answers them 403 regardless. It reads and writes nothing but the staff API from architecture.md §7.4.
+
+- **List.** Summaries only — type, dates, id and status, never personal data — newest first, with a status filter. **Pokaż starsze** follows the composite cursor: it sends the previous page's `nextBefore` and `nextBeforeId` back as `before` and `beforeId`, so requests created in the same millisecond are neither skipped nor repeated.
+- **Detail.** Personal data appears only here. An erased record (`piiErasedAt` set) says when it was erased; a record whose fields come back `null` without an erasure date could not be decrypted, and the panel says so instead of showing empty fields.
+- **Transitions.** The buttons come from `staffNextStatuses` in `@zsm3/contracts/panel-requests`, the same table the Worker's lifecycle checks, minus `withdrawn`, which belongs to the applicant. Marking a request ready, confirming collection and rejecting all ask for confirmation first, because they mail the applicant or close the request.
+- **Stale views.** Just before sending a transition the panel reads the request again, and if its status or `updatedAt` changed since it was shown, it sends nothing and shows the stored state. A change that slips in between that read and the Worker's batch gets `409`; a refused one gets `422`. Both reload the detail instead of retrying.
+
+Nothing from a request reaches the URL, browser storage or the console. The list and detail schemas are parsed only in this page's scripts: importing them into the shared `lib/panel/models.ts` moves zod's schema construction ahead of the `jitless` switch in every panel bundle, and the Trusted Types policy then reports the blocked `Function` probe.
 
 ## Enabling the panel in production
 

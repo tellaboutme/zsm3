@@ -2,7 +2,7 @@ export interface PanelSection {
   readonly href: string;
   readonly label: string;
   readonly short: string;
-  readonly admin?: true;
+  readonly roles?: readonly string[];
 }
 
 export const panelSections: readonly PanelSection[] = [
@@ -17,7 +17,18 @@ export const panelSections: readonly PanelSection[] = [
     short: "Dane stron",
   },
   { href: "/panel/dzwonki", label: "Dzwonki", short: "Dzwonki" },
-  { href: "/panel/pracownicy", label: "Pracownicy i role", short: "Pracownicy", admin: true },
-  { href: "/panel/dziennik", label: "Dziennik zmian", short: "Dziennik", admin: true },
-  { href: "/panel/przekierowania", label: "Przekierowania", short: "Przekierowania", admin: true },
+  {
+    href: "/panel/wnioski",
+    label: "Wnioski z formularza e-wniosek",
+    short: "Wnioski",
+    roles: ["admin", "secretariat"],
+  },
+  { href: "/panel/pracownicy", label: "Pracownicy i role", short: "Pracownicy", roles: ["admin"] },
+  { href: "/panel/dziennik", label: "Dziennik zmian", short: "Dziennik", roles: ["admin"] },
+  {
+    href: "/panel/przekierowania",
+    label: "Przekierowania",
+    short: "Przekierowania",
+    roles: ["admin"],
+  },
 ];
