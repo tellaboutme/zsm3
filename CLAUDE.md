@@ -23,12 +23,12 @@ site and API, Python 3.13 repository tooling run through uv.
 ## Where things live
 
 - `apps/worker/src` — API: `app.ts` middleware order, `http/` problem+json and headers,
-  `security/`, `domain/` (pure), `storage/` repositories, `routes/`, `mail/`, `jobs/`.
+  `security/`, `domain/` (pure), `storage/` repositories, `routes/`, `mail/`, `jobs/`,
+  `logging/` typed events, feature modules `requests/` and `short-links/`.
 - `apps/worker/migrations`, `apps/worker/seed` — D1 schema and local sample content.
-- `apps/web/src` — `pages/` (including `/panel`), `layouts/`, `scripts/` (site modules at
-  the top level, `panel/`), `styles/tokens.css` and `styles/global.css`, `server/` for
-  on-demand D1 access,
-  `middleware.ts` for page security headers.
+- `apps/web/src` — `pages/` (including `/panel`), `layouts/`, `components/`, `scripts/`
+  (site modules at the top level, `panel/`), `styles/tokens.css` and `styles/global.css`,
+  `server/` for on-demand D1 access, `middleware.ts` for page security headers.
 - `packages/contracts` — Zod schemas, DTOs, statuses. `packages/lint-rules` — this
   repository's own ESLint and Stylelint rules.
 - `e2e` — Playwright, axe, Lighthouse budgets. `tools` — Python package `zsm3_tools`.
@@ -45,8 +45,8 @@ site and API, Python 3.13 repository tooling run through uv.
 | `pnpm typecheck`     | `tsc`, `astro check`, `wrangler types --check`, mypy strict |
 | `pnpm test`          | Vitest (Node and workerd) and pytest                        |
 | `pnpm test:mutation` | Stryker                                                     |
-| `pnpm test:e2e`      | Playwright: pages, headers, axe, Lighthouse                 |
-| `pnpm check`         | all of the above in order                                   |
+| `pnpm test:e2e`      | preview build; Playwright: pages, headers, axe, Lighthouse  |
+| `pnpm check`         | format, lint, typecheck, test, e2e in order; not mutation   |
 
 Run the narrowest gate that covers the change; run `pnpm check` only before a pull request.
 
