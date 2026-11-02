@@ -1,7 +1,7 @@
 import { it, vi } from "vitest";
 import { z } from "zod";
 
-import { indexNowSession, publishedSalon, SALON, SALON_PATH } from "./indexnow-spy.ts";
+import { indexNowSession, publishedSalon, SALON, SALON_API_PATH } from "./indexnow-spy.ts";
 import { newsSaveMutation, pageSaveMutation, samplePage } from "./panel-fixtures.ts";
 import { panelSpyHarness, SPY_ADMIN, spyToken } from "./panel-spy.ts";
 import {
@@ -89,18 +89,31 @@ it.for(REJECTIONS)(
 );
 
 it("keeps the committed edit when the endpoint refuses", async ({ expect }) => {
+  const pegs: string[][] = [];
   const session = await indexNowSession({
-    pegs: [],
-    endpoint: { submit: async () => Promise.resolve(false) },
+    pegs,
+    endpoint: {
+      submit: async (urls) => {
+        pegs.push([...urls]);
+        return Promise.resolve(false);
+      },
+    },
   });
   await publishedSalon(session);
 
-  const edited = await panelJsonCall(session.harness, "PUT", SALON_PATH, {
+  const edited = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
     body: newsSaveMutation({ ...SALON, lead: "Poprawiony lead." }),
   });
+  const shown = await panelJsonCall(session.harness, "GET", SALON_API_PATH, {
+    token: session.token,
+  });
 
   expect(edited.status).toBe(200);
+  expect(pegs).toEqual([["/aktualnosci/2026/salon-maturzystow"]]);
+  expect(await shown.json()).toMatchObject({
+    item: { lead: "Poprawiony lead.", status: "published" },
+  });
 });
 
 const SHARED_KEYS = panelEnvHarness();

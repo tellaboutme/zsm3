@@ -1,6 +1,6 @@
 import { it } from "vitest";
 
-import { indexNowSession, publishedSalon, SALON, SALON_PATH } from "./indexnow-spy.ts";
+import { indexNowSession, publishedSalon, SALON, SALON_API_PATH } from "./indexnow-spy.ts";
 import { newsSaveMutation, pageSaveMutation, samplePage } from "./panel-fixtures.ts";
 import { panelJsonCall } from "./panel-support.ts";
 
@@ -30,7 +30,7 @@ it("announces a restored version of a public page", async ({ expect }) => {
 it("announces a restored version of a published article", async ({ expect }) => {
   const session = await indexNowSession();
   await publishedSalon(session);
-  await panelJsonCall(session.harness, "PUT", SALON_PATH, {
+  await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
     body: newsSaveMutation({ ...SALON, title: "Salon Maturzystow 2026" }),
   });
@@ -70,7 +70,7 @@ it("keeps quiet when a draft page or article is restored", async ({ expect }) =>
     token: session.token,
     body: newsSaveMutation(SALON),
   });
-  await panelJsonCall(session.harness, "PUT", SALON_PATH, {
+  await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
     body: newsSaveMutation({ ...SALON, title: "Inny tytul" }),
   });

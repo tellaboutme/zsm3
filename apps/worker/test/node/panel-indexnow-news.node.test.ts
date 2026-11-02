@@ -1,7 +1,7 @@
 import { newsPath } from "@zsm3/contracts/content";
 import { it } from "vitest";
 
-import { indexNowSession, publishedSalon, SALON, SALON_PATH } from "./indexnow-spy.ts";
+import { indexNowSession, publishedSalon, SALON, SALON_API_PATH } from "./indexnow-spy.ts";
 import { newsSaveMutation, newsStatusMutation, sampleNews } from "./panel-fixtures.ts";
 import { expectProblem, panelAudit, panelJsonCall } from "./panel-support.ts";
 import { liveStore } from "../../src/storage/database.ts";
@@ -13,7 +13,7 @@ it("announces an edit of a published article under its canonical address", async
   const session = await indexNowSession();
   await publishedSalon(session);
 
-  const edited = await panelJsonCall(session.harness, "PUT", SALON_PATH, {
+  const edited = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
     body: newsSaveMutation({ ...SALON, lead: "Nowy lead relacji." }),
   });
@@ -40,7 +40,7 @@ it("audits a publication as a status change only", async ({ expect }) => {
 it("announces the same address the sitemap lists", async ({ expect }) => {
   const session = await indexNowSession();
   await publishedSalon(session);
-  await panelJsonCall(session.harness, "PUT", SALON_PATH, {
+  await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
     body: newsSaveMutation({ ...SALON, title: "Salon Maturzystow 2026" }),
   });
@@ -55,7 +55,7 @@ it("keeps quiet when a published article is saved without changes", async ({ exp
   const session = await indexNowSession();
   await publishedSalon(session);
 
-  const saved = await panelJsonCall(session.harness, "PUT", SALON_PATH, {
+  const saved = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
     body: newsSaveMutation(SALON),
   });
@@ -71,7 +71,7 @@ it("keeps quiet while a draft is edited", async ({ expect }) => {
     body: newsSaveMutation(SALON),
   });
 
-  const edited = await panelJsonCall(session.harness, "PUT", SALON_PATH, {
+  const edited = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
     body: newsSaveMutation({ ...SALON, title: "Salon Maturzystow 2026" }),
   });
@@ -84,7 +84,7 @@ it("keeps quiet when an edit is refused", async ({ expect }) => {
   const session = await indexNowSession();
   await publishedSalon(session);
 
-  const moved = await panelJsonCall(session.harness, "PUT", SALON_PATH, {
+  const moved = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
     body: newsSaveMutation(sampleNews("inny-salon", "Salon")),
   });
@@ -97,11 +97,11 @@ it("announces the withdrawn address once when an article is unpublished", async 
   const session = await indexNowSession();
   await publishedSalon(session);
 
-  const unpublished = await panelJsonCall(session.harness, "PATCH", SALON_PATH, {
+  const unpublished = await panelJsonCall(session.harness, "PATCH", SALON_API_PATH, {
     token: session.token,
     body: newsStatusMutation("unpublish"),
   });
-  const again = await panelJsonCall(session.harness, "PATCH", SALON_PATH, {
+  const again = await panelJsonCall(session.harness, "PATCH", SALON_API_PATH, {
     token: session.token,
     body: newsStatusMutation("unpublish"),
   });
@@ -116,7 +116,7 @@ it("does not announce a repeated publication", async ({ expect }) => {
   const session = await indexNowSession();
   await publishedSalon(session);
 
-  const again = await panelJsonCall(session.harness, "PATCH", SALON_PATH, {
+  const again = await panelJsonCall(session.harness, "PATCH", SALON_API_PATH, {
     token: session.token,
     body: newsStatusMutation("publish"),
   });
@@ -131,7 +131,7 @@ it("announces each of two concurrent edits that both commit", async ({ expect })
 
   const edits = await Promise.all(
     ["Pierwsza poprawka.", "Druga poprawka."].map(async (lead) =>
-      panelJsonCall(session.harness, "PUT", SALON_PATH, {
+      panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
         token: session.token,
         body: newsSaveMutation({ ...SALON, lead }),
       }),

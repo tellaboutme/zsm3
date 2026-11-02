@@ -12,7 +12,7 @@ export const INDEXNOW_EDITOR = staffMember("redakcja@zsm3.test", "editor", true)
 
 export const SALON = sampleNews("salon-maturzystow", "Salon Maturzystow");
 
-export const SALON_PATH = "/news/2026/salon-maturzystow";
+export const SALON_API_PATH = "/news/2026/salon-maturzystow";
 
 export interface RecordedEndpoint {
   readonly endpoint: IndexNowEndpoint;
@@ -49,10 +49,16 @@ export async function indexNowSession(
 
 export async function publishedSalon(session: IndexNowSession): Promise<void> {
   const { harness, token, pegs } = session;
-  await panelJsonCall(harness, "POST", "/news", { token, body: newsSaveMutation(SALON) });
-  await panelJsonCall(harness, "PATCH", SALON_PATH, {
+  const created = await panelJsonCall(harness, "POST", "/news", {
+    token,
+    body: newsSaveMutation(SALON),
+  });
+  const published = await panelJsonCall(harness, "PATCH", SALON_API_PATH, {
     token,
     body: { entity: "news", mutation: { action: "publish" } },
   });
+  if (created.status !== 201 || published.status !== 200 || pegs.length !== 1) {
+    throw new Error("the published article fixture could not be prepared");
+  }
   pegs.length = 0;
 }
