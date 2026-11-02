@@ -4,28 +4,26 @@ import {
   panelRequestTransitionSchema,
   type PanelRequestsQuery,
 } from "@zsm3/contracts/panel-requests";
-import { panelRequestDetailSchema, requestPiiSchema } from "@zsm3/contracts/requests";
+import {
+  panelRequestDetailSchema,
+  requestPiiSchema,
+  type RequestPii,
+} from "@zsm3/contracts/requests";
 import { Hono, type Context } from "hono";
 import { z } from "zod";
 
 import { auditEntry } from "./audit.ts";
 import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { panelGuard, panelJsonOrigin } from "./guards.ts";
-import { parseJsonBody } from "./http.ts";
+import { parseJsonBody, uniqueQuery } from "./http.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { canTransition } from "../../domain/request-lifecycle.ts";
 import { problemResponse } from "../../http/problem.ts";
+import type { PiiCrypto } from "../../security/pii-crypto.ts";
 import { batchChanges } from "../../storage/database.ts";
-import type { RequestListFilter } from "../../storage/requests-repo.ts";
+import type { RequestListFilter, RequestRecord } from "../../storage/requests-repo.ts";
 
 const ENTITY = "requests";
-
-function uniqueQuery(c: Context<AppEnv>): Record<string, string> | undefined {
-  const params = new URL(c.req.url).searchParams;
-  return [...params.keys()].some((key) => params.getAll(key).length !== 1)
-    ? undefined
-    : Object.fromEntries(params);
-}
 
 function summaryOf(record: {
   readonly id: string;
@@ -53,9 +51,8 @@ function listFilter({ status, before, beforeId, limit }: PanelRequestsQuery): Re
 }
 
 async function listRequests(c: Context<AppEnv>): Promise<Response> {
-  const params = uniqueQuery(c);
-  const query = params === undefined ? undefined : panelRequestsQuerySchema.safeParse(params);
-  if (query?.success !== true) {
+  const query = panelRequestsQuerySchema.safeParse(uniqueQuery(c));
+  if (!query.success) {
     return problemResponse(c, 422);
   }
   const { limit } = query.data;
@@ -81,33 +78,49 @@ async function showRequest(c: Context<AppEnv>): Promise<Response> {
   if (record === undefined) {
     return problemResponse(c, 404);
   }
-  const base = { ...summaryOf(record), piiErasedAt: record.piiErasedAt };
-  if (record.piiCiphertext === null || record.piiKeyId === null) {
-    return c.json(
-      panelRequestDetailSchema.parse({
-        ...base,
-        firstName: null,
-        lastName: null,
-        className: null,
-        graduationYear: null,
-        email: null,
-        note: null,
-      }),
-    );
-  }
-  const plaintext = await deps.piiCrypto.decrypt(record.piiCiphertext, record.piiKeyId, record.id);
-  const pii = requestPiiSchema.parse(JSON.parse(plaintext));
   return c.json(
     panelRequestDetailSchema.parse({
-      ...base,
-      firstName: pii.firstName,
-      lastName: pii.lastName,
-      className: pii.className ?? null,
-      graduationYear: pii.graduationYear ?? null,
-      email: pii.email,
-      note: pii.note ?? null,
+      ...summaryOf(record),
+      piiErasedAt: record.piiErasedAt,
+      ...piiFields(await storedPii(deps.piiCrypto, record)),
     }),
   );
+}
+
+function piiFields(pii: RequestPii | undefined) {
+  if (pii === undefined) {
+    return {
+      firstName: null,
+      lastName: null,
+      className: null,
+      graduationYear: null,
+      email: null,
+      note: null,
+    };
+  }
+  return {
+    firstName: pii.firstName,
+    lastName: pii.lastName,
+    className: pii.className ?? null,
+    graduationYear: pii.graduationYear ?? null,
+    email: pii.email,
+    note: pii.note ?? null,
+  };
+}
+
+async function storedPii(
+  crypto: PiiCrypto,
+  record: RequestRecord,
+): Promise<RequestPii | undefined> {
+  if (record.piiCiphertext === null || record.piiKeyId === null) {
+    return undefined;
+  }
+  try {
+    const plaintext = await crypto.decrypt(record.piiCiphertext, record.piiKeyId, record.id);
+    return requestPiiSchema.parse(JSON.parse(plaintext));
+  } catch {
+    return undefined;
+  }
 }
 
 async function transitionRequest(c: Context<AppEnv>): Promise<Response> {

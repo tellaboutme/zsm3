@@ -3,7 +3,7 @@ import type { EmailKind, RequestStatus } from "@zsm3/contracts/requests";
 import { auditValues, type AuditEntry } from "./audit-repo.ts";
 import { timestamp, type SqlStatement, type Store } from "./database.ts";
 import { uuidv7 } from "./ids.ts";
-import { INSERT_OUTBOX_FOR_TRANSITION } from "./outbox-sql.ts";
+import { DELETE_PENDING_READY_NOTICE, INSERT_OUTBOX_FOR_TRANSITION } from "./outbox-sql.ts";
 import { INSERT_AUDIT_FOR_TRANSITION, UPDATE_TRANSITION_FROM } from "./requests-sql.ts";
 import { isOpen } from "../domain/request-lifecycle.ts";
 
@@ -44,8 +44,11 @@ export function buildTransitionStatements(
             .prepare(INSERT_OUTBOX_FOR_TRANSITION)
             .bind(uuidv7(clock().getTime(), random), kind, id, origin, now, from),
         ];
+  const staleReadyNotice =
+    from === "ready" ? [db.prepare(DELETE_PENDING_READY_NOTICE).bind(id)] : [];
   const statements = [
     db.prepare(INSERT_AUDIT_FOR_TRANSITION).bind(...auditValues(store, audit), id, from),
+    ...staleReadyNotice,
     ...notice,
     db.prepare(UPDATE_TRANSITION_FROM).bind(to, now, isOpen(to) ? null : now, id, from),
   ];

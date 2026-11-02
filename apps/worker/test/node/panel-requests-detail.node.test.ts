@@ -76,4 +76,30 @@ describe("panel requests detail", () => {
       piiErasedAt: "2026-10-25T08:00:00.000Z",
     });
   });
+
+  it.each([
+    { name: "a retired key", damage: "UPDATE requests SET pii_key_id = 'RETIRED' WHERE id = ?" },
+    {
+      name: "a damaged ciphertext",
+      damage: "UPDATE requests SET pii_ciphertext = X'010203' WHERE id = ?",
+    },
+  ])("degrades to null personal fields for $name instead of failing", async ({ damage }) => {
+    const harness = await panelHarness();
+    await seedStaff(harness.env, [SECRETARIAT]);
+    const token = await harness.keys.sign(staffClaims(SECRETARIAT.email));
+    const id = "45454545-4545-4545-8545-454545454545";
+    await seedRequest(harness.env, id);
+    await harness.env.DB.prepare(damage).bind(id).run();
+
+    const res = await panelJsonCall(harness, "GET", `/requests/${id}`, { token });
+
+    expect(res.status).toBe(200);
+    expect(panelRequestDetailSchema.parse(await res.json())).toMatchObject({
+      id,
+      status: "submitted",
+      firstName: null,
+      email: null,
+      piiErasedAt: null,
+    });
+  });
 });

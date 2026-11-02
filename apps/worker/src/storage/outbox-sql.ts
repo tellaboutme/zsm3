@@ -59,6 +59,10 @@ export const DELETE_OUTBOX_FOR_REQUEST = "DELETE FROM email_outbox WHERE request
 
 export const DELETE_FAILURES_FOR_REQUEST = "DELETE FROM outbox_failures WHERE request_id = ?";
 
+export const DELETE_PENDING_READY_NOTICE = `DELETE FROM email_outbox
+  WHERE request_id = ?1 AND kind = 'READY_NOTICE' AND sent_at IS NULL AND failed_at IS NULL
+    AND EXISTS (SELECT 1 FROM requests WHERE id = ?1 AND status = 'ready')`;
+
 export const DELETE_WITHDRAWN_OUTBOX = `DELETE FROM email_outbox WHERE request_id = ?1
   AND EXISTS (SELECT 1 FROM requests WHERE id = ?1 AND status = 'withdrawn' AND updated_at = ?2)`;
 

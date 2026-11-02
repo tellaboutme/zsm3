@@ -86,6 +86,27 @@ describe("request transitions with notices", () => {
     expect(await rows("SELECT kind FROM email_outbox")).toEqual([{ kind: "REJECTED_NOTICE" }]);
   });
 
+  it("withdraws an unsent ready notice when the request leaves ready", async ({ expect }) => {
+    const { move, rows } = await seeded();
+    await move("submitted", "in_progress");
+    await move("in_progress", "ready");
+
+    expect(await move("ready", "rejected")).toEqual({ applied: true, changes: [1, 1, 1, 1] });
+
+    expect(await rows("SELECT kind FROM email_outbox")).toEqual([{ kind: "REJECTED_NOTICE" }]);
+  });
+
+  it("keeps a ready notice that was already sent", async ({ expect }) => {
+    const { move, rows } = await seeded();
+    await move("submitted", "in_progress");
+    await move("in_progress", "ready");
+    await rows("UPDATE email_outbox SET sent_at = '2026-10-22T08:05:00.000Z'");
+
+    expect(await move("ready", "collected")).toEqual({ applied: true, changes: [1, 0, 1] });
+
+    expect(await rows("SELECT kind FROM email_outbox")).toEqual([{ kind: "READY_NOTICE" }]);
+  });
+
   it("closes the request and queues the rejection notice", async ({ expect }) => {
     const { repo, move, rows } = await seeded();
 
