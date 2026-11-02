@@ -60,6 +60,9 @@ export const OK_STATUS: Record<PanelRouteName, number> = {
   "audit.list": 200,
   "datasets.get": 200,
   "datasets.save": 200,
+  "requests.list": 200,
+  "requests.get": 200,
+  "requests.transition": 200,
 };
 
 export const NEWS = sampleNews("istniejacy", "Istniejacy salon");

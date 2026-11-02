@@ -36,6 +36,17 @@ describe("templateFor", () => {
     expect(content.subject).toBe("Dokument gotowy do odbioru");
     expect(content.text).toContain("gotowy do odbioru");
     expect(content.text).toContain("dokument tożsamości");
+    expect(content.text.split("\n")[0]).toBe(
+      `Wniosek nr ${context.requestId} (Wymiana legitymacji szkolnej) został zrealizowany.`,
+    );
+    expect(content.text).toContain(
+      `\nStatus wniosku można sprawdzić na stronie:\n${context.statusLink}`,
+    );
+    const withoutLink = templateFor("READY_NOTICE", { ...context, statusLink: "" }).text;
+    expect(withoutLink).toContain(
+      "\nStatus wniosku można sprawdzić pod linkiem otrzymanym w potwierdzeniu złożenia wniosku.",
+    );
+    expect(withoutLink).not.toContain("na stronie:");
   });
 
   it("informs about a rejection without repeating personal data", ({ expect }) => {

@@ -48,6 +48,7 @@ export type CreateRequestOutcome =
 export interface RequestListFilter {
   readonly status?: RequestStatus;
   readonly before?: string;
+  readonly beforeId?: string;
   readonly limit: number;
 }
 

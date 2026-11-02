@@ -85,19 +85,21 @@ export function clampedLimit(limit: number): number {
   return Math.min(Math.max(limit, 1), MAX_AUDIT_LIMIT);
 }
 
-function auditStatement({ db, clock, random }: Store, entry: AuditEntry): SqlStatement {
+export function auditValues({ clock, random }: Store, entry: AuditEntry): SqlValue[] {
   const parsed = auditEntrySchema.parse(entry);
-  return db
-    .prepare(APPEND)
-    .bind(
-      uuidv7(clock().getTime(), random),
-      timestamp(clock),
-      parsed.actorEmail,
-      parsed.action,
-      parsed.entity,
-      parsed.entityId,
-      parsed.details,
-    );
+  return [
+    uuidv7(clock().getTime(), random),
+    timestamp(clock),
+    parsed.actorEmail,
+    parsed.action,
+    parsed.entity,
+    parsed.entityId,
+    parsed.details,
+  ];
+}
+
+function auditStatement(store: Store, entry: AuditEntry): SqlStatement {
+  return store.db.prepare(APPEND).bind(...auditValues(store, entry));
 }
 
 export function auditRepo(store: Store): AuditRepo {
