@@ -25,7 +25,7 @@ export type Transition = (
 export interface Fake {
   readonly records: FakeRequest[];
   readonly listed: string[];
-  readonly posted: { id: string; to: string }[];
+  readonly posted: { id: string; to: string; expectedStatus: string }[];
   transition: Transition;
 }
 
@@ -113,8 +113,15 @@ async function list(fake: Fake, route: Route, url: URL, pageSize: number): Promi
 
 async function post(fake: Fake, route: Route, record: FakeRequest): Promise<void> {
   const body: unknown = route.request().postDataJSON();
-  const to = typeof body === "object" && body !== null && "to" in body ? String(body.to) : "";
-  fake.posted.push({ id: record.id, to });
+  const fields = new Map(typeof body === "object" && body !== null ? Object.entries(body) : []);
+  const field = (name: string): string => String(fields.get(name) ?? "");
+  const to = field("to");
+  const expectedStatus = field("expectedStatus");
+  fake.posted.push({ id: record.id, to, expectedStatus });
+  if (expectedStatus !== record.status) {
+    await json(route, 409, {});
+    return;
+  }
   const target = NEXT[record.status].find((status) => status === to);
   if (target === undefined) {
     await json(route, 422, {});

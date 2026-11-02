@@ -343,7 +343,7 @@ Pod szczegółami są tylko te przyciski, na które pozwala obecny status:
 - **Oznacz jako gotowy do odbioru** i **Odrzuć wniosek** wysyłają wnioskodawcy e-mail, a **Potwierdź odbiór** i **Odrzuć wniosek** zamykają wniosek na stałe. Dlatego panel najpierw pokazuje ostrzeżenie i prosi o potwierdzenie; **Anuluj** albo klawisz Esc niczego nie zmienia.
 - Dokument wydaje się wyłącznie osobiście, po okazaniu dokumentu tożsamości. **Potwierdź odbiór** klikasz dopiero po wydaniu.
 - Wycofać wniosek może tylko wnioskodawca, przez link do statusu z e-maila. Panel nie ma takiego przycisku.
-- Tuż przed wysłaniem zmiany panel ponownie odczytuje wniosek. Jeśli ktoś inny zdążył go zmienić, panel niczego nie wysyła: pokazuje komunikat „Ktoś inny zmienił ten wniosek w międzyczasie”, wczytuje aktualny stan i czeka na twoją decyzję. Gdy dwie osoby klikną niemal w tej samej chwili, zmiana drugiej może jeszcze przejść, jeśli jest dozwolona z nowego statusu — dlatego jeden wniosek prowadzi jedna osoba.
+- Zmiana jest zapisywana tylko wtedy, gdy wniosek ma nadal status, który widziałeś. Jeśli ktoś inny zdążył go zmienić — nawet sekundę wcześniej — serwer niczego nie zapisuje i nie wysyła żadnego e-maila, a panel pokazuje komunikat „Ktoś inny zmienił ten wniosek w międzyczasie”, wczytuje aktualny stan i czeka na twoją decyzję.
 - Przy braku połączenia panel o tym napisze. Odśwież wtedy listę i sprawdź status, zanim spróbujesz ponownie.
 
 Każda zmiana statusu trafia do dziennika zdarzeń (rozdział 8) bez danych wnioskodawcy.

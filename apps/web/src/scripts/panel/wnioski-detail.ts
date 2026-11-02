@@ -1,3 +1,4 @@
+import type { PanelRequestTransition } from "@zsm3/contracts/panel-requests";
 import type { PanelRequestDetail } from "@zsm3/contracts/requests";
 
 import { button, speak } from "./dom.ts";
@@ -109,7 +110,7 @@ export class RequestDetail {
     shown.pending = action;
     shown.returnTo = from;
     view.confirmText.textContent = action.warning ?? "";
-    view.confirmYes.textContent = action.label;
+    view.confirmYes.textContent = action.confirm;
     view.confirm.hidden = false;
     view.confirmYes.focus();
   }
@@ -149,15 +150,9 @@ export class RequestDetail {
   }
 
   private async send(seen: PanelRequestDetail, action: StaffAction): Promise<number> {
-    const fresh = await fetchDetail(seen.id);
-    if (fresh.detail === undefined) {
-      return fresh.status;
-    }
-    if (fresh.detail.status !== seen.status || fresh.detail.updatedAt !== seen.updatedAt) {
-      return 409;
-    }
     const path = `/api/panel/requests/${encodeURIComponent(seen.id)}/status`;
-    const response = await panelSend("POST", path, { to: action.to });
+    const body: PanelRequestTransition = { to: action.to, expectedStatus: seen.status };
+    const response = await panelSend("POST", path, body);
     return response.status;
   }
 

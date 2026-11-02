@@ -34,6 +34,7 @@ export const staffTargetStatusSchema = requestStatusSchema.exclude(["submitted",
 
 export const panelRequestTransitionSchema = z.strictObject({
   to: staffTargetStatusSchema,
+  expectedStatus: requestStatusSchema,
 });
 
 export type PanelRequestTransition = z.infer<typeof panelRequestTransitionSchema>;

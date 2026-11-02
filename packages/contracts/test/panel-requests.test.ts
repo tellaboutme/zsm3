@@ -41,6 +41,11 @@ describe("panel requests contracts", () => {
     const cursor = { before: "2026-10-22T08:00:00.000Z", beforeId: summary.id };
     expect(panelRequestsQuerySchema.parse(cursor)).toEqual({ ...cursor, limit: 20 });
     expect(panelRequestsQuerySchema.safeParse({ beforeId: summary.id }).success).toBe(false);
+    expect(panelRequestsQuerySchema.safeParse({ beforeId: summary.id }).error?.issues).toEqual([
+      expect.objectContaining({ path: ["beforeId"], message: "beforeId requires before" }),
+    ]);
+    expect(panelRequestsQuerySchema.safeParse({ limit: "1e1" }).success).toBe(false);
+    expect(panelRequestsQuerySchema.safeParse({ limit: "0x10" }).success).toBe(false);
     expect(panelRequestsQuerySchema.safeParse({ ...cursor, beforeId: "not-a-uuid" }).success).toBe(
       false,
     );
@@ -67,17 +72,30 @@ describe("panel requests contracts", () => {
   });
 
   it("parses request transition input", () => {
-    expect(panelRequestTransitionSchema.parse({ to: "in_progress" })).toEqual({
+    expect(
+      panelRequestTransitionSchema.parse({ to: "in_progress", expectedStatus: "submitted" }),
+    ).toEqual({
       to: "in_progress",
+      expectedStatus: "submitted",
     });
-    expect(panelRequestTransitionSchema.parse({ to: "ready" })).toEqual({
+    expect(
+      panelRequestTransitionSchema.parse({ to: "ready", expectedStatus: "in_progress" }),
+    ).toEqual({
       to: "ready",
+      expectedStatus: "in_progress",
     });
     expect(panelRequestTransitionSchema.safeParse({ to: "unknown" }).success).toBe(false);
     expect(panelRequestTransitionSchema.safeParse({ to: "withdrawn" }).success).toBe(false);
     expect(panelRequestTransitionSchema.safeParse({ to: "submitted" }).success).toBe(false);
     expect(panelRequestTransitionSchema.safeParse({}).success).toBe(false);
     expect(panelRequestTransitionSchema.safeParse({ to: "ready", extra: 1 }).success).toBe(false);
+    expect(panelRequestTransitionSchema.safeParse({ to: "ready" }).success).toBe(false);
+    expect(
+      panelRequestTransitionSchema.safeParse({ to: "ready", expectedStatus: "unknown" }).success,
+    ).toBe(false);
+    expect(
+      panelRequestTransitionSchema.safeParse({ to: "ready", expectedStatus: "withdrawn" }).success,
+    ).toBe(true);
   });
 
   it("parses request detail for a live record and for erased personal data", () => {

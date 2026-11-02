@@ -60,7 +60,9 @@ test.describe("staff request detail", () => {
     await expect(page.locator(feedback)).toHaveText("Zapisano. Nowy status: W trakcie.");
     await expect(actions).toHaveText(["Oznacz jako gotowy do odbioru", "Odrzuć wniosek"]);
     await expect(page.locator('[data-panel="request-rows"] .panel-status')).toHaveText("W trakcie");
-    expect(fake.posted).toEqual([{ id: fakeRequest(1).id, to: "in_progress" }]);
+    expect(fake.posted).toEqual([
+      { id: fakeRequest(1).id, to: "in_progress", expectedStatus: "submitted" },
+    ]);
   });
 
   test("asks before rejecting and can be cancelled from the keyboard", async ({ page }) => {
@@ -80,7 +82,9 @@ test.describe("staff request detail", () => {
     await page.keyboard.press("Enter");
     await expect(page.locator(feedback)).toHaveText("Zapisano. Nowy status: Odrzucony.");
     await expect(page.locator('[data-panel="request-actions"] button')).toHaveCount(0);
-    expect(fake.posted).toEqual([{ id: fakeRequest(1).id, to: "rejected" }]);
+    expect(fake.posted).toEqual([
+      { id: fakeRequest(1).id, to: "rejected", expectedStatus: "submitted" },
+    ]);
   });
 
   test("reloads the stored state on a conflict instead of overwriting it", async ({ page }) => {
@@ -96,7 +100,7 @@ test.describe("staff request detail", () => {
     await expect(page.locator('[data-panel="request-actions"] button')).toHaveCount(0);
   });
 
-  test("does not send a change decided on a stale view", async ({ page }) => {
+  test("lets the server refuse a change decided on a stale view", async ({ page }) => {
     const fake = await open(page, [fakeRequest(1)]);
     Object.assign(fake.records[0] ?? {}, {
       status: "in_progress",
@@ -106,7 +110,10 @@ test.describe("staff request detail", () => {
     await page.locator('[data-panel="confirm-yes"]').click();
     await expect(page.locator(feedback)).toContainText("Ktoś inny zmienił ten wniosek");
     await expect(page.locator('[data-panel="request-facts"]')).toContainText("W trakcie");
-    expect(fake.posted).toEqual([]);
+    expect(fake.posted).toEqual([
+      { id: fakeRequest(1).id, to: "rejected", expectedStatus: "submitted" },
+    ]);
+    expect(fake.records[0]?.status).toBe("in_progress");
   });
 
   test("drops the previous request when the next one cannot be loaded", async ({ page }) => {
