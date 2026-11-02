@@ -1,10 +1,12 @@
+import type { PanelStaffRole } from "@zsm3/contracts/panel";
+
 import { STAFF_ROLE_LABELS } from "./staff.ts";
 
 export type GateState = "loading" | "anonymous" | "denied" | "ready" | "error";
 
 export const CONTENT_ROLES: readonly string[] = ["admin", "secretariat", "editor"];
 
-export const REQUEST_ROLES: readonly string[] = ["admin", "secretariat"];
+export const REQUEST_ROLES: readonly PanelStaffRole[] = ["admin", "secretariat"];
 
 const ROLE_LABELS: Readonly<Record<string, string>> = STAFF_ROLE_LABELS;
 

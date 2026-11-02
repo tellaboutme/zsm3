@@ -145,7 +145,10 @@ export function requestFacts(detail: PanelRequestDetail): readonly Fact[] {
   ];
 }
 
-export function listPhrase(count: number, filter: StatusFilter): string {
+export function listPhrase(count: number, filter: StatusFilter, more = false): string {
+  if (count === 0 && more) {
+    return "Na liście nie ma już wniosków. Starsze wczytasz przyciskiem „Pokaż starsze”.";
+  }
   if (count === 0) {
     return filter === "all"
       ? "Nie ma jeszcze żadnych wniosków."
@@ -174,10 +177,6 @@ export function readPhrase(status: number): string {
   return status === CONNECTION_STATUS ? CONNECTION_PHRASE : problemPhrase(status);
 }
 
-export function shouldReload(status: number): boolean {
-  return status === 200 || status === 409 || status === 422 || status === 404;
-}
-
 export function canHandleRequests(role: string): boolean {
-  return REQUEST_ROLES.includes(role);
+  return REQUEST_ROLES.some((allowed) => allowed === role);
 }

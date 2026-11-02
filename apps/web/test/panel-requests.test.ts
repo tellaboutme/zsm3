@@ -72,6 +72,10 @@ describe("requests list", () => {
     expect(listPhrase(0, "all")).toBe("Nie ma jeszcze żadnych wniosków.");
     expect(listPhrase(0, "ready")).toBe("Brak wniosków o statusie „Gotowy do odbioru”.");
     expect(listPhrase(3, "ready")).toBe("Wniosków na liście: 3.");
+    expect(listPhrase(3, "ready", true)).toBe("Wniosków na liście: 3.");
+    expect(listPhrase(0, "ready", true)).toBe(
+      "Na liście nie ma już wniosków. Starsze wczytasz przyciskiem „Pokaż starsze”.",
+    );
   });
 
   it("titles and heads a row without personal data", () => {

@@ -1,10 +1,12 @@
+import type { PanelStaffRole } from "@zsm3/contracts/panel";
+
 import { REQUEST_ROLES } from "../lib/panel/gate.ts";
 
 export interface PanelSection {
   readonly href: string;
   readonly label: string;
   readonly short: string;
-  readonly roles?: readonly string[];
+  readonly roles?: readonly PanelStaffRole[];
 }
 
 export const panelSections: readonly PanelSection[] = [

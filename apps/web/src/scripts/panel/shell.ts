@@ -12,12 +12,8 @@ function presentMe(me: PanelMe): void {
   logout.hidden = false;
 }
 
-function pruneTabs(role: string): void {
-  const tabs = document.querySelector<HTMLElement>('[data-panel="tabs"]');
-  if (tabs === null) {
-    return;
-  }
-  for (const link of tabs.querySelectorAll<HTMLAnchorElement>("a[data-roles]")) {
+export function pruneSections(root: ParentNode, role: string): void {
+  for (const link of root.querySelectorAll<HTMLAnchorElement>("a[data-roles]")) {
     if (!sectionAllowed(link.dataset["roles"], role)) {
       link.closest("li")?.remove();
     }
@@ -29,7 +25,7 @@ export function wireShell(view: GateView, enter: ShellEnter): void {
     if (me !== undefined) {
       presentMe(me);
     }
-    pruneTabs(role);
+    pruneSections(document, role);
     enter(role, me);
   });
 }

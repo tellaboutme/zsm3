@@ -141,7 +141,7 @@ class RequestList {
       return;
     }
     item.remove();
-    speak(status, [listPhrase(rows.children.length, shown)]);
+    speak(status, [listPhrase(rows.children.length, shown, this.listing.cursor !== null)]);
   }
 }
 

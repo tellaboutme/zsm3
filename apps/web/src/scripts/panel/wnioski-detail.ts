@@ -8,7 +8,6 @@ import {
   STALE_DETAIL_PHRASE,
   readPhrase,
   requestTitle,
-  shouldReload,
   staffActions,
   transitionPhrase,
   type StaffAction,
@@ -30,6 +29,8 @@ export class RequestDetail {
     pending: undefined,
     returnTo: undefined,
   };
+
+  private readonly saving = new Set<string>();
 
   private readonly view: DetailView;
 
@@ -89,6 +90,7 @@ export class RequestDetail {
     view.id.textContent = `Wniosek nr ${detail.id}`;
     renderFacts(view, detail);
     view.actions.replaceChildren(...staffActions(detail.status).map((a) => this.actionButton(a)));
+    this.lock();
     this.changed(detail);
   }
 
@@ -97,6 +99,7 @@ export class RequestDetail {
     node.dataset["to"] = action.to;
     node.addEventListener("click", () => {
       if (action.warning === null) {
+        this.close();
         void this.apply(action);
         return;
       }
@@ -116,17 +119,31 @@ export class RequestDetail {
   }
 
   private cancel(): void {
-    const { view, shown } = this;
-    const back = shown.returnTo;
-    shown.pending = undefined;
-    shown.returnTo = undefined;
-    view.confirm.hidden = true;
+    if (this.isSaving()) {
+      return;
+    }
+    const back = this.shown.returnTo;
+    this.close();
     back?.focus();
   }
 
-  private busy(on: boolean): void {
+  private close(): void {
+    const { view, shown } = this;
+    shown.pending = undefined;
+    shown.returnTo = undefined;
+    view.confirm.hidden = true;
+  }
+
+  private isSaving(): boolean {
+    const id = this.shown.detail?.id;
+    return id !== undefined && this.saving.has(id);
+  }
+
+  private lock(): void {
     const { view } = this;
+    const on = this.isSaving();
     view.confirmYes.disabled = on;
+    view.confirmNo.disabled = on;
     for (const node of view.actions.querySelectorAll("button")) {
       node.disabled = on;
     }
@@ -137,13 +154,15 @@ export class RequestDetail {
     if (seen === undefined) {
       return;
     }
-    this.busy(true);
+    this.saving.add(seen.id);
+    this.lock();
     const status = await this.send(seen, action);
     const phrases = [transitionPhrase(status, action.to)];
-    if (shouldReload(status) && !(await this.reload(seen.id))) {
+    this.saving.delete(seen.id);
+    if (!(await this.reload(seen.id))) {
       phrases.push(STALE_DETAIL_PHRASE);
     }
-    this.busy(false);
+    this.lock();
     if (this.shown.wanted === seen.id) {
       speak(this.view.feedback, phrases);
     }
