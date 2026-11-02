@@ -103,7 +103,7 @@ it("keeps the committed edit when the endpoint refuses", async ({ expect }) => {
 
   const edited = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
-    body: newsSaveMutation({ ...SALON, lead: "Poprawiony lead." }),
+    body: newsSaveMutation({ ...SALON, lead: "Poprawiony lead." }, 1),
   });
   const shown = await panelJsonCall(session.harness, "GET", SALON_API_PATH, {
     token: session.token,
@@ -136,10 +136,13 @@ async function savedThroughEnv(host: string | undefined): Promise<readonly strin
     return Promise.resolve(new Response(null, { status: 202 }));
   };
   try {
-    for (const status of ["published", "draft"] as const) {
+    for (const [status, expected] of [
+      ["published", null],
+      ["draft", 0],
+    ] as const) {
       const saved = await panelJsonCall(harness, "PUT", "/pages/kontakt", {
         token,
-        body: pageSaveMutation(CONTACT, status),
+        body: pageSaveMutation(CONTACT, status, expected),
       });
       outbound.push(`status ${String(saved.status)}`);
     }

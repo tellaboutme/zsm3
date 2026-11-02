@@ -70,12 +70,13 @@ async function newsPlan(
     before: current,
     after: restored,
     writes: [
-      deps.repos.revisions.statement(
-        "news",
-        restore.id,
-        JSON.stringify({ ...current, status: row.status }),
-        requirePanelSession(c).email,
-      ),
+      deps.repos.revisions.expectedStatement({
+        entity: "news",
+        entityId: restore.id,
+        dataJson: JSON.stringify({ ...current, status: row.status }),
+        actorEmail: requirePanelSession(c).email,
+        expected: restore.expectedRevision,
+      }),
       ...(await deps.repos.news.saveStatements(restored, row.status)),
     ],
     address: { path: newsPath(current), status: row.status },
@@ -102,12 +103,13 @@ async function pagePlan(
     before: current,
     after: restored,
     writes: [
-      deps.repos.revisions.statement(
-        "pages",
-        restore.id,
-        JSON.stringify({ ...current, status: row.status }),
-        requirePanelSession(c).email,
-      ),
+      deps.repos.revisions.expectedStatement({
+        entity: "pages",
+        entityId: restore.id,
+        dataJson: JSON.stringify({ ...current, status: row.status }),
+        actorEmail: requirePanelSession(c).email,
+        expected: restore.expectedRevision,
+      }),
       ...deps.repos.pages.saveStatements(restored, row.status),
     ],
     address: { path: current.path, status: row.status },
@@ -132,12 +134,13 @@ async function datasetPlan(
     before: { [key.data]: current.data },
     after: { [key.data]: data },
     writes: [
-      deps.repos.revisions.statement(
-        "datasets",
-        key.data,
-        JSON.stringify(current.data),
-        requirePanelSession(c).email,
-      ),
+      deps.repos.revisions.expectedStatement({
+        entity: "datasets",
+        entityId: key.data,
+        dataJson: JSON.stringify(current.data),
+        actorEmail: requirePanelSession(c).email,
+        expected: restore.expectedRevision,
+      }),
       deps.repos.datasets.saveStatement(key.data, data),
     ],
   };

@@ -21,6 +21,7 @@ import {
   SELECT_PUBLISHED,
   SELECT_RELATED,
   SELECT_YEARS,
+  INSERT_NEWS,
   UPSERT_NEWS,
 } from "./news-sql.ts";
 import { insertDocument, removeDocument } from "./search-sql.ts";
@@ -43,6 +44,7 @@ export interface Neighbours {
 export interface NewsRepo {
   save(item: News, status: PublicationStatus): Promise<void>;
   saveStatements(item: News, status: PublicationStatus): Promise<readonly SqlStatement[]>;
+  createStatements(item: News, status: PublicationStatus): Promise<readonly SqlStatement[]>;
   published(filter: NewsFilter, page: NewsPage): Promise<readonly News[]>;
   countPublished(filter: NewsFilter): Promise<number>;
   find(year: string, slug: string): Promise<News | undefined>;
@@ -108,6 +110,7 @@ async function saveNews(
   { db, clock, random }: Store,
   item: News,
   status: PublicationStatus,
+  sql: string = UPSERT_NEWS,
 ): Promise<readonly SqlStatement[]> {
   const news = newsSchema.parse(item);
   const now = timestamp(clock);
@@ -119,7 +122,7 @@ async function saveNews(
   const doc = newsDocument(id, news);
   return [
     db
-      .prepare(UPSERT_NEWS)
+      .prepare(sql)
       .bind(
         id,
         news.slug,
@@ -186,6 +189,7 @@ export function newsRepo(store: Store): NewsRepo {
       await db.batch([...(await saveNews(store, item, status))]);
     },
     saveStatements: async (item, status) => saveNews(store, item, status),
+    createStatements: async (item, status) => saveNews(store, item, status, INSERT_NEWS),
     published: async (filter, page) => publishedNews(db, filter, page),
     countPublished: async (filter) => countNews(db, filter),
     find: async (year, slug) => oneNews(db.prepare(SELECT_ONE).bind(year, slug)),

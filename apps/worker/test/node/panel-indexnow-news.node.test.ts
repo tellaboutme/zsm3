@@ -15,11 +15,11 @@ it("announces an edit of a published article under its canonical address", async
 
   const edited = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
-    body: newsSaveMutation({ ...SALON, lead: "Nowy lead relacji." }),
+    body: newsSaveMutation({ ...SALON, lead: "Nowy lead relacji." }, 1),
   });
 
   expect(edited.status).toBe(200);
-  expect(await edited.json()).toEqual({ ok: true });
+  expect(await edited.json()).toEqual({ ok: true, revision: 2 });
   expect(session.pegs).toEqual([[CANONICAL]]);
 });
 
@@ -42,7 +42,7 @@ it("announces the same address the sitemap lists", async ({ expect }) => {
   await publishedSalon(session);
   await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
-    body: newsSaveMutation({ ...SALON, title: "Salon Maturzystow 2026" }),
+    body: newsSaveMutation({ ...SALON, title: "Salon Maturzystow 2026" }, 1),
   });
 
   const entries = await sitemapRepo(liveStore(session.harness.env.DB)).published();
@@ -57,7 +57,7 @@ it("keeps quiet when a published article is saved without changes", async ({ exp
 
   const saved = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
-    body: newsSaveMutation(SALON),
+    body: newsSaveMutation(SALON, 1),
   });
 
   expect(saved.status).toBe(200);
@@ -73,7 +73,7 @@ it("keeps quiet while a draft is edited", async ({ expect }) => {
 
   const edited = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
-    body: newsSaveMutation({ ...SALON, title: "Salon Maturzystow 2026" }),
+    body: newsSaveMutation({ ...SALON, title: "Salon Maturzystow 2026" }, 0),
   });
 
   expect(edited.status).toBe(200);
@@ -86,7 +86,7 @@ it("keeps quiet when an edit is refused", async ({ expect }) => {
 
   const moved = await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
-    body: newsSaveMutation(sampleNews("inny-salon", "Salon")),
+    body: newsSaveMutation(sampleNews("inny-salon", "Salon"), 1),
   });
 
   await expectProblem(moved, 422);
@@ -99,11 +99,11 @@ it("announces the withdrawn address once when an article is unpublished", async 
 
   const unpublished = await panelJsonCall(session.harness, "PATCH", SALON_API_PATH, {
     token: session.token,
-    body: newsStatusMutation("unpublish"),
+    body: newsStatusMutation("unpublish", 1),
   });
   const again = await panelJsonCall(session.harness, "PATCH", SALON_API_PATH, {
     token: session.token,
-    body: newsStatusMutation("unpublish"),
+    body: newsStatusMutation("unpublish", 2),
   });
 
   expect(unpublished.status).toBe(200);
@@ -118,14 +118,14 @@ it("does not announce a repeated publication", async ({ expect }) => {
 
   const again = await panelJsonCall(session.harness, "PATCH", SALON_API_PATH, {
     token: session.token,
-    body: newsStatusMutation("publish"),
+    body: newsStatusMutation("publish", 1),
   });
 
   await expectProblem(again, 422);
   expect(session.pegs).toEqual([]);
 });
 
-it("announces each of two concurrent edits that both commit", async ({ expect }) => {
+it("lets only one of two concurrent edits from the same revision commit", async ({ expect }) => {
   const session = await indexNowSession();
   await publishedSalon(session);
 
@@ -133,11 +133,11 @@ it("announces each of two concurrent edits that both commit", async ({ expect })
     ["Pierwsza poprawka.", "Druga poprawka."].map(async (lead) =>
       panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
         token: session.token,
-        body: newsSaveMutation({ ...SALON, lead }),
+        body: newsSaveMutation({ ...SALON, lead }, 1),
       }),
     ),
   );
 
-  expect(edits.map((edit) => edit.status)).toEqual([200, 200]);
-  expect(session.pegs).toEqual([[CANONICAL], [CANONICAL]]);
+  expect(edits.map((edit) => edit.status).toSorted((a, b) => a - b)).toEqual([200, 409]);
+  expect(session.pegs).toEqual([[CANONICAL]]);
 });

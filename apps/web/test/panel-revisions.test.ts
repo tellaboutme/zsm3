@@ -1,6 +1,13 @@
 import { it } from "vitest";
 
-import { restoreMutation, revisionLine, revisionsPath } from "../src/lib/panel/revisions.ts";
+import {
+  latestRevision,
+  restoreMutation,
+  revisionLine,
+  revisionsPath,
+  savedRevision,
+  type RevisionSummary,
+} from "../src/lib/panel/revisions.ts";
 
 it("addresses the version list of one item", ({ expect }) => {
   expect(revisionsPath("pages", "/szkola/historia")).toBe(
@@ -27,10 +34,32 @@ it("describes a version in Polish and Warsaw time", ({ expect }) => {
 });
 
 it("asks to restore a version", ({ expect }) => {
-  expect(restoreMutation("news", "2026/salon", 2)).toEqual({
+  expect(restoreMutation("news", "2026/salon", 2, 7)).toEqual({
     entity: "revisions",
     target: "news",
     id: "2026/salon",
     revision: 2,
+    expectedRevision: 7,
   });
+});
+
+it("takes the newest listed version as the one being replaced", ({ expect }) => {
+  const at = "2026-10-01T08:00:00.000Z";
+  const version = (revision: number): RevisionSummary => ({
+    revision,
+    at,
+    actorEmail: null,
+    title: "Salon",
+    status: "draft",
+  });
+  expect(latestRevision([])).toBe(0);
+  expect(latestRevision([version(4), version(9), version(2)])).toBe(9);
+});
+
+it("reads the revision a save answers with", ({ expect }) => {
+  expect(savedRevision({ ok: true, revision: 3 })).toBe(3);
+  expect(savedRevision({ ok: true, revision: 0 })).toBe(0);
+  expect(savedRevision({ ok: true })).toBeUndefined();
+  expect(savedRevision({ ok: true, revision: -1 })).toBeUndefined();
+  expect(savedRevision(undefined)).toBeUndefined();
 });

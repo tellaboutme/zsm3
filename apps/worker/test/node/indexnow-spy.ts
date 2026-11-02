@@ -1,4 +1,4 @@
-import { newsSaveMutation, sampleNews, staffMember } from "./panel-fixtures.ts";
+import { newsSaveMutation, newsStatusMutation, sampleNews, staffMember } from "./panel-fixtures.ts";
 import {
   panelHarness,
   panelJsonCall,
@@ -55,7 +55,7 @@ export async function publishedSalon(session: IndexNowSession): Promise<void> {
   });
   const published = await panelJsonCall(harness, "PATCH", SALON_API_PATH, {
     token,
-    body: { entity: "news", mutation: { action: "publish" } },
+    body: newsStatusMutation("publish", 0),
   });
   if (created.status !== 201 || published.status !== 200 || pegs.length !== 1) {
     throw new Error("the published article fixture could not be prepared");

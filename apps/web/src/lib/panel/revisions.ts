@@ -1,4 +1,8 @@
-import type { PanelRevisionRestore, RevisionTarget } from "@zsm3/contracts/revisions";
+import {
+  panelSavedSchema,
+  type PanelRevisionRestore,
+  type RevisionTarget,
+} from "@zsm3/contracts/revisions";
 
 export interface RevisionSummary {
   readonly revision: number;
@@ -32,6 +36,16 @@ export function restoreMutation(
   target: RevisionTarget,
   id: string,
   revision: number,
+  expectedRevision: number,
 ): PanelRevisionRestore {
-  return { entity: "revisions", target, id, revision };
+  return { entity: "revisions", target, id, revision, expectedRevision };
+}
+
+export function latestRevision(items: readonly RevisionSummary[]): number {
+  return Math.max(0, ...items.map((item) => item.revision));
+}
+
+export function savedRevision(data: unknown): number | undefined {
+  const saved = panelSavedSchema.safeParse(data);
+  return saved.success ? saved.data.revision : undefined;
 }

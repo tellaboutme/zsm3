@@ -15,17 +15,19 @@ export interface NewsRevision {
   readonly status: PublicationStatus;
   readonly action: "update" | "publish" | "unpublish";
   readonly fields: readonly string[];
+  readonly expected: number;
 }
 
 export async function revisedNewsStatements(plan: NewsRevision): Promise<readonly SqlStatement[]> {
   const { deps, session, ref, previous, previousStatus, next, status, action, fields } = plan;
   return [
-    deps.repos.revisions.statement(
-      "news",
-      ref.id,
-      JSON.stringify({ ...previous, status: previousStatus }),
-      session.email,
-    ),
+    deps.repos.revisions.expectedStatement({
+      entity: "news",
+      entityId: ref.id,
+      dataJson: JSON.stringify({ ...previous, status: previousStatus }),
+      actorEmail: session.email,
+      expected: plan.expected,
+    }),
     ...(await deps.repos.news.saveStatements(next, status)),
     deps.repos.audit.statement(
       auditEntry({ session, action: `news.${action}`, entity: "news", entityId: ref.id, fields }),

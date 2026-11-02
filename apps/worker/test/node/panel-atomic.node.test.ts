@@ -48,7 +48,7 @@ it("commits news updates, revisions and audit in one batch", async ({ expect }) 
 
   const updated = await panelJsonCall(harness, "PUT", "/news/2026/salon-maturzystow", {
     token,
-    body: newsSaveMutation(sampleNews("salon-maturzystow", "Salon Maturzystow 2026")),
+    body: newsSaveMutation(sampleNews("salon-maturzystow", "Salon Maturzystow 2026"), 0),
   });
   expect(updated.status).toBe(200);
   expect(harness.batches.length).toBe(beforeBatches + 1);
@@ -65,7 +65,7 @@ it("commits news updates, revisions and audit in one batch", async ({ expect }) 
   await expectProblem(
     await panelJsonCall(harness, "PUT", "/news/2026/salon-maturzystow", {
       token,
-      body: newsSaveMutation(sampleNews("salon-maturzystow", "Inny tytul")),
+      body: newsSaveMutation(sampleNews("salon-maturzystow", "Inny tytul"), 1),
     }),
     500,
   );
@@ -90,7 +90,7 @@ it("commits publish flips, revisions and audit in one batch", async ({ expect })
 
   const published = await panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
     token,
-    body: newsStatusMutation("publish"),
+    body: newsStatusMutation("publish", 0),
   });
   expect(published.status).toBe(200);
   expect(harness.batches.length).toBe(beforeBatches + 1);
@@ -104,7 +104,7 @@ it("commits publish flips, revisions and audit in one batch", async ({ expect })
   await expectProblem(
     await panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
       token,
-      body: newsStatusMutation("unpublish"),
+      body: newsStatusMutation("unpublish", 1),
     }),
     500,
   );
@@ -137,7 +137,7 @@ it("commits page saves and their audit rows in a single batch", async ({ expect 
 
   const revised = await panelJsonCall(harness, "PUT", "/pages/kontakt", {
     token,
-    body: pageSaveMutation(samplePage("/kontakt", "Kontakty"), "draft"),
+    body: pageSaveMutation(samplePage("/kontakt", "Kontakty"), "draft", 0),
   });
   expect(revised.status).toBe(200);
   expect(harness.batches.at(-1)).toHaveLength(4);
@@ -149,7 +149,7 @@ it("commits page saves and their audit rows in a single batch", async ({ expect 
   await expectProblem(
     await panelJsonCall(harness, "PUT", "/pages/kontakt", {
       token,
-      body: pageSaveMutation(samplePage("/kontakt", "Nowy kontakt"), "draft"),
+      body: pageSaveMutation(samplePage("/kontakt", "Nowy kontakt"), "draft", 1),
     }),
     500,
   );

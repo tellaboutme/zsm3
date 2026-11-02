@@ -4,23 +4,26 @@ import { indexNowSession, publishedSalon, SALON, SALON_API_PATH } from "./indexn
 import { newsSaveMutation, pageSaveMutation, samplePage } from "./panel-fixtures.ts";
 import { panelJsonCall } from "./panel-support.ts";
 
-function restoreBody(target: string, id: string, revision: number): unknown {
-  return { entity: "revisions", target, id, revision };
+function restoreBody(target: string, id: string, revision: number, expected: number): unknown {
+  return { entity: "revisions", target, id, revision, expectedRevision: expected };
 }
 
 it("announces a restored version of a public page", async ({ expect }) => {
   const session = await indexNowSession();
-  for (const title of ["Kontakt", "Kontakt i dojazd"]) {
+  for (const [title, expected] of [
+    ["Kontakt", null],
+    ["Kontakt i dojazd", 0],
+  ] as const) {
     await panelJsonCall(session.harness, "PUT", "/pages/kontakt", {
       token: session.token,
-      body: pageSaveMutation(samplePage("/kontakt", title), "published"),
+      body: pageSaveMutation(samplePage("/kontakt", title), "published", expected),
     });
   }
   session.pegs.length = 0;
 
   const restored = await panelJsonCall(session.harness, "POST", "/revisions/restore", {
     token: session.token,
-    body: restoreBody("pages", "/kontakt", 1),
+    body: restoreBody("pages", "/kontakt", 1, 1),
   });
 
   expect(restored.status).toBe(200);
@@ -32,13 +35,13 @@ it("announces a restored version of a published article", async ({ expect }) => 
   await publishedSalon(session);
   await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
-    body: newsSaveMutation({ ...SALON, title: "Salon Maturzystow 2026" }),
+    body: newsSaveMutation({ ...SALON, title: "Salon Maturzystow 2026" }, 1),
   });
   session.pegs.length = 0;
 
   const restored = await panelJsonCall(session.harness, "POST", "/revisions/restore", {
     token: session.token,
-    body: restoreBody("news", "2026/salon-maturzystow", 2),
+    body: restoreBody("news", "2026/salon-maturzystow", 2, 2),
   });
 
   expect(restored.status).toBe(200);
@@ -51,7 +54,7 @@ it("keeps quiet when a restored version equals the current one", async ({ expect
 
   const restored = await panelJsonCall(session.harness, "POST", "/revisions/restore", {
     token: session.token,
-    body: restoreBody("news", "2026/salon-maturzystow", 1),
+    body: restoreBody("news", "2026/salon-maturzystow", 1, 1),
   });
 
   expect(restored.status).toBe(200);
@@ -60,10 +63,13 @@ it("keeps quiet when a restored version equals the current one", async ({ expect
 
 it("keeps quiet when a draft page or article is restored", async ({ expect }) => {
   const session = await indexNowSession();
-  for (const title of ["Kontakt", "Kontakt i dojazd"]) {
+  for (const [title, expected] of [
+    ["Kontakt", null],
+    ["Kontakt i dojazd", 0],
+  ] as const) {
     await panelJsonCall(session.harness, "PUT", "/pages/kontakt", {
       token: session.token,
-      body: pageSaveMutation(samplePage("/kontakt", title), "draft"),
+      body: pageSaveMutation(samplePage("/kontakt", title), "draft", expected),
     });
   }
   await panelJsonCall(session.harness, "POST", "/news", {
@@ -72,7 +78,7 @@ it("keeps quiet when a draft page or article is restored", async ({ expect }) =>
   });
   await panelJsonCall(session.harness, "PUT", SALON_API_PATH, {
     token: session.token,
-    body: newsSaveMutation({ ...SALON, title: "Inny tytul" }),
+    body: newsSaveMutation({ ...SALON, title: "Inny tytul" }, 0),
   });
 
   for (const [target, id] of [
@@ -81,7 +87,7 @@ it("keeps quiet when a draft page or article is restored", async ({ expect }) =>
   ] as const) {
     const restored = await panelJsonCall(session.harness, "POST", "/revisions/restore", {
       token: session.token,
-      body: restoreBody(target, id, 1),
+      body: restoreBody(target, id, 1, 1),
     });
     expect(restored.status).toBe(200);
   }

@@ -15,6 +15,7 @@ import {
   type SectionDraft,
   type SectionRow,
 } from "../../lib/panel/page-edit.ts";
+import { savedRevision } from "../../lib/panel/revisions.ts";
 
 export interface PageForm {
   readonly open: (path: string) => void;
@@ -26,7 +27,13 @@ interface Parts {
   readonly sections: HTMLElement;
   readonly editors: Map<HTMLElement, BlocksUi>;
   readonly kept: Map<HTMLElement, readonly ContentBlock[]>;
+  readonly loaded: LoadedVersion;
   readonly onSaved: () => void;
+}
+
+interface LoadedVersion {
+  path: string;
+  revision: number | null;
 }
 
 const NAMES: readonly string[] = ["path", "kicker", "title", "intro"];
@@ -38,6 +45,7 @@ function partsFor(section: HTMLElement, onSaved: () => void): Parts {
     sections: area(section, "sections"),
     editors: new Map(),
     kept: new Map(),
+    loaded: { path: "", revision: null },
     onSaved,
   };
 }
@@ -141,7 +149,14 @@ function applyView(parts: Parts, view: PanelPageView): void {
   noteOf(parts, "Wczytano stronę.");
 }
 
+function remember(parts: Parts, path: string, revision: number | null): void {
+  const { loaded } = parts;
+  loaded.path = path;
+  loaded.revision = revision;
+}
+
 async function loadInto(parts: Parts, path: string): Promise<void> {
+  remember(parts, "", null);
   parts.editors.clear();
   parts.kept.clear();
   parts.sections.replaceChildren();
@@ -161,6 +176,7 @@ async function loadInto(parts: Parts, path: string): Promise<void> {
     return;
   }
   applyView(parts, view);
+  remember(parts, view.item.path, view.revision);
 }
 
 async function commit(parts: Parts): Promise<void> {
@@ -170,14 +186,21 @@ async function commit(parts: Parts): Promise<void> {
     return;
   }
   const status = inputValue(parts.form, "status") === "published" ? "published" : "draft";
-  const path = `/api/panel/pages${inputValue(parts.form, "path")}`;
-  const response = await panelSend("PUT", path, pageSave(candidate.page, status));
-  if (response.ok) {
-    noteOf(parts, "Zapisano stronę.");
-    parts.onSaved();
+  const { page } = candidate;
+  const expected = parts.loaded.path === page.path ? parts.loaded.revision : null;
+  const response = await panelSend(
+    "PUT",
+    `/api/panel/pages${page.path}`,
+    pageSave(page, status, expected),
+  );
+  const revision = savedRevision(response.data);
+  if (!response.ok || revision === undefined) {
+    noteOf(parts, problemPhrase(response.status));
     return;
   }
-  noteOf(parts, problemPhrase(response.status));
+  remember(parts, page.path, revision);
+  noteOf(parts, "Zapisano stronę.");
+  parts.onSaved();
 }
 
 export function wirePageForm(section: HTMLElement, onSaved: () => void): PageForm {

@@ -1,4 +1,5 @@
-import { panelNewsListSchema, panelNewsViewSchema, panelOkSchema } from "@zsm3/contracts/panel";
+import { panelNewsListSchema, panelNewsViewSchema } from "@zsm3/contracts/panel";
+import { panelSavedSchema } from "@zsm3/contracts/revisions";
 import { it } from "vitest";
 import { z } from "zod";
 
@@ -41,7 +42,7 @@ it("creates a draft and writes the audit trail", async ({ expect }) => {
   });
   expect(created.status).toBe(201);
   const createdOk: unknown = await created.json();
-  expect(panelOkSchema.parse(createdOk)).toEqual({ ok: true });
+  expect(panelSavedSchema.parse(createdOk)).toEqual({ ok: true, revision: 0 });
 
   const list = await panelJsonCall(harness, "GET", "/news", { token });
   const rawPage: unknown = await list.json();
@@ -172,7 +173,7 @@ it("notifies again when the article is unpublished", async ({ expect }) => {
 
   const unpublished = await panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
     token,
-    body: newsStatusMutation("unpublish"),
+    body: newsStatusMutation("unpublish", 1),
   });
   expect(unpublished.status).toBe(200);
   expect(pegs).toEqual([
