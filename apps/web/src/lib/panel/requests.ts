@@ -3,6 +3,7 @@ import {
   type PanelRequestsList,
   type StaffTargetStatus,
 } from "@zsm3/contracts/panel-requests";
+import { requestStatusLabels } from "@zsm3/contracts/request-labels";
 import {
   documentTypeLabels,
   requestStatusSchema,
@@ -12,16 +13,13 @@ import {
 } from "@zsm3/contracts/requests";
 
 import { CONNECTION_PHRASE, CONNECTION_STATUS, problemPhrase } from "./api.ts";
-import { panelMoment } from "./audit.ts";
+import { panelMoment as moment } from "./audit.ts";
+import { REQUEST_ROLES } from "./gate.ts";
 
-export const REQUEST_STATUS_LABELS: Readonly<Record<RequestStatus, string>> = {
-  submitted: "Złożony",
-  in_progress: "W realizacji",
-  ready: "Gotowy do odbioru",
-  collected: "Odebrany",
-  rejected: "Odrzucony",
-  withdrawn: "Wycofany przez wnioskodawcę",
-};
+export const REQUEST_STATUS_LABELS: Readonly<Record<RequestStatus, string>> = requestStatusLabels;
+
+export const STALE_DETAIL_PHRASE =
+  "Nie udało się wczytać aktualnego stanu wniosku. Otwórz go ponownie z listy.";
 
 export interface RequestsCursor {
   readonly before: string;
@@ -59,8 +57,6 @@ const ACTIONS: Readonly<Record<StaffTargetStatus, Omit<StaffAction, "to">>> = {
       "Wnioskodawca dostanie e-mail o odrzuceniu. Wniosek zostanie zamknięty i tej zmiany nie można cofnąć.",
   },
 };
-
-export const moment = panelMoment;
 
 export function statusFilter(value: string): StatusFilter {
   const parsed = requestStatusSchema.safeParse(value);
@@ -180,5 +176,5 @@ export function shouldReload(status: number): boolean {
 }
 
 export function canHandleRequests(role: string): boolean {
-  return role === "admin" || role === "secretariat";
+  return REQUEST_ROLES.includes(role);
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { requestNextStatuses, staffNextStatuses } from "../src/panel-requests.ts";
+import { requestStatusLabels } from "../src/request-labels.ts";
 
 describe("request transitions", () => {
   it("lists every next status of the lifecycle", () => {
@@ -11,6 +12,17 @@ describe("request transitions", () => {
       collected: [],
       rejected: [],
       withdrawn: [],
+    });
+  });
+
+  it("names every status the same way for applicants and staff", () => {
+    expect(requestStatusLabels).toEqual({
+      submitted: "Złożony",
+      in_progress: "W trakcie",
+      ready: "Gotowy do odbioru",
+      collected: "Odebrany",
+      rejected: "Odrzucony",
+      withdrawn: "Wycofany",
     });
   });
 

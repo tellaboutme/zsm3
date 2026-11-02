@@ -4,6 +4,8 @@ export type GateState = "loading" | "anonymous" | "denied" | "ready" | "error";
 
 export const CONTENT_ROLES: readonly string[] = ["admin", "secretariat", "editor"];
 
+export const REQUEST_ROLES: readonly string[] = ["admin", "secretariat"];
+
 const ROLE_LABELS: Readonly<Record<string, string>> = STAFF_ROLE_LABELS;
 
 export function gateDecision(status: number, email: unknown): GateState {

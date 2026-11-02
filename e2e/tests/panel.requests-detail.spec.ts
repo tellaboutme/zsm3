@@ -57,11 +57,9 @@ test.describe("staff request detail", () => {
     await expect(page.getByRole("button", { name: /Wycof/u })).toHaveCount(0);
 
     await page.getByRole("button", { name: "Przyjmij do realizacji" }).click();
-    await expect(page.locator(feedback)).toHaveText("Zapisano. Nowy status: W realizacji.");
+    await expect(page.locator(feedback)).toHaveText("Zapisano. Nowy status: W trakcie.");
     await expect(actions).toHaveText(["Oznacz jako gotowy do odbioru", "Odrzuć wniosek"]);
-    await expect(page.locator('[data-panel="request-rows"] .panel-status')).toHaveText(
-      "W realizacji",
-    );
+    await expect(page.locator('[data-panel="request-rows"] .panel-status')).toHaveText("W trakcie");
     expect(fake.posted).toEqual([{ id: fakeRequest(1).id, to: "in_progress" }]);
   });
 
@@ -107,8 +105,23 @@ test.describe("staff request detail", () => {
     await page.getByRole("button", { name: "Odrzuć wniosek" }).click();
     await page.locator('[data-panel="confirm-yes"]').click();
     await expect(page.locator(feedback)).toContainText("Ktoś inny zmienił ten wniosek");
-    await expect(page.locator('[data-panel="request-facts"]')).toContainText("W realizacji");
+    await expect(page.locator('[data-panel="request-facts"]')).toContainText("W trakcie");
     expect(fake.posted).toEqual([]);
+  });
+
+  test("drops the previous request when the next one cannot be loaded", async ({ page }) => {
+    await open(page, [fakeRequest(2), fakeRequest(1)]);
+    await expect(page.locator('[data-panel="request-actions"] button')).toHaveCount(2);
+    await page.route(`**/api/panel/requests/${fakeRequest(1).id}`, async (route) =>
+      route.fulfill({ status: 500, contentType: "application/problem+json", body: "{}" }),
+    );
+    await page.getByRole("button", { name: `Szczegóły wniosku nr ${fakeRequest(1).id}` }).click();
+    await expect(page.locator(feedback)).toHaveText(
+      "Błąd serwera. Odczekaj chwilę i spróbuj ponownie.",
+    );
+    await expect(page.locator('[data-panel="request-actions"] button')).toHaveCount(0);
+    await expect(page.locator('[data-panel="request-facts"]')).toBeEmpty();
+    await expect(page.locator('[data-panel="request-title"]')).toHaveText("Szczegóły wniosku");
   });
 
   test("reports a refused transition and a lost connection", async ({ page }) => {

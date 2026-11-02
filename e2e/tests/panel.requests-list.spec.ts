@@ -56,6 +56,41 @@ test.describe("staff requests list", () => {
     await expect(page.locator(status)).toHaveText("Brak wniosków o statusie „Odrzucony”.");
   });
 
+  test("keeps the open request marked and drops rows that leave the filter", async ({ page }) => {
+    await fakePanel(page, "secretariat", [fakeRequest(1), fakeRequest(2)]);
+    await page.goto("/panel/wnioski");
+    await page.getByLabel("Status").selectOption("submitted");
+    await expect(page.locator(rows)).toHaveCount(2);
+    await page.getByRole("button", { name: `Szczegóły wniosku nr ${fakeRequest(2).id}` }).click();
+    await page.getByRole("button", { name: "Odśwież listę" }).click();
+    await expect(page.locator(`${rows}[aria-current="true"]`)).toHaveAttribute(
+      "data-request",
+      fakeRequest(2).id,
+    );
+
+    await page.getByRole("button", { name: "Przyjmij do realizacji" }).click();
+    await expect(page.locator('[data-panel="request-feedback"]')).toHaveText(
+      "Zapisano. Nowy status: W trakcie.",
+    );
+    await expect(page.locator(rows)).toHaveCount(1);
+    await expect(page.locator(status)).toHaveText("Wniosków na liście: 1.");
+  });
+
+  test("clears the list when a new filter cannot be loaded", async ({ page }) => {
+    await fakePanel(page, "secretariat", [fakeRequest(1), fakeRequest(2), fakeRequest(3)]);
+    await page.goto("/panel/wnioski");
+    await expect(page.getByRole("button", { name: "Pokaż starsze" })).toBeVisible();
+    await page.route("**/api/panel/requests?status=ready", async (route) =>
+      route.fulfill({ status: 500, contentType: "application/problem+json", body: "{}" }),
+    );
+    await page.getByLabel("Status").selectOption("ready");
+    await expect(page.locator(status)).toHaveText(
+      "Błąd serwera. Odczekaj chwilę i spróbuj ponownie.",
+    );
+    await expect(page.locator(rows)).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Pokaż starsze" })).toBeHidden();
+  });
+
   test("tells the secretariat when there are no requests yet", async ({ page }) => {
     await fakePanel(page, "secretariat", []);
     await page.goto("/panel/wnioski");

@@ -11,6 +11,7 @@
     "./fold": "./src/fold.ts",
     "./search": "./src/search.ts",
     "./requests": "./src/requests.ts",
+    "./request-labels": "./src/request-labels.ts",
     "./panel": "./src/panel.ts",
     "./panel-requests": "./src/panel-requests.ts",
     "./indexnow": "./src/indexnow.ts",

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { CONNECTION_STATUS } from "../src/lib/panel/api.ts";
 import {
   REQUEST_STATUS_LABELS,
+  STALE_DETAIL_PHRASE,
   canHandleRequests,
   listPhrase,
   nextCursor,
@@ -179,11 +180,11 @@ describe("request detail", () => {
   it("labels every status", () => {
     expect(REQUEST_STATUS_LABELS).toEqual({
       submitted: "Złożony",
-      in_progress: "W realizacji",
+      in_progress: "W trakcie",
       ready: "Gotowy do odbioru",
       collected: "Odebrany",
       rejected: "Odrzucony",
-      withdrawn: "Wycofany przez wnioskodawcę",
+      withdrawn: "Wycofany",
     });
   });
 });
@@ -197,6 +198,9 @@ describe("transition outcome", () => {
       "Brak połączenia z serwerem. Spróbuj ponownie. Status wniosku mógł się nie zmienić.",
     );
     expect(transitionPhrase(403, "collected")).toBe("Brak uprawnień do tej czynności.");
+    expect(STALE_DETAIL_PHRASE).toBe(
+      "Nie udało się wczytać aktualnego stanu wniosku. Otwórz go ponownie z listy.",
+    );
     expect(readPhrase(CONNECTION_STATUS)).toBe("Brak połączenia z serwerem. Spróbuj ponownie.");
     expect(readPhrase(404)).toBe("Nie znaleziono elementu. Odśwież listę.");
     for (const status of [200, 404, 409, 422]) {

@@ -80,16 +80,19 @@ class RequestList {
     parts.more.disabled = false;
     parts.rows.removeAttribute("aria-busy");
     const list = parse(panelRequestsListSchema, response.data);
+    if (reset) {
+      parts.rows.replaceChildren();
+      listing.cursor = null;
+      parts.more.hidden = true;
+    }
     if (list === undefined) {
       speak(parts.status, [readPhrase(response.status)]);
       return;
     }
-    if (reset) {
-      parts.rows.replaceChildren();
-    }
     parts.rows.append(...list.items.map((item) => this.row(item)));
     listing.cursor = nextCursor(list);
     parts.more.hidden = listing.cursor === null;
+    this.mark();
     speak(parts.status, [listPhrase(parts.rows.children.length, filter)]);
   }
 
@@ -127,8 +130,18 @@ class RequestList {
   }
 
   update(summary: PanelRequestSummary): void {
-    const item = this.parts.rows.querySelector<HTMLElement>(`li[data-request="${summary.id}"]`);
-    item?.querySelector(".panel-status")?.replaceWith(badge(summary));
+    const { rows, filter, status } = this.parts;
+    const item = rows.querySelector<HTMLElement>(`li[data-request="${summary.id}"]`);
+    if (item === null) {
+      return;
+    }
+    const shown = statusFilter(filter.value);
+    if (shown === "all" || shown === summary.status) {
+      item.querySelector(".panel-status")?.replaceWith(badge(summary));
+      return;
+    }
+    item.remove();
+    speak(status, [listPhrase(rows.children.length, shown)]);
   }
 }
 

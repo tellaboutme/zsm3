@@ -1,9 +1,10 @@
 import type { PanelRequestDetail } from "@zsm3/contracts/requests";
 
 import { button, speak } from "./dom.ts";
-import { fetchDetail, hideConfirm, renderFacts, type DetailView } from "./wnioski-view.ts";
+import { clearDetail, fetchDetail, renderFacts, type DetailView } from "./wnioski-view.ts";
 import { panelSend } from "../../lib/panel/api.ts";
 import {
+  STALE_DETAIL_PHRASE,
   readPhrase,
   requestTitle,
   shouldReload,
@@ -55,6 +56,7 @@ export class RequestDetail {
   async open(id: string): Promise<void> {
     const { view, shown } = this;
     shown.wanted = id;
+    this.forget();
     view.root.hidden = false;
     speak(view.feedback, ["Wczytuję wniosek…"]);
     const result = await fetchDetail(id);
@@ -70,10 +72,18 @@ export class RequestDetail {
     view.title.focus();
   }
 
+  private forget(): void {
+    const { shown } = this;
+    shown.detail = undefined;
+    shown.pending = undefined;
+    shown.returnTo = undefined;
+    clearDetail(this.view);
+  }
+
   private render(detail: PanelRequestDetail): void {
     const { view, shown } = this;
+    this.forget();
     shown.detail = detail;
-    hideConfirm(view, shown);
     view.title.textContent = requestTitle(detail);
     view.id.textContent = `Wniosek nr ${detail.id}`;
     renderFacts(view, detail);
@@ -106,8 +116,11 @@ export class RequestDetail {
 
   private cancel(): void {
     const { view, shown } = this;
-    hideConfirm(view, shown);
-    shown.returnTo?.focus();
+    const back = shown.returnTo;
+    shown.pending = undefined;
+    shown.returnTo = undefined;
+    view.confirm.hidden = true;
+    back?.focus();
   }
 
   private busy(on: boolean): void {
@@ -125,12 +138,14 @@ export class RequestDetail {
     }
     this.busy(true);
     const status = await this.send(seen, action);
-    this.busy(false);
-    const phrase = transitionPhrase(status, action.to);
-    if (shouldReload(status)) {
-      await this.reload(seen.id);
+    const phrases = [transitionPhrase(status, action.to)];
+    if (shouldReload(status) && !(await this.reload(seen.id))) {
+      phrases.push(STALE_DETAIL_PHRASE);
     }
-    speak(this.view.feedback, [phrase]);
+    this.busy(false);
+    if (this.shown.wanted === seen.id) {
+      speak(this.view.feedback, phrases);
+    }
   }
 
   private async send(seen: PanelRequestDetail, action: StaffAction): Promise<number> {
@@ -146,11 +161,21 @@ export class RequestDetail {
     return response.status;
   }
 
-  private async reload(id: string): Promise<void> {
+  private async reload(id: string): Promise<boolean> {
     const result = await fetchDetail(id);
-    if (result.detail !== undefined) {
-      this.render(result.detail);
+    const current = this.shown.wanted === id;
+    if (result.detail === undefined) {
+      if (current) {
+        this.forget();
+      }
+      return false;
     }
+    if (!current) {
+      this.changed(result.detail);
+      return true;
+    }
+    this.render(result.detail);
     this.view.title.focus();
+    return true;
   }
 }

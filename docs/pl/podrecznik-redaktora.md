@@ -333,17 +333,17 @@ Przycisk **Szczegóły** otwiera wniosek: imię i nazwisko, e-mail, klasę albo 
 
 Pod szczegółami są tylko te przyciski, na które pozwala obecny status:
 
-| Status                                           | Możliwe kroki                                         |
-| ------------------------------------------------ | ----------------------------------------------------- |
-| Złożony                                          | **Przyjmij do realizacji**, **Odrzuć wniosek**        |
-| W realizacji                                     | **Oznacz jako gotowy do odbioru**, **Odrzuć wniosek** |
-| Gotowy do odbioru                                | **Potwierdź odbiór**, **Odrzuć wniosek**              |
-| Odebrany, Odrzucony, Wycofany przez wnioskodawcę | brak — wniosek jest zamknięty                         |
+| Status                        | Możliwe kroki                                         |
+| ----------------------------- | ----------------------------------------------------- |
+| Złożony                       | **Przyjmij do realizacji**, **Odrzuć wniosek**        |
+| W trakcie                     | **Oznacz jako gotowy do odbioru**, **Odrzuć wniosek** |
+| Gotowy do odbioru             | **Potwierdź odbiór**, **Odrzuć wniosek**              |
+| Odebrany, Odrzucony, Wycofany | brak — wniosek jest zamknięty                         |
 
 - **Oznacz jako gotowy do odbioru** i **Odrzuć wniosek** wysyłają wnioskodawcy e-mail, a **Potwierdź odbiór** i **Odrzuć wniosek** zamykają wniosek na stałe. Dlatego panel najpierw pokazuje ostrzeżenie i prosi o potwierdzenie; **Anuluj** albo klawisz Esc niczego nie zmienia.
 - Dokument wydaje się wyłącznie osobiście, po okazaniu dokumentu tożsamości. **Potwierdź odbiór** klikasz dopiero po wydaniu.
 - Wycofać wniosek może tylko wnioskodawca, przez link do statusu z e-maila. Panel nie ma takiego przycisku.
-- Jeśli ktoś inny zmienił ten sam wniosek w międzyczasie, panel nie nadpisze jego decyzji: pokaże komunikat „Ktoś inny zmienił ten wniosek w międzyczasie”, wczyta aktualny stan i poczeka na twoją decyzję.
+- Tuż przed wysłaniem zmiany panel ponownie odczytuje wniosek. Jeśli ktoś inny zdążył go zmienić, panel niczego nie wysyła: pokazuje komunikat „Ktoś inny zmienił ten wniosek w międzyczasie”, wczytuje aktualny stan i czeka na twoją decyzję. Gdy dwie osoby klikną niemal w tej samej chwili, zmiana drugiej może jeszcze przejść, jeśli jest dozwolona z nowego statusu — dlatego jeden wniosek prowadzi jedna osoba.
 - Przy braku połączenia panel o tym napisze. Odśwież wtedy listę i sprawdź status, zanim spróbujesz ponownie.
 
 Każda zmiana statusu trafia do dziennika zdarzeń (rozdział 8) bez danych wnioskodawcy.

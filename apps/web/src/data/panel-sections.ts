@@ -1,3 +1,5 @@
+import { REQUEST_ROLES } from "../lib/panel/gate.ts";
+
 export interface PanelSection {
   readonly href: string;
   readonly label: string;
@@ -21,7 +23,7 @@ export const panelSections: readonly PanelSection[] = [
     href: "/panel/wnioski",
     label: "Wnioski z formularza e-wniosek",
     short: "Wnioski",
-    roles: ["admin", "secretariat"],
+    roles: REQUEST_ROLES,
   },
   { href: "/panel/pracownicy", label: "Pracownicy i role", short: "Pracownicy", roles: ["admin"] },
   { href: "/panel/dziennik", label: "Dziennik zmian", short: "Dziennik", roles: ["admin"] },

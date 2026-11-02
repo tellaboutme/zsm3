@@ -48,10 +48,14 @@ export async function fetchDetail(
   return { status: 200, detail };
 }
 
-export function hideConfirm(view: DetailView, pending: { pending: unknown }): void {
-  const state = pending;
-  const { confirm } = view;
-  state.pending = undefined;
+export function clearDetail(view: DetailView): void {
+  const { title, id, pii, facts, actions, confirm } = view;
+  title.textContent = "Szczegóły wniosku";
+  id.textContent = "";
+  pii.hidden = true;
+  pii.textContent = "";
+  facts.replaceChildren();
+  actions.replaceChildren();
   confirm.hidden = true;
 }
 
