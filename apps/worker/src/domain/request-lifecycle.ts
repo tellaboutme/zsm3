@@ -1,3 +1,4 @@
+import { requestNextStatuses } from "@zsm3/contracts/panel-requests";
 import type { RequestStatus } from "@zsm3/contracts/requests";
 
 export class InvalidTransitionError extends Error {
@@ -18,17 +19,8 @@ export function isOpen(status: RequestStatus): boolean {
   return OPEN_STATUSES.includes(status);
 }
 
-const NEXT_STATUSES: Readonly<Record<RequestStatus, readonly RequestStatus[]>> = {
-  submitted: ["in_progress", "rejected", "withdrawn"],
-  in_progress: ["ready", "rejected", "withdrawn"],
-  ready: ["collected", "rejected", "withdrawn"],
-  collected: [],
-  rejected: [],
-  withdrawn: [],
-};
-
 export function canTransition(from: RequestStatus, to: RequestStatus): boolean {
-  return NEXT_STATUSES[from].includes(to);
+  return requestNextStatuses[from].includes(to);
 }
 
 export function assertTransition(from: RequestStatus, to: RequestStatus): void {
