@@ -17,8 +17,11 @@ async function secretariatHarness() {
   await seedStaff(harness.env, [SECRETARIAT]);
   const token = await harness.keys.sign(staffClaims(SECRETARIAT.email));
   await seedRequest(harness.env, ID, { status: "in_progress" });
-  const move = async (to: string) =>
-    panelJsonCall(harness, "POST", `/requests/${ID}/status`, { token, body: { to } });
+  const move = async (to: string, expectedStatus = "in_progress") =>
+    panelJsonCall(harness, "POST", `/requests/${ID}/status`, {
+      token,
+      body: { to, expectedStatus },
+    });
   return { harness, move };
 }
 
@@ -29,6 +32,21 @@ describe("panel request transitions under contention", () => {
     await expectProblem(await move(to), 422);
 
     expect(await storedStatus(harness.env, ID)).toMatchObject({ status: "in_progress" });
+    expect(await panelAudit(harness.env).byEntity("requests", ID, 10)).toHaveLength(0);
+  });
+
+  it.each([
+    ["rejected", "submitted"],
+    ["ready", "submitted"],
+    ["ready", "ready"],
+  ])("refuses %s decided on a stale %s with 409 and no side effects", async (to, expected) => {
+    const { harness, move } = await secretariatHarness();
+
+    const problem = await expectProblem(await move(to, expected), 409);
+
+    expect(problem.title).toBe("Request Status Changed");
+    expect(await storedStatus(harness.env, ID)).toMatchObject({ status: "in_progress" });
+    expect(await outboxFor(harness.env, ID)).toHaveLength(0);
     expect(await panelAudit(harness.env).byEntity("requests", ID, 10)).toHaveLength(0);
   });
 

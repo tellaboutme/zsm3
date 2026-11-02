@@ -138,12 +138,15 @@ async function transitionRequest(c: Context<AppEnv>): Promise<Response> {
   if (record === undefined) {
     return problemResponse(c, 404);
   }
-  if (!canTransition(record.status, body.to)) {
+  if (record.status !== body.expectedStatus) {
+    return problemResponse(c, 409, "Request Status Changed");
+  }
+  if (!canTransition(body.expectedStatus, body.to)) {
     return problemResponse(c, 422, "Invalid Status Transition");
   }
   const transition = deps.repos.requests.transitionStatements({
     id: record.id,
-    from: record.status,
+    from: body.expectedStatus,
     to: body.to,
     origin: deps.origin,
     audit: auditEntry({

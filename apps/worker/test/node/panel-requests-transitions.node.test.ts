@@ -31,7 +31,7 @@ describe("panel requests transitions", () => {
 
     const toInProgress = await panelJsonCall(harness, "POST", `/requests/${id}/status`, {
       token,
-      body: { to: "in_progress" },
+      body: { to: "in_progress", expectedStatus: "submitted" },
     });
     expect(toInProgress.status).toBe(200);
     expect(await toInProgress.json()).toEqual({ ok: true });
@@ -39,7 +39,7 @@ describe("panel requests transitions", () => {
 
     const toReady = await panelJsonCall(harness, "POST", `/requests/${id}/status`, {
       token,
-      body: { to: "ready" },
+      body: { to: "ready", expectedStatus: "in_progress" },
     });
     expect(toReady.status).toBe(200);
     expect(await storedStatus(harness.env, id)).toMatchObject({ status: "ready", closed_at: null });
@@ -49,7 +49,7 @@ describe("panel requests transitions", () => {
 
     const toCollected = await panelJsonCall(harness, "POST", `/requests/${id}/status`, {
       token,
-      body: { to: "collected" },
+      body: { to: "collected", expectedStatus: "ready" },
     });
     expect(toCollected.status).toBe(200);
     const stored = z
@@ -69,7 +69,7 @@ describe("panel requests transitions", () => {
     await expectProblem(
       await panelJsonCall(harness, "POST", `/requests/${id}/status`, {
         token,
-        body: { to: "ready" },
+        body: { to: "ready", expectedStatus: "collected" },
       }),
       422,
     );
@@ -86,7 +86,7 @@ describe("panel requests transitions", () => {
 
     const rejected = await panelJsonCall(harness, "POST", `/requests/${id}/status`, {
       token,
-      body: { to: "rejected" },
+      body: { to: "rejected", expectedStatus: "submitted" },
     });
     expect(rejected.status).toBe(200);
     const kinds = (await outboxFor(harness.env, id)).map((row) => outboxKindSchema.parse(row).kind);
@@ -96,7 +96,7 @@ describe("panel requests transitions", () => {
     await expectProblem(
       await panelJsonCall(harness, "POST", "/requests/invalid-uuid/status", {
         token,
-        body: { to: "in_progress" },
+        body: { to: "in_progress", expectedStatus: "submitted" },
       }),
       404,
     );
@@ -105,21 +105,21 @@ describe("panel requests transitions", () => {
         harness,
         "POST",
         "/requests/88888888-8888-4888-8888-888888888888/status",
-        { token, body: { to: "in_progress" } },
+        { token, body: { to: "in_progress", expectedStatus: "submitted" } },
       ),
       404,
     );
     await expectProblem(
       await panelJsonCall(harness, "POST", `/requests/${id}/status`, {
         token,
-        body: { to: "invalid_status" },
+        body: { to: "invalid_status", expectedStatus: "submitted" },
       }),
       422,
     );
     await expectProblem(
       await panelJsonCall(harness, "POST", `/requests/${id}/status`, {
         token: editorToken,
-        body: { to: "ready" },
+        body: { to: "ready", expectedStatus: "submitted" },
       }),
       403,
     );

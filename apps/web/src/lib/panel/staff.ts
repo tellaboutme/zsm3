@@ -14,7 +14,7 @@ export const STAFF_ROLE_LABELS: Readonly<Record<PanelStaffRole, string>> = {
 
 const STAFF_ROLE_HINTS: Readonly<Record<PanelStaffRole, string>> = {
   admin: "wszystko, także pracownicy i przekierowania",
-  secretariat: "treści strony, później e-wnioski",
+  secretariat: "treści strony i wnioski z formularza e-wniosek",
   editor: "treści strony: aktualności, strony, terminarz, dokumenty, ogłoszenia, dzwonki",
   gallery_editor: "galeria zdjęć",
 };
