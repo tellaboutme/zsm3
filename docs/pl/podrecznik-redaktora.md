@@ -304,6 +304,14 @@ W **Dane stron** edytujesz treści, które mają stały układ: **kadrę**, **wy
 
 Każde zapisanie zachowuje poprzednią wersję w **Historii zmian** pod formularzem, więc pomyłkę cofniesz jednym przyciskiem. Oferta pracy po dacie „Ważna do” sama przechodzi do archiwum na stronie.
 
+## 14. Publikacja a wyszukiwarki
+
+Gdy publikujesz aktualność, strona sama zgłasza jej adres wyszukiwarkom (Bing, Yandex i inne). Dzięki temu nowa wiadomość trafia do wyników wyszukiwania bez czekania na kolejne odwiedziny robota. Nic nie musisz przy tym robić ani nic dodatkowego klikać.
+
+- Zgłoszenie wysyła się tylko przy **publikacji**. Wycofanie do szkicu nic nie wysyła.
+- Gdy wyszukiwarka nie odpowiada, zapis i tak się udaje — publikacja nigdy nie zależy od jej dostępności.
+- Do czasu uruchomienia strony (etap 7) zgłoszenia są wyłączone, bo strona jest jeszcze zamknięta dla robotów. Włączenie należy do administratora i nie wymaga zmian w panelu.
+
 ## Co jeszcze powstanie
 
 Ten podręcznik na razie opisuje etap 3. W kolejnych etapach dojdzie reszta panelu (zgodnie z [architekturą](architektura.md), rozdział 14):

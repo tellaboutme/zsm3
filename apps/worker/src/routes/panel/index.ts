@@ -1,12 +1,12 @@
-import { Hono, type MiddlewareHandler } from "hono";
+import { Hono, type Context, type MiddlewareHandler } from "hono";
 
 import { announcementsRoutes } from "./announcements.ts";
 import { auditRoutes } from "./audit-log.ts";
 import { authenticatePanel } from "./auth.ts";
 import { bellsRoutes } from "./bells.ts";
 import { datasetsRoutes } from "./datasets.ts";
-import type { PanelDeps } from "./deps.ts";
-import { panelOrigin } from "./deps.ts";
+import type { BackgroundTask, PanelDeps } from "./deps.ts";
+import { indexNowNotify, panelOrigin } from "./deps.ts";
 import { eventsRoutes } from "./events.ts";
 import { filesRoutes } from "./files.ts";
 import { newsRoutes } from "./news.ts";
@@ -27,6 +27,7 @@ import {
 } from "../../security/access-jwt.ts";
 import type { AccessVerifier } from "../../security/access-jwt.ts";
 import { piiCrypto, type PiiCrypto } from "../../security/pii-crypto.ts";
+import type { IndexNowEndpoint } from "../../services/indexnow.ts";
 import { announcementsRepo } from "../../storage/announcements-repo.ts";
 import { auditRepo } from "../../storage/audit-repo.ts";
 import { bellsRepo } from "../../storage/bells-repo.ts";
@@ -46,6 +47,7 @@ export interface PanelAppOptions {
   readonly verifier?: AccessVerifier;
   readonly origin?: string;
   readonly piiCrypto?: PiiCrypto;
+  readonly indexnow?: IndexNowEndpoint;
 }
 
 function envAccessVerifier(env: AppBindings): AccessVerifier {
@@ -63,6 +65,20 @@ function envAccessVerifier(env: AppBindings): AccessVerifier {
     issuer: accessIssuer(teamDomain),
     now: systemClock,
   });
+}
+
+function backgroundTask(c: Context<AppEnv>): BackgroundTask {
+  try {
+    const execution = c.executionCtx;
+    return async (task) => {
+      execution.waitUntil(task);
+      return Promise.resolve();
+    };
+  } catch {
+    return async (task) => {
+      await task;
+    };
+  }
 }
 
 function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
@@ -89,6 +105,8 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
       origin: options.origin ?? panelOrigin(c.env),
       verifier: options.verifier ?? (async (token) => envAccessVerifier(c.env)(token)),
       piiCrypto: options.piiCrypto ?? piiCrypto(piiKeys(c.env), ACTIVE_PII_KEY_ID, store.random),
+      notifyIndexNow: indexNowNotify(c.env, options.indexnow),
+      defer: backgroundTask(c),
     };
     c.set("panelDeps", deps);
     await next();

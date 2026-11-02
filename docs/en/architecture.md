@@ -287,7 +287,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 - The shared card is `apps/web/public/og-default.png`, a 1200×630 file. `SOCIAL_IMAGE` in `apps/web/src/lib/seo.ts` is the single source of the path, size and alt text, so the layout and the audit test cannot drift apart.
 - Regenerate the card with `python og_image/generate.py` from `tools/` (needs Pillow and `pnpm install` for the font files); the output is byte-stable for a given script and font set.
 - `apps/web/test/seo-metadata.test.ts` walks `apps/web/src/pages`, reads each `<Base>` call and fails when an indexable page passes an empty literal title or description or repeats one that another page already uses. Pages that opt out through `noindex`, the panel, `/wzornik`, `/s` and `/e-wniosek` are excluded.
-- IndexNow pings are not wired yet; `robots.txt` stays closed until stage 7.
+- Publishing a news item submits its address to IndexNow after the response, through `waitUntil`, once the `INDEXNOW_HOST` variable is set; without it nothing is sent. The key is public and served at `/<key>.txt` (see [panel.md](panel.md) and [supply-chain.md](supply-chain.md)). `robots.txt` stays closed until stage 7.
 
 ## 8. Security
 
