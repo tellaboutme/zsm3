@@ -1,4 +1,4 @@
-import { newsSchema, type News, type PublicationStatus } from "@zsm3/contracts/content";
+import { newsPath, newsSchema, type News, type PublicationStatus } from "@zsm3/contracts/content";
 import { plainText } from "@zsm3/contracts/rich-text";
 import type { SearchDocument } from "@zsm3/contracts/search";
 import { z } from "zod";
@@ -89,7 +89,7 @@ export function newsDocument(id: string, item: News): SearchDocument {
   return {
     docId: `n:${id}`,
     kind: "aktualnosc",
-    href: `/aktualnosci/${item.date.slice(0, 4)}/${item.slug}`,
+    href: newsPath(item),
     title: item.title,
     body: [
       item.category,
