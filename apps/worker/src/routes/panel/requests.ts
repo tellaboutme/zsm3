@@ -7,7 +7,6 @@ import { panelRequestDetailSchema, requestPiiSchema } from "@zsm3/contracts/requ
 import { Hono, type Context } from "hono";
 import { z } from "zod";
 
-import { atomicWrite } from "./atomic.ts";
 import { auditEntry } from "./audit.ts";
 import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { panelGuard, panelJsonOrigin } from "./guards.ts";
@@ -15,6 +14,7 @@ import { parseJsonBody } from "./http.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { canTransition } from "../../domain/request-lifecycle.ts";
 import { problemResponse } from "../../http/problem.ts";
+import { batchChanges } from "../../storage/database.ts";
 
 const ENTITY = "requests";
 
@@ -116,18 +116,23 @@ async function transitionRequest(c: Context<AppEnv>): Promise<Response> {
   if (!canTransition(record.status, body.to)) {
     return problemResponse(c, 422, "Invalid Status Transition");
   }
-  await atomicWrite(deps, [
-    ...deps.repos.requests.transitionStatements(record.id, body.to, deps.origin),
-    deps.repos.audit.statement(
-      auditEntry({
-        session,
-        action: "requests.transition",
-        entity: ENTITY,
-        entityId: record.id,
-        fields: ["status"],
-      }),
-    ),
-  ]);
+  const statements = deps.repos.requests.transitionStatements({
+    id: record.id,
+    from: record.status,
+    to: body.to,
+    origin: deps.origin,
+    audit: auditEntry({
+      session,
+      action: "requests.transition",
+      entity: ENTITY,
+      entityId: record.id,
+      fields: ["status"],
+    }),
+  });
+  const [updated] = batchChanges(await deps.db.batch([...statements]));
+  if (updated !== 1) {
+    return problemResponse(c, 409, "Request Status Changed");
+  }
   return c.json({ ok: true });
 }
 

@@ -23,8 +23,10 @@ export const panelRequestsListSchema = z.strictObject({
 
 export type PanelRequestsList = z.infer<typeof panelRequestsListSchema>;
 
+export const staffTargetStatusSchema = requestStatusSchema.exclude(["submitted", "withdrawn"]);
+
 export const panelRequestTransitionSchema = z.strictObject({
-  to: requestStatusSchema,
+  to: staffTargetStatusSchema,
 });
 
 export type PanelRequestTransition = z.infer<typeof panelRequestTransitionSchema>;

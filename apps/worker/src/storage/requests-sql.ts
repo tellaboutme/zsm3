@@ -23,6 +23,15 @@ export const COUNT_OPEN_BY_EMAIL = `SELECT count(*) AS total FROM requests
 export const UPDATE_TRANSITION = `UPDATE requests
   SET status = ?1, updated_at = ?2, closed_at = COALESCE(?3, closed_at) WHERE id = ?4`;
 
+export const UPDATE_TRANSITION_FROM = `UPDATE requests
+  SET status = ?1, updated_at = ?2, closed_at = COALESCE(?3, closed_at)
+  WHERE id = ?4 AND status = ?5`;
+
+export const INSERT_AUDIT_AFTER_TRANSITION = `INSERT INTO audit_log
+  (id, at, actor_email, action, entity, entity_id, details_json)
+  SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7
+  WHERE EXISTS (SELECT 1 FROM requests WHERE id = ?6 AND status = ?8 AND updated_at = ?9)`;
+
 export const UPDATE_ERASE_PII = `UPDATE requests
   SET pii_ciphertext = NULL, pii_key_id = NULL, email_index = NULL, pii_erased_at = ?1 WHERE id = ?2`;
 

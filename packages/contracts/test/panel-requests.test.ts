@@ -67,6 +67,8 @@ describe("panel requests contracts", () => {
       to: "ready",
     });
     expect(panelRequestTransitionSchema.safeParse({ to: "unknown" }).success).toBe(false);
+    expect(panelRequestTransitionSchema.safeParse({ to: "withdrawn" }).success).toBe(false);
+    expect(panelRequestTransitionSchema.safeParse({ to: "submitted" }).success).toBe(false);
     expect(panelRequestTransitionSchema.safeParse({}).success).toBe(false);
     expect(panelRequestTransitionSchema.safeParse({ to: "ready", extra: 1 }).success).toBe(false);
   });

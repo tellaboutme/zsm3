@@ -1,10 +1,19 @@
+import type { RequestStatus } from "@zsm3/contracts/requests";
 import { describe, it } from "vitest";
 
 import { counterRandom, FIXED_CLOCK, memoryDatabase } from "./memory-database.ts";
+import { batchChanges } from "../../src/storage/database.ts";
 import { requestsRepo, type CreateRequestData } from "../../src/storage/requests-repo.ts";
 
 const ID = "11111111-2222-4333-8444-555555555555";
 const ORIGIN = "https://zsm3.test";
+const AUDIT = {
+  actorEmail: "sekretariat@zsm3.test",
+  action: "requests.transition",
+  entity: "requests",
+  entityId: ID,
+  details: '{"fields":["status"]}',
+};
 
 function store() {
   return { db: memoryDatabase(), clock: FIXED_CLOCK, random: counterRandom() };
@@ -22,23 +31,37 @@ function createData(): CreateRequestData {
   };
 }
 
-describe("request transitions with notices", () => {
-  it("updates the status and queues the ready notice in one batch", async ({ expect }) => {
-    const current = store();
-    const repo = requestsRepo(current);
-    await repo.create(createData());
+async function seeded() {
+  const current = store();
+  const repo = requestsRepo(current);
+  await repo.create(createData());
+  const move = async (from: RequestStatus, to: RequestStatus, id = ID) =>
+    batchChanges(
+      await current.db.batch([
+        ...repo.transitionStatements({ id, from, to, origin: ORIGIN, audit: AUDIT }),
+      ]),
+    );
+  const rows = async (query: string) => (await current.db.prepare(query).all()).results;
+  return { repo, move, rows };
+}
 
-    await current.db.batch([...repo.transitionStatements(ID, "ready", ORIGIN)]);
+describe("request transitions with notices", () => {
+  it("updates the status, audits it and queues the ready notice in one batch", async ({
+    expect,
+  }) => {
+    const { repo, move, rows } = await seeded();
+
+    expect(await move("submitted", "in_progress")).toEqual([1, 1]);
+    expect(await move("in_progress", "ready")).toEqual([1, 1, 1]);
 
     expect(await repo.findById(ID)).toMatchObject({
       status: "ready",
       updatedAt: "2026-10-22T08:00:00.000Z",
       closedAt: null,
     });
-    const outbox = await current.db
-      .prepare("SELECT kind, request_id, origin, attempts, next_attempt_at FROM email_outbox")
-      .all();
-    expect(outbox.results).toEqual([
+    expect(
+      await rows("SELECT kind, request_id, origin, attempts, next_attempt_at FROM email_outbox"),
+    ).toEqual([
       {
         kind: "READY_NOTICE",
         request_id: ID,
@@ -47,43 +70,44 @@ describe("request transitions with notices", () => {
         next_attempt_at: "2026-10-22T08:00:00.000Z",
       },
     ]);
+    expect(await rows("SELECT actor_email, action, entity_id FROM audit_log")).toEqual([
+      { actor_email: AUDIT.actorEmail, action: AUDIT.action, entity_id: ID },
+      { actor_email: AUDIT.actorEmail, action: AUDIT.action, entity_id: ID },
+    ]);
   });
 
   it("closes the request and queues the rejection notice", async ({ expect }) => {
-    const current = store();
-    const repo = requestsRepo(current);
-    await repo.create(createData());
+    const { repo, move, rows } = await seeded();
 
-    await current.db.batch([...repo.transitionStatements(ID, "rejected", ORIGIN)]);
+    await move("submitted", "rejected");
 
     expect(await repo.findById(ID)).toMatchObject({
       status: "rejected",
       closedAt: "2026-10-22T08:00:00.000Z",
     });
-    const outbox = await current.db.prepare("SELECT kind FROM email_outbox").all();
-    expect(outbox.results).toEqual([{ kind: "REJECTED_NOTICE" }]);
+    expect(await rows("SELECT kind FROM email_outbox")).toEqual([{ kind: "REJECTED_NOTICE" }]);
   });
 
-  it("queues no notice for statuses other than ready and rejected", async ({ expect }) => {
-    const current = store();
-    const repo = requestsRepo(current);
-    await repo.create(createData());
+  it("changes nothing when the stored status is no longer the expected one", async ({ expect }) => {
+    const { repo, move, rows } = await seeded();
+    await repo.withdrawAndErase(ID, "2026-10-22T07:00:00.000Z");
 
-    await current.db.batch([...repo.transitionStatements(ID, "in_progress", ORIGIN)]);
-    await current.db.batch([...repo.transitionStatements(ID, "withdrawn", ORIGIN)]);
+    expect(await move("submitted", "ready")).toEqual([0, 0, 0]);
+    expect(await move("submitted", "collected")).toEqual([0, 0]);
 
     expect(await repo.findById(ID)).toMatchObject({ status: "withdrawn" });
-    expect((await current.db.prepare("SELECT id FROM email_outbox").all()).results).toHaveLength(0);
+    expect(await rows("SELECT id FROM email_outbox")).toHaveLength(0);
+    expect(await rows("SELECT id FROM audit_log")).toHaveLength(0);
   });
 
   it("queues nothing when the request vanished before the batch", async ({ expect }) => {
-    const current = store();
-    const repo = requestsRepo(current);
+    const { move, rows } = await seeded();
 
-    await current.db.batch([
-      ...repo.transitionStatements("99999999-9999-4999-8999-999999999999", "ready", ORIGIN),
+    expect(await move("submitted", "ready", "99999999-9999-4999-8999-999999999999")).toEqual([
+      0, 0, 0,
     ]);
 
-    expect((await current.db.prepare("SELECT id FROM email_outbox").all()).results).toHaveLength(0);
+    expect(await rows("SELECT id FROM email_outbox")).toHaveLength(0);
+    expect(await rows("SELECT id FROM audit_log")).toHaveLength(0);
   });
 });
