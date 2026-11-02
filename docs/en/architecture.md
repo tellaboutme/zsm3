@@ -142,13 +142,14 @@ requests
   INDEX (status, created_at), INDEX (email_index, status), INDEX (closed_at)
 
 albums
-  id, school_year (TEXT '2025/2026'), slug UNIQUE(school_year, slug), title, description,
-  cover_photo_id NULL, published_at NULL, deleted_at NULL, created_by, created_at, updated_at
+  id, school_year (TEXT '2025/2026'), slug, title, description,
+  published_at NULL, deleted_at NULL, created_by, created_at, updated_at
+  UNIQUE (school_year, slug) WHERE deleted_at IS NULL
 
 photos
-  id, album_id FK, position, width, height, alt, key_small, key_large, sha256 UNIQUE,
+  id, album_id FK, position, width, height, alt, sha256 UNIQUE, consent_by, consent_at,
   deleted_at NULL, created_by, created_at
-  INDEX (album_id, position)
+  INDEX (album_id, deleted_at, position)
 
 staff
   email PK (lower case), role (admin | secretariat | editor | gallery_editor), active, created_at, updated_at
@@ -263,10 +264,12 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 3. Photos upload one at a time: `POST /api/panel/albums/:id/photos`, a multipart body with both files, each at most 1.5 MB, plus the mandatory "consent to publish images obtained" confirmation.
 4. The server **does not trust the client**:
    - it parses RIFF/WebP and accepts only `VP8 `, `VP8L`, `VP8X` and `ALPH` chunks; `EXIF`, `XMP `, `ANIM`, `ICCP` and anything unknown are rejected;
-   - it checks the dimensions in the header against the allowed sizes;
-   - it computes SHA-256; the R2 keys are `g/<sha256>-s.webp` and `g/<sha256>-l.webp`, so no user input reaches a key;
-   - a repeated upload of the same file is recognised by `sha256`.
-5. An album is public only after "Opublikuj". Deletion is soft (`deleted_at`); a scheduled job removes the files from R2 after 30 days.
+   - it allows only the layouts `VP8 `, `VP8L`, `VP8X` + `VP8 `/`VP8L`, and `VP8X` + `ALPH` + `VP8 `, and requires the RIFF size, chunk sizes, padding and canvas to agree with the file;
+   - it checks the dimensions in the header: the large variant is at most 1600 px on the long edge, the small one exactly 400 px, and both have the same proportions (±1 px);
+   - it computes SHA-256 of the large variant; the R2 keys are derived as `g/<sha256>-s.webp` and `g/<sha256>-l.webp`, so no user input reaches a key and the keys are not stored;
+   - a repeated upload is recognised by `sha256`: in the same album it answers `200` with `duplicate: true` and changes nothing, a photo live in another album answers `409`, and a soft-deleted photo, or one in a deleted album, comes back with the new album, alt text and consent.
+5. R2 is written before D1, so a failed D1 batch leaves unreachable objects but never a row without a file. The media route serves only what `photos` lists.
+6. An album is public only after "Opublikuj", which needs at least one photo. Deleting the last photo of a published album unpublishes it in the same batch, so an urgent removal is never refused. Deletion is soft (`deleted_at`); a scheduled job removes the files from R2 after 30 days.
 
 ### 7.6 Public gallery and media
 

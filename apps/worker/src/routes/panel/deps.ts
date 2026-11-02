@@ -14,6 +14,7 @@ import type { SqlDatabase } from "../../storage/database.ts";
 import type { DatasetsRepo } from "../../storage/datasets-repo.ts";
 import type { EventsRepo } from "../../storage/events-repo.ts";
 import type { FilesRepo } from "../../storage/files-repo.ts";
+import type { GalleryRepo } from "../../storage/gallery-repo.ts";
 import type { NewsRepo } from "../../storage/news-repo.ts";
 import type { PagesRepo } from "../../storage/pages-repo.ts";
 import type { RedirectsRepo } from "../../storage/redirects-repo.ts";
@@ -45,6 +46,7 @@ export interface PanelRepos {
   readonly bells: BellsRepo;
   readonly datasets: DatasetsRepo;
   readonly requests: RequestsRepo;
+  readonly gallery: GalleryRepo;
 }
 
 export interface PanelSession {

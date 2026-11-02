@@ -10,6 +10,7 @@ import {
   routeCases,
   type RoleName,
 } from "./panel-matrix-cases.ts";
+import { seedGalleryMatrix } from "./panel-matrix-gallery.ts";
 import { ANNOUNCEMENT, announcementIds, requestIds } from "./panel-matrix-site.ts";
 import type { PanelHarness } from "./panel-support.ts";
 import { panelHarness, seedStaff, staffClaims } from "./panel-support.ts";
@@ -74,6 +75,7 @@ describe("panel route role matrix", () => {
       });
       requestIds.set(key, requestId);
     }
+    await seedGalleryMatrix(store, ROLES);
     for (const role of ROLES) {
       const email = role === "none" ? "ghost@zsm3.test" : `${role}@zsm3.test`;
       tokens[role] = await harness.keys.sign(staffClaims(email));

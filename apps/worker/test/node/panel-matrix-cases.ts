@@ -11,6 +11,7 @@ import {
   samplePage,
   staffMember,
 } from "./panel-fixtures.ts";
+import { galleryCases } from "./panel-matrix-gallery.ts";
 import { siteCases } from "./panel-matrix-site.ts";
 import type { PanelHarness } from "./panel-support.ts";
 import { panelJsonCall, panelUploadRequest } from "./panel-support.ts";
@@ -63,6 +64,15 @@ export const OK_STATUS: Record<PanelRouteName, number> = {
   "requests.list": 200,
   "requests.get": 200,
   "requests.transition": 200,
+  "albums.list": 200,
+  "albums.get": 200,
+  "albums.create": 201,
+  "albums.update": 200,
+  "albums.publish": 200,
+  "albums.delete": 204,
+  "photos.upload": 201,
+  "photos.update": 200,
+  "photos.delete": 204,
 };
 
 export const NEWS = sampleNews("istniejacy", "Istniejacy salon");
@@ -191,5 +201,6 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
         }),
     },
     ...siteCases(harness, rolesByToken),
+    ...galleryCases(harness, rolesByToken),
   ];
 }

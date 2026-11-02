@@ -29,10 +29,10 @@ Local development has no Cloudflare Access, so `pnpm dev:auth` stands in for it:
 
 | Role             | Can do                                                                             |
 | ---------------- | ---------------------------------------------------------------------------------- |
-| `admin`          | everything, plus staff and roles, redirects and the audit log                      |
+| `admin`          | everything, plus staff and roles, redirects, the gallery and the audit log         |
 | `secretariat`    | all site content, plus handling e-wniosek requests                                 |
 | `editor`         | all site content: news, pages, calendar, documents, announcements, bells, datasets |
-| `gallery_editor` | the gallery once it ships; no content editing                                      |
+| `gallery_editor` | gallery albums and photos; no content editing                                      |
 
 The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/matrix.ts`, and a test calls every route with every role. Administrators cannot remove their own admin role or disable themselves, so the panel always keeps one administrator.
 
@@ -48,6 +48,24 @@ The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/
 The end-to-end specs for the page (`e2e/tests/panel.requests-*.spec.ts`) assert a clean console, with one recorded exception: WebKit reports a `style-src-attr` violation for the native `<select>` control's own rendering ("Refused to apply a stylesheet because its hash…"). The page sets no style attribute, and `/panel/pracownicy` on `main` shows the same report. `pageProblems` in `e2e/tests/panel-requests-fake.ts` drops exactly that message, in WebKit only (checked 2026-11-02, review 2027-02-02).
 
 Nothing from a request reaches the URL, browser storage or the console. The list and detail schemas are parsed only in this page's scripts: importing them into the shared `lib/panel/models.ts` moves zod's schema construction ahead of the `jitless` switch in every panel bundle, and the Trusted Types policy then reports the blocked `Function` probe.
+
+## Gallery API
+
+The gallery routes serve `admin` and `gallery_editor`. The panel pages for them, the public gallery and the job that purges deleted files from R2 come in later changes, so nothing stored here is visible outside the panel API yet. Upload rules are in architecture.md §7.5.
+
+| Route                                      | Purpose                                                    |
+| ------------------------------------------ | ---------------------------------------------------------- |
+| `GET /api/panel/albums`                    | albums, newest year first; `?schoolYear=2026/2027` filters |
+| `POST /api/panel/albums`                   | create a hidden album                                      |
+| `GET /api/panel/albums/:id`                | an album with its photos in order                          |
+| `PUT /api/panel/albums/:id`                | change year, slug, title or description                    |
+| `PATCH /api/panel/albums/:id`              | `{ "action": "publish" }` or `{ "action": "unpublish" }`   |
+| `DELETE /api/panel/albums/:id`             | soft delete, which also clears publication                 |
+| `POST /api/panel/albums/:id/photos`        | multipart `small`, `large`, `alt`, `consent=true`          |
+| `PATCH /api/panel/albums/:id/photos/:pid`  | change the alt text                                        |
+| `DELETE /api/panel/albums/:id/photos/:pid` | soft delete                                                |
+
+Every write is audited with field names only. Consent is recorded in `photos.consent_by` and `photos.consent_at`.
 
 ## Enabling the panel in production
 

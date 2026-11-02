@@ -11,6 +11,7 @@ import {
   sitePathSchema,
 } from "./content.ts";
 import { panelDatasetSaveSchema } from "./datasets.ts";
+import { GALLERY_ROUTE_NAMES } from "./gallery.ts";
 import { storedFileSchema } from "./media.ts";
 import { panelRevisionRestoreSchema } from "./revisions.ts";
 import { shortCodeSchema, targetUrlSchema } from "./short-links.ts";
@@ -213,6 +214,7 @@ export const panelRouteNames = [
   "requests.list",
   "requests.get",
   "requests.transition",
+  ...GALLERY_ROUTE_NAMES,
 ] as const;
 
 export type PanelRouteName = (typeof panelRouteNames)[number];

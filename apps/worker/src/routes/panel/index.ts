@@ -1,5 +1,6 @@
 import { Hono, type Context, type MiddlewareHandler } from "hono";
 
+import { albumsRoutes } from "./albums.ts";
 import { announcementsRoutes } from "./announcements.ts";
 import { auditRoutes } from "./audit-log.ts";
 import { authenticatePanel } from "./auth.ts";
@@ -11,6 +12,7 @@ import { eventsRoutes } from "./events.ts";
 import { filesRoutes } from "./files.ts";
 import { newsRoutes } from "./news.ts";
 import { pagesRoutes } from "./pages.ts";
+import { photosRoutes } from "./photos.ts";
 import { redirectsRoutes } from "./redirects.ts";
 import { requestsRoutes } from "./requests.ts";
 import { revisionsRoutes } from "./revisions.ts";
@@ -35,6 +37,7 @@ import { liveStore, systemClock } from "../../storage/database.ts";
 import { datasetsRepo } from "../../storage/datasets-repo.ts";
 import { eventsRepo } from "../../storage/events-repo.ts";
 import { filesRepo } from "../../storage/files-repo.ts";
+import { galleryRepo } from "../../storage/gallery-repo.ts";
 import { newsRepo } from "../../storage/news-repo.ts";
 import { pagesRepo } from "../../storage/pages-repo.ts";
 import { redirectsRepo } from "../../storage/redirects-repo.ts";
@@ -100,6 +103,7 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
         bells: bellsRepo(store),
         datasets: datasetsRepo(store),
         requests: requestsRepo(store),
+        gallery: galleryRepo(store),
       },
       mediaBucket: c.env.MEDIA,
       origin: options.origin ?? panelOrigin(c.env),
@@ -131,5 +135,7 @@ export function panelApp(options: PanelAppOptions = {}): Hono<AppEnv> {
   panel.route("/", auditRoutes());
   panel.route("/", datasetsRoutes());
   panel.route("/", requestsRoutes());
+  panel.route("/", albumsRoutes());
+  panel.route("/", photosRoutes());
   return panel;
 }
