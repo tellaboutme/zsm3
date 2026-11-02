@@ -42,6 +42,13 @@ def test_bare_origin_and_non_ascii_paths_are_canonical() -> None:
     assert canonical_url("/%77p-admin/") is None
 
 
+@pytest.mark.parametrize(
+    "path", ["/a/%2e%2e/wp-admin/", "/a/.%2E/wp-login.php", "/x/%2e/page", "/a/%2E%2E"]
+)
+def test_encoded_dot_segments_are_rejected(path: str) -> None:
+    assert canonical_url(path) is None
+
+
 def test_protocol_errors_are_recorded_not_fatal() -> None:
     transport = allow_all({ORIGIN + "/": http.client.IncompleteRead(b"")})
     entries = inventory([ORIGIN + "/"], transport, pause=no_wait)

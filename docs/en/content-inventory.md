@@ -40,7 +40,8 @@ follow-up checks, not approval.
   Groups match the `ZSM3ContentInventory` product token or `*`; wildcards, `$` anchors and the
   longer of `Crawl-delay` and `Request-rate` apply; blank lines do not end a group.
 - Only the exact origin is requested. Queries and fragments are dropped, paths are
-  percent-encoded once, and `/wp-admin`, `/wp-json` and `/wp-login.php` are excluded.
+  percent-encoded once, paths with `.` or `..` segments left after decoding are dropped, and
+  `/wp-admin`, `/wp-json` and `/wp-login.php` are excluded.
 - Only extensionless, `.html`, `.htm` and `.php` paths are fetched, and only `text/html`
   bodies without content encoding are read: at most 1 MB per page and 100 KB for robots.txt,
   15 seconds per request, at least one second between pages, 1–1000 pages, depth 0–5.

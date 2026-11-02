@@ -9,6 +9,7 @@ ORIGIN = "https://" + HOST
 AGENT = "ZSM3ContentInventory/1.0"
 HTML_SUFFIXES = ("", ".html", ".htm", ".php")
 EXCLUDED_PREFIXES = ("/wp-admin", "/wp-json", "/wp-login.php")
+DOT_SEGMENTS = (".", "..")
 PATH_SAFE = "/:@!$&'()*+,;=-._~"
 REQUEST_TIMEOUT_SECONDS = 15
 HTTP_OK = 200
@@ -33,6 +34,10 @@ def encode_path(path: str) -> str:
     return quote(unquote(path), safe=PATH_SAFE)
 
 
+def has_dot_segment(path: str) -> bool:
+    return any(segment in DOT_SEGMENTS for segment in unquote(path).split("/"))
+
+
 def is_html_path(path: str) -> bool:
     return PurePosixPath(path).suffix.lower() in HTML_SUFFIXES
 
@@ -50,6 +55,8 @@ def canonical_url(url: str, base: str = ORIGIN) -> str | None:
             or parsed.username is not None
             or parsed.password is not None
         ):
+            return None
+        if has_dot_segment(parsed.path):
             return None
         path = encode_path(parsed.path or "/")
         if path.lower().startswith(EXCLUDED_PREFIXES):
