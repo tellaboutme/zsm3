@@ -52,6 +52,22 @@ test.describe("staff requests accessibility", () => {
     await expect(page.getByRole("button", { name: "Oznacz jako gotowy do odbioru" })).toBeFocused();
   });
 
+  test("keeps an open confirmation inside a phone screen at 200% text", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto("/panel/wnioski");
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = "200%";
+    });
+    await page.getByRole("button", { name: `Szczegóły wniosku nr ${fakeRequest(3).id}` }).click();
+    await page.getByRole("button", { name: "Odrzuć wniosek" }).click();
+    await expect(page.getByRole("button", { name: "Tak, odrzuć wniosek" })).toBeVisible();
+    const size = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      client: document.documentElement.clientWidth,
+    }));
+    expect(size.scroll).toBe(size.client);
+  });
+
   test("fits phone, tablet and desktop widths", async ({ page }) => {
     for (const width of [360, 768, 1280]) {
       await page.setViewportSize({ width, height: 900 });

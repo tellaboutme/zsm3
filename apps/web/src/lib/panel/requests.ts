@@ -31,6 +31,7 @@ export type StatusFilter = RequestStatus | "all";
 export interface StaffAction {
   readonly to: StaffTargetStatus;
   readonly label: string;
+  readonly confirm: string;
   readonly warning: string | null;
 }
 
@@ -42,17 +43,20 @@ export interface Fact {
 }
 
 const ACTIONS: Readonly<Record<StaffTargetStatus, Omit<StaffAction, "to">>> = {
-  in_progress: { label: "Przyjmij do realizacji", warning: null },
+  in_progress: { label: "Przyjmij do realizacji", confirm: "", warning: null },
   ready: {
     label: "Oznacz jako gotowy do odbioru",
+    confirm: "Tak, oznacz jako gotowy",
     warning: "Wnioskodawca dostanie e-mail, że dokument czeka w sekretariacie.",
   },
   collected: {
     label: "Potwierdź odbiór",
+    confirm: "Tak, potwierdź odbiór",
     warning: "Wniosek zostanie zamknięty. Tej zmiany nie można cofnąć.",
   },
   rejected: {
     label: "Odrzuć wniosek",
+    confirm: "Tak, odrzuć wniosek",
     warning:
       "Wnioskodawca dostanie e-mail o odrzuceniu. Wniosek zostanie zamknięty i tej zmiany nie można cofnąć.",
   },
@@ -134,7 +138,6 @@ function personalFacts(detail: PanelRequestDetail): readonly Fact[] {
 
 export function requestFacts(detail: PanelRequestDetail): readonly Fact[] {
   return [
-    { label: "Rodzaj", value: requestTitle(detail) },
     { label: "Status", value: REQUEST_STATUS_LABELS[detail.status] },
     { label: "Złożony", value: moment(detail.createdAt) },
     { label: "Ostatnia zmiana", value: moment(detail.updatedAt) },

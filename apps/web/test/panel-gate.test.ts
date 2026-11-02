@@ -11,6 +11,7 @@ import {
   CONTENT_ROLES,
   gateDecision,
   gatePhrases,
+  REQUEST_ROLES,
   rolePhrase,
   sectionAllowed,
 } from "../src/lib/panel/gate.ts";
@@ -40,9 +41,10 @@ it("shows a panel section only to its listed roles", ({ expect }) => {
   expect(sectionAllowed(undefined, "editor")).toBe(true);
   expect(sectionAllowed("admin", "admin")).toBe(true);
   expect(sectionAllowed("admin", "secretariat")).toBe(false);
-  expect(sectionAllowed("admin secretariat", "secretariat")).toBe(true);
-  expect(sectionAllowed("admin secretariat", "editor")).toBe(false);
-  expect(sectionAllowed("admin secretariat", "")).toBe(false);
+  const requestRoles = REQUEST_ROLES.join(" ");
+  expect(sectionAllowed(requestRoles, "secretariat")).toBe(true);
+  expect(sectionAllowed(requestRoles, "editor")).toBe(false);
+  expect(sectionAllowed(requestRoles, "")).toBe(false);
 });
 
 it("phrases every gate state in Polish", ({ expect }) => {

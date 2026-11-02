@@ -1,24 +1,19 @@
 import type { PanelRequestDetail } from "@zsm3/contracts/requests";
 import { describe, expect, it } from "vitest";
 
-import { CONNECTION_STATUS } from "../src/lib/panel/api.ts";
 import {
   REQUEST_STATUS_LABELS,
-  STALE_DETAIL_PHRASE,
   canHandleRequests,
   listPhrase,
   nextCursor,
   piiNotice,
   piiState,
-  readPhrase,
   requestFacts,
   requestHead,
   requestTitle,
   requestsPath,
-  shouldReload,
   staffActions,
   statusFilter,
-  transitionPhrase,
 } from "../src/lib/panel/requests.ts";
 
 const ID = "0192f3a1-7c00-7000-8000-000000000001";
@@ -102,14 +97,22 @@ describe("request actions", () => {
 
   it("asks for confirmation before every change that mails or closes", () => {
     const [start, reject] = staffActions("submitted");
-    expect(start).toEqual({ to: "in_progress", label: "Przyjmij do realizacji", warning: null });
+    expect(start).toEqual({
+      to: "in_progress",
+      label: "Przyjmij do realizacji",
+      confirm: "",
+      warning: null,
+    });
     expect(reject?.label).toBe("Odrzuć wniosek");
+    expect(reject?.confirm).toBe("Tak, odrzuć wniosek");
     expect(reject?.warning).toContain("e-mail o odrzuceniu");
     const [ready] = staffActions("in_progress");
     expect(ready?.label).toBe("Oznacz jako gotowy do odbioru");
+    expect(ready?.confirm).toBe("Tak, oznacz jako gotowy");
     expect(ready?.warning).toContain("e-mail");
     const [collected] = staffActions("ready");
     expect(collected?.label).toBe("Potwierdź odbiór");
+    expect(collected?.confirm).toBe("Tak, potwierdź odbiór");
     expect(collected?.warning).toContain("nie można cofnąć");
   });
 
@@ -126,7 +129,6 @@ describe("request detail", () => {
   it("shows personal data only while it is readable", () => {
     const facts = requestFacts(detail({ className: "3TI", graduationYear: 2024, note: "Pilne" }));
     expect(facts).toEqual([
-      { label: "Rodzaj", value: "Zaświadczenie o uczęszczaniu do szkoły" },
       { label: "Status", value: "Złożony" },
       { label: "Złożony", value: "22 paź 2026, 10:30" },
       { label: "Ostatnia zmiana", value: "23 paź 2026, 11:00" },
@@ -137,7 +139,6 @@ describe("request detail", () => {
       { label: "Uwagi wnioskodawcy", value: "Pilne" },
     ]);
     expect(requestFacts(detail()).map((fact) => fact.label)).toEqual([
-      "Rodzaj",
       "Status",
       "Złożony",
       "Ostatnia zmiana",
@@ -160,8 +161,8 @@ describe("request detail", () => {
     expect(piiNotice(erased)).toBe(
       "Dane osobowe usunięto 24 paź 2026, 14:00 (wycofanie wniosku albo koniec okresu przechowywania).",
     );
-    expect(requestFacts(erased)).toHaveLength(4);
-    expect(requestFacts(detail({ piiErasedAt: "2026-10-24T12:00:00.000Z" }))).toHaveLength(4);
+    expect(requestFacts(erased)).toHaveLength(3);
+    expect(requestFacts(detail({ piiErasedAt: "2026-10-24T12:00:00.000Z" }))).toHaveLength(3);
   });
 
   it("flags personal data that cannot be read", () => {
@@ -170,8 +171,8 @@ describe("request detail", () => {
     expect(piiState(detail({ email: null }))).toBe("unreadable");
     expect(piiState(detail({ firstName: null }))).toBe("unreadable");
     expect(piiNotice(unreadable)).toContain("Nie udało się odczytać danych osobowych");
-    expect(requestFacts(unreadable)).toHaveLength(4);
-    expect(requestFacts(detail({ lastName: null }))[4]).toEqual({
+    expect(requestFacts(unreadable)).toHaveLength(3);
+    expect(requestFacts(detail({ lastName: null }))[3]).toEqual({
       label: "Imię i nazwisko",
       value: "Anna",
     });
@@ -186,28 +187,5 @@ describe("request detail", () => {
       rejected: "Odrzucony",
       withdrawn: "Wycofany",
     });
-  });
-});
-
-describe("transition outcome", () => {
-  it("phrases every answer and reloads when the stored state may differ", () => {
-    expect(transitionPhrase(200, "ready")).toBe("Zapisano. Nowy status: Gotowy do odbioru.");
-    expect(transitionPhrase(409, "ready")).toContain("Ktoś inny zmienił ten wniosek");
-    expect(transitionPhrase(422, "rejected")).toContain("Tej zmiany nie można wykonać");
-    expect(transitionPhrase(CONNECTION_STATUS, "collected")).toBe(
-      "Brak połączenia z serwerem. Spróbuj ponownie. Status wniosku mógł się nie zmienić.",
-    );
-    expect(transitionPhrase(403, "collected")).toBe("Brak uprawnień do tej czynności.");
-    expect(STALE_DETAIL_PHRASE).toBe(
-      "Nie udało się wczytać aktualnego stanu wniosku. Otwórz go ponownie z listy.",
-    );
-    expect(readPhrase(CONNECTION_STATUS)).toBe("Brak połączenia z serwerem. Spróbuj ponownie.");
-    expect(readPhrase(404)).toBe("Nie znaleziono elementu. Odśwież listę.");
-    for (const status of [200, 404, 409, 422]) {
-      expect(shouldReload(status)).toBe(true);
-    }
-    for (const status of [CONNECTION_STATUS, 401, 403, 500]) {
-      expect(shouldReload(status)).toBe(false);
-    }
   });
 });

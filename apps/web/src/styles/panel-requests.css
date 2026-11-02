@@ -1,11 +1,16 @@
 .panel-request {
   display: grid;
+  min-width: 0;
   gap: var(--space-3);
   align-content: start;
   padding: var(--space-4);
   border: var(--hairline) solid var(--line);
   border-block-start: var(--rule) solid var(--blue);
   border-radius: var(--radius);
+}
+
+.panel-request > h2 {
+  font-size: var(--step-1);
 }
 
 .panel-request > h2:focus-visible {
@@ -18,6 +23,14 @@
   padding: 0;
   border-block-start: var(--hairline) solid var(--line);
   list-style: none;
+}
+
+[data-panel="request-rows"] > .panel-item > strong {
+  flex-basis: 100%;
+}
+
+[data-panel="request-rows"] > .panel-item > .panel-open {
+  margin-inline-start: auto;
 }
 
 .panel-item-current {
@@ -67,11 +80,17 @@
 
 .panel-confirm {
   display: grid;
+  min-width: 0;
   gap: var(--space-3);
   padding: var(--space-3);
   border: var(--rule) solid var(--orange);
   border-radius: var(--radius);
   background: var(--gray);
+}
+
+.panel-request .panel-actions > button {
+  max-width: 100%;
+  text-align: start;
 }
 
 .panel-actions > button.panel-danger,
