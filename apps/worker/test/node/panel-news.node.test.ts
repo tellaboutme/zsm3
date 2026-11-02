@@ -2,7 +2,7 @@ import { panelNewsListSchema, panelNewsViewSchema, panelOkSchema } from "@zsm3/c
 import { it } from "vitest";
 import { z } from "zod";
 
-import { newsSaveMutation, sampleNews, staffMember } from "./panel-fixtures.ts";
+import { newsSaveMutation, newsStatusMutation, sampleNews, staffMember } from "./panel-fixtures.ts";
 import {
   expectProblem,
   panelAudit,
@@ -12,8 +12,18 @@ import {
   seedStaff,
   staffClaims,
 } from "./panel-support.ts";
+import type { IndexNowEndpoint } from "../../src/services/indexnow.ts";
 
 const ADMIN = staffMember("admin@zsm3.test", "admin", true);
+
+function indexNowSpy(pegs: string[][]): IndexNowEndpoint {
+  return {
+    submit: async (urls: readonly string[]): Promise<boolean> => {
+      pegs.push([...urls]);
+      return Promise.resolve(true);
+    },
+  };
+}
 
 function fieldsOf(json: string): readonly string[] {
   const fields: unknown = JSON.parse(json);
@@ -122,4 +132,48 @@ it("shows a single draft and misses unknown slugs", async ({ expect }) => {
   await expectProblem(await panelJsonCall(harness, "GET", "/news/2026/brak", { token }), 404);
   await expectProblem(await panelJsonCall(harness, "GET", "/news/2026/BRak", { token }), 422);
   await expectProblem(await panelJsonCall(harness, "GET", "/news/202x/salon", { token }), 422);
+});
+
+it("notifies search engines once a draft gets published", async ({ expect }) => {
+  const pegs: string[][] = [];
+  const harness = await panelHarness({ indexnow: indexNowSpy(pegs) });
+  await seedStaff(harness.env, [ADMIN]);
+  const token = await harness.keys.sign(staffClaims(ADMIN.email));
+
+  await panelJsonCall(harness, "POST", "/news", {
+    token,
+    body: newsSaveMutation(sampleNews("salon-maturzystow", "Salon Maturzystow")),
+  });
+
+  const published = await panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
+    token,
+    body: newsStatusMutation("publish"),
+  });
+  expect(published.status).toBe(200);
+  expect(pegs).toEqual([["/aktualnosci/2026/salon-maturzystow"]]);
+});
+
+it("stops notifying after unpublishing", async ({ expect }) => {
+  const pegs: string[][] = [];
+  const harness = await panelHarness({ indexnow: indexNowSpy(pegs) });
+  await seedStaff(harness.env, [ADMIN]);
+  const token = await harness.keys.sign(staffClaims(ADMIN.email));
+  await panelJsonCall(harness, "POST", "/news", {
+    token,
+    body: newsSaveMutation(sampleNews("salon-maturzystow", "Salon Maturzystow")),
+  });
+
+  const published = await panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
+    token,
+    body: newsStatusMutation("publish"),
+  });
+  expect(published.status).toBe(200);
+  expect(pegs).toHaveLength(1);
+
+  const unpublished = await panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
+    token,
+    body: newsStatusMutation("unpublish"),
+  });
+  expect(unpublished.status).toBe(200);
+  expect(pegs).toHaveLength(1);
 });

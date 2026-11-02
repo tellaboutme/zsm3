@@ -66,3 +66,19 @@ These steps need the school's Cloudflare account and are done once.
 5. Sign in at `https://<site>/panel` with that address. Requests from people who are not in `staff`, or whose account is disabled, are refused with 403.
 
 Pages are rendered per request without an edge cache, so every save is visible on the next page view; see [ADR 0003](adr/0003-no-edge-cache-for-pages.md).
+
+## Publishing news and search engines
+
+Publishing a news item is also the moment the site tells the search engines about it. On the publish transition the Worker submits the item's address to IndexNow, which the participating engines (Bing and Yandex among them) use to index a fresh page without waiting for their next crawl. Unpublishing sends nothing, and deleting an item leaves the engines to the sitemap.
+
+The submission is **off until the host is configured**. It switches on with the `INDEXNOW_HOST` Worker variable, set next to the other variables in `apps/web/wrangler.jsonc` or in the Cloudflare dashboard:
+
+```jsonc
+"vars": { "INDEXNOW_HOST": "www.zespolszkolmechanicznych.edu.pl" }
+```
+
+The value is the host the engines fetch the key file from: a lower-case host name without a scheme, port or path (`indexNowHostSchema` in `@zsm3/contracts/indexnow`). While the variable is empty or missing the panel publishes silently, which is what the pre-launch site does until it opens `robots.txt` in stage 7. A value that is not a bare host name sends nothing and logs `indexnow_unavailable` with `errorName: "InvalidHost"` on every publish.
+
+The key itself is part of the repository, not a secret: `packages/contracts/src/indexnow.ts` holds its value and `apps/web/public/<key>.txt` serves it, and `apps/web/test/indexnow-key.test.ts` fails if the two drift apart. The leak-scan exception for it is recorded in [supply-chain.md](supply-chain.md).
+
+A notification never blocks a save. The publish is answered once the D1 batch commits, and the submission runs afterwards through the request's `waitUntil`. An unreachable endpoint or a timeout is logged as `indexnow_unavailable` with the error name; a refusal is logged with `errorName: "HttpStatus"` and the status code. In either case the item stays published.
