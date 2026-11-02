@@ -1,3 +1,4 @@
+import { newsPath } from "@zsm3/contracts/content";
 import {
   panelListQuerySchema,
   panelMutationSchema,
@@ -7,6 +8,7 @@ import {
 import { Hono, type Context } from "hono";
 import { z } from "zod";
 
+import { announce } from "./announce.ts";
 import { atomicWrite } from "./atomic.ts";
 import { auditEntry, changedFields, createdFields } from "./audit.ts";
 import { requirePanelDeps, requirePanelSession } from "./deps.ts";
@@ -21,7 +23,7 @@ import {
   newsRef,
   newsRowSchema,
 } from "./news-data.ts";
-import { publishStatements } from "./publish-statements.ts";
+import { revisedNewsStatements } from "./news-statements.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse } from "../../http/problem.ts";
 import { allRows } from "../../storage/database.ts";
@@ -99,10 +101,7 @@ async function updateNews(c: Context<AppEnv>): Promise<Response> {
     return problemResponse(c, 422);
   }
   const item = newsMutation(await parseJsonBody(c, panelMutationSchema));
-  if (item === undefined) {
-    return problemResponse(c, 422);
-  }
-  if (item.date.slice(0, 4) !== ref.year || item.slug !== ref.slug) {
+  if (item?.date.slice(0, 4) !== ref.year || item.slug !== ref.slug) {
     return problemResponse(c, 422);
   }
   const row = await loadNews(c, ref.year, ref.slug);
@@ -110,24 +109,23 @@ async function updateNews(c: Context<AppEnv>): Promise<Response> {
     return problemResponse(c, 404);
   }
   const previous = newsFromRow(row);
-  await atomicWrite(deps, [
-    deps.repos.revisions.statement(
-      "news",
-      ref.id,
-      JSON.stringify({ ...previous, status: row.status }),
-      session.email,
-    ),
-    ...(await deps.repos.news.saveStatements(item, row.status)),
-    deps.repos.audit.statement(
-      auditEntry({
-        session,
-        action: "news.update",
-        entity: "news",
-        entityId: ref.id,
-        fields: changedFields(previous, item),
-      }),
-    ),
-  ]);
+  const fields = changedFields(previous, item);
+  await atomicWrite(
+    deps,
+    await revisedNewsStatements({
+      deps,
+      session,
+      ref,
+      previous,
+      previousStatus: row.status,
+      next: item,
+      status: row.status,
+      action: "update",
+      fields,
+    }),
+  );
+  const edited = fields.length > 0;
+  await announce(deps, { before: row.status, after: row.status, edited }, newsPath(item));
   return c.json({ ok: true });
 }
 
@@ -153,21 +151,19 @@ async function publishNews(c: Context<AppEnv>): Promise<Response> {
   const previous = newsFromRow(row);
   await atomicWrite(
     deps,
-    await publishStatements({
+    await revisedNewsStatements({
       deps,
       session,
       ref,
-      rowStatus: row.status,
       previous,
-      action,
+      previousStatus: row.status,
+      next: previous,
       status,
+      action,
+      fields: ["status"],
     }),
   );
-  if (status === "published") {
-    await deps.defer(
-      deps.notifyIndexNow(`/aktualnosci/${previous.date.slice(0, 4)}/${previous.slug}`),
-    );
-  }
+  await announce(deps, { before: row.status, after: status, edited: false }, newsPath(previous));
   return c.json({ ok: true });
 }
 

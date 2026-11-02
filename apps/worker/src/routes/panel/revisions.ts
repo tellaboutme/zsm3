@@ -7,6 +7,7 @@ import {
 import { Hono, type Context } from "hono";
 import { z } from "zod";
 
+import { announce } from "./announce.ts";
 import { atomicWrite } from "./atomic.ts";
 import { auditEntry, changedFields } from "./audit.ts";
 import { requirePanelDeps, requirePanelSession } from "./deps.ts";
@@ -68,6 +69,7 @@ async function restoreRevision(c: Context<AppEnv>): Promise<Response> {
   if (typeof plan === "number") {
     return problemResponse(c, plan === 404 ? 404 : 422);
   }
+  const fields = changedFields(plan.before, plan.after);
   await atomicWrite(deps, [
     ...plan.writes,
     deps.repos.audit.statement(
@@ -76,10 +78,14 @@ async function restoreRevision(c: Context<AppEnv>): Promise<Response> {
         action: `${restore.target}.restore`,
         entity: restore.target,
         entityId: restore.id,
-        fields: changedFields(plan.before, plan.after),
+        fields,
       }),
     ),
   ]);
+  if (plan.address !== undefined) {
+    const { path, status } = plan.address;
+    await announce(deps, { before: status, after: status, edited: fields.length > 0 }, path);
+  }
   return c.json({ ok: true });
 }
 

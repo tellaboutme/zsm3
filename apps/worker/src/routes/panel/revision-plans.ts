@@ -1,4 +1,9 @@
-import { contentPageSchema, newsSchema } from "@zsm3/contracts/content";
+import {
+  contentPageSchema,
+  newsPath,
+  newsSchema,
+  type PublicationStatus,
+} from "@zsm3/contracts/content";
 import { datasetKeySchema, datasetSchemas } from "@zsm3/contracts/datasets";
 import type { PanelRevisionRestore, RevisionTarget } from "@zsm3/contracts/revisions";
 import type { Context } from "hono";
@@ -29,10 +34,16 @@ const revisedPageSchema = z.object(contentPageSchema.shape);
 
 const NEWS_ID = /^(?<year>\d{4})\/(?<slug>[a-z0-9-]+)$/u;
 
+export interface PublicAddress {
+  readonly path: string;
+  readonly status: PublicationStatus;
+}
+
 export interface RestorePlan {
   readonly before: object;
   readonly after: object;
   readonly writes: readonly SqlStatement[];
+  readonly address?: PublicAddress;
 }
 
 async function newsPlan(
@@ -67,6 +78,7 @@ async function newsPlan(
       ),
       ...(await deps.repos.news.saveStatements(restored, row.status)),
     ],
+    address: { path: newsPath(current), status: row.status },
   };
 }
 
@@ -98,6 +110,7 @@ async function pagePlan(
       ),
       ...deps.repos.pages.saveStatements(restored, row.status),
     ],
+    address: { path: current.path, status: row.status },
   };
 }
 

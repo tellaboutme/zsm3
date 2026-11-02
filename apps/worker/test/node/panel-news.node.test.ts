@@ -153,7 +153,7 @@ it("notifies search engines once a draft gets published", async ({ expect }) => 
   expect(pegs).toEqual([["/aktualnosci/2026/salon-maturzystow"]]);
 });
 
-it("stops notifying after unpublishing", async ({ expect }) => {
+it("notifies again when the article is unpublished", async ({ expect }) => {
   const pegs: string[][] = [];
   const harness = await panelHarness({ indexnow: indexNowSpy(pegs) });
   await seedStaff(harness.env, [ADMIN]);
@@ -175,5 +175,8 @@ it("stops notifying after unpublishing", async ({ expect }) => {
     body: newsStatusMutation("unpublish"),
   });
   expect(unpublished.status).toBe(200);
-  expect(pegs).toHaveLength(1);
+  expect(pegs).toEqual([
+    ["/aktualnosci/2026/salon-maturzystow"],
+    ["/aktualnosci/2026/salon-maturzystow"],
+  ]);
 });

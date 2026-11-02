@@ -80,9 +80,15 @@ These steps need the school's Cloudflare account and are done once.
 
 Pages are rendered per request without an edge cache, so every save is visible on the next page view; see [ADR 0003](adr/0003-no-edge-cache-for-pages.md).
 
-## Publishing news and search engines
+## Publishing and search engines
 
-Publishing a news item is also the moment the site tells the search engines about it. On the publish transition the Worker submits the item's address to IndexNow, which the participating engines (Bing and Yandex among them) use to index a fresh page without waiting for their next crawl. Unpublishing sends nothing, and deleting an item leaves the engines to the sitemap.
+Every change to what the public can read is also the moment the site tells the search engines about it. The Worker submits the public address to IndexNow, which the participating engines (Bing and Yandex among them) use to recrawl a page without waiting for their next visit. IndexNow is meant for added, updated and deleted addresses, so the panel submits one address when:
+
+- a news item or a content page becomes public (publishing a news item; saving a page as `published`);
+- a public news item or page changes (an edit or a restored revision that differs in at least one field);
+- a public news item or page stops being public (unpublishing a news item; saving a page as a draft). The previous address is submitted so that the engines recrawl it and find the 404 that the site now answers.
+
+Nothing is sent for drafts, for a save or restore that changes nothing, for a refused request (validation error, unchanged publication status) or for a write that fails and rolls back. The rule is `announcesChange` in `apps/worker/src/domain/public-change.ts`. News addresses come from `newsPath` in `@zsm3/contracts/content`, the same function the site, the sitemap and the search index use, so every place names an article identically. A page's address is its stored path. Deleting an item is not part of the panel.
 
 The submission is **off until the host is configured**. It switches on with the `INDEXNOW_HOST` Worker variable, set next to the other variables in `apps/web/wrangler.jsonc` or in the Cloudflare dashboard:
 
@@ -90,8 +96,8 @@ The submission is **off until the host is configured**. It switches on with the 
 "vars": { "INDEXNOW_HOST": "www.zespolszkolmechanicznych.edu.pl" }
 ```
 
-The value is the host the engines fetch the key file from: a lower-case host name without a scheme, port or path (`indexNowHostSchema` in `@zsm3/contracts/indexnow`). While the variable is empty or missing the panel publishes silently, which is what the pre-launch site does until it opens `robots.txt` in stage 7. A value that is not a bare host name sends nothing and logs `indexnow_unavailable` with `errorName: "InvalidHost"` on every publish.
+The value is the host the engines fetch the key file from: a lower-case host name without a scheme, port or path (`indexNowHostSchema` in `@zsm3/contracts/indexnow`). While the variable is empty or missing the panel publishes silently, which is what the pre-launch site does until it opens `robots.txt` in stage 7. A value that is not a bare host name sends nothing and logs `indexnow_unavailable` with `errorName: "InvalidHost"` on every change that would be announced.
 
 The key itself is part of the repository, not a secret: `packages/contracts/src/indexnow.ts` holds its value and `apps/web/public/<key>.txt` serves it, and `apps/web/test/indexnow-key.test.ts` fails if the two drift apart. The leak-scan exception for it is recorded in [supply-chain.md](supply-chain.md).
 
-A notification never blocks a save. The publish is answered once the D1 batch commits, and the submission runs afterwards through the request's `waitUntil`. An unreachable endpoint or a timeout is logged as `indexnow_unavailable` with the error name; a refusal is logged with `errorName: "HttpStatus"` and the status code. In either case the item stays published.
+A notification never blocks or undoes a save. The request is answered once the D1 batch commits, and the submission runs afterwards through the request's `waitUntil`. An unreachable endpoint, a timeout or any other failure is logged as `indexnow_unavailable` with the error name only (no address and no content); a refusal is logged with `errorName: "HttpStatus"` and the status code. In every case the committed change stays. Each successful request sends at most one address, and the decision is taken from the status read before the write. Two editors who publish the same draft at the same moment can therefore both be announced; the engines treat the second submission as a repeat of the same address.

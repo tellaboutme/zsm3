@@ -7,6 +7,7 @@ import {
 import { Hono, type Context } from "hono";
 import { z } from "zod";
 
+import { announce } from "./announce.ts";
 import { atomicWrite } from "./atomic.ts";
 import { auditEntry, changedFields, createdFields } from "./audit.ts";
 import { requirePanelDeps, requirePanelSession } from "./deps.ts";
@@ -98,6 +99,8 @@ async function savePage(c: Context<AppEnv>): Promise<Response> {
     ),
   );
   await atomicWrite(deps, writes);
+  const edited = fields.length > 0;
+  await announce(deps, { before: row?.status, after: save.status, edited }, path);
   return c.json({ ok: true });
 }
 
