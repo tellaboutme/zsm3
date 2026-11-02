@@ -23,12 +23,22 @@ export const COUNT_OPEN_BY_EMAIL = `SELECT count(*) AS total FROM requests
 export const UPDATE_TRANSITION = `UPDATE requests
   SET status = ?1, updated_at = ?2, closed_at = COALESCE(?3, closed_at) WHERE id = ?4`;
 
+export const UPDATE_TRANSITION_FROM = `UPDATE requests
+  SET status = ?1, updated_at = ?2, closed_at = COALESCE(?3, closed_at)
+  WHERE id = ?4 AND status = ?5`;
+
+export const INSERT_AUDIT_FOR_TRANSITION = `INSERT INTO audit_log
+  (id, at, actor_email, action, entity, entity_id, details_json)
+  SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7
+  WHERE EXISTS (SELECT 1 FROM requests WHERE id = ?8 AND status = ?9)`;
+
 export const UPDATE_ERASE_PII = `UPDATE requests
   SET pii_ciphertext = NULL, pii_key_id = NULL, email_index = NULL, pii_erased_at = ?1 WHERE id = ?2`;
 
 export const SELECT_LIST = `SELECT ${COLUMNS} FROM requests
-  WHERE (?1 IS NULL OR status = ?1) AND (?2 IS NULL OR created_at < ?2)
-  ORDER BY created_at DESC LIMIT ?3`;
+  WHERE (?1 IS NULL OR status = ?1)
+    AND (?2 IS NULL OR created_at < ?2 OR (created_at = ?2 AND id < ?3))
+  ORDER BY created_at DESC, id DESC LIMIT ?4`;
 
 export const SELECT_INACTIVE = `SELECT ${COLUMNS} FROM requests
   WHERE status IN ('submitted', 'in_progress', 'ready') AND updated_at < ?1

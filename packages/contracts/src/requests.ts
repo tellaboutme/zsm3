@@ -192,11 +192,11 @@ export const panelRequestSummarySchema = z.strictObject({
 export type PanelRequestSummary = z.infer<typeof panelRequestSummarySchema>;
 
 export const panelRequestDetailSchema = panelRequestSummarySchema.extend({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
+  firstName: z.string().min(1).nullable(),
+  lastName: z.string().min(1).nullable(),
   className: z.string().min(1).nullable(),
   graduationYear: z.number().int().nullable(),
-  email: z.email(),
+  email: z.email().nullable(),
   note: z.string().max(500).nullable(),
   piiErasedAt: z.iso.datetime().nullable(),
 });

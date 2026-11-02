@@ -5,6 +5,7 @@ import { HTTPException } from "hono/http-exception";
 import type { AppBindings, MediaBucket } from "../../app-env.ts";
 import { logEvent } from "../../logging/log.ts";
 import type { AccessVerifier } from "../../security/access-jwt.ts";
+import type { PiiCrypto } from "../../security/pii-crypto.ts";
 import { indexNowSender, type IndexNowEndpoint } from "../../services/indexnow.ts";
 import type { AnnouncementsRepo } from "../../storage/announcements-repo.ts";
 import type { AuditRepo } from "../../storage/audit-repo.ts";
@@ -16,6 +17,7 @@ import type { FilesRepo } from "../../storage/files-repo.ts";
 import type { NewsRepo } from "../../storage/news-repo.ts";
 import type { PagesRepo } from "../../storage/pages-repo.ts";
 import type { RedirectsRepo } from "../../storage/redirects-repo.ts";
+import type { RequestsRepo } from "../../storage/requests-repo.ts";
 import type { RevisionsRepo } from "../../storage/revisions-repo.ts";
 import type { ShortLinksRepo } from "../../storage/short-links-repo.ts";
 import type { StaffRepo, StaffRole } from "../../storage/staff-repo.ts";
@@ -42,6 +44,7 @@ export interface PanelRepos {
   readonly announcements: AnnouncementsRepo;
   readonly bells: BellsRepo;
   readonly datasets: DatasetsRepo;
+  readonly requests: RequestsRepo;
 }
 
 export interface PanelSession {
@@ -80,6 +83,7 @@ export interface PanelDeps {
   readonly mediaBucket: MediaBucket;
   readonly origin: string;
   readonly verifier: AccessVerifier;
+  readonly piiCrypto: PiiCrypto;
   readonly notifyIndexNow: IndexNowNotify;
   readonly defer: BackgroundTask;
 }

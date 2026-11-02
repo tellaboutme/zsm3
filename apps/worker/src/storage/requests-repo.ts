@@ -37,6 +37,11 @@ import {
   WITHDRAW_OPEN,
   WITHDRAW_ERASE,
 } from "./requests-sql.ts";
+import {
+  buildTransitionStatements,
+  type RequestTransition,
+  type TransitionBatch,
+} from "./requests-transition.ts";
 import { assertTransition, isOpen } from "../domain/request-lifecycle.ts";
 
 export const MAX_OPEN_REQUESTS = 3;
@@ -53,6 +58,7 @@ export interface RequestsRepo {
   findByTokenHash(tokenHash: Uint8Array): Promise<RequestRecord | undefined>;
   countOpenByEmailIndex(emailIndex: Uint8Array): Promise<number>;
   transition(id: string, to: RequestStatus): Promise<RequestRecord>;
+  transitionStatements(change: RequestTransition): TransitionBatch;
   list(filter: RequestListFilter): Promise<readonly RequestRecord[]>;
   listInactive(before: string, limit: number): Promise<readonly RequestRecord[]>;
   listClosedBefore(before: string, limit: number): Promise<readonly RequestRecord[]>;
@@ -179,9 +185,17 @@ export function requestsRepo(store: Store): RequestsRepo {
     findByTokenHash: async (tokenHash) => oneRow(db.prepare(SELECT_BY_TOKEN_HASH).bind(tokenHash)),
     countOpenByEmailIndex: async (emailIndex) => countOpen(db, emailIndex),
     transition: async (id, to) => transitionRequest(db, clock, id, to),
+    transitionStatements: (change) => buildTransitionStatements(store, change),
     list: async (filter) =>
       manyRows(
-        db.prepare(SELECT_LIST).bind(filter.status ?? null, filter.before ?? null, filter.limit),
+        db
+          .prepare(SELECT_LIST)
+          .bind(
+            filter.status ?? null,
+            filter.before ?? null,
+            filter.beforeId ?? null,
+            filter.limit,
+          ),
       ),
     listInactive: async (before, limit) =>
       manyRows(db.prepare(SELECT_INACTIVE).bind(before, limit)),

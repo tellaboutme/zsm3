@@ -12,6 +12,7 @@
     "./search": "./src/search.ts",
     "./requests": "./src/requests.ts",
     "./panel": "./src/panel.ts",
+    "./panel-requests": "./src/panel-requests.ts",
     "./indexnow": "./src/indexnow.ts",
     "./announcements": "./src/announcements.ts",
     "./bells": "./src/bells.ts",

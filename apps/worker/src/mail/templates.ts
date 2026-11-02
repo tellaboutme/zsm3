@@ -13,6 +13,21 @@ export interface EmailContent {
   readonly text: string;
 }
 
+function readyNotice(context: TemplateContext): EmailContent {
+  return {
+    subject: "Dokument gotowy do odbioru",
+    text: [
+      `Wniosek nr ${context.requestId} (${requestTypeLabel(context.type)}) został zrealizowany.`,
+      collectionMessage("ready"),
+      ...(context.statusLink === ""
+        ? [
+            "Status wniosku można sprawdzić pod linkiem otrzymanym w potwierdzeniu złożenia wniosku.",
+          ]
+        : ["Status wniosku można sprawdzić na stronie:", context.statusLink]),
+    ].join("\n"),
+  };
+}
+
 export function templateFor(kind: EmailKind, context: TemplateContext): EmailContent {
   switch (kind) {
     case "SUBMISSION_CONFIRMATION":
@@ -36,10 +51,7 @@ export function templateFor(kind: EmailKind, context: TemplateContext): EmailCon
         ].join("\n"),
       };
     case "READY_NOTICE":
-      return {
-        subject: "Dokument gotowy do odbioru",
-        text: collectionMessage("ready"),
-      };
+      return readyNotice(context);
     case "REJECTED_NOTICE":
       return {
         subject: "Rozpatrzenie wniosku",

@@ -3,6 +3,13 @@ import type { ZodType } from "zod";
 
 import type { AppEnv } from "../../app-env.ts";
 
+export function uniqueQuery(c: Context<AppEnv>): Record<string, string> | undefined {
+  const params = new URL(c.req.url).searchParams;
+  return [...params.keys()].some((key) => params.getAll(key).length !== 1)
+    ? undefined
+    : Object.fromEntries(params);
+}
+
 export async function parseJsonBody<T>(
   c: Context<AppEnv>,
   schema: ZodType<T>,
