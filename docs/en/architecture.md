@@ -248,6 +248,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 - `/panel/*` and `/api/panel/*` sit behind a Cloudflare Access application. Staff sign in with the school's Microsoft 365 or Google Workspace (SSO with MFA) if available, otherwise with a one-time code sent to an allow-listed e-mail address. Sessions last 8 hours.
 - The Worker **itself** verifies `Cf-Access-Jwt-Assertion`: signature against the team JWKS, `aud`, `iss`, `exp`, `nbf`. Without a valid JWT the answer is 401, even if a request somehow bypassed Access. The `workers.dev` domain and preview URLs are disabled.
 - The role comes from an active `staff` row. The access matrix is one table in code, and a test covers every route.
+- The staff API for requests lives at `/api/panel/requests`: `GET /requests` (filtered list, newest first, at most 50 per page, no personal data; the next page is requested with `before` and `beforeId` from `nextBefore` and `nextBeforeId`, so requests created in the same millisecond are not skipped), `GET /requests/:id` (personal fields for `admin` and `secretariat` only, `null` once retention erased the PII) and `POST /requests/:id/status` (a transition checked against the stored status, with the audit row, the `ready`/`rejected` e-mail and the status update in one D1 batch, each conditioned on that same stored status, so either all of them apply or none does and a stale attempt answers `409`; staff cannot set `submitted` or `withdrawn`, which stays the applicant's erasing action).
 - State-changing requests require `Origin` equal to the site and `Content-Type: application/json` (CSRF protection).
 - The `domain/request-lifecycle` state machine enforces the transitions
   `submitted → in_progress → ready → collected`, and `rejected` from any open state. The applicant is e-mailed on `ready` and `rejected`.
@@ -286,7 +287,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 - The shared card is `apps/web/public/og-default.png`, a 1200×630 file. `SOCIAL_IMAGE` in `apps/web/src/lib/seo.ts` is the single source of the path, size and alt text, so the layout and the audit test cannot drift apart.
 - Regenerate the card with `python og_image/generate.py` from `tools/` (needs Pillow and `pnpm install` for the font files); the output is byte-stable for a given script and font set.
 - `apps/web/test/seo-metadata.test.ts` walks `apps/web/src/pages`, reads each `<Base>` call and fails when an indexable page passes an empty literal title or description or repeats one that another page already uses. Pages that opt out through `noindex`, the panel, `/wzornik`, `/s` and `/e-wniosek` are excluded.
-- IndexNow pings are not wired yet; `robots.txt` stays closed until stage 7.
+- Publishing a news item submits its address to IndexNow after the response, through `waitUntil`, once the `INDEXNOW_HOST` variable is set; without it nothing is sent. The key is public and served at `/<key>.txt` (see [panel.md](panel.md) and [supply-chain.md](supply-chain.md)). `robots.txt` stays closed until stage 7.
 
 ## 8. Security
 

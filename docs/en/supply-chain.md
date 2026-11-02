@@ -56,6 +56,28 @@ None recorded. The previous entry, GHSA-vfj7-8cjw-p6xm (`braces` 3.0.3 through s
 
 Four `generic-api-key` findings from commit `74e0a35870dc52bfd56a00a5ee3a4ac88a0845c9` are ignored by exact commit, path, rule and line fingerprints in `.gitleaksignore`: `apps/worker/test/node/env.node.test.ts:7` and `apps/worker/vitest.config.ts:30,31,36`. These are synthetic test-only values, not issued credentials; rewriting published history would be disruptive. Checked: 2026-10-26. Review: 2027-01-26, or sooner if test fixtures or the Gitleaks rule change. CI explicitly loads the ignore file from the repository mount and continues to scan the full history for every other finding.
 
+### Gitleaks: the public IndexNow key
+
+`INDEXNOW_KEY` in `packages/contracts/src/indexnow.ts` matches the `generic-api-key` rule. It is not a credential: the IndexNow protocol proves site ownership by having the engines fetch the same value from `https://<host>/<key>.txt`, which `apps/web/public/<key>.txt` serves to anyone. `apps/web/test/indexnow-key.test.ts` fails if the constant and the served file drift apart.
+
+`.gitleaks.toml` extends the default rules (`useDefault = true`) with one allowlist entry whose conditions must all hold (`condition = "AND"`): rule `generic-api-key`, path exactly `packages/contracts/src/indexnow.ts`, and a secret exactly equal to the published key (`regexTarget = "secret"`, an anchored regex). The entry is not tied to a commit or a line, so it survives squash merges and also covers the introducing commit on the feature branch, which CI scans because the checkout fetches every branch. It is narrower than a commit-less `path:rule:line` fingerprint in `.gitleaksignore`, which would hide any value placed on that line.
+
+Scope and consequences:
+
+- any other value in that file, including a different key on the same line, is still reported;
+- the same value in any other file is still reported;
+- every other rule still applies to that file;
+- rotating the key means updating the constant, the served file and the allowlist regex together; a missed regex makes the scan fail rather than pass.
+
+Verified on 2026-11-02 with the pinned image (`zricethezav/gitleaks@sha256:c00b6bd0…`, gitleaks v8.30.1) on a local clone carrying every branch, using the CI command line:
+
+- the full history, including the introducing commit, scans clean;
+- a random 40-character value on the key's line is reported;
+- the published key copied into another file is reported;
+- without `.gitleaks.toml` the original finding comes back, which shows the file is picked up from the repository root without a flag.
+
+Checked: 2026-11-02. Review: 2027-02-02, or sooner on key rotation, a Gitleaks image or rule update, or the stage 7 launch.
+
 ## Known scanner limitations
 
 - **OSV-Scanner** reads only the first YAML document of a pnpm 12 `pnpm-lock.yaml` (15 internal packages). `.github/scripts/osv-scan.sh` extracts the last document (~1,000 packages) and fails if it has no `importers:` section.

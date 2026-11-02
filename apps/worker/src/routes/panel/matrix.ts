@@ -3,6 +3,7 @@ import type { PanelRouteName } from "@zsm3/contracts/panel";
 import type { StaffRole } from "../../storage/staff-repo.ts";
 
 const CONTENT_ROLES: readonly StaffRole[] = ["admin", "secretariat", "editor"];
+const SECRETARIAT_ROLES: readonly StaffRole[] = ["admin", "secretariat"];
 const ALL_STAFF_ROLES: readonly StaffRole[] = ["admin", "secretariat", "editor", "gallery_editor"];
 
 export const PANEL_MATRIX: Readonly<Record<PanelRouteName, readonly StaffRole[]>> = {
@@ -37,6 +38,9 @@ export const PANEL_MATRIX: Readonly<Record<PanelRouteName, readonly StaffRole[]>
   "audit.list": ["admin"],
   "datasets.get": CONTENT_ROLES,
   "datasets.save": CONTENT_ROLES,
+  "requests.list": SECRETARIAT_ROLES,
+  "requests.get": SECRETARIAT_ROLES,
+  "requests.transition": SECRETARIAT_ROLES,
 };
 
 export function routeAllowed(name: PanelRouteName, role: StaffRole): boolean {

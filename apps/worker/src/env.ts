@@ -50,15 +50,19 @@ const configSchema = z.strictObject({
   secretariatEmail: z.email(),
 });
 
-export function requestsConfig(env: RequestsSecretEnv): RequestsConfig {
-  const piiKeySources: readonly (readonly [string, string | undefined])[] = [
+export function piiKeys(env: RequestsSecretEnv): Readonly<Record<string, string>> {
+  const sources: readonly (readonly [string, string | undefined])[] = [
     ["PRIMARY", env.PII_KEY_PRIMARY],
     ["SECONDARY", env.PII_KEY_SECONDARY],
   ];
+  return Object.fromEntries(
+    sources.filter((entry): entry is readonly [string, string] => entry[1] !== undefined),
+  );
+}
+
+export function requestsConfig(env: RequestsSecretEnv): RequestsConfig {
   const parsed = configSchema.safeParse({
-    piiKeys: Object.fromEntries(
-      piiKeySources.filter((entry): entry is readonly [string, string] => entry[1] !== undefined),
-    ),
+    piiKeys: piiKeys(env),
     emailIndexKey: env.EMAIL_INDEX_KEY,
     rateLimitSalt: env.RATE_LIMIT_SALT,
     turnstileSecretKey: env.TURNSTILE_SECRET_KEY,

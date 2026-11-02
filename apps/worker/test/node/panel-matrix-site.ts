@@ -9,6 +9,7 @@ interface RouteCase {
 }
 
 export const announcementIds = new Map<string, string>();
+export const requestIds = new Map<string, string>();
 
 export const ANNOUNCEMENT = {
   severity: "info",
@@ -28,6 +29,23 @@ function announcementFor(rolesByToken: ReadonlyMap<string, string>, token: strin
 
 function sharedAnnouncement(): string {
   const id = announcementIds.get("shared");
+  if (id === undefined) {
+    throw new Error("fixture");
+  }
+  return id;
+}
+
+function requestFor(rolesByToken: ReadonlyMap<string, string>, token: string): string {
+  const role = rolesByToken.get(token);
+  const id = role === undefined ? undefined : requestIds.get(role);
+  if (id === undefined) {
+    throw new Error("fixture");
+  }
+  return id;
+}
+
+function sharedRequest(): string {
+  const id = requestIds.get("shared");
   if (id === undefined) {
     throw new Error("fixture");
   }
@@ -117,6 +135,23 @@ export function siteCases(
         panelJsonCall(harness, "POST", "/revisions/restore", {
           token,
           body: { entity: "revisions", target: "pages", id: "/kontakt", revision: 1 },
+        }),
+    },
+    {
+      name: "requests.list",
+      call: async (token) => panelJsonCall(harness, "GET", "/requests", { token }),
+    },
+    {
+      name: "requests.get",
+      call: async (token) =>
+        panelJsonCall(harness, "GET", `/requests/${sharedRequest()}`, { token }),
+    },
+    {
+      name: "requests.transition",
+      call: async (token) =>
+        panelJsonCall(harness, "POST", `/requests/${requestFor(rolesByToken, token)}/status`, {
+          token,
+          body: { to: "in_progress" },
         }),
     },
   ];

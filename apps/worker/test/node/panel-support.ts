@@ -11,6 +11,7 @@ import { DEFAULT_PANEL_ORIGIN } from "../../src/routes/panel/deps.ts";
 import type { MediaBucket, PanelRuntimeEnv } from "../../src/routes/panel/deps.ts";
 import type { AccessVerifier } from "../../src/security/access-jwt.ts";
 import { createAccessVerifier } from "../../src/security/access-jwt.ts";
+import type { IndexNowEndpoint } from "../../src/services/indexnow.ts";
 import { auditRepo, type AuditRepo } from "../../src/storage/audit-repo.ts";
 import { systemClock } from "../../src/storage/database.ts";
 import { cryptoRandom } from "../../src/storage/ids.ts";
@@ -63,14 +64,16 @@ export function memoryBucket(): MediaBucket {
   };
 }
 
-export function panelEnv(): Env {
-  return {
+export function panelEnv(overrides: Partial<Env> = {}): Env {
+  const base: Env = {
     DB: memoryDatabase(),
     MEDIA: memoryBucket(),
     ACCESS_TEAM_DOMAIN: PANEL_DOMAIN,
     ACCESS_AUDIENCE: PANEL_AUDIENCE,
     PANEL_ORIGIN: DEFAULT_PANEL_ORIGIN,
+    PII_KEY_PRIMARY: "a".repeat(32),
   };
+  return { ...base, ...overrides };
 }
 
 export async function panelKeys(): Promise<PanelKeys> {
@@ -87,7 +90,9 @@ export async function panelKeys(): Promise<PanelKeys> {
   };
 }
 
-export async function panelHarness(): Promise<PanelHarness> {
+export async function panelHarness(
+  options: { readonly indexnow?: IndexNowEndpoint } = {},
+): Promise<PanelHarness> {
   const keys = await panelKeys();
   const verifier: AccessVerifier = createAccessVerifier({
     jwks: keys.jwks,
@@ -95,11 +100,11 @@ export async function panelHarness(): Promise<PanelHarness> {
     issuer: PANEL_ISSUER,
     now: VERIFIER_CLOCK,
   });
-  return { app: createApp({ verifier, origin: PANEL_ORIGIN }), env: panelEnv(), keys };
+  return { app: createApp({ verifier, origin: PANEL_ORIGIN, ...options }), env: panelEnv(), keys };
 }
 
-export async function panelEnvHarness(): Promise<PanelHarness> {
-  return { app: createApp(), env: panelEnv(), keys: await panelKeys() };
+export async function panelEnvHarness(env: Env = panelEnv()): Promise<PanelHarness> {
+  return { app: createApp(), env, keys: await panelKeys() };
 }
 
 export async function panelVerifierHarness(): Promise<PanelHarness> {

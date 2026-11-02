@@ -1,8 +1,12 @@
+import { indexNowHostSchema } from "@zsm3/contracts/indexnow";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 
 import type { AppBindings, MediaBucket } from "../../app-env.ts";
+import { logEvent } from "../../logging/log.ts";
 import type { AccessVerifier } from "../../security/access-jwt.ts";
+import type { PiiCrypto } from "../../security/pii-crypto.ts";
+import { indexNowSender, type IndexNowEndpoint } from "../../services/indexnow.ts";
 import type { AnnouncementsRepo } from "../../storage/announcements-repo.ts";
 import type { AuditRepo } from "../../storage/audit-repo.ts";
 import type { BellsRepo } from "../../storage/bells-repo.ts";
@@ -13,6 +17,7 @@ import type { FilesRepo } from "../../storage/files-repo.ts";
 import type { NewsRepo } from "../../storage/news-repo.ts";
 import type { PagesRepo } from "../../storage/pages-repo.ts";
 import type { RedirectsRepo } from "../../storage/redirects-repo.ts";
+import type { RequestsRepo } from "../../storage/requests-repo.ts";
 import type { RevisionsRepo } from "../../storage/revisions-repo.ts";
 import type { ShortLinksRepo } from "../../storage/short-links-repo.ts";
 import type { StaffRepo, StaffRole } from "../../storage/staff-repo.ts";
@@ -39,11 +44,37 @@ export interface PanelRepos {
   readonly announcements: AnnouncementsRepo;
   readonly bells: BellsRepo;
   readonly datasets: DatasetsRepo;
+  readonly requests: RequestsRepo;
 }
 
 export interface PanelSession {
   readonly email: string;
   readonly role: StaffRole;
+}
+
+export type IndexNowNotify = (path: string) => Promise<boolean>;
+
+export type BackgroundTask = (task: Promise<unknown>) => Promise<void>;
+
+async function invalidHost(): Promise<boolean> {
+  logEvent({ event: "indexnow_unavailable", errorName: "InvalidHost" });
+  return Promise.resolve(false);
+}
+
+export function indexNowNotify(env: AppBindings, endpoint?: IndexNowEndpoint): IndexNowNotify {
+  if (endpoint !== undefined) {
+    return async (path) => endpoint.submit([path]);
+  }
+  const configured = env.INDEXNOW_HOST?.trim() ?? "";
+  if (configured.length === 0) {
+    return async () => Promise.resolve(false);
+  }
+  const host = indexNowHostSchema.safeParse(configured);
+  if (!host.success) {
+    return invalidHost;
+  }
+  const sender = indexNowSender(fetch, host.data);
+  return async (path) => sender.submit([`https://${host.data}${path}`]);
 }
 
 export interface PanelDeps {
@@ -52,6 +83,9 @@ export interface PanelDeps {
   readonly mediaBucket: MediaBucket;
   readonly origin: string;
   readonly verifier: AccessVerifier;
+  readonly piiCrypto: PiiCrypto;
+  readonly notifyIndexNow: IndexNowNotify;
+  readonly defer: BackgroundTask;
 }
 
 export interface PanelRuntimeEnv {

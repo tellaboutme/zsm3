@@ -8,17 +8,14 @@ import { Hono } from "hono";
 
 import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { panelGuard, panelJsonOrigin } from "./guards.ts";
+import { uniqueQuery } from "./http.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse } from "../../http/problem.ts";
 
 export function shortLinksRoutes(): Hono<AppEnv> {
   return new Hono<AppEnv>()
     .get("/short-links", panelGuard("short-links.list"), async (c) => {
-      const params = new URL(c.req.url).searchParams;
-      if ([...params.keys()].some((key) => params.getAll(key).length !== 1)) {
-        return problemResponse(c, 422);
-      }
-      const query = panelShortLinksQuerySchema.safeParse(Object.fromEntries(params));
+      const query = panelShortLinksQuerySchema.safeParse(uniqueQuery(c));
       if (!query.success) {
         return problemResponse(c, 422);
       }
