@@ -2,6 +2,7 @@ import {
   panelRequestsListSchema,
   panelRequestsQuerySchema,
   panelRequestTransitionSchema,
+  type PanelRequestsQuery,
 } from "@zsm3/contracts/panel-requests";
 import { panelRequestDetailSchema, requestPiiSchema } from "@zsm3/contracts/requests";
 import { Hono, type Context } from "hono";
@@ -15,6 +16,7 @@ import type { AppEnv } from "../../app-env.ts";
 import { canTransition } from "../../domain/request-lifecycle.ts";
 import { problemResponse } from "../../http/problem.ts";
 import { batchChanges } from "../../storage/database.ts";
+import type { RequestListFilter } from "../../storage/requests-repo.ts";
 
 const ENTITY = "requests";
 
@@ -41,22 +43,32 @@ function summaryOf(record: {
   };
 }
 
+function listFilter({ status, before, beforeId, limit }: PanelRequestsQuery): RequestListFilter {
+  return {
+    ...(status === undefined ? {} : { status }),
+    ...(before === undefined ? {} : { before }),
+    ...(beforeId === undefined ? {} : { beforeId }),
+    limit: limit + 1,
+  };
+}
+
 async function listRequests(c: Context<AppEnv>): Promise<Response> {
   const params = uniqueQuery(c);
   const query = params === undefined ? undefined : panelRequestsQuerySchema.safeParse(params);
   if (query?.success !== true) {
     return problemResponse(c, 422);
   }
-  const { status, before, limit } = query.data;
-  const rows = await requirePanelDeps(c).repos.requests.list({
-    ...(status === undefined ? {} : { status }),
-    ...(before === undefined ? {} : { before }),
-    limit: limit + 1,
-  });
+  const { limit } = query.data;
+  const rows = await requirePanelDeps(c).repos.requests.list(listFilter(query.data));
   const items = rows.slice(0, limit);
-  const last = items.at(-1);
-  const nextBefore = rows.length > limit && last !== undefined ? last.createdAt : null;
-  return c.json(panelRequestsListSchema.parse({ items: items.map(summaryOf), nextBefore }));
+  const last = rows.length > limit ? items.at(-1) : undefined;
+  return c.json(
+    panelRequestsListSchema.parse({
+      items: items.map(summaryOf),
+      nextBefore: last?.createdAt ?? null,
+      nextBeforeId: last?.id ?? null,
+    }),
+  );
 }
 
 async function showRequest(c: Context<AppEnv>): Promise<Response> {
@@ -116,7 +128,7 @@ async function transitionRequest(c: Context<AppEnv>): Promise<Response> {
   if (!canTransition(record.status, body.to)) {
     return problemResponse(c, 422, "Invalid Status Transition");
   }
-  const statements = deps.repos.requests.transitionStatements({
+  const transition = deps.repos.requests.transitionStatements({
     id: record.id,
     from: record.status,
     to: body.to,
@@ -129,8 +141,8 @@ async function transitionRequest(c: Context<AppEnv>): Promise<Response> {
       fields: ["status"],
     }),
   });
-  const [updated] = batchChanges(await deps.db.batch([...statements]));
-  if (updated !== 1) {
+  const changes = batchChanges(await deps.db.batch([...transition.statements]));
+  if (!transition.applied(changes)) {
     return problemResponse(c, 409, "Request Status Changed");
   }
   return c.json({ ok: true });

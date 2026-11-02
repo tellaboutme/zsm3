@@ -38,23 +38,30 @@ describe("panel requests contracts", () => {
     expect(panelRequestsQuerySchema.safeParse({ status: "unknown" }).success).toBe(false);
     expect(panelRequestsQuerySchema.safeParse({ before: "invalid-date" }).success).toBe(false);
     expect(panelRequestsQuerySchema.safeParse({ extra: 1 }).success).toBe(false);
+    const cursor = { before: "2026-10-22T08:00:00.000Z", beforeId: summary.id };
+    expect(panelRequestsQuerySchema.parse(cursor)).toEqual({ ...cursor, limit: 20 });
+    expect(panelRequestsQuerySchema.safeParse({ beforeId: summary.id }).success).toBe(false);
+    expect(panelRequestsQuerySchema.safeParse({ ...cursor, beforeId: "not-a-uuid" }).success).toBe(
+      false,
+    );
   });
 
   it("parses request list envelopes", () => {
     const list = {
       items: [summary],
       nextBefore: "2026-10-22T08:00:00.000Z",
+      nextBeforeId: summary.id,
     };
     expect(panelRequestsListSchema.parse(list)).toEqual(list);
-    expect(panelRequestsListSchema.parse({ items: [], nextBefore: null })).toEqual({
-      items: [],
-      nextBefore: null,
-    });
+    expect(
+      panelRequestsListSchema.parse({ items: [], nextBefore: null, nextBeforeId: null }),
+    ).toEqual({ items: [], nextBefore: null, nextBeforeId: null });
     expect(panelRequestsListSchema.safeParse({ items: [summary] }).success).toBe(false);
     expect(
       panelRequestsListSchema.safeParse({
         items: [{ ...summary, status: "unknown" }],
         nextBefore: null,
+        nextBeforeId: null,
       }).success,
     ).toBe(false);
   });

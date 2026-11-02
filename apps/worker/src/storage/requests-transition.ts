@@ -3,8 +3,8 @@ import type { EmailKind, RequestStatus } from "@zsm3/contracts/requests";
 import { auditValues, type AuditEntry } from "./audit-repo.ts";
 import { timestamp, type SqlStatement, type Store } from "./database.ts";
 import { uuidv7 } from "./ids.ts";
-import { INSERT_OUTBOX_AFTER_TRANSITION } from "./outbox-sql.ts";
-import { INSERT_AUDIT_AFTER_TRANSITION, UPDATE_TRANSITION_FROM } from "./requests-sql.ts";
+import { INSERT_OUTBOX_FOR_TRANSITION } from "./outbox-sql.ts";
+import { INSERT_AUDIT_FOR_TRANSITION, UPDATE_TRANSITION_FROM } from "./requests-sql.ts";
 import { isOpen } from "../domain/request-lifecycle.ts";
 
 const NOTICE_KINDS: Readonly<Record<RequestStatus, EmailKind | null>> = {
@@ -24,24 +24,33 @@ export interface RequestTransition {
   readonly audit: AuditEntry;
 }
 
+export interface TransitionBatch {
+  readonly statements: readonly SqlStatement[];
+  applied(changes: readonly number[]): boolean;
+}
+
 export function buildTransitionStatements(
   store: Store,
   { id, from, to, origin, audit }: RequestTransition,
-): readonly SqlStatement[] {
+): TransitionBatch {
   const { db, clock, random } = store;
   const now = timestamp(clock);
-  const statements = [
-    db.prepare(UPDATE_TRANSITION_FROM).bind(to, now, isOpen(to) ? null : now, id, from),
-    db.prepare(INSERT_AUDIT_AFTER_TRANSITION).bind(...auditValues(store, audit), to, now),
-  ];
   const kind = NOTICE_KINDS[to];
-  if (kind === null) {
-    return statements;
-  }
-  return [
-    ...statements,
-    db
-      .prepare(INSERT_OUTBOX_AFTER_TRANSITION)
-      .bind(uuidv7(clock().getTime(), random), kind, id, origin, now, to),
+  const notice =
+    kind === null
+      ? []
+      : [
+          db
+            .prepare(INSERT_OUTBOX_FOR_TRANSITION)
+            .bind(uuidv7(clock().getTime(), random), kind, id, origin, now, from),
+        ];
+  const statements = [
+    db.prepare(INSERT_AUDIT_FOR_TRANSITION).bind(...auditValues(store, audit), id, from),
+    ...notice,
+    db.prepare(UPDATE_TRANSITION_FROM).bind(to, now, isOpen(to) ? null : now, id, from),
   ];
+  return {
+    statements,
+    applied: (changes) => changes.at(statements.length - 1) === 1,
+  };
 }

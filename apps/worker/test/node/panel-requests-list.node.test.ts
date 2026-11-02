@@ -29,6 +29,7 @@ describe("panel requests list", () => {
     const all = panelRequestsListSchema.parse(await allRes.json());
     expect(all.items.map((item) => item.id)).toEqual([id2, id1]);
     expect(all.nextBefore).toBeNull();
+    expect(all.nextBeforeId).toBeNull();
     expect(JSON.stringify(all)).not.toMatch(/Jan|Kowalski|jan\.kowalski/u);
 
     const filteredRes = await panelJsonCall(harness, "GET", "/requests?status=in_progress", {
@@ -43,6 +44,7 @@ describe("panel requests list", () => {
     );
     expect(firstPage.items).toHaveLength(1);
     expect(firstPage.nextBefore).toBe(firstPage.items[0]?.createdAt);
+    expect(firstPage.nextBeforeId).toBe(id2);
     const secondPage = panelRequestsListSchema.parse(
       await (
         await panelJsonCall(

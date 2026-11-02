@@ -35,12 +35,11 @@ async function seeded() {
   const current = store();
   const repo = requestsRepo(current);
   await repo.create(createData());
-  const move = async (from: RequestStatus, to: RequestStatus, id = ID) =>
-    batchChanges(
-      await current.db.batch([
-        ...repo.transitionStatements({ id, from, to, origin: ORIGIN, audit: AUDIT }),
-      ]),
-    );
+  const move = async (from: RequestStatus, to: RequestStatus, id = ID) => {
+    const transition = repo.transitionStatements({ id, from, to, origin: ORIGIN, audit: AUDIT });
+    const changes = batchChanges(await current.db.batch([...transition.statements]));
+    return { applied: transition.applied(changes), changes };
+  };
   const rows = async (query: string) => (await current.db.prepare(query).all()).results;
   return { repo, move, rows };
 }
@@ -51,8 +50,8 @@ describe("request transitions with notices", () => {
   }) => {
     const { repo, move, rows } = await seeded();
 
-    expect(await move("submitted", "in_progress")).toEqual([1, 1]);
-    expect(await move("in_progress", "ready")).toEqual([1, 1, 1]);
+    expect(await move("submitted", "in_progress")).toEqual({ applied: true, changes: [1, 1] });
+    expect(await move("in_progress", "ready")).toEqual({ applied: true, changes: [1, 1, 1] });
 
     expect(await repo.findById(ID)).toMatchObject({
       status: "ready",
@@ -76,6 +75,17 @@ describe("request transitions with notices", () => {
     ]);
   });
 
+  it("gives a repeated attempt with the same timestamp no side effects", async ({ expect }) => {
+    const { repo, move, rows } = await seeded();
+
+    expect((await move("submitted", "rejected")).applied).toBe(true);
+    expect(await move("submitted", "rejected")).toEqual({ applied: false, changes: [0, 0, 0] });
+
+    expect(await repo.findById(ID)).toMatchObject({ status: "rejected" });
+    expect(await rows("SELECT id FROM audit_log")).toHaveLength(1);
+    expect(await rows("SELECT kind FROM email_outbox")).toEqual([{ kind: "REJECTED_NOTICE" }]);
+  });
+
   it("closes the request and queues the rejection notice", async ({ expect }) => {
     const { repo, move, rows } = await seeded();
 
@@ -92,8 +102,8 @@ describe("request transitions with notices", () => {
     const { repo, move, rows } = await seeded();
     await repo.withdrawAndErase(ID, "2026-10-22T07:00:00.000Z");
 
-    expect(await move("submitted", "ready")).toEqual([0, 0, 0]);
-    expect(await move("submitted", "collected")).toEqual([0, 0]);
+    expect(await move("submitted", "ready")).toEqual({ applied: false, changes: [0, 0, 0] });
+    expect(await move("submitted", "collected")).toEqual({ applied: false, changes: [0, 0] });
 
     expect(await repo.findById(ID)).toMatchObject({ status: "withdrawn" });
     expect(await rows("SELECT id FROM email_outbox")).toHaveLength(0);
@@ -103,9 +113,10 @@ describe("request transitions with notices", () => {
   it("queues nothing when the request vanished before the batch", async ({ expect }) => {
     const { move, rows } = await seeded();
 
-    expect(await move("submitted", "ready", "99999999-9999-4999-8999-999999999999")).toEqual([
-      0, 0, 0,
-    ]);
+    expect(await move("submitted", "ready", "99999999-9999-4999-8999-999999999999")).toEqual({
+      applied: false,
+      changes: [0, 0, 0],
+    });
 
     expect(await rows("SELECT id FROM email_outbox")).toHaveLength(0);
     expect(await rows("SELECT id FROM audit_log")).toHaveLength(0);
