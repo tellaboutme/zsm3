@@ -49,7 +49,10 @@ it("saves a new page with created fields and shows it", async ({ expect }) => {
 
   const shown = await panelJsonCall(harness, "GET", "/pages/kontakt", { token });
   const viewRaw: unknown = await shown.json();
-  expect(panelPageViewSchema.parse(viewRaw)).toEqual({ item: { ...CONTACT, status: "published" } });
+  expect(panelPageViewSchema.parse(viewRaw)).toEqual({
+    item: { ...CONTACT, status: "published" },
+    revision: 0,
+  });
 
   const saves = await panelAudit(harness.env).byEntity("pages", "/kontakt", 10);
   expect(saves[0]?.action).toBe("pages.save");
@@ -67,7 +70,7 @@ it("revisions the previous page on later saves", async ({ expect }) => {
   const changed = samplePage("/kontakt", "Kontakt ZSM3");
   const updated = await panelJsonCall(harness, "PUT", "/pages/kontakt", {
     token,
-    body: pageSaveMutation(changed, "published"),
+    body: pageSaveMutation(changed, "published", 0),
   });
   expect(updated.status).toBe(200);
 

@@ -31,11 +31,18 @@ describe("panel mutation narrowing", () => {
   });
 
   it("narrow news mutations by action", ({ expect }) => {
-    expect(newsMutation(newsSaveMutation(NEWS))).toEqual(NEWS);
+    expect(newsMutation(newsSaveMutation(NEWS, 4))).toEqual({ item: NEWS, expectedRevision: 4 });
+    expect(newsMutation(newsSaveMutation(NEWS))).toEqual({ item: NEWS, expectedRevision: null });
     expect(newsMutation(newsStatusMutation("publish"))).toBeUndefined();
     expect(newsPublish(newsSaveMutation(NEWS))).toBeUndefined();
-    expect(newsPublish(newsStatusMutation("publish"))).toBe("publish");
-    expect(newsPublish(newsStatusMutation("unpublish"))).toBe("unpublish");
+    expect(newsPublish(newsStatusMutation("publish", 2))).toEqual({
+      action: "publish",
+      expectedRevision: 2,
+    });
+    expect(newsPublish(newsStatusMutation("unpublish", 3))).toEqual({
+      action: "unpublish",
+      expectedRevision: 3,
+    });
   });
 
   it("narrows foreign entities to undefined", ({ expect }) => {
@@ -50,7 +57,12 @@ describe("panel mutation narrowing", () => {
     expect(newsPublish(events)).toBeUndefined();
     expect(pageSave(news)).toBeUndefined();
     expect(pageSave(events)).toBeUndefined();
-    expect(pageSave(page)).toEqual({ page: PAGE, status: "draft" });
+    expect(pageSave(page)).toEqual({ page: PAGE, status: "draft", expectedRevision: null });
+    expect(pageSave(pageSaveMutation(PAGE, "published", 5))).toEqual({
+      page: PAGE,
+      status: "published",
+      expectedRevision: 5,
+    });
     expect(eventsSave(news)).toBeUndefined();
     expect(eventsSave(page)).toBeUndefined();
     expect(redirectSave(news)).toBeUndefined();

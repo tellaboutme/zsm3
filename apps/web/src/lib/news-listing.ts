@@ -12,7 +12,7 @@ import {
   type Page,
 } from "./news.ts";
 
-export type NewsReader = Omit<NewsRepo, "save" | "saveStatements">;
+export type NewsReader = Omit<NewsRepo, "save" | "saveStatements" | "createStatements">;
 
 export interface ListingScope {
   readonly category?: string | undefined;

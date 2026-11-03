@@ -11,26 +11,42 @@ import type { PanelDatasetSave } from "@zsm3/contracts/datasets";
 import type { PanelMutation, PanelStaffMember } from "@zsm3/contracts/panel";
 import type { PanelRevisionRestore } from "@zsm3/contracts/revisions";
 
-export function newsMutation(data: PanelMutation | undefined): News | undefined {
+export interface NewsSave {
+  readonly item: News;
+  readonly expectedRevision: number | null;
+}
+
+export interface NewsPublish {
+  readonly action: "publish" | "unpublish";
+  readonly expectedRevision: number;
+}
+
+export interface PageSave {
+  readonly page: ContentPage;
+  readonly status: PublicationStatus;
+  readonly expectedRevision: number | null;
+}
+
+export function newsMutation(data: PanelMutation | undefined): NewsSave | undefined {
   const mutation = data?.entity === "news" ? data.mutation : undefined;
   if (mutation?.action !== "save") {
     return undefined;
   }
-  return mutation.item;
+  return { item: mutation.item, expectedRevision: mutation.expectedRevision };
 }
 
-export function newsPublish(data: PanelMutation | undefined): "publish" | "unpublish" | undefined {
-  const action = (data?.entity === "news" ? data.mutation : undefined)?.action;
-  if (action === undefined || action === "save") {
+export function newsPublish(data: PanelMutation | undefined): NewsPublish | undefined {
+  const mutation = data?.entity === "news" ? data.mutation : undefined;
+  if (mutation === undefined || mutation.action === "save") {
     return undefined;
   }
-  return action;
+  return { action: mutation.action, expectedRevision: mutation.expectedRevision };
 }
 
-export function pageSave(
-  data: PanelMutation | undefined,
-): { page: ContentPage; status: PublicationStatus } | undefined {
-  return data?.entity === "pages" ? { page: data.page, status: data.status } : undefined;
+export function pageSave(data: PanelMutation | undefined): PageSave | undefined {
+  return data?.entity === "pages"
+    ? { page: data.page, status: data.status, expectedRevision: data.expectedRevision }
+    : undefined;
 }
 
 export function eventsSave(data: PanelMutation | undefined): readonly SchoolEvent[] | undefined {

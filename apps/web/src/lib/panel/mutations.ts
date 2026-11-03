@@ -12,12 +12,19 @@ import type { PanelStaffMember } from "@zsm3/contracts/panel";
 
 export interface NewsSaveMutation {
   readonly entity: "news";
-  readonly mutation: { readonly action: "save"; readonly item: News };
+  readonly mutation: {
+    readonly action: "save";
+    readonly item: News;
+    readonly expectedRevision: number | null;
+  };
 }
 
 export interface NewsStatusMutation {
   readonly entity: "news";
-  readonly mutation: { readonly action: "publish" | "unpublish" };
+  readonly mutation: {
+    readonly action: "publish" | "unpublish";
+    readonly expectedRevision: number;
+  };
 }
 
 export interface PageSaveMutation {
@@ -25,6 +32,7 @@ export interface PageSaveMutation {
   readonly action: "save";
   readonly page: ContentPage;
   readonly status: PublicationStatus;
+  readonly expectedRevision: number | null;
 }
 
 export interface EventsSaveMutation {
@@ -58,16 +66,23 @@ export interface DatasetSaveMutation {
   readonly data: unknown;
 }
 
-export function newsSave(item: News): NewsSaveMutation {
-  return { entity: "news", mutation: { action: "save", item } };
+export function newsSave(item: News, expectedRevision: number | null): NewsSaveMutation {
+  return { entity: "news", mutation: { action: "save", item, expectedRevision } };
 }
 
-export function newsStatus(action: "publish" | "unpublish"): NewsStatusMutation {
-  return { entity: "news", mutation: { action } };
+export function newsStatus(
+  action: "publish" | "unpublish",
+  expectedRevision: number,
+): NewsStatusMutation {
+  return { entity: "news", mutation: { action, expectedRevision } };
 }
 
-export function pageSave(page: ContentPage, status: PublicationStatus): PageSaveMutation {
-  return { entity: "pages", action: "save", page, status };
+export function pageSave(
+  page: ContentPage,
+  status: PublicationStatus,
+  expectedRevision: number | null,
+): PageSaveMutation {
+  return { entity: "pages", action: "save", page, status, expectedRevision };
 }
 
 export function eventsSave(events: readonly SchoolEvent[]): EventsSaveMutation {

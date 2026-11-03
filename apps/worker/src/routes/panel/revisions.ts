@@ -3,19 +3,22 @@ import {
   MAX_LISTED_REVISIONS,
   panelRevisionListSchema,
   revisionTargetSchema,
+  type PanelRevisionRestore,
 } from "@zsm3/contracts/revisions";
 import { Hono, type Context } from "hono";
 import { z } from "zod";
 
-import { atomicWrite } from "./atomic.ts";
+import { announce } from "./announce.ts";
 import { auditEntry, changedFields } from "./audit.ts";
 import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { panelGuard, panelJsonOrigin } from "./guards.ts";
 import { parseJsonBody } from "./http.ts";
 import { revisionRestore } from "./mutations.ts";
 import { RESTORE_PLANS } from "./revision-plans.ts";
+import { atRevision, committed, contentChanged } from "./versions.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse } from "../../http/problem.ts";
+import type { SqlStatement } from "../../storage/database.ts";
 
 const summarySchema = z.object({
   title: z.string(),
@@ -52,14 +55,33 @@ async function listRevisions(c: Context<AppEnv>): Promise<Response> {
   return c.json(panelRevisionListSchema.parse({ items }));
 }
 
+function restoreAudit(
+  c: Context<AppEnv>,
+  restore: PanelRevisionRestore,
+  fields: readonly string[],
+): SqlStatement {
+  return requirePanelDeps(c).repos.audit.statement(
+    auditEntry({
+      session: requirePanelSession(c),
+      action: `${restore.target}.restore`,
+      entity: restore.target,
+      entityId: restore.id,
+      fields,
+    }),
+  );
+}
+
 async function restoreRevision(c: Context<AppEnv>): Promise<Response> {
   const deps = requirePanelDeps(c);
-  const session = requirePanelSession(c);
   const restore = revisionRestore(await parseJsonBody(c, panelMutationSchema));
   if (restore === undefined) {
     return problemResponse(c, 422);
   }
-  const revision = await deps.repos.revisions.find(restore.target, restore.id, restore.revision);
+  const { target, id, expectedRevision } = restore;
+  if (!(await atRevision(deps, target, id, expectedRevision))) {
+    return contentChanged(c);
+  }
+  const revision = await deps.repos.revisions.find(target, id, restore.revision);
   if (revision === undefined) {
     return problemResponse(c, 404);
   }
@@ -68,19 +90,17 @@ async function restoreRevision(c: Context<AppEnv>): Promise<Response> {
   if (typeof plan === "number") {
     return problemResponse(c, plan === 404 ? 404 : 422);
   }
-  await atomicWrite(deps, [
-    ...plan.writes,
-    deps.repos.audit.statement(
-      auditEntry({
-        session,
-        action: `${restore.target}.restore`,
-        entity: restore.target,
-        entityId: restore.id,
-        fields: changedFields(plan.before, plan.after),
-      }),
-    ),
-  ]);
-  return c.json({ ok: true });
+  const fields = changedFields(plan.before, plan.after);
+  const statements = [...plan.writes, restoreAudit(c, restore, fields)];
+  const unchanged = async (): Promise<boolean> => atRevision(deps, target, id, expectedRevision);
+  if (!(await committed(deps, { receipt: plan.receipt, statements, unchanged }))) {
+    return contentChanged(c);
+  }
+  if (plan.address !== undefined) {
+    const { path, status } = plan.address;
+    await announce(deps, { before: status, after: status, edited: fields.length > 0 }, path);
+  }
+  return c.json({ ok: true, revision: expectedRevision + 1 });
 }
 
 export function revisionsRoutes(): Hono<AppEnv> {

@@ -1,6 +1,14 @@
 import { z } from "zod";
 
-import { allRows, firstRow, timestamp, type SqlStatement, type Store } from "./database.ts";
+import {
+  allRows,
+  firstRow,
+  stored,
+  timestamp,
+  type SqlStatement,
+  type Store,
+  type WriteReceipt,
+} from "./database.ts";
 import { uuidv7 } from "./ids.ts";
 
 export interface Revision {
@@ -16,11 +24,26 @@ export interface Revision {
 export interface RevisionsRepo {
   append(entity: string, entityId: string, dataJson: string, actorEmail: string): Promise<void>;
   statement(entity: string, entityId: string, dataJson: string, actorEmail: string): SqlStatement;
+  expectedWrite(revision: ExpectedRevision): WriteReceipt;
+  current(entity: string, entityId: string): Promise<number>;
   latest(entity: string, entityId: string): Promise<Revision | undefined>;
   list(entity: string, entityId: string): Promise<readonly Revision[]>;
   recent(entity: string, entityId: string, limit: number): Promise<readonly Revision[]>;
   find(entity: string, entityId: string, revision: number): Promise<Revision | undefined>;
 }
+
+export interface ExpectedRevision {
+  readonly entity: string;
+  readonly entityId: string;
+  readonly dataJson: string;
+  readonly actorEmail: string;
+  readonly expected: number;
+}
+
+export const APPEND_EXPECTED_REVISION = `INSERT INTO content_revisions
+  (id, entity, entity_id, revision, data_json, actor_email, at) VALUES
+  (?1, ?2, ?3, CASE WHEN (SELECT COALESCE(MAX(revision), 0) FROM content_revisions
+    WHERE entity = ?2 AND entity_id = ?3) = ?7 THEN ?7 + 1 END, ?4, ?5, ?6)`;
 
 export const APPEND_REVISION = `INSERT INTO content_revisions
   (id, entity, entity_id, revision, data_json, actor_email, at) VALUES
@@ -29,6 +52,12 @@ export const APPEND_REVISION = `INSERT INTO content_revisions
 
 const SELECT_LATEST = `SELECT id, entity, entity_id, revision, data_json, actor_email, at
   FROM content_revisions WHERE entity = ? AND entity_id = ? ORDER BY revision DESC LIMIT 1`;
+
+const SELECT_CURRENT = `SELECT revision FROM content_revisions
+  WHERE entity = ? AND entity_id = ? ORDER BY revision DESC LIMIT 1`;
+
+const SELECT_STORED = `SELECT 1 AS stored FROM content_revisions
+  WHERE id = ? AND entity = ? AND entity_id = ?`;
 
 const SELECT_ALL = `SELECT id, entity, entity_id, revision, data_json, actor_email, at
   FROM content_revisions WHERE entity = ? AND entity_id = ? ORDER BY revision ASC`;
@@ -55,6 +84,8 @@ const revisionRowSchema = z.object({
   actor_email: z.string().nullable(),
   at: z.string(),
 });
+
+const currentRowSchema = z.object({ revision: z.number().int().min(1) });
 
 type RevisionRow = z.infer<typeof revisionRowSchema>;
 
@@ -90,21 +121,48 @@ function revisionStatement(
     );
 }
 
+function expectedWrite(store: Store, revision: ExpectedRevision): WriteReceipt {
+  const parsed = revisionInputSchema.parse({
+    entity: revision.entity,
+    entityId: revision.entityId,
+    dataJson: revision.dataJson,
+    actorEmail: revision.actorEmail,
+  });
+  const id = uuidv7(store.clock().getTime(), store.random);
+  return {
+    statement: store.db
+      .prepare(APPEND_EXPECTED_REVISION)
+      .bind(
+        id,
+        parsed.entity,
+        parsed.entityId,
+        parsed.dataJson,
+        parsed.actorEmail,
+        timestamp(store.clock),
+        revision.expected,
+      ),
+    landed: async () =>
+      stored(store.db.prepare(SELECT_STORED).bind(id, parsed.entity, parsed.entityId)),
+  };
+}
+
 export function revisionsRepo(store: Store): RevisionsRepo {
   const { db } = store;
+  const latest = async (entity: string, entityId: string): Promise<Revision | undefined> => {
+    const row = await firstRow(db.prepare(SELECT_LATEST).bind(entity, entityId), revisionRowSchema);
+    return row === undefined ? undefined : revisionFromRow(row);
+  };
   return {
     append: async (entity, entityId, dataJson, actorEmail) => {
       await db.batch([revisionStatement(store, { entity, entityId, dataJson, actorEmail })]);
     },
     statement: (entity, entityId, dataJson, actorEmail) =>
       revisionStatement(store, { entity, entityId, dataJson, actorEmail }),
-    latest: async (entity, entityId) => {
-      const row = await firstRow(
-        db.prepare(SELECT_LATEST).bind(entity, entityId),
-        revisionRowSchema,
-      );
-      return row === undefined ? undefined : revisionFromRow(row);
-    },
+    expectedWrite: (revision) => expectedWrite(store, revision),
+    current: async (entity, entityId) =>
+      (await firstRow(db.prepare(SELECT_CURRENT).bind(entity, entityId), currentRowSchema))
+        ?.revision ?? 0,
+    latest,
     list: async (entity, entityId) =>
       (await allRows(db.prepare(SELECT_ALL).bind(entity, entityId), revisionRowSchema)).map(
         revisionFromRow,

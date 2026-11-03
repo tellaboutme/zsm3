@@ -26,12 +26,18 @@ export interface IndexNowUnavailableEvent {
   readonly status?: number;
 }
 
+export interface PanelWriteRecoveredEvent {
+  readonly event: "panel_write_recovered";
+  readonly errorName: string;
+}
+
 export type LogEvent =
   | UnhandledErrorEvent
   | TurnstileUnavailableEvent
   | OutboxEnqueueFailedEvent
   | AccessConfigEvent
-  | IndexNowUnavailableEvent;
+  | IndexNowUnavailableEvent
+  | PanelWriteRecoveredEvent;
 
 export function logEvent(entry: LogEvent): void {
   console.error(JSON.stringify(entry));

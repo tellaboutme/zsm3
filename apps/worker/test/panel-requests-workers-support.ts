@@ -9,6 +9,7 @@ import { staffMember } from "./node/panel-fixtures.ts";
 import { ORIGIN } from "./support.ts";
 import { createAccessVerifier } from "../src/security/access-jwt.ts";
 import { piiCrypto } from "../src/security/pii-crypto.ts";
+import type { IndexNowEndpoint } from "../src/services/indexnow.ts";
 import { cryptoRandom } from "../src/storage/ids.ts";
 import { requestsRepo } from "../src/storage/requests-repo.ts";
 import { staffRepo } from "../src/storage/staff-repo.ts";
@@ -74,7 +75,7 @@ async function sign(email: string, privateKey: CryptoKey): Promise<string> {
     .sign(privateKey);
 }
 
-export async function panelOnWorkerd(): Promise<PanelOnWorkerd> {
+export async function panelOnWorkerd(indexnow?: IndexNowEndpoint): Promise<PanelOnWorkerd> {
   await applyD1Migrations(env.DB, env.TEST_MIGRATIONS);
   for (const member of [SECRETARIAT, ADMIN, EDITOR]) {
     await staffRepo(STORE).save(member);
@@ -88,7 +89,12 @@ export async function panelOnWorkerd(): Promise<PanelOnWorkerd> {
     now: VERIFIER_CLOCK,
   });
   return {
-    app: createApp({ verifier, origin: ORIGIN, piiCrypto: CRYPTO }),
+    app: createApp({
+      verifier,
+      origin: ORIGIN,
+      piiCrypto: CRYPTO,
+      ...(indexnow === undefined ? {} : { indexnow }),
+    }),
     tokens: {
       secretariat: await sign(SECRETARIAT.email, privateKey),
       admin: await sign(ADMIN.email, privateKey),

@@ -44,6 +44,6 @@ it("waits for the submission when the runtime offers no execution context", asyn
   });
   order.push("answered");
 
-  await expect(published.json()).resolves.toEqual({ ok: true });
+  await expect(published.json()).resolves.toEqual({ ok: true, revision: 1 });
   expect(order).toEqual(["submitted", "answered"]);
 });

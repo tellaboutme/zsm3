@@ -7,6 +7,8 @@ export interface NewsRef {
   touched: boolean;
 }
 
+export type NewsSaved = (ref: string) => void;
+
 export interface NewsParts {
   readonly form: HTMLFormElement;
   readonly status: HTMLElement;
@@ -14,13 +16,13 @@ export interface NewsParts {
   readonly unpublish: HTMLButtonElement;
   readonly blocks: BlocksUi;
   readonly ref: NewsRef;
-  readonly onSaved: () => void;
+  readonly onSaved: NewsSaved;
 }
 
 export function newsPartsFor(
   section: HTMLElement,
   blocks: BlocksUi,
-  onSaved: () => void,
+  onSaved: NewsSaved,
 ): NewsParts {
   return {
     form: areaForm(section, "form"),

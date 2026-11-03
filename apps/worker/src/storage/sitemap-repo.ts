@@ -1,4 +1,4 @@
-import { isoDateSchema, sitePathSchema, slugSchema } from "@zsm3/contracts/content";
+import { isoDateSchema, newsPath, sitePathSchema, slugSchema } from "@zsm3/contracts/content";
 import { z } from "zod";
 
 import { allRows, type Store } from "./database.ts";
@@ -35,7 +35,7 @@ export function sitemapRepo({ db }: Store): SitemapRepo {
       return [
         ...pages.map((row) => ({ path: row.path, lastmod: row.updated_at })),
         ...news.map((row) => ({
-          path: `/aktualnosci/${row.published_on.slice(0, 4)}/${row.slug}`,
+          path: newsPath({ date: row.published_on, slug: row.slug }),
           lastmod: row.updated_at,
         })),
       ];

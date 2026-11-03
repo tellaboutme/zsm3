@@ -25,7 +25,7 @@ const ITEM_BASE = {
   body: NEWS_BODY,
 };
 
-const VIEW = { item: { ...ITEM_BASE, status: "published" } };
+const VIEW = { item: { ...ITEM_BASE, status: "published" }, revision: 4 };
 
 interface Seen {
   readonly method: string;
@@ -123,7 +123,7 @@ function part(section: HTMLElement, name: string): HTMLElement {
 }
 
 it("keeps the publish controls honest after saving a published article", async ({ expect }) => {
-  const seen = stubFetch([jsonOf(VIEW), jsonOf({ ok: true }), jsonOf(VIEW)]);
+  const seen = stubFetch([jsonOf(VIEW), jsonOf({ ok: true, revision: 5 }), jsonOf(VIEW)]);
   const saved: boolean[] = [];
   const section = buildSection();
   const editor = wireEditor(section, wireBlocks(part(section, "blocks-root")), () => {
@@ -148,7 +148,7 @@ it("keeps the publish controls honest after saving a published article", async (
   expect(put?.path).toBe("/api/panel/news/2026/dzien-otwarty");
   expect(put?.payload).toEqual({
     entity: "news",
-    mutation: { action: "save", item: ITEM_BASE },
+    mutation: { action: "save", item: ITEM_BASE, expectedRevision: 4 },
   });
   expect(publish.hidden).toBe(true);
   expect(unpublish.hidden).toBe(false);
@@ -157,7 +157,7 @@ it("keeps the publish controls honest after saving a published article", async (
 });
 
 it("admits an unknown publish state instead of guessing", async ({ expect }) => {
-  const seen = stubFetch([jsonOf(VIEW), jsonOf({ ok: true }), problemOf(404)]);
+  const seen = stubFetch([jsonOf(VIEW), jsonOf({ ok: true, revision: 5 }), problemOf(404)]);
   const saved: boolean[] = [];
   const section = buildSection();
   const editor = wireEditor(section, wireBlocks(part(section, "blocks-root")), () => {

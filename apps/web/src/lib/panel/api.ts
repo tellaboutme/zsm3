@@ -11,6 +11,7 @@ const PROBLEM_STATUSES: Readonly<Record<string, string>> = {
   403: "Brak uprawnień do tej czynności.",
   404: "Nie znaleziono elementu. Odśwież listę.",
   405: "Żądanie ma niedozwoloną metodę.",
+  409: "Ktoś w międzyczasie zmienił ten element i Twoje zmiany nie zostały zapisane. Skopiuj je, wczytaj element ponownie i nanieś je jeszcze raz.",
   413: "Plik jest za duży (limit 100 MB).",
   422: "Serwer nie przyjął danych. Sprawdź pola i spróbuj ponownie.",
   500: "Błąd serwera. Odczekaj chwilę i spróbuj ponownie.",

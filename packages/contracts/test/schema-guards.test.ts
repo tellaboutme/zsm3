@@ -138,11 +138,12 @@ describe("panel guards", () => {
 
   it("accepts one example of every mutation", ({ expect }) => {
     const examples: readonly unknown[] = [
-      { entity: "news", mutation: { action: "publish" } },
+      { entity: "news", mutation: { action: "publish", expectedRevision: 0 } },
       {
         entity: "pages",
         action: "save",
         status: "draft",
+        expectedRevision: null,
         page: {
           path: "/kontakt",
           kicker: "Szkoła",
@@ -162,7 +163,7 @@ describe("panel guards", () => {
       { entity: "staff", item: { email: "a@zsm3.pl", role: "editor", active: true } },
       { entity: "announcements", item: ANNOUNCEMENT },
       { entity: "bells", schedule: SCHEDULE },
-      { entity: "revisions", target: "pages", id: "/kontakt", revision: 1 },
+      { entity: "revisions", target: "pages", id: "/kontakt", revision: 1, expectedRevision: 3 },
     ];
     for (const example of examples) {
       expect(panelMutationSchema.parse(example)).toEqual(example);

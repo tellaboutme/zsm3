@@ -106,7 +106,7 @@ describe("panel API on D1", () => {
   it("stores the previous news data as a revision on update", async ({ expect }) => {
     const changed = sampleNews("salon-maturzystow", "Salon Maturzystow 2026");
     const updated = await app.fetch(
-      jsonRequest("PUT", "/news/2026/salon-maturzystow", adminToken, newsSaveMutation(changed)),
+      jsonRequest("PUT", "/news/2026/salon-maturzystow", adminToken, newsSaveMutation(changed, 0)),
       env,
     );
     expect(updated.status).toBe(200);
@@ -143,7 +143,7 @@ describe("panel API on D1", () => {
         "PATCH",
         "/news/2026/salon-maturzystow",
         adminToken,
-        newsStatusMutation("publish"),
+        newsStatusMutation("publish", 1),
       ),
       env,
     );
@@ -160,7 +160,7 @@ describe("panel API on D1", () => {
         "PATCH",
         "/news/2026/salon-maturzystow",
         adminToken,
-        newsStatusMutation("unpublish"),
+        newsStatusMutation("unpublish", 2),
       ),
       env,
     );

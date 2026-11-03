@@ -203,6 +203,7 @@ Dzięki szkicom przygotujesz artykuł dziś, a opublikujesz w dniu uroczystości
 ### Historia i dziennik zdarzeń
 
 - **Historia wersji**: przed każdą zapisaną zmianą aktualności lub strony serwer zachowuje poprzednią wersję. Pod edytorem otwartej aktualności lub strony jest sekcja **Historia zmian** z ostatnimi 50 wersjami: numer, data i godzina, kto zapisał, status. Przycisk **Przywróć tę wersję** wraca do wybranej treści. Przywrócenie nie zmienia statusu publikacji (szkic zostaje szkicem, opublikowana treść zostaje opublikowana), a bieżąca treść trafia do historii, więc i przywrócenie można cofnąć.
+- **Równoczesna edycja**: jeśli ktoś inny zapisze, opublikuje albo wycofa ten sam wpis, zanim zapiszesz swoje zmiany, panel ich nie zapisze i pokaże komunikat „Ktoś w międzyczasie zmienił ten element i Twoje zmiany nie zostały zapisane”. Dzięki temu starsza wersja nie nadpisze cudzej zmiany ani nie opublikuje ponownie wycofanej treści. Twoje poprawki zostają w formularzu: skopiuj je, otwórz wpis ponownie i nanieś je na aktualną wersję.
 - **Dziennik zdarzeń** zapisuje każdą zmianę wykonaną w panelu: kto, co i kiedy. Nie zawiera danych osobowych wnioskodawców. Dziennik przechowywany jest przez 2 lata.
 
 Dziennik jest znakiem rzetelności, nie inwigilacji redaktorów: szkoła ma dowód, skąd pochodzi każda treść na stronie.
@@ -266,6 +267,7 @@ Jeśli uważasz, że twoja rola powinna obejmować więcej, zgłoś administrato
 | --------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | Sesja wygasła                           | Zaloguj się ponownie. Treść zapisana w wersjach roboczych pozostała w systemie.                     |
 | Nie mogę się zalogować                  | Sprawdź szkolny adres i uwierzytelnianie dwuskładnikowe. Dalej nie działa — zgłoś administratorowi. |
+| Ktoś zmienił wpis w międzyczasie        | Skopiuj swoje poprawki, otwórz wpis ponownie z listy i nanieś je jeszcze raz.                       |
 | Formularz nie zapisuje                  | Przeczytaj komunikat. Najczęściej brakuje pola wymaganego albo plik przekracza rozmiar.             |
 | Plik nie jest przyjmowany               | Sprawdź format z listy w rozdziale 6 i rzeczywisty typ pliku.                                       |
 | Ogłoszenie na stronie jest przestarzałe | W **Ogłoszeniach** zmień ostatni dzień na wczoraj albo usuń ogłoszenie (rozdział 11).               |
