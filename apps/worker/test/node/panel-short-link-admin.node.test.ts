@@ -1,7 +1,7 @@
 import { panelAdminShortLinksListSchema } from "@zsm3/contracts/panel";
 import { describe, it } from "vitest";
 
-import { ADMIN, as, LEFT, SECRETARIAT, setup, TEACHER } from "./panel-short-link-admin-support.ts";
+import { ADMIN, as, LEFT, OFFICE_STAFF, setup, TEACHER } from "./panel-short-link-admin-support.ts";
 import { expectProblem, panelJsonCall } from "./panel-support.ts";
 
 describe("administrator view of every active short link", () => {
@@ -68,7 +68,7 @@ describe("administrator view of every active short link", () => {
 
   it("is refused to every role but admin and to forged identities", async () => {
     const harness = await setup();
-    for (const email of [TEACHER, SECRETARIAT]) {
+    for (const email of [TEACHER, OFFICE_STAFF]) {
       const token = await as(harness, email);
       await expectProblem(await panelJsonCall(harness, "GET", "/short-links/all", { token }), 403);
       await expectProblem(

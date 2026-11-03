@@ -8,7 +8,7 @@ import { shortLinksRepo } from "../../src/storage/short-links-repo.ts";
 export const ADMIN = "dyrekcja@zsm3.test";
 export const TEACHER = "nauczyciel@zsm3.test";
 export const LEFT = "byly-nauczyciel@zsm3.test";
-export const SECRETARIAT = "sekretariat@zsm3.test";
+export const OFFICE_STAFF = "sekretariat@zsm3.test";
 const TARGET = "https://example.org/materialy";
 const FUTURE = "2030-09-01T00:00:00.000Z";
 
@@ -17,7 +17,7 @@ export async function setup(): Promise<PanelHarness> {
   await seedStaff(harness.env, [
     staffMember(ADMIN, "admin", true),
     staffMember(TEACHER, "editor", true),
-    staffMember(SECRETARIAT, "secretariat", true),
+    staffMember(OFFICE_STAFF, "secretariat", true),
     staffMember(LEFT, "editor", false),
   ]);
   const links = shortLinksRepo({ db: harness.env.DB, clock: systemClock, random: cryptoRandom });
