@@ -6,6 +6,7 @@ import {
   RATE_LIMIT_RETENTION_MS,
   rateLimitsRepo,
 } from "../storage/rate-limits-repo.ts";
+import { FAILURE_PRUNE_BATCH, shortLinkFailuresRepo } from "../storage/short-link-failures-repo.ts";
 import { LAPSED_PRUNE_BATCH, shortLinksRepo } from "../storage/short-links-repo.ts";
 
 const DAY_MS = 86_400_000;
@@ -17,6 +18,7 @@ export async function runHousekeeping(store: Store, bucket: MediaBucket, now: Da
     new Date(now.getTime() - RATE_LIMIT_RETENTION_MS).toISOString(),
     RATE_LIMIT_PRUNE_BATCH,
   );
+  await shortLinkFailuresRepo(store).prune(now, FAILURE_PRUNE_BATCH);
   await shortLinksRepo(store).pruneLapsed(
     new Date(now.getTime() - LAPSED_RETENTION_MS).toISOString(),
     LAPSED_PRUNE_BATCH,

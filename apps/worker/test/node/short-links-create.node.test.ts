@@ -5,6 +5,7 @@ import { createShortLink, type CreateDeps } from "../../src/short-links/create.t
 import { openLink, unlockLink } from "../../src/short-links/resolve.ts";
 import type { Store } from "../../src/storage/database.ts";
 import { rateLimitsRepo } from "../../src/storage/rate-limits-repo.ts";
+import { shortLinkFailuresRepo } from "../../src/storage/short-link-failures-repo.ts";
 import { shortLinksRepo, type ShortLinksRepo } from "../../src/storage/short-links-repo.ts";
 
 const KEY = "short-link-pepper-0123456789-0123456789";
@@ -19,6 +20,7 @@ function deps(current: Store, passwordKey: string | undefined) {
   return {
     links: shortLinksRepo(current),
     rateLimits: rateLimitsRepo(current),
+    failures: shortLinkFailuresRepo(current),
     passwordKey,
   };
 }

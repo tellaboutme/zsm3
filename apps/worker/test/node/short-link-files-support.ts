@@ -8,6 +8,7 @@ import type { UploadDeps, UploadInput } from "../../src/short-links/upload.ts";
 import { allRows, type Store } from "../../src/storage/database.ts";
 import { cryptoRandom, type RandomBytes } from "../../src/storage/ids.ts";
 import { rateLimitsRepo } from "../../src/storage/rate-limits-repo.ts";
+import { shortLinkFailuresRepo } from "../../src/storage/short-link-failures-repo.ts";
 import { shortLinkFilesRepo } from "../../src/storage/short-link-files-repo.ts";
 import { shortLinksRepo } from "../../src/storage/short-links-repo.ts";
 
@@ -62,7 +63,12 @@ export function uploadDeps(
 }
 
 export function resolveDeps(store: Store, key: string | undefined = KEY): ResolveDeps {
-  return { links: shortLinksRepo(store), rateLimits: rateLimitsRepo(store), passwordKey: key };
+  return {
+    links: shortLinksRepo(store),
+    rateLimits: rateLimitsRepo(store),
+    failures: shortLinkFailuresRepo(store),
+    passwordKey: key,
+  };
 }
 
 export function upload(bytes: Uint8Array, overrides: Partial<UploadInput> = {}): UploadInput {

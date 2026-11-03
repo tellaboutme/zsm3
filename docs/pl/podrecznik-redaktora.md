@@ -361,7 +361,7 @@ W **Krótkie linki** tworzysz adresy `/s/<kod>` dla uczniów — do strony w int
 
 Po utworzeniu link pojawia się z przyciskiem **Kopiuj link**. Na liście widzisz tylko swoje linki, ich stan (aktywny, wygasł, unieważniony), liczbę otwarć i to, czy mają hasło. **Unieważnij** wyłącza link od razu, także dla osób, które już go mają — przed tym panel prosi o potwierdzenie. Plik takiego linku znika z serwera w ciągu kwadransa.
 
-**Błędne hasła.** Po 30 błędnych hasłach w ciągu 10 minut link na chwilę przestaje przyjmować hasła. Po 100 błędnych hasłach w ciągu doby zostaje zablokowany do końca tej doby, nawet dla poprawnego hasła. Serwer nie zapisuje przy tym niczego o osobach, które wpisują hasło. Jeśli ktoś celowo zablokuje twój link, unieważnij go i udostępnij nowy.
+**Błędne hasła.** Po 30 błędnych hasłach w ciągu 10 minut link na chwilę przestaje przyjmować hasła. Po 100 błędnych hasłach w ciągu dowolnych 24 godzin zostaje zablokowany, nawet dla poprawnego hasła, aż najstarsze z tych prób będą miały więcej niż 24 godziny. Serwer nie zapisuje przy tym niczego o osobach, które wpisują hasło. Jeśli ktoś celowo zablokuje twój link, unieważnij go i udostępnij nowy.
 
 **Administrator** widzi dodatkowo sekcję **Aktywne linki wszystkich pracowników**: autora, rodzaj (strona albo plik), daty i to, czy link ma hasło — bez adresów, nazw plików i haseł. Może tam unieważnić link każdego pracownika, na przykład osoby, która odeszła ze szkoły. Dziennik zmian zapisuje, który administrator to zrobił i czyj był link.
 

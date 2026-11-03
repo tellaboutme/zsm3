@@ -9,6 +9,7 @@ import { problemResponse } from "../http/problem.ts";
 import { passwordRedirect, submittedPassword, unlockLink } from "../short-links/resolve.ts";
 import { liveStore } from "../storage/database.ts";
 import { rateLimitsRepo } from "../storage/rate-limits-repo.ts";
+import { shortLinkFailuresRepo } from "../storage/short-link-failures-repo.ts";
 import { shortLinksRepo } from "../storage/short-links-repo.ts";
 import type { StoredLinkFile } from "../storage/short-links-rows.ts";
 
@@ -45,6 +46,7 @@ export const shortLinkRoutes = new Hono<AppEnv>().post("/:code", async (c) => {
   const deps = {
     links: shortLinksRepo(store),
     rateLimits: rateLimitsRepo(store),
+    failures: shortLinkFailuresRepo(store),
     passwordKey: c.env.SHORT_LINK_KEY,
   };
   const outcome = await unlockLink(

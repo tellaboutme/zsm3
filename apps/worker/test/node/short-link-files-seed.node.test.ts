@@ -12,6 +12,7 @@ import { detectFormat } from "../../src/domain/link-file.ts";
 import { openLink, unlockLink } from "../../src/short-links/resolve.ts";
 import type { Store } from "../../src/storage/database.ts";
 import { rateLimitsRepo } from "../../src/storage/rate-limits-repo.ts";
+import { shortLinkFailuresRepo } from "../../src/storage/short-link-failures-repo.ts";
 import { shortLinksRepo } from "../../src/storage/short-links-repo.ts";
 
 const KEY = "short-link-pepper-0123456789-0123456789";
@@ -30,7 +31,12 @@ describe("short link file demo seeds", () => {
     const current = store();
     const bucket = spyBucket();
     const links = shortLinksRepo(current);
-    const deps = { links, rateLimits: rateLimitsRepo(current), passwordKey: KEY };
+    const deps = {
+      links,
+      rateLimits: rateLimitsRepo(current),
+      failures: shortLinkFailuresRepo(current),
+      passwordKey: KEY,
+    };
 
     expect(FILE_SEEDS.map((seed) => seed.code)).toEqual(["pdfmat3", "pdfzhas"]);
     expect(detectFormat(DEMO_PDF)).toBe("pdf");

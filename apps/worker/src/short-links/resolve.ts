@@ -4,14 +4,12 @@ import { hasLapsed, normaliseCode } from "../domain/short-link.ts";
 import { sha256 } from "../security/hmac.ts";
 import { verifyPassword } from "../security/passwords.ts";
 import { RATE_LIMIT_WINDOW_MINUTES, type RateLimitsRepo } from "../storage/rate-limits-repo.ts";
+import type { ShortLinkFailuresRepo } from "../storage/short-link-failures-repo.ts";
 import type { ShortLinkRecord, ShortLinksRepo } from "../storage/short-links-repo.ts";
 import type { StoredLinkFile } from "../storage/short-links-rows.ts";
 
 export const PASSWORD_ATTEMPTS = 30;
-export const DAILY_FAILED_ATTEMPTS = 100;
-
 const MINUTE_MS = 60_000;
-const DAY_MS = 24 * 60 * MINUTE_MS;
 
 export interface OpenDeps {
   readonly links: ShortLinksRepo;
@@ -19,6 +17,7 @@ export interface OpenDeps {
 
 export interface ResolveDeps extends OpenDeps {
   readonly rateLimits: RateLimitsRepo;
+  readonly failures: ShortLinkFailuresRepo;
   readonly passwordKey: string | undefined;
 }
 
@@ -52,14 +51,6 @@ async function findLive(deps: OpenDeps, code: string, now: Date): Promise<FoundL
 
 async function guessKey(code: string): Promise<Uint8Array> {
   return sha256(`shortlink:${code}`);
-}
-
-async function failureKey(code: string): Promise<Uint8Array> {
-  return sha256(`shortlink-failures:${code}`);
-}
-
-function dayBefore(now: Date): string {
-  return new Date(now.getTime() - DAY_MS).toISOString();
 }
 
 async function guessesExceeded(deps: ResolveDeps, key: Uint8Array, now: Date): Promise<boolean> {
@@ -118,18 +109,18 @@ export async function unlockLink(
   if (deps.passwordKey === undefined) {
     return { kind: "unavailable" };
   }
-  const failures = await failureKey(normalised);
-  if ((await deps.rateLimits.peek(failures, dayBefore(now))) >= DAILY_FAILED_ATTEMPTS) {
-    return { kind: "blocked" };
-  }
   const key = await guessKey(normalised);
   if (await guessesExceeded(deps, key, now)) {
     return { kind: "throttled" };
   }
+  const slot = await deps.failures.reserve(normalised, now);
+  if (slot === undefined) {
+    return { kind: "blocked" };
+  }
   if (!(await verifyPassword(deps.passwordKey, attempt, digest))) {
-    await deps.rateLimits.consume(failures, now.toISOString(), dayBefore(now));
     return { kind: "locked" };
   }
+  await deps.failures.release(slot);
   await deps.rateLimits.clear(key);
   return await delivered(deps, found.link);
 }
