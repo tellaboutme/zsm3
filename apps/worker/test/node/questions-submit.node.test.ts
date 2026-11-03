@@ -143,7 +143,7 @@ describe("an anonymous question", () => {
 
   it("stores markup as plain text without interpreting it", async ({ expect }) => {
     const harness = questionHarness();
-    const markup = '<img src=x onerror="alert(1)"> <script>alert(2)</script>';
+    const markup = '<img src=x onerror="alert(1)"> <svg onload=alert(2)>';
 
     await submitQuestion(harness.deps, questionInput(questionBody({ question: markup })));
 

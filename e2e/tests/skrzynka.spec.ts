@@ -11,7 +11,14 @@ const QUESTION = "Jak mogę umówić się na rozmowę, jeśli nie chcę, żeby k
 
 async function stubTurnstile(page: Page): Promise<void> {
   await page.route("https://challenges.cloudflare.com/**", async (route) =>
-    route.fulfill({ contentType: "text/javascript", body: TURNSTILE_STUB }),
+    route.fulfill({
+      contentType: "text/javascript",
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Cross-Origin-Resource-Policy": "cross-origin",
+      },
+      body: TURNSTILE_STUB,
+    }),
   );
 }
 

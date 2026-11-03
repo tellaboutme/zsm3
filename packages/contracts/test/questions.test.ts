@@ -45,9 +45,9 @@ describe("question text", () => {
     expect(hasUnsafeCharacters("a\u0000b")).toBe(true);
     expect(hasUnsafeCharacters("a\u001fb")).toBe(true);
     expect(hasUnsafeCharacters("a\u007fb")).toBe(true);
-    expect(hasUnsafeCharacters("a‮b")).toBe(true);
-    expect(hasUnsafeCharacters("a⁦b")).toBe(true);
-    expect(hasUnsafeCharacters("a‏b")).toBe(true);
+    expect(hasUnsafeCharacters("a\u202eb")).toBe(true);
+    expect(hasUnsafeCharacters("a\u2066b")).toBe(true);
+    expect(hasUnsafeCharacters("a\u200fb")).toBe(true);
     expect(hasUnsafeCharacters(" ")).toBe(false);
   });
 });
@@ -84,7 +84,7 @@ describe("anonymous question input", () => {
       input({ turnstileToken: "" }),
       input({ turnstileToken: "t".repeat(2049) }),
       input({ submittedAtMs: -1 }),
-      input({ question: "Pytanie‮ z ukrytym kierunkiem" }),
+      input({ question: "Pytanie\u202e z ukrytym kierunkiem" }),
     ];
     expect(refused.map((value) => questionInputSchema.safeParse(value).success)).toEqual(
       refused.map(() => false),
@@ -179,7 +179,7 @@ describe("labels and messages", () => {
   });
 
   it("explains why text or a cursor was refused", ({ expect }) => {
-    const text = questionInputSchema.safeParse(input({ question: "Pytanie z ‮odwróceniem" }));
+    const text = questionInputSchema.safeParse(input({ question: "Pytanie z \u202eodwróceniem" }));
     const cursor = panelQuestionsQuerySchema.safeParse({ before: "2026-10-20" });
     expect(text.error?.issues.map((issue) => issue.message)).toEqual(["Unsafe characters"]);
     expect(cursor.error?.issues.map((issue) => issue.message)).toEqual([
