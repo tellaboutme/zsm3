@@ -65,7 +65,9 @@ The gallery routes serve `admin` and `gallery_editor`. The panel pages for them,
 | `PATCH /api/panel/albums/:id/photos/:pid`  | change the alt text                                        |
 | `DELETE /api/panel/albums/:id/photos/:pid` | soft delete                                                |
 
-Every write is audited with field names only. Consent is recorded in `photos.consent_by` and `photos.consent_at`.
+Every write is audited with field names only. `photos.consent_by` and `photos.consent_at` record who confirmed that the school holds a permission or another agreed legal basis, and when. That is not proof of consent, which stays with the school. `POST .../photos` answers `409` with "Photo Cleanup Running" while cleanup of an earlier abandoned upload of the same file is in progress (architecture.md §7.5); retrying after the next Cron tick works.
+
+Photos are uploaded by school staff with the `gallery_editor` role and supervised by `admin`. The school names the person responsible separately; until then no real archive is imported or published.
 
 ## Enabling the panel in production
 

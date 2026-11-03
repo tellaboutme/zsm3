@@ -83,6 +83,9 @@ async function uploadPhoto(c: Context<AppEnv>): Promise<Response> {
   if (album.photoCount >= MAX_ALBUM_PHOTOS) {
     return problemResponse(c, 422, "Album Is Full");
   }
+  if (!(await deps.repos.photoUploads.begin(upload.sha256))) {
+    return problemResponse(c, 409, "Photo Cleanup Running");
+  }
   await deps.mediaBucket.put(photoKey(upload.sha256, "l"), upload.large);
   await deps.mediaBucket.put(photoKey(upload.sha256, "s"), upload.small);
   const plan = photoSavePlan({ deps, session, album, upload, known });

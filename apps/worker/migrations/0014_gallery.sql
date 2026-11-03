@@ -31,3 +31,12 @@ CREATE TABLE photos (
 );
 
 CREATE INDEX photos_album ON photos (album_id, deleted_at, position);
+
+CREATE TABLE photo_uploads (
+  sha256 TEXT PRIMARY KEY CHECK (length(sha256) = 64 AND sha256 NOT GLOB '*[^0-9a-f]*'),
+  started_at TEXT NOT NULL,
+  claimed_at TEXT
+);
+
+CREATE INDEX photo_uploads_started ON photo_uploads (started_at);
+CREATE INDEX photo_uploads_claimed ON photo_uploads (claimed_at, sha256) WHERE claimed_at IS NOT NULL;

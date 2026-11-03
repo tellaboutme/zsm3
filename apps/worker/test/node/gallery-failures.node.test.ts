@@ -21,6 +21,8 @@ import {
 import { vp8Webp } from "./webp-fixtures.ts";
 import type { SqlDatabase } from "../../src/storage/database.ts";
 
+const JOURNAL_TOTAL = "SELECT COUNT(*) AS total FROM photo_uploads";
+
 const LARGE_HASH = async (): Promise<string> => {
   const digest = await crypto.subtle.digest("SHA-256", Uint8Array.from(vp8Webp(1600, 900, [1, 0])));
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -116,6 +118,29 @@ describe("failed writes", () => {
     await expectProblem(response, 500);
     expect(spyTotal(spy, "SELECT COUNT(*) AS total FROM photos")).toEqual({ total: 0 });
     expect(await bucketBytes(spy.env, photoKey(await LARGE_HASH(), "l"))).toBeDefined();
+    expect(spyTotal(spy, JOURNAL_TOTAL)).toEqual({ total: 1 });
+  });
+
+  it("clears the journal row when the save succeeds", async ({ expect }) => {
+    const spy = await panelSpyHarness();
+    await seedStaff({ ...spy.env, DB: spy.memory }, [SPY_ADMIN]);
+    const token = await spyToken(spy);
+    const album = await createAlbum(spy, token);
+    await uploadPhoto(spy, album.id, token);
+    expect(spyTotal(spy, JOURNAL_TOTAL)).toEqual({ total: 0 });
+  });
+
+  it("refuses an upload while cleanup is removing the same files", async ({ expect }) => {
+    const spy = await panelSpyHarness();
+    await seedStaff({ ...spy.env, DB: spy.memory }, [SPY_ADMIN]);
+    const token = await spyToken(spy);
+    const album = await createAlbum(spy, token);
+    spy.memory.sqlite
+      .prepare("INSERT INTO photo_uploads (sha256, started_at, claimed_at) VALUES (?, 't', 't')")
+      .run(await LARGE_HASH());
+    const response = await uploadCall(spy, album.id, token, photoParts());
+    expect((await expectProblem(response, 409)).title).toBe("Photo Cleanup Running");
+    expect(await bucketBytes(spy.env, photoKey(await LARGE_HASH(), "l"))).toBeUndefined();
   });
 
   it("stores no variant when the upload is refused", async ({ expect }) => {

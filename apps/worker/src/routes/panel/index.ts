@@ -40,6 +40,7 @@ import { filesRepo } from "../../storage/files-repo.ts";
 import { galleryRepo } from "../../storage/gallery-repo.ts";
 import { newsRepo } from "../../storage/news-repo.ts";
 import { pagesRepo } from "../../storage/pages-repo.ts";
+import { photoUploadsRepo } from "../../storage/photo-uploads-repo.ts";
 import { redirectsRepo } from "../../storage/redirects-repo.ts";
 import { requestsRepo } from "../../storage/requests-repo.ts";
 import { revisionsRepo } from "../../storage/revisions-repo.ts";
@@ -104,6 +105,7 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
         datasets: datasetsRepo(store),
         requests: requestsRepo(store),
         gallery: galleryRepo(store),
+        photoUploads: photoUploadsRepo(store),
       },
       mediaBucket: c.env.MEDIA,
       origin: options.origin ?? panelOrigin(c.env),

@@ -17,6 +17,7 @@ import type { FilesRepo } from "../../storage/files-repo.ts";
 import type { GalleryRepo } from "../../storage/gallery-repo.ts";
 import type { NewsRepo } from "../../storage/news-repo.ts";
 import type { PagesRepo } from "../../storage/pages-repo.ts";
+import type { PhotoUploadsRepo } from "../../storage/photo-uploads-repo.ts";
 import type { RedirectsRepo } from "../../storage/redirects-repo.ts";
 import type { RequestsRepo } from "../../storage/requests-repo.ts";
 import type { RevisionsRepo } from "../../storage/revisions-repo.ts";
@@ -47,6 +48,7 @@ export interface PanelRepos {
   readonly datasets: DatasetsRepo;
   readonly requests: RequestsRepo;
   readonly gallery: GalleryRepo;
+  readonly photoUploads: PhotoUploadsRepo;
 }
 
 export interface PanelSession {

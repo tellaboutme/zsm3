@@ -58,6 +58,7 @@ export function photoSavePlan({
     statements: [
       statement,
       deps.repos.gallery.refreshAlbumStatement(album.id),
+      deps.repos.photoUploads.finishStatement(upload.sha256),
       deps.repos.audit.statement(
         auditEntry({
           session,

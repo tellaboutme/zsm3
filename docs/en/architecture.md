@@ -23,22 +23,22 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
 
 ## 2. Legal requirements → design decisions
 
-| Act                                        | Requirement                                                        | Decision                                                                                                                                                                     |
-| ------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GDPR art. 5, 25                            | data minimisation, privacy by design                               | only the fields needed to issue the document; no PESEL, no photos, no IP addresses; field-level encryption (§8.3)                                                            |
-| GDPR art. 6                                | lawful basis                                                       | art. 6(1)(c)/(e) (the school's public task), **not consent**; confirmed by the school's data protection officer (IOD)                                                        |
-| GDPR art. 13                               | information notice                                                 | notice text from the IOD below the form with a link to the full version; an "I have read it" checkbox, which is not consent                                                  |
-| GDPR art. 17, 21                           | erasure                                                            | the applicant withdraws a request themselves (§7.3); automatic deletion after the retention period (§8.4)                                                                    |
-| GDPR art. 28                               | data processing agreements                                         | the Cloudflare and Brevo accounts **belong to the school**, which accepts their DPAs; a developer with access to production data signs a _umowa powierzenia_ with the school |
-| GDPR art. 30, 32, 33                       | records of processing, security, breaches                          | processing description for the school's register (`docs/RODO.md`), measures from §8, a 72-hour incident procedure (§12.3)                                                    |
-| GDPR art. 44+                              | transfers outside the EEA                                          | D1 and R2 in the `eu` jurisdiction; Cloudflare and Brevo under DPA/SCC; Brevo is a French company                                                                            |
-| Ustawa o dostępności cyfrowej (2019)       | WCAG 2.1 AA, accessibility statement                               | zero axe violations on every page in CI; `/deklaracja-dostepnosci` page in the official format, linked from the footer                                                       |
-| Ustawa o zapewnianiu dostępności (2019)    | information about the school in machine-readable text, PJM and ETR | `/dostepnosc` page with an easy-to-read text and a Polish Sign Language video, both provided by the school                                                                   |
-| Prawo komunikacji elektronicznej, art. 399 | cookies and browser storage                                        | strictly necessary only: theme choice in `localStorage` (requested by the user), the Access session cookie for staff; no analytics or trackers, so no consent banner         |
-| UŚUDE art. 8                               | terms of an electronic service                                     | `/e-wniosek/regulamin` page, text approved by the school                                                                                                                     |
-| Copyright act art. 81                      | images of people                                                   | every gallery upload confirms that consents exist and is written to the audit log; photos can be removed within minutes on request                                           |
-| KRI regulation (2024)                      | security and accessibility of public-sector systems                | sections 8, 10 and 12 of this document and the audit log                                                                                                                     |
-| Ustawa o dostępie do informacji publicznej | BIP                                                                | the website does not replace the BIP; links to the BIP in the header and footer                                                                                              |
+| Act                                        | Requirement                                                        | Decision                                                                                                                                                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GDPR art. 5, 25                            | data minimisation, privacy by design                               | only the fields needed to issue the document; no PESEL, no photos, no IP addresses; field-level encryption (§8.3)                                                                                  |
+| GDPR art. 6                                | lawful basis                                                       | art. 6(1)(c)/(e) (the school's public task), **not consent**; confirmed by the school's data protection officer (IOD)                                                                              |
+| GDPR art. 13                               | information notice                                                 | notice text from the IOD below the form with a link to the full version; an "I have read it" checkbox, which is not consent                                                                        |
+| GDPR art. 17, 21                           | erasure                                                            | the applicant withdraws a request themselves (§7.3); automatic deletion after the retention period (§8.4)                                                                                          |
+| GDPR art. 28                               | data processing agreements                                         | the Cloudflare and Brevo accounts **belong to the school**, which accepts their DPAs; a developer with access to production data signs a _umowa powierzenia_ with the school                       |
+| GDPR art. 30, 32, 33                       | records of processing, security, breaches                          | processing description for the school's register (`docs/RODO.md`), measures from §8, a 72-hour incident procedure (§12.3)                                                                          |
+| GDPR art. 44+                              | transfers outside the EEA                                          | D1 and R2 in the `eu` jurisdiction; Cloudflare and Brevo under DPA/SCC; Brevo is a French company                                                                                                  |
+| Ustawa o dostępności cyfrowej (2019)       | WCAG 2.1 AA, accessibility statement                               | zero axe violations on every page in CI; `/deklaracja-dostepnosci` page in the official format, linked from the footer                                                                             |
+| Ustawa o zapewnianiu dostępności (2019)    | information about the school in machine-readable text, PJM and ETR | `/dostepnosc` page with an easy-to-read text and a Polish Sign Language video, both provided by the school                                                                                         |
+| Prawo komunikacji elektronicznej, art. 399 | cookies and browser storage                                        | strictly necessary only: theme choice in `localStorage` (requested by the user), the Access session cookie for staff; no analytics or trackers, so no consent banner                               |
+| UŚUDE art. 8                               | terms of an electronic service                                     | `/e-wniosek/regulamin` page, text approved by the school                                                                                                                                           |
+| Copyright act art. 81                      | images of people                                                   | every gallery upload confirms that a permission or agreed legal basis exists and is written to the audit log, which does not itself prove consent; photos can be removed within minutes on request |
+| KRI regulation (2024)                      | security and accessibility of public-sector systems                | sections 8, 10 and 12 of this document and the audit log                                                                                                                                           |
+| Ustawa o dostępie do informacji publicznej | BIP                                                                | the website does not replace the BIP; links to the BIP in the header and footer                                                                                                                    |
 
 ## 3. Overview
 
@@ -48,7 +48,7 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
                         │     ├─ Static assets: HTML, CSS, JS, fonts, images              │
                         │     ├─ /api/requests/*   public request API (Turnstile, limits) │
                         │     ├─ /api/gallery/*    gallery reads (edge cache)             │
-                        │     ├─ /media/*          photos from R2 (cached, immutable)     │
+                        │     ├─ /media/*          photos from R2 (published, 60 s cache) │
  Staff ─────Access──►   │     ├─ /panel/*          static panel pages                     │
  (SSO / one-time code)  │     └─ /api/panel/*      panel API (Access JWT, roles, Origin)  │
                         │  D1 (eu)  — requests, gallery, staff, audit log                 │
@@ -150,6 +150,10 @@ photos
   id, album_id FK, position, width, height, alt, sha256 UNIQUE, consent_by, consent_at,
   deleted_at NULL, created_by, created_at
   INDEX (album_id, deleted_at, position)
+
+photo_uploads
+  sha256 PK, started_at, claimed_at NULL
+  INDEX (started_at), partial INDEX (claimed_at, sha256)
 
 staff
   email PK (lower case), role (admin | secretariat | editor | gallery_editor), active, created_at, updated_at
@@ -261,21 +265,26 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 
 1. An editor creates an album (school year, title, description) and drops in photos.
 2. A Web Worker in the browser decodes each file (`createImageBitmap`, EXIF orientation), produces two sizes, 400 and 1600 px on the long edge, and encodes them to WebP with jSquash. Re-encoding drops EXIF and GPS data.
-3. Photos upload one at a time: `POST /api/panel/albums/:id/photos`, a multipart body with both files, each at most 1.5 MB, plus the mandatory "consent to publish images obtained" confirmation.
+3. Photos upload one at a time: `POST /api/panel/albums/:id/photos`, a multipart body with both files, each at most 1.5 MB, plus the mandatory confirmation that the school holds a permission, or another legal basis it has agreed, to publish the image. The checkbox and its audit entry record who confirmed this and when; they are not proof of consent, which stays with the school.
 4. The server **does not trust the client**:
    - it parses RIFF/WebP and accepts only `VP8 `, `VP8L`, `VP8X` and `ALPH` chunks; `EXIF`, `XMP `, `ANIM`, `ICCP` and anything unknown are rejected;
    - it allows only the layouts `VP8 `, `VP8L`, `VP8X` + `VP8 `/`VP8L`, and `VP8X` + `ALPH` + `VP8 `, and requires the RIFF size, chunk sizes, padding and canvas to agree with the file;
    - it checks the dimensions in the header: the large variant is at most 1600 px on the long edge, the small one exactly 400 px, and both have the same proportions (±1 px);
    - it computes SHA-256 of the large variant; the R2 keys are derived as `g/<sha256>-s.webp` and `g/<sha256>-l.webp`, so no user input reaches a key and the keys are not stored;
    - a repeated upload is recognised by `sha256`: in the same album it answers `200` with `duplicate: true` and changes nothing, a photo live in another album answers `409`, and a soft-deleted photo, or one in a deleted album, comes back with the new album, alt text and consent.
-5. R2 is written before D1, so a failed D1 batch leaves unreachable objects but never a row without a file. The media route serves only what `photos` lists.
+5. R2 is written before D1, so a failed D1 batch leaves unreachable objects but never a row without a file. The media route serves only what `photos` lists. Such objects are cleaned up through a journal, so the job never has to guess what a key in R2 belongs to:
+   - before touching R2 the upload records its hash in `photo_uploads`, and the D1 batch that saves the photo removes that row, so a crash at any point leaves the row behind;
+   - every Cron tick (`jobs/photo-cleanup.ts`), rows older than 24 hours whose hash has a row in `photos`, soft-deleted included, are dropped without touching R2, and that is what keeps files in use by another record safe, since `photos.sha256` is unique;
+   - the remaining old rows are claimed in one statement that rechecks `photos`, then both variants are deleted and the row removed, at most 50 per tick; a failed R2 delete keeps the claim and retries on the next tick;
+   - a new upload of the same hash refreshes `started_at`, so a running upload is never claimed, and while a claim is held it is refused with `409`, so cleanup cannot delete files that a new upload has just written.
 6. An album is public only after "Opublikuj", which needs at least one photo. Deleting the last photo of a published album unpublishes it in the same batch, so an urgent removal is never refused. Deletion is soft (`deleted_at`); a scheduled job removes the files from R2 after 30 days.
 
 ### 7.6 Public gallery and media
 
-- `GET /api/gallery/years`, `/api/gallery/years/:year/albums`, `/api/gallery/albums/:id` return published albums only, cached at the edge (`s-maxage=60, stale-while-revalidate=600`).
-- `GET /media/g/<sha256>-(s|l).webp` checks `photos` (album published, photo not deleted), then serves R2 through the Cache API with `Content-Type: image/webp`, `nosniff`, `Cache-Control: public, max-age=31536000, immutable` and `Cross-Origin-Resource-Policy: same-origin`.
-- **Archive import** by `tools/import_gallery.py`: downloads from the current site (at most 4 parallel connections), Pillow (EXIF rotation, metadata removal, WebP 400/1600), upload to R2 over the S3 API, SQL for D1. The script is idempotent and resumes where it stopped.
+- `GET /api/gallery/years`, `/api/gallery/years/:year/albums`, `/api/gallery/albums/:id` return published albums only, cached for 60 seconds (`public, max-age=60`) with no `stale-while-revalidate`.
+- `GET /media/g/<sha256>-(s|l).webp` checks `photos` (album published, photo not deleted), then serves R2 through the Cache API with `Content-Type: image/webp`, `nosniff`, `Cache-Control: public, max-age=60` and `Cross-Origin-Resource-Policy: same-origin`.
+- Photos deliberately do not use the year-long immutable cache that documents have (§6). A school can withdraw permission to publish a student's photo, and a copy in a browser or at the edge cannot be recalled, so 60 seconds is the longest a removed photo may stay visible. Deleting a photo or album, or unpublishing an album, ends access at once in D1, and the same request also removes the affected URLs from the Cache API where it can; that purge only reaches the local data centre, so the 60-second limit is what the design relies on.
+- **Archive import** by `tools/import_gallery.py`: downloads from the current site (at most 4 parallel connections), Pillow (EXIF rotation, metadata removal, WebP 400/1600), upload to R2 over the S3 API, SQL for D1. The script is idempotent and resumes where it stopped. No real archive is imported or published until the school has named who is responsible for it.
 
 ### 7.7 Opening a short link
 
@@ -318,6 +327,8 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 
 `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`, a strict `Content-Security-Policy` (Turnstile and `youtube-nocookie.com` only where used), `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy` with every feature off, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`, `Cross-Origin-Resource-Policy: same-origin`. Static files get them from `_headers`, Worker responses from middleware; tests check the full set. Target: A+ on Mozilla Observatory.
 
+The gallery upload page in the panel is the only exception to the site-wide CSP, for the image Worker in §7.5: it adds `worker-src 'self'` and `'wasm-unsafe-eval'`, and only on that page. `blob:` is added only if the implementation really needs it and tests justify it. General `unsafe-eval`, `unsafe-inline` and any relaxation for the rest of the site are not allowed.
+
 ### 8.3 Cryptography
 
 - A request's personal data is one JSON document encrypted with AES-256-GCM (WebCrypto), a random 96-bit IV per record and `request.id` as AAD. The key `PII_KEY_<id>` is a Worker secret; `pii_key_id` in each row allows key rotation without downtime.
@@ -337,6 +348,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 | `audit_log`                                    | 2 years                                                |
 | Worker logs                                    | Cloudflare's retention (a few days), no personal data  |
 | Deleted photos                                 | 30 days in R2, then physically removed                 |
+| Files of an abandoned photo upload             | 24 hours in R2, then physically removed                |
 | Expired or revoked short links                 | 30 days after they stop working, then the row is gone  |
 
 A daily Cron job enforces retention and records every run in `audit_log`. That job deletes `audit_log` rows older than two years in batches of 100 (`RETENTION_BATCH`), at most 10 batches per tick (`RETENTION_BATCHES_PER_RUN`), so a backlog drains across ticks instead of one long query; the `audit_log_at` index serves the cutoff predicate. The daily `cron_state` guard applies the request retention and the audit prune at most once per UTC day, and a remaining backlog resumes on the next tick without marking the day as done.
