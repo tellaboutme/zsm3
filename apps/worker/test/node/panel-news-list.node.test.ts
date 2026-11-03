@@ -109,7 +109,7 @@ it("publishes and unpublished drafts through the patch route", async ({ expect }
     (
       await panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
         token,
-        body: newsStatusMutation("unpublish"),
+        body: newsStatusMutation("unpublish", 1),
       })
     ).status,
   ).toBe(200);
@@ -149,7 +149,7 @@ it("rejects patch payloads that are not status changes", async () => {
   await expectProblem(
     await panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
       token,
-      body: { entity: "news", mutation: { action: "save", item: SALON } },
+      body: newsSaveMutation(SALON, 0),
     }),
     422,
   );

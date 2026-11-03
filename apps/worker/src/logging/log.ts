@@ -31,13 +31,19 @@ export interface ShortLinkFileCleanupEvent {
   readonly errorName: string;
 }
 
+export interface PanelWriteRecoveredEvent {
+  readonly event: "panel_write_recovered";
+  readonly errorName: string;
+}
+
 export type LogEvent =
   | UnhandledErrorEvent
   | TurnstileUnavailableEvent
   | OutboxEnqueueFailedEvent
   | AccessConfigEvent
   | IndexNowUnavailableEvent
-  | ShortLinkFileCleanupEvent;
+  | ShortLinkFileCleanupEvent
+  | PanelWriteRecoveredEvent;
 
 export function logEvent(entry: LogEvent): void {
   console.error(JSON.stringify(entry));

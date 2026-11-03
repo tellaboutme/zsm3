@@ -1,4 +1,4 @@
-import type { News } from "@zsm3/contracts/content";
+import { newsPath, type News } from "@zsm3/contracts/content";
 
 export type NewsItem = News;
 
@@ -33,7 +33,7 @@ export function newsYear({ date }: NewsItem): string {
 }
 
 export function newsHref(item: NewsItem): string {
-  return `/aktualnosci/${newsYear(item)}/${item.slug}`;
+  return newsPath(item);
 }
 
 export function categoryHref({ slug }: Category): string {

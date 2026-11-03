@@ -10,9 +10,6 @@ import {
   panelListQuerySchema,
   panelMeSchema,
   panelMutationSchema,
-  panelNewsListSchema,
-  panelNewsMutationSchema,
-  panelNewsViewSchema,
   panelOkSchema,
   panelPageListSchema,
   panelPageViewSchema,
@@ -36,14 +33,6 @@ const rejects = (
 };
 
 const paragraph = { type: "paragraph" as const, content: [{ type: "text" as const, text: "T." }] };
-const news = {
-  slug: "salon",
-  date: "2026-09-01",
-  category: "Technikum",
-  title: "Salon",
-  lead: "Lead.",
-  body: [paragraph],
-};
 const event = {
   date: "2026-09-01",
   title: "Rozpoczecie",
@@ -98,51 +87,33 @@ describe("panel list queries", () => {
   });
 });
 
-describe("news envelopes and mutations", () => {
-  it("lists news items with publication status and totals", ({ expect }) => {
-    const item = { ...news, status: "draft" as const };
-    const list = { items: [item], total: 1, page: 3, pageSize: 25 };
-
-    expect(panelNewsListSchema.parse(list)).toEqual(list);
-    expect(panelNewsViewSchema.parse({ item }).item.status).toBe("draft");
-    rejects(panelNewsListSchema, { items: [item], total: -1, page: 1, pageSize: 20 });
-    rejects(panelNewsListSchema, { items: [item], total: 1, page: 0, pageSize: 20 });
-    rejects(panelNewsListSchema, {
-      items: [item],
-      total: 1,
-      page: 1,
-      pageSize: MAX_PANEL_PAGE_SIZE + 1,
-    });
-    rejects(panelNewsViewSchema, { item: { ...item, status: "scheduled" } });
-    rejects(panelNewsViewSchema, { item: { ...item, extra: 1 } });
-  });
-
-  it("maps news mutations by action", ({ expect }) => {
-    expect(panelNewsMutationSchema.parse({ action: "save", item: news })).toEqual({
-      action: "save",
-      item: news,
-    });
-    expect(panelNewsMutationSchema.parse({ action: "publish" })).toEqual({ action: "publish" });
-    expect(panelNewsMutationSchema.parse({ action: "unpublish" })).toEqual({ action: "unpublish" });
-    rejects(panelNewsMutationSchema, { action: "delete" });
-    rejects(panelNewsMutationSchema, { action: "save" });
-  });
-});
-
 describe("panel mutation table", () => {
   it("discriminates mutations by entity", ({ expect }) => {
-    expect(panelMutationSchema.parse({ entity: "news", mutation: { action: "publish" } })).toEqual({
+    expect(
+      panelMutationSchema.parse({
+        entity: "news",
+        mutation: { action: "publish", expectedRevision: 1 },
+      }),
+    ).toEqual({
       entity: "news",
-      mutation: { action: "publish" },
+      mutation: { action: "publish", expectedRevision: 1 },
     });
     expect(
-      panelMutationSchema.parse({ entity: "pages", action: "save", page, status: "draft" }),
+      panelMutationSchema.parse({
+        entity: "pages",
+        action: "save",
+        page,
+        status: "draft",
+        expectedRevision: 4,
+      }),
     ).toEqual({
       entity: "pages",
       action: "save",
       page,
       status: "draft",
+      expectedRevision: 4,
     });
+    rejects(panelMutationSchema, { entity: "pages", action: "save", page, status: "draft" });
     expect(panelMutationSchema.parse({ entity: "events", events: [event] })).toEqual({
       entity: "events",
       events: [event],
@@ -167,9 +138,10 @@ describe("pages, events, files and redirects envelopes", () => {
     ).toEqual({
       items: [{ path: "/kontakt", status: "draft", title: "T" }],
     });
-    expect(panelPageViewSchema.parse({ item: pageItem }).item.status).toBe("published");
+    expect(panelPageViewSchema.parse({ item: pageItem, revision: 3 }).revision).toBe(3);
+    rejects(panelPageViewSchema, { item: pageItem });
     rejects(panelPageListSchema, { items: [{ path: "kontakt", status: "draft", title: "T" }] });
-    rejects(panelPageViewSchema, { item: { ...pageItem, status: "archived" } });
+    rejects(panelPageViewSchema, { item: { ...pageItem, status: "archived" }, revision: 0 });
   });
 
   it("describes event listings and saves", ({ expect }) => {

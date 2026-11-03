@@ -7,6 +7,7 @@ import { PANEL_SCHEMAS, parse } from "../../lib/panel/models.ts";
 
 export interface SavedState {
   status: PublicationStatus;
+  revision: number | null;
 }
 
 export function applyPublish(

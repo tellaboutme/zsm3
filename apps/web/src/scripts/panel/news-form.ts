@@ -2,7 +2,7 @@ import type { News, PublicationStatus } from "@zsm3/contracts/content";
 
 import type { BlocksUi } from "./blocks-ui.ts";
 import { areaButton, fieldText, inputValue, setInputValue, speak } from "./dom.ts";
-import { newsPartsFor, type NewsParts } from "./news-parts.ts";
+import { newsPartsFor, type NewsParts, type NewsSaved } from "./news-parts.ts";
 import { applyPublish, syncPublish, type SavedState } from "./news-publish.ts";
 import { panelRead, panelSend, problemPhrase } from "../../lib/panel/api.ts";
 import { newBlock, type BlockDraft } from "../../lib/panel/blocks.ts";
@@ -10,6 +10,7 @@ import { drafts as draftBlocks } from "../../lib/panel/document.ts";
 import { PANEL_SCHEMAS, parse, type PanelNewsItem } from "../../lib/panel/models.ts";
 import { newsSave, newsStatus } from "../../lib/panel/mutations.ts";
 import { newsCandidate } from "../../lib/panel/news-edit.ts";
+import { savedRevision } from "../../lib/panel/revisions.ts";
 import { slugify } from "../../lib/panel/slug.ts";
 
 const STRINGS: readonly string[] = [
@@ -69,6 +70,8 @@ function resetForm(parts: Parts, saved: SavedState): void {
   lockIdentity(parts, false);
   parts.blocks.load(EMPTY_BLOCKS);
   applyPublish(parts, "draft", saved);
+  const state = saved;
+  state.revision = null;
 }
 
 function fillItem(parts: Parts, item: PanelNewsItem, saved: SavedState): void {
@@ -111,6 +114,8 @@ async function loadInto(parts: Parts, ref: string, saved: SavedState): Promise<v
     return;
   }
   fillItem(parts, view.item, saved);
+  const state = saved;
+  state.revision = view.revision;
 }
 
 async function commit(parts: Parts, saved: SavedState): Promise<void> {
@@ -121,20 +126,23 @@ async function commit(parts: Parts, saved: SavedState): Promise<void> {
   }
   const ref = parts.ref;
   const freshly = ref.slug.length === 0;
-  const payload = newsSave(candidate.item);
+  const payload = newsSave(candidate.item, freshly ? null : saved.revision);
   const path = `/api/panel/news/${ref.year}/${ref.slug}`;
   const response = freshly
     ? await panelSend("POST", "/api/panel/news", payload)
     : await panelSend("PUT", path, payload);
-  if (!response.ok) {
+  const revision = savedRevision(response.data);
+  if (!response.ok || revision === undefined) {
     noteOf(parts, problemPhrase(response.status));
     return;
   }
+  const state = saved;
+  state.revision = revision;
   if (freshly) {
     markSaved(parts, candidate.item);
   }
   await syncPublish(parts, path, saved);
-  parts.onSaved();
+  parts.onSaved(`${parts.ref.year}/${parts.ref.slug}`);
 }
 
 async function switchStatus(
@@ -143,20 +151,24 @@ async function switchStatus(
   saved: SavedState,
 ): Promise<void> {
   const ref = parts.ref;
-  if (ref.slug.length === 0) {
+  const expected = saved.revision;
+  if (ref.slug.length === 0 || expected === null) {
     noteOf(parts, "Najpierw zapisz aktualność.");
     return;
   }
   const path = `/api/panel/news/${ref.year}/${ref.slug}`;
-  const response = await panelSend("PATCH", path, newsStatus(action));
-  if (!response.ok) {
+  const response = await panelSend("PATCH", path, newsStatus(action, expected));
+  const revision = savedRevision(response.data);
+  if (!response.ok || revision === undefined) {
     noteOf(parts, problemPhrase(response.status));
     return;
   }
+  const state = saved;
+  state.revision = revision;
   const current: PublicationStatus = action === "publish" ? "published" : "draft";
   applyPublish(parts, current, saved);
   noteOf(parts, action === "publish" ? "Opublikowano." : "Wycofano publikację.");
-  parts.onSaved();
+  parts.onSaved(`${parts.ref.year}/${parts.ref.slug}`);
 }
 
 function wireSlug(parts: Parts): void {
@@ -177,9 +189,9 @@ function wireSlug(parts: Parts): void {
   });
 }
 
-export function wireEditor(section: HTMLElement, blocks: BlocksUi, onSaved: () => void): NewsForm {
+export function wireEditor(section: HTMLElement, blocks: BlocksUi, onSaved: NewsSaved): NewsForm {
   const parts = newsPartsFor(section, blocks, onSaved);
-  const saved: SavedState = { status: "draft" };
+  const saved: SavedState = { status: "draft", revision: null };
   areaButton(section, "news-save").addEventListener("click", () => {
     void commit(parts, saved);
   });

@@ -1,8 +1,10 @@
 const COLUMNS = "slug, published_on, category, title, lead, body_json, cover_caption, cover_credit";
 
-export const UPSERT_NEWS = `INSERT INTO news
+export const INSERT_NEWS = `INSERT INTO news
   (id, slug, published_on, category, title, lead, body_json, cover_caption, cover_credit, status, created_at, updated_at)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+export const UPSERT_NEWS = `${INSERT_NEWS}
   ON CONFLICT (year, slug) DO UPDATE SET
     published_on = excluded.published_on, category = excluded.category,
     title = excluded.title, lead = excluded.lead, body_json = excluded.body_json,

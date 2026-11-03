@@ -11,7 +11,9 @@ import {
   samplePage,
   staffMember,
 } from "./panel-fixtures.ts";
+import { linkCases } from "./panel-matrix-links.ts";
 import { siteCases } from "./panel-matrix-site.ts";
+import { currentRevision } from "./panel-revision-support.ts";
 import type { PanelHarness } from "./panel-support.ts";
 import { panelJsonCall, panelUploadRequest } from "./panel-support.ts";
 import type { StaffRole } from "../../src/storage/staff-repo.ts";
@@ -101,7 +103,7 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
       call: async (token) =>
         panelJsonCall(harness, "PUT", "/news/2026/istniejacy", {
           token,
-          body: newsSaveMutation(NEWS),
+          body: newsSaveMutation(NEWS, await currentRevision(harness, "news", "2026/istniejacy")),
         }),
     },
     {
@@ -113,7 +115,10 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
         }
         return panelJsonCall(harness, "PATCH", "/news/2026/istniejacy", {
           token,
-          body: newsStatusMutation(role === "secretariat" ? "unpublish" : "publish"),
+          body: newsStatusMutation(
+            role === "secretariat" ? "unpublish" : "publish",
+            await currentRevision(harness, "news", "2026/istniejacy"),
+          ),
         });
       },
     },
@@ -130,7 +135,11 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
       call: async (token) =>
         panelJsonCall(harness, "PUT", "/pages/kontakt", {
           token,
-          body: pageSaveMutation(samplePage("/kontakt", "Kontakty sluzbowe"), "published"),
+          body: pageSaveMutation(
+            samplePage("/kontakt", "Kontakty sluzbowe"),
+            "published",
+            await currentRevision(harness, "pages", "/kontakt"),
+          ),
         }),
     },
     {
@@ -158,23 +167,6 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
       call: async (token) => panelJsonCall(harness, "GET", "/redirects", { token }),
     },
     {
-      name: "short-links.list",
-      call: async (token) => panelJsonCall(harness, "GET", "/short-links", { token }),
-    },
-    {
-      name: "short-links.create",
-      call: async (token) =>
-        panelJsonCall(harness, "POST", "/short-links", {
-          token,
-          body: { target: "https://example.org/materialy" },
-        }),
-    },
-    {
-      name: "short-links.revoke",
-      call: async (token) =>
-        panelJsonCall(harness, "DELETE", "/short-links/invalid", { token, body: {} }),
-    },
-    {
       name: "redirects.save",
       call: async (token) =>
         panelJsonCall(harness, "PUT", "/redirects", {
@@ -199,6 +191,7 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
           body: { entity: "staff", item: staffMember("nowy@zsm3.test", "editor", true) },
         }),
     },
+    ...linkCases(harness),
     ...siteCases(harness, rolesByToken),
   ];
 }

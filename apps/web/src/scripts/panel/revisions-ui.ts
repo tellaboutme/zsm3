@@ -4,6 +4,7 @@ import { area, areaList, button, el, speak } from "./dom.ts";
 import { panelRead, panelSend, problemPhrase } from "../../lib/panel/api.ts";
 import { PANEL_SCHEMAS, parse } from "../../lib/panel/models.ts";
 import {
+  latestRevision,
   restoreMutation,
   revisionLine,
   revisionsPath,
@@ -12,6 +13,7 @@ import {
 
 export interface RevisionsUi {
   readonly open: (id: string) => void;
+  readonly refresh: (id: string) => void;
 }
 
 interface Parts {
@@ -23,11 +25,11 @@ interface Parts {
   readonly onLoaded: (() => void) | undefined;
 }
 
-function rowNode(parts: Parts, id: string, item: RevisionSummary): HTMLElement {
+function rowNode(parts: Parts, id: string, item: RevisionSummary, current: number): HTMLElement {
   const restore = button("Przywróć tę wersję");
   restore.setAttribute("aria-label", `Przywróć wersję ${String(item.revision)}: ${item.title}`);
   restore.addEventListener("click", () => {
-    void restoreVersion(parts, id, item.revision);
+    void restoreVersion(parts, id, item.revision, current);
   });
   return el("li", {
     className: "panel-item",
@@ -39,7 +41,7 @@ function rowNode(parts: Parts, id: string, item: RevisionSummary): HTMLElement {
   });
 }
 
-async function load(parts: Parts, id: string): Promise<void> {
+async function load(parts: Parts, id: string, reveal = true): Promise<void> {
   const { root } = parts;
   root.hidden = false;
   const response = await panelRead(revisionsPath(parts.target, id));
@@ -48,20 +50,28 @@ async function load(parts: Parts, id: string): Promise<void> {
     speak(parts.status, [problemPhrase(response.status)]);
     return;
   }
-  parts.rows.replaceChildren(...list.items.map((item) => rowNode(parts, id, item)));
+  const current = latestRevision(list.items);
+  parts.rows.replaceChildren(...list.items.map((item) => rowNode(parts, id, item, current)));
   speak(parts.status, [
     list.items.length === 0
       ? "Brak wcześniejszych wersji. Pojawią się po pierwszej zmianie."
       : "Przywrócenie zachowuje obecny status publikacji, a bieżąca treść trafia do historii.",
   ]);
-  parts.onLoaded?.();
+  if (reveal) {
+    parts.onLoaded?.();
+  }
 }
 
-async function restoreVersion(parts: Parts, id: string, revision: number): Promise<void> {
+async function restoreVersion(
+  parts: Parts,
+  id: string,
+  revision: number,
+  current: number,
+): Promise<void> {
   const response = await panelSend(
     "POST",
     "/api/panel/revisions/restore",
-    restoreMutation(parts.target, id, revision),
+    restoreMutation(parts.target, id, revision, current),
   );
   if (!response.ok) {
     speak(parts.status, [problemPhrase(response.status)]);
@@ -90,6 +100,9 @@ export function wireRevisions(
   return {
     open: (id) => {
       void load(parts, id);
+    },
+    refresh: (id) => {
+      void load(parts, id, false);
     },
   };
 }

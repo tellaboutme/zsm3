@@ -3,6 +3,7 @@ import { panelRevisionListSchema } from "@zsm3/contracts/revisions";
 import { it } from "vitest";
 
 import { staffMember } from "./panel-fixtures.ts";
+import { currentRevision } from "./panel-revision-support.ts";
 import type { PanelHarness } from "./panel-support.ts";
 import {
   expectProblem,
@@ -69,7 +70,13 @@ it("saves a dataset, keeps the previous version and audits the change", async ({
   ]);
   const restored = await panelJsonCall(harness, "POST", "/revisions/restore", {
     token,
-    body: { entity: "revisions", target: "datasets", id: "partnerzy", revision: 1 },
+    body: {
+      entity: "revisions",
+      target: "datasets",
+      id: "partnerzy",
+      revision: 1,
+      expectedRevision: await currentRevision(harness, "datasets", "partnerzy"),
+    },
   });
   expect(restored.status).toBe(200);
   const back = panelDatasetViewSchema.parse(
@@ -161,7 +168,13 @@ it("refuses dataset versions that no longer fit or belong to nothing", async () 
     await expectProblem(
       await panelJsonCall(harness, "POST", "/revisions/restore", {
         token,
-        body: { entity: "revisions", target: "datasets", id, revision: 1 },
+        body: {
+          entity: "revisions",
+          target: "datasets",
+          id,
+          revision: 1,
+          expectedRevision: await currentRevision(harness, "datasets", id),
+        },
       }),
       status,
     );

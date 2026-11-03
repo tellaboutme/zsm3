@@ -17,6 +17,7 @@ import { createApp } from "../../src/app.ts";
 import type { PanelRuntimeEnv } from "../../src/routes/panel/deps.ts";
 import type { AccessVerifier } from "../../src/security/access-jwt.ts";
 import { createAccessVerifier } from "../../src/security/access-jwt.ts";
+import type { IndexNowEndpoint } from "../../src/services/indexnow.ts";
 import type { SqlDatabase, SqlStatement } from "../../src/storage/database.ts";
 import { systemClock } from "../../src/storage/database.ts";
 import { cryptoRandom } from "../../src/storage/ids.ts";
@@ -55,7 +56,7 @@ async function spyStatementRunner(
   }
 }
 
-export async function panelSpyHarness(): Promise<PanelSpyHarness> {
+export async function panelSpyHarness(indexnow?: IndexNowEndpoint): Promise<PanelSpyHarness> {
   const keys = await panelKeys();
   const verifier: AccessVerifier = createAccessVerifier({
     jwks: keys.jwks,
@@ -75,7 +76,11 @@ export async function panelSpyHarness(): Promise<PanelSpyHarness> {
     },
   };
   return {
-    app: createApp({ verifier, origin: PANEL_ORIGIN }),
+    app: createApp({
+      verifier,
+      origin: PANEL_ORIGIN,
+      ...(indexnow === undefined ? {} : { indexnow }),
+    }),
     keys,
     env: {
       DB: db,
