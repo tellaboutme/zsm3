@@ -40,6 +40,7 @@ import { pagesRepo } from "../../storage/pages-repo.ts";
 import { redirectsRepo } from "../../storage/redirects-repo.ts";
 import { requestsRepo } from "../../storage/requests-repo.ts";
 import { revisionsRepo } from "../../storage/revisions-repo.ts";
+import { shortLinkFilesRepo } from "../../storage/short-link-files-repo.ts";
 import { shortLinksRepo } from "../../storage/short-links-repo.ts";
 import { staffRepo } from "../../storage/staff-repo.ts";
 
@@ -96,12 +97,15 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
         files: filesRepo(store),
         redirects: redirectsRepo(store),
         shortLinks: shortLinksRepo(store),
+        shortLinkFiles: shortLinkFilesRepo(store),
         announcements: announcementsRepo(store),
         bells: bellsRepo(store),
         datasets: datasetsRepo(store),
         requests: requestsRepo(store),
       },
       mediaBucket: c.env.MEDIA,
+      clock: store.clock,
+      random: store.random,
       origin: options.origin ?? panelOrigin(c.env),
       verifier: options.verifier ?? (async (token) => envAccessVerifier(c.env)(token)),
       piiCrypto: options.piiCrypto ?? piiCrypto(piiKeys(c.env), ACTIVE_PII_KEY_ID, store.random),

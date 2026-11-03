@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { runHousekeeping } from "./housekeeping.ts";
+import type { MediaBucket } from "../app-env.ts";
 import {
   ANONYMOUS_RETENTION_YEARS,
   CLOSED_PII_RETENTION_DAYS,
@@ -15,13 +17,7 @@ import { piiCrypto, type PiiCrypto } from "../security/pii-crypto.ts";
 import { auditRepo, type AuditRepo } from "../storage/audit-repo.ts";
 import { firstRow, type SqlDatabase, type Store } from "../storage/database.ts";
 import { outboxRepo, type OutboxRepo } from "../storage/outbox-repo.ts";
-import {
-  RATE_LIMIT_PRUNE_BATCH,
-  RATE_LIMIT_RETENTION_MS,
-  rateLimitsRepo,
-} from "../storage/rate-limits-repo.ts";
 import { requestsRepo, type RequestsRepo } from "../storage/requests-repo.ts";
-import { LAPSED_PRUNE_BATCH, shortLinksRepo } from "../storage/short-links-repo.ts";
 
 export const RETENTION_BATCH = 100;
 export const RETENTION_BATCHES_PER_RUN = 10;
@@ -29,7 +25,6 @@ export const RETENTION_BATCHES_PER_RUN = 10;
 const DAY_MS = 86_400_000;
 const YEAR_MS = 365 * DAY_MS;
 const RETENTION_JOB = "retention";
-export const LAPSED_RETENTION_MS = 30 * DAY_MS;
 export const AUDIT_RETENTION_YEARS = 2;
 
 const SELECT_CRON_STATE = "SELECT last_run_date FROM cron_state WHERE job = ?";
@@ -38,6 +33,7 @@ const UPSERT_CRON_STATE = `INSERT INTO cron_state (job, last_run_date) VALUES (?
 
 export interface MaintenanceEnv extends RequestsSecretEnv {
   readonly DB: SqlDatabase;
+  readonly MEDIA: MediaBucket;
 }
 
 export interface MaintenanceDeps {
@@ -95,14 +91,7 @@ export async function runScheduledMaintenance(
   const deps = maintenanceDeps(env, store);
   const drained = await drainOutbox(deps, now, MAX_DRAIN);
   const cron = cronStateRepo(store);
-  await rateLimitsRepo(store).prune(
-    new Date(now.getTime() - RATE_LIMIT_RETENTION_MS).toISOString(),
-    RATE_LIMIT_PRUNE_BATCH,
-  );
-  await shortLinksRepo(store).pruneLapsed(
-    new Date(now.getTime() - LAPSED_RETENTION_MS).toISOString(),
-    LAPSED_PRUNE_BATCH,
-  );
+  await runHousekeeping(store, env.MEDIA, now);
   const today = utcDate(now);
   if ((await cron.lastRunDate(RETENTION_JOB)) === today) {
     return { ...drained, rejected: 0, erased: 0, deleted: 0, auditDeleted: 0 };

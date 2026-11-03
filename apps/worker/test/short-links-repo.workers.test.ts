@@ -29,6 +29,7 @@ describe("short links on D1", () => {
       {
         code: "k7mq4ra",
         target: TARGET,
+        file: null,
         createdAt: "2026-10-22T08:00:00.000Z",
         expiresAt: "2027-10-22T08:00:00.000Z",
         revokedAt: null,

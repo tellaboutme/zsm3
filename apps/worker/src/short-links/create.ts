@@ -1,6 +1,7 @@
+import { shortLinkExpiry } from "@zsm3/contracts/short-link-expiry";
 import { newShortLinkSchema } from "@zsm3/contracts/short-links";
 
-import { expiryFrom, generateCode } from "../domain/short-link.ts";
+import { generateCode } from "../domain/short-link.ts";
 import { hashPassword, type PasswordDigest } from "../security/passwords.ts";
 import type { RandomBytes } from "../storage/ids.ts";
 import type { ShortLinksRepo } from "../storage/short-links-repo.ts";
@@ -25,7 +26,7 @@ export type CreateOutcome =
   | { readonly kind: "unavailable" }
   | { readonly kind: "exhausted" };
 
-type DigestOutcome =
+export type DigestOutcome =
   | { readonly kind: "ready"; readonly digest: PasswordDigest | null }
   | { readonly kind: "unavailable" };
 
@@ -39,13 +40,18 @@ async function lockedDigest(
     : { kind: "ready", digest: await hashPassword(key, password, random) };
 }
 
-async function digestFor(deps: CreateDeps, password: string | undefined): Promise<DigestOutcome> {
+export async function digestFor(
+  deps: Pick<CreateDeps, "passwordKey" | "random">,
+  password: string | undefined,
+): Promise<DigestOutcome> {
   return password === undefined
     ? { kind: "ready", digest: null }
     : await lockedDigest(deps.passwordKey, password, deps.random);
 }
 
-async function freeCode(deps: CreateDeps): Promise<string | undefined> {
+export async function freeCode(
+  deps: Pick<CreateDeps, "links" | "random">,
+): Promise<string | undefined> {
   for (let attempt = 0; attempt < CODE_ATTEMPTS; attempt += 1) {
     const code = generateCode(deps.random);
     if ((await deps.links.find(code)) === undefined) {
@@ -53,6 +59,10 @@ async function freeCode(deps: CreateDeps): Promise<string | undefined> {
     }
   }
   return undefined;
+}
+
+export function expiryAt(now: Date): string {
+  return shortLinkExpiry(now).toISOString();
 }
 
 export async function createShortLink(
@@ -71,12 +81,12 @@ export async function createShortLink(
   if (code === undefined) {
     return { kind: "exhausted" };
   }
-  await deps.links.create({
+  await deps.links.createAudited({
     code,
     target: parsed.data.target,
     password: password.digest,
     createdBy: input.createdBy,
-    expiresAt: expiryFrom(input.now, parsed.data.lifetimeDays),
+    expiresAt: expiryAt(input.now),
   });
   return { kind: "created", code };
 }

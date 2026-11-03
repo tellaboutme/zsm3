@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  panelShortLinkCreatedSchema,
   panelShortLinkCursorSchema,
   panelShortLinkItemSchema,
   panelShortLinksListSchema,
@@ -45,6 +46,7 @@ describe("panel short link listing", () => {
     const item = {
       code: "k7mq4ra",
       target: "https://example.org/materialy",
+      file: null,
       createdAt: "2026-10-22T08:00:00.000Z",
       expiresAt: "2027-10-22T08:00:00.000Z",
       revokedAt: null,
@@ -57,5 +59,24 @@ describe("panel short link listing", () => {
     });
     rejects(panelShortLinkItemSchema, { ...item, password_hash: "secret" });
     rejects(panelShortLinksListSchema, { items: [item] });
+  });
+
+  it("describes either a target address or a file, never both or neither", ({ expect }) => {
+    const base = {
+      code: "k7mq4ra",
+      createdAt: "2026-10-22T08:00:00.000Z",
+      expiresAt: "2027-08-31T22:00:00.000Z",
+      revokedAt: null,
+      clicks: 2,
+      passwordProtected: false,
+    };
+    const file = { name: "karta.pdf", format: "pdf", bytes: 1200 };
+    const fileItem = { ...base, target: null, file };
+    expect(panelShortLinkItemSchema.parse(fileItem)).toEqual(fileItem);
+    expect(panelShortLinkCreatedSchema.parse({ item: fileItem })).toEqual({ item: fileItem });
+    rejects(panelShortLinkItemSchema, { ...base, target: null, file: null });
+    rejects(panelShortLinkItemSchema, { ...base, target: "https://example.org/a", file });
+    rejects(panelShortLinkItemSchema, { ...fileItem, file: { ...file, key: "s/abc" } });
+    rejects(panelShortLinkCreatedSchema, { item: fileItem, password: "tajne1" });
   });
 });

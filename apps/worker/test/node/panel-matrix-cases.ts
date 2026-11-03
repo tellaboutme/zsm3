@@ -44,6 +44,7 @@ export const OK_STATUS: Record<PanelRouteName, number> = {
   "files.upload": 201,
   "redirects.list": 200,
   "short-links.list": 200,
+  "short-links.create": 201,
   "short-links.revoke": 422,
   "redirects.save": 200,
   "redirects.delete": 204,
@@ -159,6 +160,14 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
     {
       name: "short-links.list",
       call: async (token) => panelJsonCall(harness, "GET", "/short-links", { token }),
+    },
+    {
+      name: "short-links.create",
+      call: async (token) =>
+        panelJsonCall(harness, "POST", "/short-links", {
+          token,
+          body: { target: "https://example.org/materialy" },
+        }),
     },
     {
       name: "short-links.revoke",

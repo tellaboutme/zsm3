@@ -38,7 +38,7 @@ describe("the short links table", () => {
 
     await expect(links.find("k7mq4ra")).resolves.toEqual({
       code: "k7mq4ra",
-      target: TARGET,
+      destination: { kind: "url", target: TARGET },
       expiresAt: "2027-10-27T08:00:00.000Z",
       revokedAt: null,
       password,
@@ -72,6 +72,7 @@ describe("the short links table", () => {
       {
         code: "k7mq4ra",
         target: TARGET,
+        file: null,
         createdAt: FIXED_CLOCK().toISOString(),
         expiresAt: "2027-10-27T08:00:00.000Z",
         revokedAt: null,
@@ -81,6 +82,7 @@ describe("the short links table", () => {
       {
         code: "k7mq4rb",
         target: TARGET,
+        file: null,
         createdAt: FIXED_CLOCK().toISOString(),
         expiresAt: "2027-10-27T08:00:00.000Z",
         revokedAt: null,

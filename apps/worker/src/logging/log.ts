@@ -26,12 +26,18 @@ export interface IndexNowUnavailableEvent {
   readonly status?: number;
 }
 
+export interface ShortLinkFileCleanupEvent {
+  readonly event: "short_link_file_cleanup_deferred" | "short_link_file_sweep_failed";
+  readonly errorName: string;
+}
+
 export type LogEvent =
   | UnhandledErrorEvent
   | TurnstileUnavailableEvent
   | OutboxEnqueueFailedEvent
   | AccessConfigEvent
-  | IndexNowUnavailableEvent;
+  | IndexNowUnavailableEvent
+  | ShortLinkFileCleanupEvent;
 
 export function logEvent(entry: LogEvent): void {
   console.error(JSON.stringify(entry));
