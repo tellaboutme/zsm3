@@ -20,7 +20,7 @@ import {
   questionSlugSchema,
 } from "../src/questions.ts";
 
-const FORM_KEY = "5f0c4c56-3c1b-4c55-9d36-3a5e7f0a9b11";
+const FORM_KEY = "00000000-0000-4000-8000-000000000001";
 
 function input(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
