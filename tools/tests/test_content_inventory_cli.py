@@ -138,6 +138,9 @@ def test_cli_reports_invalid_limits(capsys: pytest.CaptureFixture[str], tmp_path
     arguments = [str(tmp_path / "out.json"), "--delay", "0.5"]
     assert content_inventory.main(arguments, allow_all({})) == 1
     assert "delay >= 1 second" in capsys.readouterr().err
+    arguments = [str(tmp_path / "out.json"), "--max-page-bytes", "9000000"]
+    assert content_inventory.main(arguments, allow_all({})) == 1
+    assert "1-8 MB per page" in capsys.readouterr().err
 
 
 def test_cli_reports_unwritable_output(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
