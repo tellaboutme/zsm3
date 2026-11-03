@@ -10,6 +10,7 @@ import {
 } from "./panel-support.ts";
 import { seal } from "../../src/questions/sealing.ts";
 import { piiCrypto, type PiiCrypto } from "../../src/security/pii-crypto.ts";
+import type { IndexNowEndpoint } from "../../src/services/indexnow.ts";
 import { allRows, systemClock, type Store } from "../../src/storage/database.ts";
 import { cryptoRandom } from "../../src/storage/ids.ts";
 import { questionsRepo, type QuestionsRepo } from "../../src/storage/questions-repo.ts";
@@ -41,8 +42,8 @@ export interface QuestionsPanel {
   auditActions(id: string): Promise<readonly (readonly [string, string | null, string])[]>;
 }
 
-export async function questionsPanel(): Promise<QuestionsPanel> {
-  const harness = await panelHarness();
+export async function questionsPanel(indexnow?: IndexNowEndpoint): Promise<QuestionsPanel> {
+  const harness = await panelHarness(indexnow === undefined ? {} : { indexnow });
   await seedStaff(harness.env, [
     staffMember("pedagog@zsm3.test", "counsellor", true),
     staffMember("psycholog@zsm3.test", "counsellor", true),

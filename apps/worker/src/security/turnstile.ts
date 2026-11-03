@@ -9,7 +9,7 @@ export const TURNSTILE_ACTION = "request";
 export const QUESTION_TURNSTILE_ACTION = "question";
 export const TURNSTILE_MAX_AGE_MS = 300_000;
 
-const verificationSchema = z.strictObject({
+const verificationSchema = z.object({
   success: z.boolean(),
   hostname: z.string().optional(),
   action: z.string().optional(),

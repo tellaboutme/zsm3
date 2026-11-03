@@ -137,9 +137,11 @@ text.
 - **Safe rendering.** Text is plain text everywhere. Astro escapes it on public pages, the
   panel sets `textContent`, and the schema refuses control and direction-override characters.
   There is no markup, no links and no `innerHTML`.
-- **No exposure through search or feeds.** Answer pages and pagination pages are `noindex`
-  and are left out of the sitemap, site search, RSS and IndexNow. Pages are not cached at the
-  edge ([ADR 0003](adr/0003-no-edge-cache-for-pages.md)), so a withdrawal is visible at once.
+- **No exposure through search or feeds.** Every page under `/skrzynka` is `noindex` (the
+  listing shows answer excerpts), and none of them is in the XML sitemap, RSS or IndexNow; the
+  HTML site map and the site search only point to `/skrzynka` itself. The question routes never
+  call IndexNow. Pages are not cached at the edge
+  ([ADR 0003](adr/0003-no-edge-cache-for-pages.md)), so a withdrawal is visible at once.
 - **Logs.** The structured logger has no event that carries question text; an unexpected
   failure logs only the error name.
 - **No automated decisions.** Nothing is classified, scored or answered automatically, and
@@ -185,4 +187,5 @@ suites.
   should be listed.
 - The retention periods (90 days unanswered, 30 days rejected or withdrawn), with the data
   protection officer, and a privacy-notice entry for the box.
-- Whether published answers should ever be indexed by search engines (currently `noindex`).
+- Whether `/skrzynka` and the published answers should ever be indexed by search engines
+  (currently `noindex`).

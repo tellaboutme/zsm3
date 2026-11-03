@@ -176,9 +176,11 @@ test.describe("Skrzynka answers", () => {
     }
   });
 
-  test("keeps answers out of the sitemap", async ({ request }) => {
+  test("keeps the whole box out of the sitemap and the index", async ({ page, request }) => {
     const sitemap = await (await request.get("/sitemap.xml")).text();
-    expect(sitemap).not.toMatch(/\/skrzynka\/[a-z2-9]{12}/u);
+    expect(sitemap).not.toContain("/skrzynka");
+    await page.goto("/skrzynka");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/u);
   });
 });
 

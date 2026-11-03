@@ -126,6 +126,18 @@ describe("the public question endpoint", () => {
     expect(statuses).toEqual([403, 403, 415, 400, 413]);
   });
 
+  it("offers no way to read questions and needs an Origin header", async ({ expect }) => {
+    const env = bindings();
+    const read = await createQuestionsApp().request(`${ORIGIN}/api/questions`, {}, env);
+    const anonymous = await createQuestionsApp().request(
+      `${ORIGIN}/api/questions`,
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: body() },
+      env,
+    );
+
+    expect([read.status, anonymous.status]).toEqual([404, 403]);
+  });
+
   it("maps refusals to problem responses", async ({ expect }) => {
     const env = bindings();
     const invalid = await post(env, body({ question: "krótko" }));

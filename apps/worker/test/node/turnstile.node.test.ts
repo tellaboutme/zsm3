@@ -104,6 +104,29 @@ describe("turnstileVerifier", () => {
     await expect(unsuccessful.verify(input({}), NOW)).resolves.toBe(false);
   });
 
+  it("accepts the full siteverify reply and refuses a replayed token", async ({ expect }) => {
+    const genuine = turnstileVerifier(
+      "secret",
+      doFetchReply(
+        200,
+        okBody({ "error-codes": [], cdata: "", metadata: { ephemeral_id: "x:1" } }),
+      ),
+    );
+    const replayed = turnstileVerifier(
+      "secret",
+      doFetchReply(200, okBody({ success: false, "error-codes": ["timeout-or-duplicate"] })),
+    );
+    const otherAction = turnstileVerifier(
+      "secret",
+      doFetchReply(200, okBody({ "error-codes": [] })),
+      "question",
+    );
+
+    await expect(genuine.verify(input({}), NOW)).resolves.toBe(true);
+    await expect(replayed.verify(input({}), NOW)).resolves.toBe(false);
+    await expect(otherAction.verify(input({}), NOW)).resolves.toBe(false);
+  });
+
   it("rejects broken payloads and http errors", async ({ expect }) => {
     const malformed = turnstileVerifier("secret", doFetchReply(200, "not-json"));
     const unexpected = turnstileVerifier(
@@ -111,10 +134,15 @@ describe("turnstileVerifier", () => {
       doFetchReply(200, JSON.stringify({ success: true, extra: 1 })),
     );
     const httpError = turnstileVerifier("secret", doFetchReply(503, "busy"));
+    const mistyped = turnstileVerifier(
+      "secret",
+      doFetchReply(200, okBody({ success: "true", hostname: 1 })),
+    );
 
     await expect(malformed.verify(input({}), NOW)).resolves.toBe(false);
     await expect(unexpected.verify(input({}), NOW)).resolves.toBe(false);
     await expect(httpError.verify(input({}), NOW)).resolves.toBe(false);
+    await expect(mistyped.verify(input({}), NOW)).resolves.toBe(false);
   });
 
   it("treats a network failure as a rejection and logs it", async ({ expect }) => {

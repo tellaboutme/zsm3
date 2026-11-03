@@ -76,4 +76,4 @@ zaszyfrowana.
 - Treść strony `/skrzynka`, w tym lista numerów pomocy.
 - Okresy przechowywania (uzgodnione z inspektorem ochrony danych) i wpis w informacji o
   przetwarzaniu danych.
-- Czy odpowiedzi mogą być widoczne w wyszukiwarkach (obecnie są ukryte przed indeksowaniem).
+- Czy strona Skrzynki i odpowiedzi mogą być widoczne w wyszukiwarkach (obecnie są ukryte przed indeksowaniem).
