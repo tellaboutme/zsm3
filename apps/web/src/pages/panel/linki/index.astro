@@ -1,4 +1,6 @@
 ---
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@zsm3/contracts/short-links";
+
 import Panel from "../../../layouts/panel.astro";
 
 import "../../../styles/panel-requests.css";
@@ -57,18 +59,20 @@ import "../../../styles/panel-links.css";
             />
           </label>
           <label>
-            Hasło (nieobowiązkowe, od 6 znaków)
+            Hasło (nieobowiązkowe, co najmniej {MIN_PASSWORD_LENGTH} znaków)
             <input
               type="password"
               name="password"
               autocomplete="new-password"
-              minlength="6"
-              maxlength="200"
+              minlength={MIN_PASSWORD_LENGTH}
+              maxlength={MAX_PASSWORD_LENGTH}
               aria-describedby="linki-haslo-opis linki-blad"
             />
           </label>
           <p class="panel-hint" id="linki-haslo-opis">
-            Hasło przekaż uczniom osobno, na przykład na lekcji. Nie zobaczysz go ponownie.
+            Najłatwiej zapamiętać kilka słów połączonych łącznikiem, na przykład
+            zielony-rower-po-deszczu. Hasło przekaż uczniom osobno, na przykład na lekcji. Nie
+            zobaczysz go ponownie.
           </p>
           <p class="panel-links-expiry" data-panel="link-expiry"></p>
           <p
@@ -126,6 +130,41 @@ import "../../../styles/panel-links.css";
         </div>
         <div class="panel-actions">
           <button type="button" data-panel="links-more" hidden>
+            Pokaż starsze
+          </button>
+        </div>
+      </section>
+      <section aria-labelledby="linki-admin" data-panel="admin-links" hidden>
+        <h2 id="linki-admin">Aktywne linki wszystkich pracowników</h2>
+        <p class="panel-hint">
+          Widzisz tę część jako administrator. Unieważnij tu link osoby, która odeszła ze szkoły
+          albo nie może tego zrobić sama. Lista nie pokazuje adresów, plików ani haseł.
+        </p>
+        <div class="panel-row">
+          <button type="button" data-panel="admin-refresh">
+            Odśwież listę
+          </button>
+        </div>
+        <p class="panel-note" data-panel="admin-status" role="status" aria-live="polite"></p>
+        <ul class="panel-links-list" data-panel="admin-rows"></ul>
+        <div class="panel-confirm" data-panel="admin-confirm" hidden>
+          <p id="linki-admin-potwierdzenie" data-panel="admin-confirm-text"></p>
+          <div class="panel-actions">
+            <button
+              type="button"
+              class="panel-save"
+              data-panel="admin-confirm-yes"
+              aria-describedby="linki-admin-potwierdzenie"
+            >
+              Tak, unieważnij link
+            </button>
+            <button type="button" data-panel="admin-confirm-no">
+              Anuluj
+            </button>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <button type="button" data-panel="admin-more" hidden>
             Pokaż starsze
           </button>
         </div>

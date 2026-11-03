@@ -24,6 +24,8 @@ export const PANEL_MATRIX: Readonly<Record<PanelRouteName, readonly StaffRole[]>
   "short-links.list": CONTENT_ROLES,
   "short-links.create": CONTENT_ROLES,
   "short-links.revoke": CONTENT_ROLES,
+  "short-links.all": ["admin"],
+  "short-links.admin-revoke": ["admin"],
   "redirects.save": ["admin"],
   "redirects.delete": ["admin"],
   "staff.list": ["admin"],

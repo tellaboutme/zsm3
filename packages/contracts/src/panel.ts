@@ -151,6 +151,8 @@ export const panelRouteNames = [
   "short-links.list",
   "short-links.create",
   "short-links.revoke",
+  "short-links.all",
+  "short-links.admin-revoke",
   "redirects.save",
   "redirects.delete",
   "staff.list",

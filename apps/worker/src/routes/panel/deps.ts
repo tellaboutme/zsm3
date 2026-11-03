@@ -21,6 +21,7 @@ import type { RedirectsRepo } from "../../storage/redirects-repo.ts";
 import type { RequestsRepo } from "../../storage/requests-repo.ts";
 import type { RevisionsRepo } from "../../storage/revisions-repo.ts";
 import type { ShortLinkFilesRepo } from "../../storage/short-link-files-repo.ts";
+import type { ShortLinksAdminRepo } from "../../storage/short-links-admin-repo.ts";
 import type { ShortLinksRepo } from "../../storage/short-links-repo.ts";
 import type { StaffRepo, StaffRole } from "../../storage/staff-repo.ts";
 
@@ -44,6 +45,7 @@ export interface PanelRepos {
   readonly redirects: RedirectsRepo;
   readonly shortLinks: ShortLinksRepo;
   readonly shortLinkFiles: ShortLinkFilesRepo;
+  readonly shortLinksAdmin: ShortLinksAdminRepo;
   readonly announcements: AnnouncementsRepo;
   readonly bells: BellsRepo;
   readonly datasets: DatasetsRepo;

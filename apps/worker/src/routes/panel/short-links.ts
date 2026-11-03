@@ -12,6 +12,7 @@ import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { panelGuard, panelJsonOrigin, panelOrigin } from "./guards.ts";
 import { uniqueQuery } from "./http.ts";
 import { MAX_LINK_UPLOAD_BODY_BYTES, uploadLinkFile } from "./short-link-files.ts";
+import { withAdminLinkRoutes } from "./short-links-admin.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse, type ProblemStatus } from "../../http/problem.ts";
 import { createShortLink, type CreateOutcome } from "../../short-links/create.ts";
@@ -68,7 +69,7 @@ async function createLink(c: Context<AppEnv>): Promise<Response> {
 }
 
 export function shortLinksRoutes(): Hono<AppEnv> {
-  return new Hono<AppEnv>()
+  return withAdminLinkRoutes(new Hono<AppEnv>())
     .get("/short-links", panelGuard("short-links.list"), async (c) => listLinks(c))
     .post("/short-links", panelGuard("short-links.create"), panelJsonOrigin, async (c) =>
       createLink(c),

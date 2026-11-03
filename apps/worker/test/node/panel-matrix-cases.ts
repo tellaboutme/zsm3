@@ -48,6 +48,8 @@ export const OK_STATUS: Record<PanelRouteName, number> = {
   "short-links.list": 200,
   "short-links.create": 201,
   "short-links.revoke": 422,
+  "short-links.all": 200,
+  "short-links.admin-revoke": 422,
   "redirects.save": 200,
   "redirects.delete": 204,
   "staff.list": 200,

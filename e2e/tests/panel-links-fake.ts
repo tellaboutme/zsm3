@@ -11,8 +11,20 @@ export interface FakeLink {
   passwordProtected: boolean;
 }
 
+export interface FakeAdminLink {
+  code: string;
+  owner: string;
+  kind: "url" | "file";
+  createdAt: string;
+  expiresAt: string;
+  passwordProtected: boolean;
+}
+
 export interface LinksFake {
   readonly links: FakeLink[];
+  readonly adminLinks: FakeAdminLink[];
+  readonly adminRevoked: string[];
+  readonly adminRequests: string[];
   readonly created: unknown[];
   readonly uploads: string[];
   readonly revoked: string[];
@@ -100,14 +112,33 @@ async function revoke(fake: LinksFake, route: Route, code: string): Promise<void
   await route.fulfill({ status: 204 });
 }
 
+async function admin(fake: LinksFake, route: Route, code: string | undefined): Promise<void> {
+  fake.adminRequests.push(route.request().method());
+  if (code === undefined) {
+    await json(route, 200, { items: fake.adminLinks, nextCursor: null });
+    return;
+  }
+  fake.adminRevoked.push(code);
+  const index = fake.adminLinks.findIndex((item) => item.code === code);
+  if (index === -1) {
+    await json(route, 404, {});
+    return;
+  }
+  fake.adminLinks.splice(index, 1);
+  await route.fulfill({ status: 204 });
+}
+
 export async function fakeLinksPanel(
   page: Page,
   role: string,
   links: FakeLink[],
-  pageSize = 20,
+  { pageSize = 20, adminLinks = [] }: { pageSize?: number; adminLinks?: FakeAdminLink[] } = {},
 ): Promise<LinksFake> {
   const fake: LinksFake = {
     links,
+    adminLinks,
+    adminRevoked: [],
+    adminRequests: [],
     created: [],
     uploads: [],
     revoked: [],
@@ -122,6 +153,11 @@ export async function fakeLinksPanel(
     async (route) => {
       const url = new URL(route.request().url());
       const method = route.request().method();
+      const all = /^\/api\/panel\/short-links\/all(?:\/([^/]+))?$/u.exec(url.pathname);
+      if (all !== null) {
+        await admin(fake, route, all[1]);
+        return;
+      }
       const code = /^\/api\/panel\/short-links\/([^/]+)$/u.exec(url.pathname)?.[1];
       if (method === "GET") {
         await list(fake, route, url, pageSize);

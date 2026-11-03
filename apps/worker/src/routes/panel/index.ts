@@ -41,6 +41,7 @@ import { redirectsRepo } from "../../storage/redirects-repo.ts";
 import { requestsRepo } from "../../storage/requests-repo.ts";
 import { revisionsRepo } from "../../storage/revisions-repo.ts";
 import { shortLinkFilesRepo } from "../../storage/short-link-files-repo.ts";
+import { shortLinksAdminRepo } from "../../storage/short-links-admin-repo.ts";
 import { shortLinksRepo } from "../../storage/short-links-repo.ts";
 import { staffRepo } from "../../storage/staff-repo.ts";
 
@@ -98,6 +99,7 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
         redirects: redirectsRepo(store),
         shortLinks: shortLinksRepo(store),
         shortLinkFiles: shortLinkFilesRepo(store),
+        shortLinksAdmin: shortLinksAdminRepo(store),
         announcements: announcementsRepo(store),
         bells: bellsRepo(store),
         datasets: datasetsRepo(store),

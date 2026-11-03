@@ -50,14 +50,16 @@ test.describe("staff short links", () => {
     await page
       .getByLabel("Adres strony (zaczyna się od https://)")
       .fill("https://example.org/nowy");
-    await page.getByLabel("Hasło (nieobowiązkowe, od 6 znaków)").fill("klasa4tp");
+    await page.getByLabel("Hasło (nieobowiązkowe, co najmniej 12 znaków)").fill("klasa4tp-2026");
     await page.getByRole("button", { name: "Utwórz link" }).click();
 
     await expect(page.locator('[data-panel="link-result-title"]')).toBeFocused();
     await expect(page.locator('[data-panel="link-result-url"]')).toHaveValue(/\/s\/nauka23$/u);
-    expect(fake.created).toEqual([{ target: "https://example.org/nowy", password: "klasa4tp" }]);
+    expect(fake.created).toEqual([
+      { target: "https://example.org/nowy", password: "klasa4tp-2026" },
+    ]);
     await expect(page.locator('[data-panel="link-rows"] > li').first()).toContainText("nauka23");
-    await expect(page.getByLabel("Hasło (nieobowiązkowe, od 6 znaków)")).toHaveValue("");
+    await expect(page.getByLabel("Hasło (nieobowiązkowe, co najmniej 12 znaków)")).toHaveValue("");
   });
 
   test("uploads a file and refuses a format the server would refuse", async ({ page }) => {
@@ -143,7 +145,7 @@ test.describe("staff short links", () => {
   });
 
   test("pages through older links", async ({ page }) => {
-    await fakeLinksPanel(page, "editor", links(), 2);
+    await fakeLinksPanel(page, "editor", links(), { pageSize: 2 });
     await page.goto("/panel/linki");
     await expect(page.locator('[data-panel="link-rows"] > li')).toHaveCount(2);
     await page.getByRole("button", { name: "Pokaż starsze" }).click();

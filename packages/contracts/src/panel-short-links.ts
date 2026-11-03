@@ -41,3 +41,16 @@ export const panelShortLinksListSchema = z.strictObject({
   items: z.array(panelShortLinkItemSchema).max(200),
   nextCursor: panelShortLinkCursorSchema.nullable(),
 });
+export const panelAdminShortLinkItemSchema = z.strictObject({
+  code: shortCodeSchema,
+  owner: z.string().min(1).max(320),
+  kind: z.enum(["url", "file"]),
+  createdAt: z.string(),
+  expiresAt: z.string(),
+  passwordProtected: z.boolean(),
+});
+export type PanelAdminShortLinkItem = z.infer<typeof panelAdminShortLinkItemSchema>;
+export const panelAdminShortLinksListSchema = z.strictObject({
+  items: z.array(panelAdminShortLinkItemSchema).max(200),
+  nextCursor: panelShortLinkCursorSchema.nullable(),
+});

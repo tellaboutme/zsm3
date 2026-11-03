@@ -27,5 +27,14 @@ export function linkCases(harness: PanelHarness): readonly RouteCase[] {
       call: async (token) =>
         panelJsonCall(harness, "DELETE", "/short-links/invalid", { token, body: {} }),
     },
+    {
+      name: "short-links.all",
+      call: async (token) => panelJsonCall(harness, "GET", "/short-links/all", { token }),
+    },
+    {
+      name: "short-links.admin-revoke",
+      call: async (token) =>
+        panelJsonCall(harness, "DELETE", "/short-links/all/invalid", { token, body: {} }),
+    },
   ];
 }

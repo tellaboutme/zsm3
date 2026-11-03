@@ -3,6 +3,7 @@ import { panelShortLinksListSchema, type PanelShortLinkItem } from "@zsm3/contra
 
 import { area, areaButton, areaList, button, el, speak } from "./dom.ts";
 import { denyContent, gateView } from "./gate-ui.ts";
+import { AdminLinkList } from "./linki-admin.ts";
 import { copyLink, wireLinkForm } from "./linki-form.ts";
 import { wireShell } from "./shell.ts";
 import { panelDelete, panelRead, problemPhrase } from "../../lib/panel/api.ts";
@@ -186,6 +187,7 @@ class LinkList {
 
 export function wireLinki(section: HTMLElement): void {
   const list = new LinkList(listParts(section));
+  const admin = new AdminLinkList(section);
   const view = gateView(section);
   wireShell(view, (role) => {
     if (!canEditContent(role)) {
@@ -196,6 +198,9 @@ export function wireLinki(section: HTMLElement): void {
       list.prepend(item);
     });
     void list.load(true);
+    if (role === "admin") {
+      admin.show();
+    }
   });
 }
 
