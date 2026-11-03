@@ -1,5 +1,11 @@
 import { expect, test } from "./fixtures.ts";
 
+const SITE = "http://127.0.0.1:8787";
+
+function offeredNames(browserName: string, readable: string, ascii: string): readonly string[] {
+  return browserName === "webkit" ? [readable, readable.replaceAll(" ", "_"), ascii] : [readable];
+}
+
 test("an open short link sends the visitor to the material", async ({ request }) => {
   const response = await request.get("/s/materia", { maxRedirects: 0 });
 
@@ -40,7 +46,7 @@ test("a protected link asks for the password without revealing the target", asyn
 test("the correct password redirects to the protected material", async ({ request }) => {
   const response = await request.post("/api/short-links/zhasqem", {
     form: { haslo: "zsm3-demo" },
-    headers: { Origin: "http://127.0.0.1:8787" },
+    headers: { Origin: SITE },
     maxRedirects: 0,
   });
 
@@ -57,7 +63,25 @@ test("the password form refuses a guess and keeps the visitor on the page", asyn
   await expect(page.getByLabel("Hasło do materiału")).toBeVisible();
 });
 
-test("an open file link offers a download and never names a storage address", async ({ page }) => {
+test("a file download carries the readable name and an ASCII fallback", async ({ request }) => {
+  const response = await request.post("/api/short-links/pdfmat3", {
+    form: {},
+    headers: { Origin: SITE },
+    maxRedirects: 0,
+  });
+
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-disposition"]).toBe(
+    'attachment; filename="Karta pracy - przyklad.pdf"; ' +
+      "filename*=UTF-8''Karta%20pracy%20%E2%80%94%20przyk%C5%82ad.pdf",
+  );
+  expect(response.headers()["cache-control"]).toBe("private, no-store");
+});
+
+test("an open file link offers a download and never names a storage address", async ({
+  page,
+  browserName,
+}) => {
   const response = await page.goto("/s/pdfmat3");
 
   expect(response?.status()).toBe(200);
@@ -66,10 +90,15 @@ test("an open file link offers a download and never names a storage address", as
   expect(await page.content()).not.toMatch(/\/media\/|s\/[0-9a-f]{8}-/u);
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Pobierz plik" }).click();
-  expect((await download).suggestedFilename()).toMatch(/^Karta pracy [—-] przyk[łl]ad\.pdf$/u);
+  expect(
+    offeredNames(browserName, "Karta pracy — przykład.pdf", "Karta pracy - przyklad.pdf"),
+  ).toContain((await download).suggestedFilename());
 });
 
-test("a protected file link names nothing until the password matches", async ({ page }) => {
+test("a protected file link names nothing until the password matches", async ({
+  page,
+  browserName,
+}) => {
   await page.goto("/s/pdfzhas");
   await expect(page.getByLabel("Hasło do materiału")).toBeVisible();
   expect(await page.content()).not.toContain("Klucz odpowiedzi");
@@ -81,7 +110,9 @@ test("a protected file link names nothing until the password matches", async ({ 
   await page.getByLabel("Hasło do materiału").fill("zsm3-demo");
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Otwórz materiał" }).click();
-  expect((await download).suggestedFilename()).toMatch(/^Klucz odpowiedzi [—-] przyk[łl]ad\.pdf$/u);
+  expect(
+    offeredNames(browserName, "Klucz odpowiedzi — przykład.pdf", "Klucz odpowiedzi - przyklad.pdf"),
+  ).toContain((await download).suggestedFilename());
 });
 
 test("a file is not served to another site's form", async ({ request }) => {
