@@ -63,6 +63,13 @@ test("the password form refuses a guess and keeps the visitor on the page", asyn
   await expect(page.getByLabel("Hasło do materiału")).toBeVisible();
 });
 
+test("a link blocked for the day says so and still offers the form", async ({ page }) => {
+  await page.goto("/s/zhasqem?blad=doba");
+
+  await expect(page.getByText("wpisano w ciągu doby zbyt wiele błędnych haseł")).toBeVisible();
+  await expect(page.getByLabel("Hasło do materiału")).toBeVisible();
+});
+
 test("a file download carries the readable name and an ASCII fallback", async ({ request }) => {
   const response = await request.post("/api/short-links/pdfmat3", {
     form: {},

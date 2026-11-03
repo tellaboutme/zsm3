@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const CODE_ALPHABET = "23456789abcdefghijkmnpqrstuvwxyz";
 export const CODE_LENGTH = 7;
-export const MIN_PASSWORD_LENGTH = 6;
+export const MIN_PASSWORD_LENGTH = 12;
 export const MAX_PASSWORD_LENGTH = 200;
 export const MAX_TARGET_LENGTH = 2000;
 export const MAX_LINK_FILE_BYTES = 20 * 1024 * 1024;

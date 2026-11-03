@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 import { firstRow, type Store } from "./database.ts";
-import { CLEAR_RATE_LIMIT, CONSUME_RATE_LIMIT, PRUNE_RATE_LIMITS } from "./rate-limits-sql.ts";
+import {
+  CLEAR_RATE_LIMIT,
+  CONSUME_RATE_LIMIT,
+  PEEK_RATE_LIMIT,
+  PRUNE_RATE_LIMITS,
+} from "./rate-limits-sql.ts";
 import { hmacSha256 } from "../security/hmac.ts";
 
 export const RATE_LIMIT_MAX = 5;
@@ -16,6 +21,7 @@ export interface RateLimitState {
 
 export interface RateLimitsRepo {
   consume(keyHash: Uint8Array, now: string, cutoff: string): Promise<RateLimitState>;
+  peek(keyHash: Uint8Array, cutoff: string): Promise<number>;
   clear(keyHash: Uint8Array): Promise<void>;
   prune(cutoff: string, limit: number): Promise<void>;
 }
@@ -35,6 +41,13 @@ export function rateLimitsRepo(store: Store): RateLimitsRepo {
   return {
     clear: async (keyHash) => {
       await db.prepare(CLEAR_RATE_LIMIT).bind(keyHash).run();
+    },
+    peek: async (keyHash, cutoff) => {
+      const row = await firstRow(
+        db.prepare(PEEK_RATE_LIMIT).bind(keyHash, cutoff),
+        z.strictObject({ count: z.number() }),
+      );
+      return row?.count ?? 0;
     },
     prune: async (cutoff, limit) => {
       await db.prepare(PRUNE_RATE_LIMITS).bind(cutoff, limit).run();

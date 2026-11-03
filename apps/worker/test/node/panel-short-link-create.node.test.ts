@@ -11,7 +11,7 @@ describe("creating a link in the panel", () => {
     const h = await harness();
     const response = await panelJsonCall(h, "POST", "/short-links", {
       token: await token(h),
-      body: { target: "https://example.org/lekcja", password: "klasa4tp" },
+      body: { target: "https://example.org/lekcja", password: "klasa4tp-2026" },
     });
     const raw: unknown = await response.json();
 
@@ -26,7 +26,7 @@ describe("creating a link in the panel", () => {
     });
     expect(Date.parse(item.expiresAt)).toBeGreaterThan(Date.parse(item.createdAt));
     expect(new Date(item.expiresAt).getUTCDate()).toBe(31);
-    expect(JSON.stringify(raw)).not.toMatch(/klasa4tp|salt|hash/u);
+    expect(JSON.stringify(raw)).not.toMatch(/klasa4tp-2026|salt|hash/u);
   });
 
   it("maps refused bodies and a missing key to problems", async ({ expect }) => {
@@ -42,7 +42,7 @@ describe("creating a link in the panel", () => {
     await expectProblem(
       await panelJsonCall(keyless, "POST", "/short-links", {
         token: await token(keyless),
-        body: { target: "https://example.org", password: "klasa4tp" },
+        body: { target: "https://example.org", password: "klasa4tp-2026" },
       }),
       503,
     );

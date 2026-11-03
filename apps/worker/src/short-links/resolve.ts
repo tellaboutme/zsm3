@@ -8,8 +8,10 @@ import type { ShortLinkRecord, ShortLinksRepo } from "../storage/short-links-rep
 import type { StoredLinkFile } from "../storage/short-links-rows.ts";
 
 export const PASSWORD_ATTEMPTS = 30;
+export const DAILY_FAILED_ATTEMPTS = 100;
 
 const MINUTE_MS = 60_000;
+const DAY_MS = 24 * 60 * MINUTE_MS;
 
 export interface OpenDeps {
   readonly links: ShortLinksRepo;
@@ -32,6 +34,7 @@ export type UnlockOutcome =
   | Exclude<OpenOutcome, { readonly kind: "download" }>
   | { readonly kind: "file"; readonly file: StoredLinkFile }
   | { readonly kind: "throttled" }
+  | { readonly kind: "blocked" }
   | { readonly kind: "unavailable" };
 
 type FoundLink = { readonly kind: "found"; readonly link: ShortLinkRecord } | LapsedOutcome;
@@ -49,6 +52,14 @@ async function findLive(deps: OpenDeps, code: string, now: Date): Promise<FoundL
 
 async function guessKey(code: string): Promise<Uint8Array> {
   return sha256(`shortlink:${code}`);
+}
+
+async function failureKey(code: string): Promise<Uint8Array> {
+  return sha256(`shortlink-failures:${code}`);
+}
+
+function dayBefore(now: Date): string {
+  return new Date(now.getTime() - DAY_MS).toISOString();
 }
 
 async function guessesExceeded(deps: ResolveDeps, key: Uint8Array, now: Date): Promise<boolean> {
@@ -107,11 +118,16 @@ export async function unlockLink(
   if (deps.passwordKey === undefined) {
     return { kind: "unavailable" };
   }
+  const failures = await failureKey(normalised);
+  if ((await deps.rateLimits.peek(failures, dayBefore(now))) >= DAILY_FAILED_ATTEMPTS) {
+    return { kind: "blocked" };
+  }
   const key = await guessKey(normalised);
   if (await guessesExceeded(deps, key, now)) {
     return { kind: "throttled" };
   }
   if (!(await verifyPassword(deps.passwordKey, attempt, digest))) {
+    await deps.rateLimits.consume(failures, now.toISOString(), dayBefore(now));
     return { kind: "locked" };
   }
   await deps.rateLimits.clear(key);
@@ -133,6 +149,8 @@ export function passwordRedirect(
       return `${path}?blad=haslo`;
     case "throttled":
       return `${path}?blad=limit`;
+    case "blocked":
+      return `${path}?blad=doba`;
     case "unavailable":
       return `${path}?blad=brak`;
     case "gone":

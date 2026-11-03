@@ -169,7 +169,7 @@ describe("server answers", () => {
       "Tego pliku nie można udostępnić. Dozwolone są dokumenty PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP bez makr; o rodzaju pliku decyduje jego zawartość, nie nazwa.",
     );
     expect(createPhrase(422)).toBe(
-      "Sprawdź pola: adres musi zaczynać się od https://, a hasło mieć od 6 do 200 znaków.",
+      "Sprawdź pola: adres musi zaczynać się od https://, a hasło mieć od 12 do 200 znaków.",
     );
     expect(createPhrase(503)).toBe(
       "Linku z hasłem nie da się teraz utworzyć, bo serwer nie ma klucza haseł. Utwórz link bez hasła albo napisz do administratora.",

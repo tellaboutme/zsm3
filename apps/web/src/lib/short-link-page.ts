@@ -16,6 +16,7 @@ export interface ShortLinkView {
 export const PASSWORD_ERRORS: Readonly<Record<string, string>> = {
   haslo: "Nieprawidłowe hasło. Spróbuj ponownie.",
   limit: "Hasło wpisano błędnie zbyt wiele razy. Spróbuj ponownie za kilka minut.",
+  doba: "Do tego linku wpisano w ciągu doby zbyt wiele błędnych haseł, więc na razie jest zablokowany. Spróbuj ponownie jutro albo poproś nauczyciela o nowy link.",
   brak: "Nie możemy teraz sprawdzić hasła. Spróbuj ponownie później.",
   plik: "Pliku nie da się teraz pobrać. Spróbuj ponownie później albo poproś nauczyciela o nowy link.",
 };

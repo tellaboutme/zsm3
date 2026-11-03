@@ -71,7 +71,7 @@ async function privateKeys(): Promise<readonly string[]> {
 
 describe("private file links on D1 and R2", () => {
   it("serves the file only after the password and never through /media", async ({ expect }) => {
-    const code = await uploadPdf("klasa4tp");
+    const code = await uploadPdf("klasa4tp-2026");
     const keys = await privateKeys();
     expect(keys).toHaveLength(1);
     const [key] = keys;
@@ -82,7 +82,7 @@ describe("private file links on D1 and R2", () => {
     const wrong = await unlock(code, "zle-haslo");
     expect(wrong.status).toBe(303);
     expect(wrong.headers.get("location")).toBe(`/s/${code}?blad=haslo`);
-    const right = await unlock(code, "klasa4tp");
+    const right = await unlock(code, "klasa4tp-2026");
     expect(right.status).toBe(200);
     expect(right.headers.get("content-disposition")).toContain("attachment;");
     expect(new Uint8Array(await right.arrayBuffer())).toEqual(PDF);
@@ -113,7 +113,7 @@ describe("private file links on D1 and R2", () => {
       bindings,
     );
     expect(revoked.status).toBe(204);
-    expect((await unlock(code, "klasa4tp")).headers.get("location")).toBe(`/s/${code}`);
+    expect((await unlock(code, "klasa4tp-2026")).headers.get("location")).toBe(`/s/${code}`);
 
     await expect(
       sweepShortLinkFiles(shortLinkFilesRepo(store), env.MEDIA, new Date()),

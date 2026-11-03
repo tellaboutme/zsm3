@@ -9,3 +9,6 @@ export const PRUNE_RATE_LIMITS = `DELETE FROM rate_limits WHERE key_hash IN
   (SELECT key_hash FROM rate_limits WHERE window_started_at < ?1 ORDER BY window_started_at LIMIT ?2)`;
 
 export const CLEAR_RATE_LIMIT = "DELETE FROM rate_limits WHERE key_hash = ?1";
+
+export const PEEK_RATE_LIMIT = `SELECT CASE WHEN window_started_at < ?2 THEN 0 ELSE count END AS count
+  FROM rate_limits WHERE key_hash = ?1`;

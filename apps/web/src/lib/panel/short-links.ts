@@ -1,6 +1,11 @@
 import type { PanelShortLinkItem } from "@zsm3/contracts/panel";
 import { SCHOOL_TIME_ZONE, schoolYearOf } from "@zsm3/contracts/short-link-expiry";
-import { linkFileFormats, MAX_LINK_FILE_BYTES } from "@zsm3/contracts/short-links";
+import {
+  linkFileFormats,
+  MAX_LINK_FILE_BYTES,
+  MAX_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH,
+} from "@zsm3/contracts/short-links";
 
 import { problemPhrase } from "./api.ts";
 import { bytesPhrase } from "./uploads.ts";
@@ -135,7 +140,7 @@ export function fileCheckPhrase(check: FileCheck): string {
 const CREATE_PROBLEMS: Readonly<Record<number, string>> = {
   413: `Plik przekracza limit ${String(MAX_LINK_FILE_BYTES / MB)} MB.`,
   415: `Tego pliku nie można udostępnić. Dozwolone są dokumenty ${FORMAT_LIST} bez makr; o rodzaju pliku decyduje jego zawartość, nie nazwa.`,
-  422: "Sprawdź pola: adres musi zaczynać się od https://, a hasło mieć od 6 do 200 znaków.",
+  422: `Sprawdź pola: adres musi zaczynać się od https://, a hasło mieć od ${String(MIN_PASSWORD_LENGTH)} do ${String(MAX_PASSWORD_LENGTH)} znaków.`,
   503: "Linku z hasłem nie da się teraz utworzyć, bo serwer nie ma klucza haseł. Utwórz link bez hasła albo napisz do administratora.",
 };
 

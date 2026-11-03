@@ -60,11 +60,14 @@ describe("short link targets", () => {
 
 describe("link password", () => {
   it("keeps passwords long enough to be worth checking", ({ expect }) => {
-    expect([MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH]).toEqual([6, 200]);
+    expect([MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH]).toEqual([12, 200]);
     expect(linkPasswordSchema.safeParse("klasa4".padEnd(MIN_PASSWORD_LENGTH, "x")).success).toBe(
       true,
     );
-    expect(linkPasswordSchema.safeParse("krot").success).toBe(false);
+    expect(
+      linkPasswordSchema.safeParse("klasa4".padEnd(MIN_PASSWORD_LENGTH - 1, "x")).success,
+    ).toBe(false);
+    expect(linkPasswordSchema.safeParse("123456").success).toBe(false);
     expect(linkPasswordSchema.safeParse("x".repeat(MAX_PASSWORD_LENGTH + 1)).success).toBe(false);
   });
 });
@@ -73,8 +76,12 @@ describe("a new short link", () => {
   it("takes a target and an optional password, and no lifetime", ({ expect }) => {
     expect(newShortLinkSchema.safeParse({ target: "https://example.org/a" }).success).toBe(true);
     expect(
-      newShortLinkSchema.safeParse({ target: "https://example.org/a", password: "tajne1" }).success,
+      newShortLinkSchema.safeParse({ target: "https://example.org/a", password: "tajne-haslo-1" })
+        .success,
     ).toBe(true);
+    expect(
+      newShortLinkSchema.safeParse({ target: "https://example.org/a", password: "tajne1" }).success,
+    ).toBe(false);
     expect(
       newShortLinkSchema.safeParse({ target: "https://example.org/a", lifetimeDays: 30 }).success,
     ).toBe(false);

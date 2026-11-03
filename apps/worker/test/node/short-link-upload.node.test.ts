@@ -47,7 +47,7 @@ describe("uploading a file for a short link", () => {
     const store = fileStore();
     const outcome = await createFileLink(
       uploadDeps(store, spyBucket()),
-      upload(docx(), { name: "zadanie.docx", password: "klasa4tp" }),
+      upload(docx(), { name: "zadanie.docx", password: "klasa4tp-2026" }),
     );
     if (outcome.kind !== "created") throw new Error("fixture");
     const deps = resolveDeps(store);
@@ -59,7 +59,7 @@ describe("uploading a file for a short link", () => {
     await expect(unlockLink(deps, outcome.code, "zle-haslo", NOW)).resolves.toEqual({
       kind: "locked",
     });
-    await expect(unlockLink(deps, outcome.code, "klasa4tp", NOW)).resolves.toMatchObject({
+    await expect(unlockLink(deps, outcome.code, "klasa4tp-2026", NOW)).resolves.toMatchObject({
       kind: "file",
       file: { name: "zadanie.docx", format: "docx" },
     });
@@ -97,7 +97,7 @@ describe("uploading a file for a short link", () => {
     await expect(
       createFileLink(
         { ...uploadDeps(store, bucket), passwordKey: undefined },
-        upload(PDF, { password: "klasa4tp" }),
+        upload(PDF, { password: "klasa4tp-2026" }),
       ),
     ).resolves.toEqual({ kind: "unavailable" });
     expect(bucket.keys()).toEqual([]);

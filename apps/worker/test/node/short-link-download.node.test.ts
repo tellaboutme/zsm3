@@ -97,7 +97,7 @@ describe("downloading the file behind a short link", () => {
   });
 
   it("asks for the password and serves the file only once it matches", async ({ expect }) => {
-    const current = await site("klasa4tp");
+    const current = await site("klasa4tp-2026");
     const path = `/s/${current.code}`;
 
     const empty = await current.post("haslo=");
@@ -106,18 +106,18 @@ describe("downloading the file behind a short link", () => {
     const wrong = await current.post("haslo=zle-haslo");
     expect(wrong.headers.get("location")).toBe(`${path}?blad=haslo`);
     expect(await wrong.text()).toBe("");
-    const right = await current.post("haslo=klasa4tp");
+    const right = await current.post("haslo=klasa4tp-2026");
     expect(right.status).toBe(200);
     expect(new Uint8Array(await right.arrayBuffer())).toEqual(PDF);
   });
 
   it("stops serving after the guess limit, even for the right password", async ({ expect }) => {
-    const current = await site("klasa4tp");
+    const current = await site("klasa4tp-2026");
     for (let attempt = 0; attempt < PASSWORD_ATTEMPTS; attempt += 1) {
       await current.post("haslo=zle-haslo");
     }
 
-    const blocked = await current.post("haslo=klasa4tp");
+    const blocked = await current.post("haslo=klasa4tp-2026");
     expect(blocked.status).toBe(303);
     expect(blocked.headers.get("location")).toBe(`/s/${current.code}?blad=limit`);
   });

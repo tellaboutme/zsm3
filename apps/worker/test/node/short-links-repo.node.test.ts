@@ -27,7 +27,7 @@ describe("the short links table", () => {
   it("stores and reads a link with a password", async ({ expect }) => {
     const current = store();
     const links = shortLinksRepo(current);
-    const password = await hashPassword(KEY, "klasa4tp", counterRandom());
+    const password = await hashPassword(KEY, "klasa4tp-2026", counterRandom());
     await links.create({
       code: "k7mq4ra",
       target: TARGET,
@@ -48,7 +48,7 @@ describe("the short links table", () => {
   it("lists the links of one author, newest first", async ({ expect }) => {
     const current = store();
     const links = shortLinksRepo(current);
-    const password = await hashPassword(KEY, "klasa4tp", counterRandom());
+    const password = await hashPassword(KEY, "klasa4tp-2026", counterRandom());
     for (const code of ["k7mq4ra", "k7mq4rb"]) {
       await links.create({
         code,

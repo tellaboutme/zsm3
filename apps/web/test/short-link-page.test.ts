@@ -31,6 +31,9 @@ describe("the short link page", () => {
     expect(passwordError("limit")).toBe(
       "Hasło wpisano błędnie zbyt wiele razy. Spróbuj ponownie za kilka minut.",
     );
+    expect(passwordError("doba")).toBe(
+      "Do tego linku wpisano w ciągu doby zbyt wiele błędnych haseł, więc na razie jest zablokowany. Spróbuj ponownie jutro albo poproś nauczyciela o nowy link.",
+    );
     expect(passwordError("brak")).toBe(
       "Nie możemy teraz sprawdzić hasła. Spróbuj ponownie później.",
     );

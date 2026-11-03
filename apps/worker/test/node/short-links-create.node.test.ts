@@ -47,7 +47,7 @@ describe("creating a short link", () => {
   it("locks a link behind the password the teacher chose", async ({ expect }) => {
     const current = store();
     const outcome = await createShortLink(creation(current, KEY), {
-      body: { target: TARGET, password: "klasa4tp" },
+      body: { target: TARGET, password: "klasa4tp-2026" },
       createdBy: "nauczyciel@zespolszkolmechanicznych.edu.pl",
       now: NOW,
     });
@@ -62,7 +62,7 @@ describe("creating a short link", () => {
       kind: "locked",
     });
     await expect(
-      unlockLink(deps(current, KEY), asked.code, "klasa4tp", asked.now),
+      unlockLink(deps(current, KEY), asked.code, "klasa4tp-2026", asked.now),
     ).resolves.toEqual({ kind: "redirect", target: TARGET });
   });
 
@@ -83,7 +83,7 @@ describe("creating a short link", () => {
 
     await expect(
       createShortLink(creation(current, undefined), {
-        body: { target: TARGET, password: "tajne1" },
+        body: { target: TARGET, password: "tajne-haslo-1" },
         createdBy: "a@b.pl",
         now: NOW,
       }),
@@ -148,7 +148,7 @@ describe("creating a short link", () => {
   }) => {
     const current = store();
     const outcome = await createShortLink(creation(current, KEY), {
-      body: { target: TARGET, password: "klasa4tp" },
+      body: { target: TARGET, password: "klasa4tp-2026" },
       createdBy: "a@b.pl",
       now: NOW,
     });

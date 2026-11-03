@@ -25,7 +25,7 @@ describe("uploading a file link in the panel", () => {
     const bearer = await token(h);
     const response = await h.app.fetch(
       uploadRequest(bearer, new File([PDF], "Karta pracy.pdf", { type: "text/html" }), {
-        password: "klasa4tp",
+        password: "klasa4tp-2026",
       }),
       h.env,
     );
@@ -38,7 +38,7 @@ describe("uploading a file link in the panel", () => {
       file: { name: "Karta pracy.pdf", format: "pdf", bytes: PDF.length },
       passwordProtected: true,
     });
-    expect(JSON.stringify(raw)).not.toMatch(/s\/0|object|klasa4tp/u);
+    expect(JSON.stringify(raw)).not.toMatch(/s\/0|object|klasa4tp-2026/u);
     const mine = await panelJsonCall(h, "GET", "/short-links", { token: bearer });
     expect(panelShortLinksListSchema.parse(await mine.json()).items).toEqual([item]);
     const theirs = await panelJsonCall(h, "GET", "/short-links", { token: await token(h, OTHER) });
@@ -84,7 +84,9 @@ describe("uploading a file link in the panel", () => {
     const keyless = await harness(false);
     await expectProblem(
       await keyless.app.fetch(
-        uploadRequest(await token(keyless), new File([PDF], "karta.pdf"), { password: "klasa4tp" }),
+        uploadRequest(await token(keyless), new File([PDF], "karta.pdf"), {
+          password: "klasa4tp-2026",
+        }),
         keyless.env,
       ),
       503,
@@ -96,7 +98,7 @@ describe("uploading a file link in the panel", () => {
     const bearer = await token(h);
     const form = new FormData();
     form.set("file", new File([PDF], "karta.pdf"));
-    form.set("password", new File(["klasa4tp"], "haslo.txt"));
+    form.set("password", new File(["klasa4tp-2026"], "haslo.txt"));
     await expectProblem(
       await h.app.fetch(
         new Request(panelUrl("/short-links/files"), {
