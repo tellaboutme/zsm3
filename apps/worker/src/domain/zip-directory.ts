@@ -1,11 +1,11 @@
 const END_SIGNATURE = 0x06_05_4b_50;
 const CENTRAL_SIGNATURE = 0x02_01_4b_50;
-const LOCAL_SIGNATURE = 0x04_03_4b_50;
 const END_SIZE = 22;
 const CENTRAL_SIZE = 46;
 const LOCAL_SIZE = 30;
 const MAX_COMMENT = 0xff_ff;
-const STORED = 0;
+const STORED_METHOD_AT = 8;
+const LOCAL_MAGIC = [0x50, 0x4b, 0x03, 0x04];
 
 export const MAX_ZIP_ENTRIES = 5000;
 
@@ -14,7 +14,7 @@ export interface StoredEntry {
   readonly data: Uint8Array;
 }
 
-const utf8 = new TextDecoder("utf-8", { fatal: true, ignoreBOM: false });
+const utf8 = new TextDecoder(undefined, { fatal: true, ignoreBOM: true });
 
 function viewOf(bytes: Uint8Array): DataView {
   return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -48,19 +48,23 @@ interface Directory {
   readonly end: number;
 }
 
-function startsWithEntry(view: DataView): boolean {
-  return view.byteLength >= LOCAL_SIZE && view.getUint32(0, true) === LOCAL_SIGNATURE;
+function startsWithEntry(bytes: Uint8Array): boolean {
+  return LOCAL_MAGIC.every((byte, index) => bytes[index] === byte);
 }
 
-function directoryOf(view: DataView): Directory | undefined {
-  const end = startsWithEntry(view) ? findEnd(view) : undefined;
+function isZeroWord(bytes: Uint8Array, at: number): boolean {
+  return bytes[at] === 0 && bytes[at + 1] === 0;
+}
+
+function directoryOf(bytes: Uint8Array, view: DataView): Directory | undefined {
+  const end = startsWithEntry(bytes) ? findEnd(view) : undefined;
   if (end === undefined) {
     return undefined;
   }
   const count = view.getUint16(end + 10, true);
   const singleDisk =
-    view.getUint16(end + 4, true) === 0 &&
-    view.getUint16(end + 6, true) === 0 &&
+    isZeroWord(bytes, end + 4) &&
+    isZeroWord(bytes, end + 6) &&
     view.getUint16(end + 8, true) === count;
   const offset = view.getUint32(end + 16, true);
   const bounded = offset + view.getUint32(end + 12, true) === end;
@@ -71,7 +75,7 @@ function directoryOf(view: DataView): Directory | undefined {
 
 export function zipNames(bytes: Uint8Array): readonly string[] | undefined {
   const view = viewOf(bytes);
-  const directory = directoryOf(view);
+  const directory = directoryOf(bytes, view);
   if (directory === undefined) {
     return undefined;
   }
@@ -83,8 +87,7 @@ export function zipNames(bytes: Uint8Array): readonly string[] | undefined {
     }
     const nameEnd = at + CENTRAL_SIZE + view.getUint16(at + 28, true);
     const next = nameEnd + view.getUint16(at + 30, true) + view.getUint16(at + 32, true);
-    const name =
-      next > directory.end ? undefined : decodeName(bytes.subarray(at + CENTRAL_SIZE, nameEnd));
+    const name = decodeName(bytes.subarray(at + CENTRAL_SIZE, nameEnd));
     if (name === undefined) {
       return undefined;
     }
@@ -98,8 +101,8 @@ export function storedFirstEntry(bytes: Uint8Array): StoredEntry | undefined {
   const view = viewOf(bytes);
   if (
     bytes.byteLength < LOCAL_SIZE ||
-    view.getUint32(0, true) !== LOCAL_SIGNATURE ||
-    view.getUint16(8, true) !== STORED
+    !startsWithEntry(bytes) ||
+    !isZeroWord(bytes, STORED_METHOD_AT)
   ) {
     return undefined;
   }

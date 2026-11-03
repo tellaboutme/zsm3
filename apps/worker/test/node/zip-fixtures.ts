@@ -2,6 +2,8 @@ export interface ZipEntryFixture {
   readonly name: string;
   readonly data?: Uint8Array;
   readonly method?: number;
+  readonly centralExtra?: number;
+  readonly centralComment?: number;
 }
 
 export interface ZipOptions {
@@ -30,11 +32,15 @@ function local(entry: ZipEntryFixture): Uint8Array {
 
 function central(entry: ZipEntryFixture, offset: number): Uint8Array {
   const name = encoder.encode(entry.name);
-  const bytes = new Uint8Array(46 + name.length);
+  const extra = entry.centralExtra ?? 0;
+  const comment = entry.centralComment ?? 0;
+  const bytes = new Uint8Array(46 + name.length + extra + comment);
   const view = new DataView(bytes.buffer);
   view.setUint32(0, 0x02_01_4b_50, true);
   view.setUint16(10, entry.method ?? 0, true);
   view.setUint16(28, name.length, true);
+  view.setUint16(30, extra, true);
+  view.setUint16(32, comment, true);
   view.setUint32(42, offset, true);
   bytes.set(name, 46);
   return bytes;
