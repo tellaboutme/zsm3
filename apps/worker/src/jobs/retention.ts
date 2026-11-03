@@ -1,5 +1,4 @@
-import { z } from "zod";
-
+import { retentionCutoffs } from "../domain/question-lifecycle.ts";
 import {
   ANONYMOUS_RETENTION_YEARS,
   CLOSED_PII_RETENTION_DAYS,
@@ -13,8 +12,10 @@ import type { EmailSender } from "../mail/email-sender.ts";
 import { drainOutbox, MAX_DRAIN, type DrainResult } from "../mail/outbox-consumer.ts";
 import { piiCrypto, type PiiCrypto } from "../security/pii-crypto.ts";
 import { auditRepo, type AuditRepo } from "../storage/audit-repo.ts";
-import { firstRow, type SqlDatabase, type Store } from "../storage/database.ts";
+import { cronStateRepo } from "../storage/cron-state-repo.ts";
+import type { SqlDatabase, Store } from "../storage/database.ts";
 import { outboxRepo, type OutboxRepo } from "../storage/outbox-repo.ts";
+import { questionsRepo } from "../storage/questions-repo.ts";
 import {
   RATE_LIMIT_PRUNE_BATCH,
   RATE_LIMIT_RETENTION_MS,
@@ -31,10 +32,7 @@ const YEAR_MS = 365 * DAY_MS;
 const RETENTION_JOB = "retention";
 export const LAPSED_RETENTION_MS = 30 * DAY_MS;
 export const AUDIT_RETENTION_YEARS = 2;
-
-const SELECT_CRON_STATE = "SELECT last_run_date FROM cron_state WHERE job = ?";
-const UPSERT_CRON_STATE = `INSERT INTO cron_state (job, last_run_date) VALUES (?1, ?2)
-  ON CONFLICT (job) DO UPDATE SET last_run_date = excluded.last_run_date`;
+export const QUESTION_PRUNE_BATCH = 100;
 
 export interface MaintenanceEnv extends RequestsSecretEnv {
   readonly DB: SqlDatabase;
@@ -57,11 +55,6 @@ export interface RetentionCounters {
 }
 
 export interface MaintenanceResult extends RetentionCounters, DrainResult {}
-
-interface CronStateRepo {
-  lastRunDate(job: string): Promise<string | undefined>;
-  markRunDate(job: string, date: string): Promise<void>;
-}
 
 export function maintenanceDeps(env: MaintenanceEnv, store: Store): MaintenanceDeps {
   const config = requestsConfig(env);
@@ -103,6 +96,7 @@ export async function runScheduledMaintenance(
     new Date(now.getTime() - LAPSED_RETENTION_MS).toISOString(),
     LAPSED_PRUNE_BATCH,
   );
+  await questionsRepo(store).prune(retentionCutoffs(now), QUESTION_PRUNE_BATCH);
   const today = utcDate(now);
   if ((await cron.lastRunDate(RETENTION_JOB)) === today) {
     return { ...drained, rejected: 0, erased: 0, deleted: 0, auditDeleted: 0 };
@@ -188,22 +182,6 @@ async function eraseClosed(
 
 function idsOf(actions: readonly RetentionAction[], kind: RetentionAction["kind"]): string[] {
   return actions.filter((action) => action.kind === kind).map((action) => action.requestId);
-}
-
-function cronStateRepo(store: Store): CronStateRepo {
-  const { db } = store;
-  return {
-    lastRunDate: async (job) => {
-      const row = await firstRow(
-        db.prepare(SELECT_CRON_STATE).bind(job),
-        z.strictObject({ last_run_date: z.string() }),
-      );
-      return row?.last_run_date;
-    },
-    markRunDate: async (job, date) => {
-      await db.prepare(UPSERT_CRON_STATE).bind(job, date).run();
-    },
-  };
 }
 
 function utcDate(now: Date): string {

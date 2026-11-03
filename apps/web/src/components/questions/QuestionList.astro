@@ -1,0 +1,112 @@
+---
+import type { PublicQuestion } from "@zsm3/contracts/questions";
+
+import { longDate } from "../../lib/calendar.ts";
+import { addresseeLabel, excerpt, pageCount, questionsPageHref } from "../../lib/questions.ts";
+
+interface Props {
+  items: readonly PublicQuestion[];
+  total: number;
+  page: number;
+}
+
+const { items, total, page } = Astro.props;
+const pages = pageCount(total);
+---
+
+<section class="question-list" aria-labelledby="odpowiedzi">
+  <h2 id="odpowiedzi">Odpowiedzi</h2>
+  {items.length === 0 ? (
+    <p>Na razie nie opublikowano żadnych odpowiedzi.</p>
+  ) : (
+    <ol>
+      {items.map((item) => (
+        <li>
+          <article aria-labelledby={`pytanie-${item.slug}`}>
+            <p class="meta">
+              <time datetime={item.publishedOn}>{longDate(item.publishedOn)}</time> ·{" "}
+              {addresseeLabel(item.addressee)}
+            </p>
+            <h3 id={`pytanie-${item.slug}`}>
+              <a href={`/skrzynka/${item.slug}`}>{excerpt(item.question, 140)}</a>
+            </h3>
+            <p>{excerpt(item.answer)}</p>
+          </article>
+        </li>
+      ))}
+    </ol>
+  )}
+  {pages > 1 && (
+    <nav aria-label="Strony odpowiedzi">
+      <ul class="pager">
+        {page > 1 && (
+          <li>
+            <a href={questionsPageHref(page - 1)} rel="prev">
+              Nowsze
+            </a>
+          </li>
+        )}
+        <li>
+          <span aria-current="page">
+            Strona {page} z {pages}
+          </span>
+        </li>
+        {page < pages && (
+          <li>
+            <a href={questionsPageHref(page + 1)} rel="next">
+              Starsze
+            </a>
+          </li>
+        )}
+      </ul>
+    </nav>
+  )}
+</section>
+
+<style>
+  .question-list,
+  .question-list ol {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .question-list ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  article {
+    display: grid;
+    gap: var(--space-2);
+    padding-block-end: var(--space-5);
+    border-bottom: var(--hairline) solid var(--line);
+  }
+
+  h3 {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .meta {
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+  }
+
+  .pager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pager a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+  }
+</style>

@@ -121,7 +121,13 @@ export const panelShortLinksListSchema = z.strictObject({
   nextCursor: panelShortLinkCursorSchema.nullable(),
 });
 
-export const panelStaffRoleSchema = z.enum(["admin", "secretariat", "editor", "gallery_editor"]);
+export const panelStaffRoleSchema = z.enum([
+  "admin",
+  "secretariat",
+  "editor",
+  "gallery_editor",
+  "counsellor",
+]);
 export type PanelStaffRole = z.infer<typeof panelStaffRoleSchema>;
 export const panelMeSchema = z.strictObject({
   email: z.string().trim().toLowerCase().min(1),
@@ -200,6 +206,10 @@ export const panelRouteNames = [
   "requests.list",
   "requests.get",
   "requests.transition",
+  "questions.list",
+  "questions.get",
+  "questions.draft",
+  "questions.decide",
 ] as const;
 
 export type PanelRouteName = (typeof panelRouteNames)[number];

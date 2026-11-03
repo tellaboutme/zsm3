@@ -32,6 +32,8 @@
     "./env": "./src/env.ts",
     "./jobs/retention": "./src/jobs/retention.ts",
     "./requests-app": "./src/requests-app.ts",
+    "./questions-app": "./src/questions-app.ts",
+    "./questions/*": "./src/questions/*",
     "./short-links/*": "./src/short-links/*",
     "./storage/*": "./src/storage/*",
     "./seed/files.ts": "./seed/files.ts",

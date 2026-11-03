@@ -1,0 +1,63 @@
+---
+import HelpLines from "../../components/questions/HelpLines.astro";
+import Base from "../../layouts/Base.astro";
+import { longDate } from "../../lib/calendar.ts";
+import { addresseeLabel, paragraphs } from "../../lib/questions.ts";
+import { notFound } from "../../server/news.ts";
+import { publishedQuestion } from "../../server/questions.ts";
+import "../../styles/request.css";
+import "../../styles/questions.css";
+
+export const prerender = false;
+
+const item = await publishedQuestion(Astro.params["slug"]);
+if (item === undefined) {
+  return notFound();
+}
+---
+
+<Base
+  title="Odpowiedź ze Skrzynki #OgarniamŻycie – ZSM3"
+  description="Odpowiedź pracownika szkoły na anonimowe pytanie ucznia."
+  breadcrumbs={[{ label: "Skrzynka #OgarniamŻycie", href: "/skrzynka" }, { label: "Odpowiedź" }]}
+  noindex
+>
+  <article class="request-page questions-page question-answer" aria-labelledby="pytanie">
+    <header class="request-intro">
+      <p class="tag">
+        <time datetime={item.publishedOn}>{longDate(item.publishedOn)}</time> ·{" "}
+        {addresseeLabel(item.addressee)}
+      </p>
+      <h1 id="pytanie">Pytanie</h1>
+      <blockquote>
+        {paragraphs(item.question).map((lines) => (
+          <p>
+            {lines.map((line, index) => (
+              <>
+                {index > 0 && <br />}
+                {line}
+              </>
+            ))}
+          </p>
+        ))}
+      </blockquote>
+    </header>
+    <section aria-labelledby="odpowiedz">
+      <h2 id="odpowiedz">Odpowiedź</h2>
+      {paragraphs(item.answer).map((lines) => (
+        <p>
+          {lines.map((line, index) => (
+            <>
+              {index > 0 && <br />}
+              {line}
+            </>
+          ))}
+        </p>
+      ))}
+    </section>
+    <HelpLines />
+    <p>
+      <a href="/skrzynka">Wszystkie odpowiedzi i zasady Skrzynki</a>
+    </p>
+  </article>
+</Base>

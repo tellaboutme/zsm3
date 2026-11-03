@@ -11,6 +11,7 @@ import {
   samplePage,
   staffMember,
 } from "./panel-fixtures.ts";
+import { QUESTION_OK_STATUS, questionCases } from "./panel-matrix-questions.ts";
 import { siteCases } from "./panel-matrix-site.ts";
 import { currentRevision } from "./panel-revision-support.ts";
 import type { PanelHarness } from "./panel-support.ts";
@@ -24,6 +25,7 @@ export const ROLES: readonly RoleName[] = [
   "secretariat",
   "editor",
   "gallery_editor",
+  "counsellor",
   "none",
 ];
 
@@ -64,6 +66,7 @@ export const OK_STATUS: Record<PanelRouteName, number> = {
   "requests.list": 200,
   "requests.get": 200,
   "requests.transition": 200,
+  ...QUESTION_OK_STATUS,
 };
 
 export const NEWS = sampleNews("istniejacy", "Istniejacy salon");
@@ -199,5 +202,6 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
         }),
     },
     ...siteCases(harness, rolesByToken),
+    ...questionCases(harness, rolesByToken),
   ];
 }

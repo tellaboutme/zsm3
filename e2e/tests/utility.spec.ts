@@ -5,7 +5,7 @@ import { expect, test } from "./fixtures.ts";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"];
 const LINK = /href="(\/[^"#?]*)/gu;
-const NEWS_ARCHIVE = "/aktualnosci/";
+const ARCHIVES = ["/aktualnosci/", "/skrzynka/"];
 
 function internalLinks(html: string): readonly string[] {
   return [...html.matchAll(LINK)].flatMap((match) =>
@@ -68,7 +68,9 @@ test.describe("site map", () => {
 
     expect([...missing].toSorted()).toEqual([]);
 
-    expect(unlisted.filter((path) => !path.startsWith(NEWS_ARCHIVE))).toEqual([]);
+    expect(
+      unlisted.filter((path) => !ARCHIVES.some((archive) => path.startsWith(archive))),
+    ).toEqual([]);
     expect(unlisted.length).toBeGreaterThan(0);
     for (const path of listed) {
       expect((await request.get(path)).status(), path).toBe(200);

@@ -1,6 +1,6 @@
 import type { PanelStaffRole } from "@zsm3/contracts/panel";
 
-import { REQUEST_ROLES } from "../lib/panel/gate.ts";
+import { QUESTION_ROLES, REQUEST_ROLES } from "../lib/panel/gate.ts";
 
 export interface PanelSection {
   readonly href: string;
@@ -26,6 +26,12 @@ export const panelSections: readonly PanelSection[] = [
     label: "Wnioski z formularza e-wniosek",
     short: "Wnioski",
     roles: REQUEST_ROLES,
+  },
+  {
+    href: "/panel/skrzynka",
+    label: "Skrzynka #OgarniamŻycie — pytania uczniów",
+    short: "Skrzynka",
+    roles: QUESTION_ROLES,
   },
   { href: "/panel/pracownicy", label: "Pracownicy i role", short: "Pracownicy", roles: ["admin"] },
   { href: "/panel/dziennik", label: "Dziennik zmian", short: "Dziennik", roles: ["admin"] },

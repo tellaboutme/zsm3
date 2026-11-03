@@ -4,7 +4,14 @@ import type { StaffRole } from "../../storage/staff-repo.ts";
 
 const CONTENT_ROLES: readonly StaffRole[] = ["admin", "secretariat", "editor"];
 const SECRETARIAT_ROLES: readonly StaffRole[] = ["admin", "secretariat"];
-const ALL_STAFF_ROLES: readonly StaffRole[] = ["admin", "secretariat", "editor", "gallery_editor"];
+const COUNSELLOR_ROLES: readonly StaffRole[] = ["counsellor"];
+const ALL_STAFF_ROLES: readonly StaffRole[] = [
+  "admin",
+  "secretariat",
+  "editor",
+  "gallery_editor",
+  "counsellor",
+];
 
 export const PANEL_MATRIX: Readonly<Record<PanelRouteName, readonly StaffRole[]>> = {
   me: ALL_STAFF_ROLES,
@@ -41,6 +48,10 @@ export const PANEL_MATRIX: Readonly<Record<PanelRouteName, readonly StaffRole[]>
   "requests.list": SECRETARIAT_ROLES,
   "requests.get": SECRETARIAT_ROLES,
   "requests.transition": SECRETARIAT_ROLES,
+  "questions.list": COUNSELLOR_ROLES,
+  "questions.get": COUNSELLOR_ROLES,
+  "questions.draft": COUNSELLOR_ROLES,
+  "questions.decide": COUNSELLOR_ROLES,
 };
 
 export function routeAllowed(name: PanelRouteName, role: StaffRole): boolean {
