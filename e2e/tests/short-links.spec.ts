@@ -56,3 +56,40 @@ test("the password form refuses a guess and keeps the visitor on the page", asyn
   await expect(page).toHaveURL(/\/s\/zhasqem\?blad=/u);
   await expect(page.getByLabel("Hasło do materiału")).toBeVisible();
 });
+
+test("an open file link offers a download and never names a storage address", async ({ page }) => {
+  const response = await page.goto("/s/pdfmat3");
+
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Materiał do pobrania");
+  await expect(page.getByText("Karta pracy — przykład.pdf", { exact: false })).toBeVisible();
+  expect(await page.content()).not.toMatch(/\/media\/|s\/[0-9a-f]{8}-/u);
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Pobierz plik" }).click();
+  expect((await download).suggestedFilename()).toBe("Karta pracy — przykład.pdf");
+});
+
+test("a protected file link names nothing until the password matches", async ({ page }) => {
+  await page.goto("/s/pdfzhas");
+  await expect(page.getByLabel("Hasło do materiału")).toBeVisible();
+  expect(await page.content()).not.toContain("Klucz odpowiedzi");
+
+  await page.getByLabel("Hasło do materiału").fill("nieprawidlowe");
+  await page.getByRole("button", { name: "Otwórz materiał" }).click();
+  await expect(page).toHaveURL(/\/s\/pdfzhas\?blad=haslo/u);
+
+  await page.getByLabel("Hasło do materiału").fill("zsm3-demo");
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Otwórz materiał" }).click();
+  expect((await download).suggestedFilename()).toBe("Klucz odpowiedzi — przykład.pdf");
+});
+
+test("a file is not served to another site's form", async ({ request }) => {
+  const response = await request.post("/api/short-links/pdfmat3", {
+    form: {},
+    headers: { Origin: "https://evil.example", "Sec-Fetch-Site": "cross-site" },
+    maxRedirects: 0,
+  });
+
+  expect(response.status()).toBe(403);
+});

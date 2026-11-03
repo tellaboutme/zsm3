@@ -75,6 +75,10 @@ describe("panel short link listing", () => {
     expect(panelShortLinkItemSchema.parse(fileItem)).toEqual(fileItem);
     expect(panelShortLinkCreatedSchema.parse({ item: fileItem })).toEqual({ item: fileItem });
     rejects(panelShortLinkItemSchema, { ...base, target: null, file: null });
+    expect(
+      panelShortLinkItemSchema.safeParse({ ...base, target: null, file: null }).error?.issues[0]
+        ?.message,
+    ).toBe("A link points to a target or to a file");
     rejects(panelShortLinkItemSchema, { ...base, target: "https://example.org/a", file });
     rejects(panelShortLinkItemSchema, { ...fileItem, file: { ...file, key: "s/abc" } });
     rejects(panelShortLinkCreatedSchema, { item: fileItem, password: "tajne1" });
