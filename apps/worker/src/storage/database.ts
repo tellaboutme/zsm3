@@ -55,3 +55,14 @@ export async function firstRow<Row>(
   const row = await statement.first();
   return row === null ? undefined : schema.parse(row);
 }
+
+export interface WriteReceipt {
+  readonly statement: SqlStatement;
+  readonly landed: () => Promise<boolean>;
+}
+
+const storedRowSchema = z.object({ stored: z.literal(1) });
+
+export async function stored(statement: SqlStatement): Promise<boolean> {
+  return (await firstRow(statement, storedRowSchema)) !== undefined;
+}

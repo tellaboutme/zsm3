@@ -57,7 +57,10 @@ it("packs the remaining mutations", ({ expect }) => {
     entity: "redirects",
     item: { from: "/stara", to: "/nowa" },
   });
-  expect(newsStatus("publish")).toEqual({ entity: "news", mutation: { action: "publish" } });
+  expect(newsStatus("publish", 3)).toEqual({
+    entity: "news",
+    mutation: { action: "publish", expectedRevision: 3 },
+  });
 });
 
 it("reads and sends live payloads", async ({ expect }) => {

@@ -7,15 +7,16 @@ import {
 import { Hono, type Context } from "hono";
 import { z } from "zod";
 
-import { atomicWrite } from "./atomic.ts";
+import { announce } from "./announce.ts";
 import { auditEntry, changedFields, createdFields } from "./audit.ts";
 import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { panelGuard, panelJsonOrigin } from "./guards.ts";
 import { parseJsonBody } from "./http.ts";
-import { pageSave } from "./mutations.ts";
+import { pageSave, type PageSave } from "./mutations.ts";
+import { atRevision, committed, contentChanged, type GuardedWrite } from "./versions.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse } from "../../http/problem.ts";
-import { allRows, firstRow, type SqlStatement } from "../../storage/database.ts";
+import { allRows, firstRow, type WriteReceipt } from "../../storage/database.ts";
 import { pageFromRow } from "../../storage/pages-repo.ts";
 
 const PAGE_ONE =
@@ -37,7 +38,13 @@ const pageListRowSchema = z.object({
   title: z.string(),
 });
 
+type PageRow = z.infer<typeof pageRowSchema>;
+
 const PAGES_PREFIX = "/api/panel/pages";
+
+async function loadPage(c: Context<AppEnv>, path: string): Promise<PageRow | undefined> {
+  return firstRow(requirePanelDeps(c).db.prepare(PAGE_ONE).bind(path), pageRowSchema);
+}
 
 function routePath(c: Context<AppEnv>): string | undefined {
   const candidate = c.req.path.slice(PAGES_PREFIX.length);
@@ -56,49 +63,91 @@ async function showPage(c: Context<AppEnv>): Promise<Response> {
   if (path === undefined) {
     return problemResponse(c, 422);
   }
-  const row = await firstRow(deps.db.prepare(PAGE_ONE).bind(path), pageRowSchema);
+  const revision = await deps.repos.revisions.current("pages", path);
+  const row = await loadPage(c, path);
   if (row === undefined) {
     return problemResponse(c, 404);
   }
-  return c.json(panelPageViewSchema.parse({ item: { ...pageFromRow(row), status: row.status } }));
+  return c.json(
+    panelPageViewSchema.parse({ item: { ...pageFromRow(row), status: row.status }, revision }),
+  );
+}
+
+interface PageWrite extends GuardedWrite {
+  readonly fields: readonly string[];
+  readonly revision: number;
+}
+
+function pageAudit(c: Context<AppEnv>, path: string, fields: readonly string[]): WriteReceipt {
+  const session = requirePanelSession(c);
+  return requirePanelDeps(c).repos.audit.receipt(
+    auditEntry({ session, action: "pages.save", entity: "pages", entityId: path, fields }),
+  );
+}
+
+function createPage(c: Context<AppEnv>, save: PageSave): PageWrite {
+  const fields = createdFields(save.page);
+  return {
+    receipt: pageAudit(c, save.page.path, fields),
+    statements: requirePanelDeps(c).repos.pages.createStatements(save.page, save.status),
+    fields,
+    unchanged: async () => (await loadPage(c, save.page.path)) === undefined,
+    revision: 0,
+  };
+}
+
+function updatePage(c: Context<AppEnv>, save: PageSave, row: PageRow, expected: number): PageWrite {
+  const deps = requirePanelDeps(c);
+  const { path } = save.page;
+  const previous = pageFromRow(row);
+  const fields = changedFields(previous, save.page);
+  const receipt = deps.repos.revisions.expectedWrite({
+    entity: "pages",
+    entityId: path,
+    dataJson: JSON.stringify({ ...previous, status: row.status }),
+    actorEmail: requirePanelSession(c).email,
+    expected,
+  });
+  return {
+    receipt,
+    statements: [
+      ...deps.repos.pages.saveStatements(save.page, save.status),
+      pageAudit(c, path, fields).statement,
+    ],
+    fields,
+    unchanged: async () => atRevision(deps, "pages", path, expected),
+    revision: expected + 1,
+  };
+}
+
+async function plannedWrite(
+  c: Context<AppEnv>,
+  save: PageSave,
+  row: PageRow | undefined,
+): Promise<PageWrite | undefined> {
+  const expected = save.expectedRevision;
+  if (row === undefined || expected === null) {
+    return row === undefined && expected === null ? createPage(c, save) : undefined;
+  }
+  const current = await atRevision(requirePanelDeps(c), "pages", save.page.path, expected);
+  return current ? updatePage(c, save, row, expected) : undefined;
 }
 
 async function savePage(c: Context<AppEnv>): Promise<Response> {
   const deps = requirePanelDeps(c);
-  const session = requirePanelSession(c);
   const path = routePath(c);
-  if (path === undefined) {
-    return problemResponse(c, 422);
-  }
   const save = pageSave(await parseJsonBody(c, panelMutationSchema));
-  if (save?.page.path !== path) {
+  if (path === undefined || save?.page.path !== path) {
     return problemResponse(c, 422);
   }
-  const row = await firstRow(deps.db.prepare(PAGE_ONE).bind(path), pageRowSchema);
-  const writes: SqlStatement[] = [];
-  let fields: readonly string[];
-  if (row === undefined) {
-    fields = createdFields(save.page);
-  } else {
-    const previous = pageFromRow(row);
-    writes.push(
-      deps.repos.revisions.statement(
-        "pages",
-        path,
-        JSON.stringify({ ...previous, status: row.status }),
-        session.email,
-      ),
-    );
-    fields = changedFields(previous, save.page);
+  const row = await loadPage(c, path);
+  const write = await plannedWrite(c, save, row);
+  if (write === undefined || !(await committed(deps, write))) {
+    return contentChanged(c);
   }
-  writes.push(...deps.repos.pages.saveStatements(save.page, save.status));
-  writes.push(
-    deps.repos.audit.statement(
-      auditEntry({ session, action: "pages.save", entity: "pages", entityId: path, fields }),
-    ),
-  );
-  await atomicWrite(deps, writes);
-  return c.json({ ok: true });
+  const edited = write.fields.length > 0;
+  await announce(deps, { before: row?.status, after: save.status, edited }, path);
+  return c.json({ ok: true, revision: write.revision });
 }
 
 export function pagesRoutes(): Hono<AppEnv> {

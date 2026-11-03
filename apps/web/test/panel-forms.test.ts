@@ -30,11 +30,18 @@ it("builds a valid news item from form fields", ({ expect }) => {
   if (candidate.ok && candidate.item !== undefined) {
     expect(candidate.item.slug).toBe("szkola-po-urgencji");
     expect(candidate.item.cover).toEqual({ caption: "Warsztat", credit: "A. Nowak" });
-    expect(newsSave(candidate.item)).toEqual({
+    expect(newsSave(candidate.item, null)).toEqual({
       entity: "news",
-      mutation: { action: "save", item: candidate.item },
+      mutation: { action: "save", item: candidate.item, expectedRevision: null },
     });
-    expect(newsStatus("unpublish")).toEqual({ entity: "news", mutation: { action: "unpublish" } });
+    expect(newsSave(candidate.item, 4)).toEqual({
+      entity: "news",
+      mutation: { action: "save", item: candidate.item, expectedRevision: 4 },
+    });
+    expect(newsStatus("unpublish", 5)).toEqual({
+      entity: "news",
+      mutation: { action: "unpublish", expectedRevision: 5 },
+    });
   }
 });
 
@@ -152,11 +159,12 @@ it("collects a page candidate with preserved non-text blocks", ({ expect }) => {
     expect(candidate.page.sections[0]?.id).toBe("opis-projektu");
     expect(candidate.page.sections[0]?.title).toBe("Opis projektu");
     expect(candidate.page.sections[0]?.blocks[1]).toBeTypeOf("object");
-    expect(pageSave(candidate.page, "published")).toEqual({
+    expect(pageSave(candidate.page, "published", 2)).toEqual({
       entity: "pages",
       action: "save",
       page: candidate.page,
       status: "published",
+      expectedRevision: 2,
     });
   }
 });

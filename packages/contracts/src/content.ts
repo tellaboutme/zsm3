@@ -125,3 +125,7 @@ export type ContentBlock = z.infer<typeof contentBlockSchema>;
 export type ContentPage = z.infer<typeof contentPageSchema>;
 export type Redirect = z.infer<typeof redirectSchema>;
 export type PublicationStatus = z.infer<typeof publicationStatusSchema>;
+
+export function newsPath({ date, slug }: Pick<News, "date" | "slug">): string {
+  return `/aktualnosci/${date.slice(0, 4)}/${encodeURIComponent(slug)}`;
+}

@@ -73,7 +73,10 @@ for (const width of [360, 700]) {
       }),
     );
     await page.route("**/api/panel/news/2026/entry-1", async (route) =>
-      route.fulfill({ contentType: "application/json", body: JSON.stringify({ item: news[0] }) }),
+      route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ item: news[0], revision: revisions.length }),
+      }),
     );
     await page.goto("/panel/aktualnosci");
     await expect(
@@ -123,6 +126,7 @@ for (const width of [360, 700]) {
               },
             ],
           },
+          revision: revisions.length,
         }),
       }),
     );

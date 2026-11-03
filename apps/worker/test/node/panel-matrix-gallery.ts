@@ -16,6 +16,18 @@ interface RoleFixture {
   readonly seed: number;
 }
 
+export const GALLERY_STATUSES = {
+  "albums.list": 200,
+  "albums.get": 200,
+  "albums.create": 201,
+  "albums.update": 200,
+  "albums.publish": 200,
+  "albums.delete": 204,
+  "photos.upload": 201,
+  "photos.update": 200,
+  "photos.delete": 204,
+} as const;
+
 const fixtures = new Map<string, RoleFixture>();
 const CREATOR = "admin@zsm3.test";
 const ROLE_SEED_BASE = 100;

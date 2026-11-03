@@ -8,20 +8,13 @@ import { plainText } from "@zsm3/contracts/rich-text";
 import type { SearchDocument } from "@zsm3/contracts/search";
 import { z } from "zod";
 
-import {
-  allRows,
-  firstRow,
-  timestamp,
-  type Clock,
-  type SqlDatabase,
-  type SqlStatement,
-  type Store,
-} from "./database.ts";
+import { allRows, firstRow, timestamp, type SqlStatement, type Store } from "./database.ts";
 import { insertDocument, removeDocument } from "./search-sql.ts";
 
 export interface PagesRepo {
   save(page: ContentPage, status: PublicationStatus): Promise<void>;
   saveStatements(page: ContentPage, status: PublicationStatus): readonly SqlStatement[];
+  createStatements(page: ContentPage, status: PublicationStatus): readonly SqlStatement[];
   find(path: string): Promise<ContentPage | undefined>;
   publishedPaths(): Promise<readonly string[]>;
   published(): Promise<readonly ContentPage[]>;
@@ -37,9 +30,11 @@ export const pageRowSchema = z.object({
 
 type PageRow = z.infer<typeof pageRowSchema>;
 
-const UPSERT = `INSERT INTO pages
+const INSERT = `INSERT INTO pages
   (path, kicker, title, intro, sections_json, status, created_at, updated_at)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+const UPSERT = `${INSERT}
   ON CONFLICT (path) DO UPDATE SET
     kicker = excluded.kicker, title = excluded.title, intro = excluded.intro,
     sections_json = excluded.sections_json, status = excluded.status,
@@ -99,17 +94,17 @@ export function pageDocument(page: ContentPage): SearchDocument {
 }
 
 function savePage(
-  db: SqlDatabase,
-  clock: Clock,
+  { db, clock }: Pick<Store, "db" | "clock">,
   page: ContentPage,
   status: PublicationStatus,
+  sql: string = UPSERT,
 ): readonly SqlStatement[] {
   const parsed = contentPageSchema.parse(page);
   const now = timestamp(clock);
   const doc = pageDocument(parsed);
   return [
     db
-      .prepare(UPSERT)
+      .prepare(sql)
       .bind(
         parsed.path,
         parsed.kicker,
@@ -128,9 +123,10 @@ function savePage(
 export function pagesRepo({ db, clock }: Store): PagesRepo {
   return {
     save: async (page, status) => {
-      await db.batch([...savePage(db, clock, page, status)]);
+      await db.batch([...savePage({ db, clock }, page, status)]);
     },
-    saveStatements: (page, status) => savePage(db, clock, page, status),
+    saveStatements: (page, status) => savePage({ db, clock }, page, status),
+    createStatements: (page, status) => savePage({ db, clock }, page, status, INSERT),
     find: async (path) => {
       const row = await firstRow(db.prepare(SELECT_ONE).bind(path), pageRowSchema);
       return row === undefined ? undefined : pageFromRow(row);

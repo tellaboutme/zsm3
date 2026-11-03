@@ -27,16 +27,20 @@ async function signedIn(): Promise<{ harness: PanelHarness; token: string }> {
   return { harness, token: await harness.keys.sign(staffClaims(EDITOR.email)) };
 }
 
-function restoreBody(target: string, id: string, revision: number): unknown {
-  return { entity: "revisions", target, id, revision };
+function restoreBody(target: string, id: string, revision: number, expected: number): unknown {
+  return { entity: "revisions", target, id, revision, expectedRevision: expected };
 }
 
 it("lists page versions newest first and restores one keeping the status", async ({ expect }) => {
   const { harness, token } = await signedIn();
-  for (const title of ["Kontakt", "Kontakt szkoły", "Kontakt i dojazd"]) {
+  for (const [title, expected] of [
+    ["Kontakt", null],
+    ["Kontakt szkoły", 0],
+    ["Kontakt i dojazd", 1],
+  ] as const) {
     await panelJsonCall(harness, "PUT", "/pages/kontakt", {
       token,
-      body: pageSaveMutation(samplePage("/kontakt", title), "published"),
+      body: pageSaveMutation(samplePage("/kontakt", title), "published", expected),
     });
   }
 
@@ -51,10 +55,10 @@ it("lists page versions newest first and restores one keeping the status", async
 
   const restored = await panelJsonCall(harness, "POST", "/revisions/restore", {
     token,
-    body: restoreBody("pages", "/kontakt", 1),
+    body: restoreBody("pages", "/kontakt", 1, 2),
   });
   expect(restored.status).toBe(200);
-  expect(await restored.json()).toEqual({ ok: true });
+  expect(await restored.json()).toEqual({ ok: true, revision: 3 });
   const page = await panelJsonCall(harness, "GET", "/pages/kontakt", { token });
   expect(await page.json()).toMatchObject({ item: { title: "Kontakt", status: "published" } });
   const latest = await panelRevisions(harness.env).latest("pages", "/kontakt");
@@ -75,12 +79,12 @@ it("restores a news version under the same address", async ({ expect }) => {
   });
   await panelJsonCall(harness, "PUT", "/news/2026/salon", {
     token,
-    body: newsSaveMutation(sampleNews("salon", "Salon maturzystów 2026")),
+    body: newsSaveMutation(sampleNews("salon", "Salon maturzystów 2026"), 0),
   });
 
   const restored = await panelJsonCall(harness, "POST", "/revisions/restore", {
     token,
-    body: restoreBody("news", "2026/salon", 1),
+    body: restoreBody("news", "2026/salon", 1, 1),
   });
   expect(restored.status).toBe(200);
   const item = await panelJsonCall(harness, "GET", "/news/2026/salon", { token });
@@ -146,17 +150,17 @@ it("refuses unknown, unreadable and mismatched versions", async () => {
   );
 
   const cases: readonly [unknown, number][] = [
-    [restoreBody("pages", "/kontakt", 9), 404],
-    [restoreBody("pages", "/kontakt", 1), 422],
-    [restoreBody("pages", "/brak", 1), 404],
-    [restoreBody("news", "2026/brak", 1), 404],
-    [restoreBody("news", "2026/inny", 1), 422],
-    [restoreBody("news", "2026/zla", 1), 422],
-    [restoreBody("news", "x2026/inny", 1), 422],
-    [restoreBody("news", "2026/inny/x", 1), 422],
-    [restoreBody("news", "2026/inny", 2), 422],
-    [restoreBody("pages", "/kontakt", 2), 422],
-    [restoreBody("kalendarz", "/kontakt", 1), 422],
+    [restoreBody("pages", "/kontakt", 9, 2), 404],
+    [restoreBody("pages", "/kontakt", 1, 2), 422],
+    [restoreBody("pages", "/brak", 1, 1), 404],
+    [restoreBody("news", "2026/brak", 1, 1), 404],
+    [restoreBody("news", "2026/inny", 1, 2), 422],
+    [restoreBody("news", "2026/zla", 1, 1), 422],
+    [restoreBody("news", "x2026/inny", 1, 1), 422],
+    [restoreBody("news", "2026/inny/x", 1, 1), 422],
+    [restoreBody("news", "2026/inny", 2, 2), 422],
+    [restoreBody("pages", "/kontakt", 2, 2), 422],
+    [restoreBody("kalendarz", "/kontakt", 1, 0), 422],
     [{ entity: "redirects", item: { from: "/a", to: "/kontakt" } }, 422],
   ];
   for (const [body, status] of cases) {

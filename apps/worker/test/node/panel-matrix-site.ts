@@ -1,5 +1,6 @@
 import type { PanelRouteName } from "@zsm3/contracts/panel";
 
+import { currentRevision } from "./panel-revision-support.ts";
 import type { PanelHarness } from "./panel-support.ts";
 import { panelJsonCall } from "./panel-support.ts";
 
@@ -134,7 +135,13 @@ export function siteCases(
       call: async (token) =>
         panelJsonCall(harness, "POST", "/revisions/restore", {
           token,
-          body: { entity: "revisions", target: "pages", id: "/kontakt", revision: 1 },
+          body: {
+            entity: "revisions",
+            target: "pages",
+            id: "/kontakt",
+            revision: 1,
+            expectedRevision: await currentRevision(harness, "pages", "/kontakt"),
+          },
         }),
     },
     {

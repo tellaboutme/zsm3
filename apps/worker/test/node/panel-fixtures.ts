@@ -28,18 +28,24 @@ export function sampleNews(slug: string, title: string, overrides: Partial<News>
   };
 }
 
-export function newsSaveMutation(item: News): {
+export function newsSaveMutation(
+  item: News,
+  expectedRevision: number | null = null,
+): {
   entity: "news";
-  mutation: { action: "save"; item: News };
+  mutation: { action: "save"; item: News; expectedRevision: number | null };
 } {
-  return { entity: "news", mutation: { action: "save", item } };
+  return { entity: "news", mutation: { action: "save", item, expectedRevision } };
 }
 
-export function newsStatusMutation(action: "publish" | "unpublish"): {
+export function newsStatusMutation(
+  action: "publish" | "unpublish",
+  expectedRevision = 0,
+): {
   entity: "news";
-  mutation: { action: "publish" | "unpublish" };
+  mutation: { action: "publish" | "unpublish"; expectedRevision: number };
 } {
-  return { entity: "news", mutation: { action } };
+  return { entity: "news", mutation: { action, expectedRevision } };
 }
 
 export function samplePage(path: string, title: string): ContentPage {
@@ -63,11 +69,29 @@ export function samplePage(path: string, title: string): ContentPage {
   };
 }
 
+export interface PageSaveBody {
+  readonly entity: "pages";
+  readonly action: "save";
+  readonly page: ContentPage;
+  readonly status: PublicationStatus;
+  readonly expectedRevision: number | null;
+}
+
 export function pageSaveMutation(
   page: ContentPage,
   status: PublicationStatus,
-): { entity: "pages"; action: "save"; page: ContentPage; status: PublicationStatus } {
-  return { entity: "pages", action: "save", page, status };
+  expectedRevision: number | null = null,
+): PageSaveBody {
+  return { entity: "pages", action: "save", page, status, expectedRevision };
+}
+
+export function restoreMutation(
+  target: string,
+  id: string,
+  revision: number,
+  expectedRevision: number,
+): unknown {
+  return { entity: "revisions", target, id, revision, expectedRevision };
 }
 
 export function sampleEvent(date: string, title: string): SchoolEvent {

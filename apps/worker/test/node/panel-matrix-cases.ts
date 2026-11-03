@@ -11,8 +11,9 @@ import {
   samplePage,
   staffMember,
 } from "./panel-fixtures.ts";
-import { galleryCases } from "./panel-matrix-gallery.ts";
+import { galleryCases, GALLERY_STATUSES } from "./panel-matrix-gallery.ts";
 import { siteCases } from "./panel-matrix-site.ts";
+import { currentRevision } from "./panel-revision-support.ts";
 import type { PanelHarness } from "./panel-support.ts";
 import { panelJsonCall, panelUploadRequest } from "./panel-support.ts";
 import type { StaffRole } from "../../src/storage/staff-repo.ts";
@@ -64,15 +65,7 @@ export const OK_STATUS: Record<PanelRouteName, number> = {
   "requests.list": 200,
   "requests.get": 200,
   "requests.transition": 200,
-  "albums.list": 200,
-  "albums.get": 200,
-  "albums.create": 201,
-  "albums.update": 200,
-  "albums.publish": 200,
-  "albums.delete": 204,
-  "photos.upload": 201,
-  "photos.update": 200,
-  "photos.delete": 204,
+  ...GALLERY_STATUSES,
 };
 
 export const NEWS = sampleNews("istniejacy", "Istniejacy salon");
@@ -110,7 +103,7 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
       call: async (token) =>
         panelJsonCall(harness, "PUT", "/news/2026/istniejacy", {
           token,
-          body: newsSaveMutation(NEWS),
+          body: newsSaveMutation(NEWS, await currentRevision(harness, "news", "2026/istniejacy")),
         }),
     },
     {
@@ -122,7 +115,10 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
         }
         return panelJsonCall(harness, "PATCH", "/news/2026/istniejacy", {
           token,
-          body: newsStatusMutation(role === "secretariat" ? "unpublish" : "publish"),
+          body: newsStatusMutation(
+            role === "secretariat" ? "unpublish" : "publish",
+            await currentRevision(harness, "news", "2026/istniejacy"),
+          ),
         });
       },
     },
@@ -139,7 +135,11 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
       call: async (token) =>
         panelJsonCall(harness, "PUT", "/pages/kontakt", {
           token,
-          body: pageSaveMutation(samplePage("/kontakt", "Kontakty sluzbowe"), "published"),
+          body: pageSaveMutation(
+            samplePage("/kontakt", "Kontakty sluzbowe"),
+            "published",
+            await currentRevision(harness, "pages", "/kontakt"),
+          ),
         }),
     },
     {

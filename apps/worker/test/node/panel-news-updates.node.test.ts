@@ -2,7 +2,7 @@ import { panelNewsItemSchema } from "@zsm3/contracts/panel";
 import { it } from "vitest";
 import { z } from "zod";
 
-import { newsSaveMutation, sampleNews, staffMember } from "./panel-fixtures.ts";
+import { newsSaveMutation, newsStatusMutation, sampleNews, staffMember } from "./panel-fixtures.ts";
 import {
   expectProblem,
   panelAudit,
@@ -24,10 +24,11 @@ async function patchStatus(
   harness: Awaited<ReturnType<typeof panelHarness>>,
   token: string,
   action: "publish" | "unpublish",
+  expectedRevision: number,
 ): Promise<Response> {
   return panelJsonCall(harness, "PATCH", "/news/2026/salon-maturzystow", {
     token,
-    body: { entity: "news", mutation: { action } },
+    body: { entity: "news", mutation: { action, expectedRevision } },
   });
 }
 
@@ -43,7 +44,7 @@ it("updates drafts while keeping previous data as a revision", async ({ expect }
   const changed = sampleNews("salon-maturzystow", "Salon Maturzystow 2026");
   const updated = await panelJsonCall(harness, "PUT", "/news/2026/salon-maturzystow", {
     token,
-    body: newsSaveMutation(changed),
+    body: newsSaveMutation(changed, 0),
   });
   expect(updated.status).toBe(200);
 
@@ -69,7 +70,7 @@ it("updates drafts while keeping previous data as a revision", async ({ expect }
 
   const again = await panelJsonCall(harness, "PUT", "/news/2026/salon-maturzystow", {
     token,
-    body: newsSaveMutation(changed),
+    body: newsSaveMutation(changed, 1),
   });
   expect(again.status).toBe(200);
   const records = await panelAudit(harness.env).byEntity("news", "2026/salon-maturzystow", 10);
@@ -99,7 +100,7 @@ it("rejects updates with invalid references and bodies", async () => {
   await expectProblem(
     await panelJsonCall(harness, "PUT", "/news/2026/salon-maturzystow", {
       token,
-      body: newsSaveMutation(sampleNews("innegaty-salon", "Niezgodny slug")),
+      body: newsSaveMutation(sampleNews("innegaty-salon", "Niezgodny slug"), 0),
     }),
     422,
   );
@@ -108,6 +109,7 @@ it("rejects updates with invalid references and bodies", async () => {
       token,
       body: newsSaveMutation(
         sampleNews("salon-maturzystow", "Zmiana roku", { date: "2025-05-05" }),
+        0,
       ),
     }),
     422,
@@ -115,7 +117,28 @@ it("rejects updates with invalid references and bodies", async () => {
   await expectProblem(
     await panelJsonCall(harness, "PUT", "/news/2026/brak", {
       token,
-      body: newsSaveMutation(sampleNews("brak", "Brak salon")),
+      body: newsSaveMutation(sampleNews("brak", "Brak salon"), 0),
+    }),
+    404,
+  );
+  await expectProblem(
+    await panelJsonCall(harness, "PUT", "/news/2026/salon-maturzystow", {
+      token,
+      body: newsSaveMutation(sampleNews("salon-maturzystow", "Bez wersji"), null),
+    }),
+    422,
+  );
+  await expectProblem(
+    await panelJsonCall(harness, "PATCH", "/news/2026/BRak", {
+      token,
+      body: newsStatusMutation("publish", 0),
+    }),
+    422,
+  );
+  await expectProblem(
+    await panelJsonCall(harness, "PATCH", "/news/2026/brak", {
+      token,
+      body: newsStatusMutation("publish", 0),
     }),
     404,
   );
@@ -134,7 +157,7 @@ it("writes a revision and audit row when the publication status flips", async ({
     body: newsSaveMutation(sampleNews("salon-maturzystow", "Salon Maturzystow")),
   });
 
-  expect((await patchStatus(harness, token, "publish")).status).toBe(200);
+  expect((await patchStatus(harness, token, "publish", 0)).status).toBe(200);
 
   const revisions = await panelRevisions(harness.env).list("news", "2026/salon-maturzystow");
   const revision = revisions[0];
@@ -161,13 +184,13 @@ it("rejects publication flips that change nothing", async ({ expect }) => {
     body: newsSaveMutation(sampleNews("salon-maturzystow", "Salon Maturzystow")),
   });
 
-  const onDraft = await patchStatus(harness, token, "unpublish");
+  const onDraft = await patchStatus(harness, token, "unpublish", 0);
   expect(onDraft.status).toBe(422);
   const draftProblem: unknown = await onDraft.json();
   expect(draftProblem).toEqual(expect.objectContaining({ title: "Publication Status Unchanged" }));
 
-  expect((await patchStatus(harness, token, "publish")).status).toBe(200);
-  await expectProblem(await patchStatus(harness, token, "publish"), 422);
+  expect((await patchStatus(harness, token, "publish", 0)).status).toBe(200);
+  await expectProblem(await patchStatus(harness, token, "publish", 1), 422);
   const revisions = await panelRevisions(harness.env).list("news", "2026/salon-maturzystow");
   expect(revisions).toHaveLength(1);
 });

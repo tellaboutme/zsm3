@@ -2,17 +2,15 @@ import { z } from "zod";
 
 import { announcementInputSchema } from "./announcements.ts";
 import { bellScheduleSchema } from "./bells.ts";
-import {
-  contentPageSchema,
-  newsSchema,
-  publicationStatusSchema,
-  redirectSchema,
-  schoolEventSchema,
-  sitePathSchema,
-} from "./content.ts";
+import { redirectSchema, schoolEventSchema } from "./content.ts";
 import { panelDatasetSaveSchema } from "./datasets.ts";
 import { GALLERY_ROUTE_NAMES } from "./gallery.ts";
 import { storedFileSchema } from "./media.ts";
+import {
+  panelNewsItemSchema,
+  panelNewsMutationSchema,
+  panelPageSaveSchema,
+} from "./panel-content.ts";
 import { panelRevisionRestoreSchema } from "./revisions.ts";
 import { shortCodeSchema, targetUrlSchema } from "./short-links.ts";
 
@@ -55,30 +53,24 @@ export function schoolYearLabel(startYear: number): string {
   return `${String(startYear)}/${String(startYear + 1)}`;
 }
 
-export const panelNewsItemSchema = newsSchema.extend({ status: publicationStatusSchema });
-export type PanelNewsItem = z.infer<typeof panelNewsItemSchema>;
+export {
+  panelNewsItemSchema,
+  panelNewsMutationSchema,
+  panelNewsViewSchema,
+  panelPageItemSchema,
+  panelPageListItemSchema,
+  panelPageListSchema,
+  panelPageSaveSchema,
+  panelPageViewSchema,
+  type PanelNewsItem,
+} from "./panel-content.ts";
+
 export const panelNewsListSchema = z.strictObject({
   items: z.array(panelNewsItemSchema),
   total: z.int().min(0),
   page: z.int().min(1),
   pageSize: z.int().min(1).max(MAX_PANEL_PAGE_SIZE),
 });
-export const panelNewsViewSchema = z.strictObject({ item: panelNewsItemSchema });
-
-export const panelNewsMutationSchema = z.discriminatedUnion("action", [
-  z.strictObject({ action: z.literal("save"), item: newsSchema }),
-  z.strictObject({ action: z.literal("publish") }),
-  z.strictObject({ action: z.literal("unpublish") }),
-]);
-
-export const panelPageListItemSchema = z.strictObject({
-  path: sitePathSchema,
-  status: publicationStatusSchema,
-  title: z.string().min(1).max(200),
-});
-export const panelPageListSchema = z.strictObject({ items: z.array(panelPageListItemSchema) });
-export const panelPageItemSchema = contentPageSchema.extend({ status: publicationStatusSchema });
-export const panelPageViewSchema = z.strictObject({ item: panelPageItemSchema });
 
 export const panelEventListSchema = z.strictObject({
   items: z.array(schoolEventSchema).max(MAX_SCHOOL_YEAR_EVENTS),
@@ -160,12 +152,7 @@ export const panelRedirectFromSchema = z
 
 export const panelMutationSchema = z.discriminatedUnion("entity", [
   z.strictObject({ entity: z.literal("news"), mutation: panelNewsMutationSchema }),
-  z.strictObject({
-    entity: z.literal("pages"),
-    action: z.literal("save"),
-    page: contentPageSchema,
-    status: publicationStatusSchema,
-  }),
+  panelPageSaveSchema,
   z.strictObject({ entity: z.literal("events"), events: panelEventSaveSchema.shape.events }),
   z.strictObject({ entity: z.literal("redirects"), item: redirectSchema }),
   z.strictObject({ entity: z.literal("staff"), item: panelStaffMemberSchema }),
