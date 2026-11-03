@@ -348,12 +348,23 @@ Pod szczegółami są tylko te przyciski, na które pozwala obecny status:
 
 Każda zmiana statusu trafia do dziennika zdarzeń (rozdział 8) bez danych wnioskodawcy.
 
+## 16. Krótkie linki
+
+W **Krótkie linki** tworzysz adresy `/s/<kod>` dla uczniów — do strony w internecie albo do pliku przesłanego prosto do szkolnego serwisu, bez dysków w chmurze.
+
+- **Link do strony.** Wpisz adres zaczynający się od `https://`.
+- **Link do pliku.** Wybierz plik PDF, DOCX, XLSX, PPTX, ODT, ODS lub ODP do 20 MB. Pliki z makrami, archiwa ZIP, strony HTML i obrazy SVG nie przejdą. O rodzaju pliku decyduje jego zawartość, więc zmiana rozszerzenia nie pomoże.
+- **Hasło** jest nieobowiązkowe, ma od 6 do 200 znaków i nie da się go później odczytać. Przekaż je uczniom osobno, na przykład na lekcji.
+- **Termin ważności** jest stały: link działa do końca roku szkolnego, w którym powstał, czyli do 31 sierpnia włącznie. 1 września wygasa sam. Formularz pokazuje tę datę przed utworzeniem linku.
+
+Po utworzeniu link pojawia się z przyciskiem **Kopiuj link**. Na liście widzisz tylko swoje linki, ich stan (aktywny, wygasł, unieważniony), liczbę otwarć i to, czy mają hasło. **Unieważnij** wyłącza link od razu, także dla osób, które już go mają — przed tym panel prosi o potwierdzenie. Plik takiego linku znika z serwera w ciągu kwadransa.
+
 ## Co jeszcze powstanie
 
 Ten podręcznik na razie opisuje etap 3. W kolejnych etapach dojdzie reszta panelu (zgodnie z [architekturą](architektura.md), rozdział 14):
 
 - **Etap 5 — galeria**: albumy według lat szkolnych, dodawanie zdjęć przeciąganiem w przeglądarce, która sama je zmniejsza, publikacja po potwierdzeniu zgód wizerunku.
-- **Etap 6 — narzędzia społeczności**: krótkie linki `/s/<kod>` tworzone przez pracowników, Skrzynka #OgarniamŻycie moderowana w panelu, statystyki bez plików cookie.
+- **Etap 6 — narzędzia społeczności**: Skrzynka #OgarniamŻycie moderowana w panelu, statystyki bez plików cookie (krótkie linki opisuje rozdział 16).
 - **Etap 7 — uruchomienie**: szkolenie pracowników, przegląd PDF, rejestracja w wyszukiwarkach i przełączenie DNS.
 
 Rozdziały tego podręcznika zostaną uaktualnione, gdy te części zaczną działać.

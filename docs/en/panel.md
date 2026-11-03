@@ -49,6 +49,20 @@ The end-to-end specs for the page (`e2e/tests/panel.requests-*.spec.ts`) assert 
 
 Nothing from a request reaches the URL, browser storage or the console. The list and detail schemas are parsed only in this page's scripts: importing them into the shared `lib/panel/models.ts` moves zod's schema construction ahead of the `jitless` switch in every panel bundle, and the Trusted Types policy then reports the blocked `Function` probe.
 
+## Short links and teaching files
+
+`/panel/linki` is open to the content roles (`admin`, `secretariat`, `editor`). It reads and writes only the API from architecture.md §7.8.
+
+- **Creating.** A link points either to an `https` page or to a file uploaded with it: PDF, DOCX, XLSX, PPTX, ODT, ODS or ODP, at most 20 MB, without macros. The Worker decides the format from the content; a renamed file is refused. A password is optional (6–200 characters) and is never shown again.
+- **Expiry.** The form states the date before anything is saved: every link stops working at the start of 1 September (Warsaw time) after the school year in which it was made. There is no lifetime field to choose.
+- **Ownership.** The list shows only the signed-in author's links — newest first, 20 per page, with **Pokaż starsze** following the `(createdAt, code)` cursor. Only the author can revoke a link; revocation asks for confirmation inside the list item, keeps keyboard focus there, and cannot be undone.
+- **Files stay private.** An uploaded file is reachable only through its short link and, if set, its password; `/media` never serves it. Within 15 minutes of a link being revoked or expiring, the scheduled job deletes the file from R2; the link's metadata stays for 30 days, as for any lapsed link.
+
+Production needs no new binding, secret or schedule: files go to the existing `MEDIA` bucket under the `s/` prefix and the existing `*/15 * * * *` cron removes them. Check two conditions before deploying:
+
+1. `SHORT_LINK_KEY` is set as a Worker secret, otherwise links with a password are refused with 503.
+2. The `MEDIA` bucket has **no public access** — no `r2.dev` subdomain and no custom domain on the bucket itself. Public R2 access would expose every object by key, including private files.
+
 ## Enabling the panel in production
 
 These steps need the school's Cloudflare account and are done once.
