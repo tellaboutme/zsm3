@@ -13,7 +13,7 @@ export const LINK_UPLOAD_BODY_OVERHEAD = 64 * 1024;
 export const MAX_LINK_UPLOAD_BODY_BYTES = MAX_LINK_FILE_BYTES + LINK_UPLOAD_BODY_OVERHEAD;
 
 const FILE_FIELD = "file";
-const PASSWORD_FIELD = "password";
+const PROTECTION_FIELD = "password";
 
 type RefusedUpload = Exclude<UploadOutcome, { readonly kind: "created" }>;
 
@@ -40,7 +40,7 @@ async function uploadForm(c: Context<AppEnv>): Promise<UploadForm | undefined> {
     return undefined;
   }
   const file = form.get(FILE_FIELD);
-  const password = form.get(PASSWORD_FIELD);
+  const password = form.get(PROTECTION_FIELD);
   if (!(file instanceof File) || (password !== null && typeof password !== "string")) {
     return undefined;
   }

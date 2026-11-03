@@ -74,8 +74,9 @@ export async function openLink(deps: OpenDeps, code: string, now: Date): Promise
   if (found.kind !== "found") {
     return found;
   }
-  const { password, destination } = found.link;
-  if (password !== null) {
+  const { destination } = found.link;
+  const digest = found.link.password;
+  if (digest !== null) {
     return { kind: "locked" };
   }
   if (destination.kind === "file") {
@@ -88,7 +89,7 @@ export async function openLink(deps: OpenDeps, code: string, now: Date): Promise
 export async function unlockLink(
   deps: ResolveDeps,
   code: string,
-  password: string | undefined,
+  attempt: string | undefined,
   now: Date,
 ): Promise<UnlockOutcome> {
   const normalised = normaliseCode(code);
@@ -100,7 +101,7 @@ export async function unlockLink(
   if (digest === null) {
     return await delivered(deps, found.link);
   }
-  if (password === undefined) {
+  if (attempt === undefined) {
     return { kind: "locked" };
   }
   if (deps.passwordKey === undefined) {
@@ -110,7 +111,7 @@ export async function unlockLink(
   if (await guessesExceeded(deps, key, now)) {
     return { kind: "throttled" };
   }
-  if (!(await verifyPassword(deps.passwordKey, password, digest))) {
+  if (!(await verifyPassword(deps.passwordKey, attempt, digest))) {
     return { kind: "locked" };
   }
   await deps.rateLimits.clear(key);
