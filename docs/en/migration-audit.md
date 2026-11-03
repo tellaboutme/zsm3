@@ -48,8 +48,11 @@ Without `--probe`, existence comes from the pages directory: a fully static file
 certain; a dynamic route (`[section]/index.astro`, `[section]/[page].astro`, news and
 programme slugs) means the path may exist depending on D1 and is reported as unverified.
 With `--probe`, the tool requests each legacy path and each mapped destination from the local
-preview once, in sorted order, without following redirects, and a 200 is taken as served.
-At most 5000 paths are probed.
+preview once, in sorted order, and a 200 is taken as served. The site answers a path with a
+trailing slash by a 301 to the same path without it and only then serves it or looks up a
+redirect, so that one redirect is followed; no other redirect is. At most 5000 paths are
+probed. Astro routes are case-sensitive: `/Kontakt` is not `/kontakt`, and a mixed-case old
+address is redirected only if the map holds its lower-cased path.
 
 ## Output
 

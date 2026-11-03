@@ -85,6 +85,14 @@ def test_a_chain_longer_than_the_worker_follows_counts_as_broken() -> None:
     assert follow(redirects, "/p0", STATIC) == Chain(None, MAX_CHAIN)
 
 
+def test_an_unresolved_reason_is_not_checked_against_the_sitemap() -> None:
+    evidence = Evidence(routes(), {}, frozenset({"/kontakt"}))
+
+    assert audit([entry("/tatry/")], {}, {"/tatry": "archive"}, evidence) == [
+        Finding("/tatry", Category.UNRESOLVED, "archive", ("/tatry/",), ())
+    ]
+
+
 def test_variants_are_grouped_sorted_and_annotated() -> None:
     entries = [
         entry("/a/b/c/", "http_404"),

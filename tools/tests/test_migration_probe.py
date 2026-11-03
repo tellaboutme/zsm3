@@ -9,15 +9,23 @@ import pytest
 from zsm3_tools import migration_probe
 from zsm3_tools.migration_probe import LocalProber, ProbeError, loopback_origin, probe_all
 
-ROUTES = {"/kontakt": 200, "/stara": 301}
+ROUTES: dict[str, tuple[int, str | None]] = {
+    "/": (301, ""),
+    "/kontakt": (200, None),
+    "/kontakt/": (308, "/kontakt"),
+    "/stara": (301, "/nowa"),
+    "/stara/": (301, "/stara"),
+    "/inna/": (301, "/gdzie"),
+    "/inna": (200, None),
+}
 
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
-        status = ROUTES.get(self.path, 404)
+        status, location = ROUTES.get(self.path, (404, None))
         self.send_response(status)
-        if status == 301:
-            self.send_header("Location", "/nowa")
+        if location is not None:
+            self.send_header("Location", location)
         self.send_header("Content-Length", "2")
         self.end_headers()
         self.wfile.write(b"ok")
@@ -73,6 +81,15 @@ def test_statuses_are_read_without_following_redirects(preview: str) -> None:
     assert prober.status("/kontakt") == 200
     assert prober.status("/stara") == 301
     assert prober.status("/brak") == 404
+
+
+def test_only_the_trailing_slash_redirect_is_followed_once(preview: str) -> None:
+    prober = LocalProber(preview)
+
+    assert prober.status("/kontakt/") == 200
+    assert prober.status("/stara/") == 301
+    assert prober.status("/inna/") == 301
+    assert prober.status("/") == 301
 
 
 class Recorder:

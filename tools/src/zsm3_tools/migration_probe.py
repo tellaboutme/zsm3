@@ -9,6 +9,7 @@ PROBE_TIMEOUT_SECONDS = 10
 MAX_PROBES = 5000
 DEFAULT_DELAY_SECONDS = 0.05
 AGENT = "ZSM3MigrationAudit/1.0"
+SLASH_REDIRECTS = frozenset({301, 308})
 
 
 class ProbeError(ValueError):
@@ -38,7 +39,7 @@ class LocalProber:
     def __init__(self, origin: str) -> None:
         self._host, self._port = loopback_origin(origin)
 
-    def status(self, path: str) -> int:
+    def _request(self, path: str) -> tuple[int, str | None]:
         connection = http.client.HTTPConnection(
             self._host, self._port, timeout=PROBE_TIMEOUT_SECONDS
         )
@@ -46,9 +47,15 @@ class LocalProber:
             connection.request("GET", path, headers={"User-Agent": AGENT})
             response = connection.getresponse()
             response.close()
-            return response.status
+            return response.status, response.getheader("Location")
         finally:
             connection.close()
+
+    def status(self, path: str) -> int:
+        status, location = self._request(path)
+        if status in SLASH_REDIRECTS and path != "/" and location == path.removesuffix("/"):
+            return self._request(location)[0]
+        return status
 
 
 def probe_all(

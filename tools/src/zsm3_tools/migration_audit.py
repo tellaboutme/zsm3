@@ -113,13 +113,21 @@ def categorise(
     return (Category.UNVERIFIED if live is RouteMatch.DYNAMIC else Category.MISSING), None
 
 
-def _notes(entries: Sequence[LegacyEntry], target: str | None, evidence: Evidence) -> list[str]:
-    notes = sorted({f"old_site:{entry.old_status}" for entry in entries if entry.old_status})
-    if any(entry.path.had_query for entry in entries):
+def _notes(
+    group: Sequence[LegacyEntry], finding: tuple[Category, str | None], evidence: Evidence
+) -> list[str]:
+    category, target = finding
+    notes = sorted({f"old_site:{entry.old_status}" for entry in group if entry.old_status})
+    if any(entry.path.had_query for entry in group):
         notes.append("query_ignored")
-    if len({entry.path.request_path for entry in entries}) > 1:
+    if len({entry.path.request_path for entry in group}) > 1:
         notes.append("variants_collapsed")
-    if target is not None and evidence.sitemap is not None and target not in evidence.sitemap:
+    destination = None if category is Category.UNRESOLVED else target
+    if (
+        destination is not None
+        and evidence.sitemap is not None
+        and destination not in evidence.sitemap
+    ):
         notes.append("target_not_in_sitemap")
     return notes
 
@@ -137,6 +145,6 @@ def audit(
     for key, group in grouped.items():
         category, target = categorise(group[0].path, redirects, unresolved, evidence)
         sources = tuple(sorted({entry.source for entry in group}))
-        notes = tuple(_notes(group, target, evidence))
+        notes = tuple(_notes(group, (category, target), evidence))
         findings.append(Finding(key, category, target, sources, notes))
     return sorted(findings, key=lambda finding: (ORDER[finding.category], finding.key))
