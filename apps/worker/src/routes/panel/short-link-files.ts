@@ -23,7 +23,7 @@ const REFUSED_STATUS: Readonly<Record<RefusedUpload["kind"], ProblemStatus>> = {
   unsupported: 415,
   invalid: 422,
   unavailable: 503,
-  exhausted: 503,
+  exhausted: 500,
   failed: 500,
 };
 

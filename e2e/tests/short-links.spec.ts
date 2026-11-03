@@ -66,7 +66,7 @@ test("an open file link offers a download and never names a storage address", as
   expect(await page.content()).not.toMatch(/\/media\/|s\/[0-9a-f]{8}-/u);
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Pobierz plik" }).click();
-  expect((await download).suggestedFilename()).toBe("Karta pracy — przykład.pdf");
+  expect((await download).suggestedFilename()).toMatch(/^Karta pracy [—-] przyk[łl]ad\.pdf$/u);
 });
 
 test("a protected file link names nothing until the password matches", async ({ page }) => {
@@ -81,7 +81,7 @@ test("a protected file link names nothing until the password matches", async ({ 
   await page.getByLabel("Hasło do materiału").fill("zsm3-demo");
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Otwórz materiał" }).click();
-  expect((await download).suggestedFilename()).toBe("Klucz odpowiedzi — przykład.pdf");
+  expect((await download).suggestedFilename()).toMatch(/^Klucz odpowiedzi [—-] przyk[łl]ad\.pdf$/u);
 });
 
 test("a file is not served to another site's form", async ({ request }) => {

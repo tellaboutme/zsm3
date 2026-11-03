@@ -21,7 +21,7 @@ const REFUSED_STATUS: Readonly<
 > = {
   invalid: 422,
   unavailable: 503,
-  exhausted: 503,
+  exhausted: 500,
 };
 
 async function listLinks(c: Context<AppEnv>): Promise<Response> {
