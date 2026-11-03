@@ -20,6 +20,9 @@ export const SELECT_SHORT_LINK = `SELECT l.code, l.target_url, l.password_salt, 
   f.bytes AS file_bytes FROM short_links l LEFT JOIN short_link_files f ON f.code = l.code
   WHERE l.code = ?1`;
 
+export const SELECT_CODE_IN_USE = `SELECT (EXISTS (SELECT 1 FROM short_links WHERE code = ?1)
+  OR EXISTS (SELECT 1 FROM short_link_files WHERE code = ?1)) AS taken`;
+
 export const COUNT_CLICK = "UPDATE short_links SET clicks = clicks + 1 WHERE code = ?1";
 
 export const REVOKE_SHORT_LINK =

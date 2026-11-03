@@ -54,7 +54,7 @@ export async function freeCode(
 ): Promise<string | undefined> {
   for (let attempt = 0; attempt < CODE_ATTEMPTS; attempt += 1) {
     const code = generateCode(deps.random);
-    if ((await deps.links.find(code)) === undefined) {
+    if (!(await deps.links.inUse(code))) {
       return code;
     }
   }

@@ -122,14 +122,7 @@ describe("uploading a file for a short link", () => {
     const deps = uploadDeps(store, bucket);
     const taken: ShortLinksRepo = {
       ...deps.links,
-      find: async () =>
-        Promise.resolve({
-          code: "k7mq4ra",
-          destination: { kind: "url", target: "https://example.org" },
-          expiresAt: "2027-08-31T22:00:00.000Z",
-          revokedAt: null,
-          password: null,
-        }),
+      inUse: async () => Promise.resolve(true),
     };
 
     await expect(createFileLink({ ...deps, links: taken }, upload(PDF))).resolves.toEqual({

@@ -20,6 +20,7 @@ import {
   REVOKE_SHORT_LINK,
   SELECT_AUTHOR_LINKS,
   SELECT_AUTHOR_LINKS_PAGE,
+  SELECT_CODE_IN_USE,
   SELECT_CREATED_LINK,
   SELECT_SHORT_LINK,
 } from "./short-links-sql.ts";
@@ -30,6 +31,8 @@ export { toRecord } from "./short-links-rows.ts";
 
 export const LAPSED_PRUNE_BATCH = 500;
 export const AUTHOR_LINK_LIMIT = 200;
+
+const codeInUseSchema = z.strictObject({ taken: z.union([z.literal(0), z.literal(1)]) });
 
 export interface NewShortLinkRow {
   readonly code: string;
@@ -43,6 +46,7 @@ export interface ShortLinksRepo {
   create(row: NewShortLinkRow): Promise<void>;
   createAudited(row: NewShortLinkRow): Promise<void>;
   find(code: string): Promise<ShortLinkRecord | undefined>;
+  inUse(code: string): Promise<boolean>;
   created(code: string, createdBy: string): Promise<AuthorShortLinkRecord>;
   countClick(code: string): Promise<void>;
   revoke(code: string, createdBy: string, at?: string): Promise<boolean>;
@@ -143,6 +147,10 @@ export function shortLinksRepo(store: Store): ShortLinksRepo {
     find: async (code) => {
       const row = await firstRow(db.prepare(SELECT_SHORT_LINK).bind(code), linkRowSchema);
       return row === undefined ? undefined : toRecord(row);
+    },
+    inUse: async (code) => {
+      const row = await firstRow(db.prepare(SELECT_CODE_IN_USE).bind(code), codeInUseSchema);
+      return row?.taken === 1;
     },
     created: async (code, createdBy) => {
       const row: unknown = await db.prepare(SELECT_CREATED_LINK).bind(code, createdBy).first();

@@ -94,14 +94,7 @@ describe("creating a short link", () => {
     const current = store();
     const taken: ShortLinksRepo = {
       ...shortLinksRepo(current),
-      find: async () =>
-        Promise.resolve({
-          code: "k7mq4ra",
-          destination: { kind: "url" as const, target: TARGET },
-          expiresAt: "2027-10-27T08:00:00.000Z",
-          revokedAt: null,
-          password: null,
-        }),
+      inUse: async () => Promise.resolve(true),
     };
 
     await expect(
