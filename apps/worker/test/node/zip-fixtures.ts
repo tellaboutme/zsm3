@@ -8,6 +8,7 @@ export interface ZipOptions {
   readonly comment?: string;
   readonly trailing?: number;
   readonly countDelta?: number;
+  readonly prefix?: Uint8Array;
 }
 
 const encoder = new TextEncoder();
@@ -52,8 +53,9 @@ function concat(parts: readonly Uint8Array[]): Uint8Array {
 
 export function zipOf(entries: readonly ZipEntryFixture[], options: ZipOptions = {}): Uint8Array {
   const locals = entries.map(local);
+  const prefix = options.prefix ?? new Uint8Array();
   const offsets: number[] = [];
-  let offset = 0;
+  let offset = prefix.length;
   for (const part of locals) {
     offsets.push(offset);
     offset += part.length;
@@ -68,10 +70,10 @@ export function zipOf(entries: readonly ZipEntryFixture[], options: ZipOptions =
   view.setUint16(8, count, true);
   view.setUint16(10, count, true);
   view.setUint32(12, directory.length, true);
-  view.setUint32(16, body.length, true);
+  view.setUint32(16, prefix.length + body.length, true);
   view.setUint16(20, comment.length, true);
   end.set(comment, 22);
-  return concat([body, directory, end, new Uint8Array(options.trailing ?? 0)]);
+  return concat([prefix, body, directory, end, new Uint8Array(options.trailing ?? 0)]);
 }
 
 export function text(value: string): Uint8Array {

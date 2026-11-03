@@ -48,8 +48,12 @@ interface Directory {
   readonly end: number;
 }
 
+function startsWithEntry(view: DataView): boolean {
+  return view.byteLength >= LOCAL_SIZE && view.getUint32(0, true) === LOCAL_SIGNATURE;
+}
+
 function directoryOf(view: DataView): Directory | undefined {
-  const end = findEnd(view);
+  const end = startsWithEntry(view) ? findEnd(view) : undefined;
   if (end === undefined) {
     return undefined;
   }

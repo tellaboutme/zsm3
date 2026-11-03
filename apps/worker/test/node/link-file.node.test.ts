@@ -54,6 +54,15 @@ describe("detecting a teaching document", () => {
     ).toBeUndefined();
   });
 
+  it("refuses an office archive hidden behind other content", ({ expect }) => {
+    const entries = [OFFICE_MANIFEST, { name: "word/document.xml", method: 8 }];
+    const html = text("<!doctype html><script>alert(1)</script>");
+
+    expect(detectFormat(zipOf(entries, { prefix: html }))).toBeUndefined();
+    expect(detectFormat(zipOf(entries, { prefix: text("x") }))).toBeUndefined();
+    expect(detectFormat(zipOf(entries, { prefix: new Uint8Array() }))).toBe("docx");
+  });
+
   it("keeps harmless parts that only resemble active ones", ({ expect }) => {
     expect(detectFormat(docx([{ name: "word/media/basic/image.png" }]))).toBe("docx");
     expect(detectFormat(docx([{ name: "word/embeddings/oleObject1.bin" }]))).toBe("docx");
