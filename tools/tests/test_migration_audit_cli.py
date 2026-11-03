@@ -30,7 +30,14 @@ def fixture(root: Path) -> list[str]:
     (root / "urls.txt").write_text(URLS, encoding="utf-8")
     (root / "cms.txt").write_text("/kontakt\n/szkola/historia\n", encoding="utf-8")
     (root / "inventory.json").write_text(
-        json.dumps([{"url": "https://www.example.edu.pl/kontakt/", "status": "discovered"}]),
+        json.dumps(
+            [
+                {
+                    "url": "https://www.zespolszkolmechanicznych.edu.pl/kontakt/",
+                    "status": "discovered",
+                }
+            ]
+        ),
         encoding="utf-8",
     )
     return [

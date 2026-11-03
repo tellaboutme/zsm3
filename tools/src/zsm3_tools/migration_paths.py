@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
-from zsm3_tools.inventory_http import encode_path, has_dot_segment
+from zsm3_tools.inventory_http import HOST, encode_path, has_dot_segment
 from zsm3_tools.redirect_paths import normalise_from_path
 
 FILE_SUFFIXES = (
@@ -33,6 +33,7 @@ FILE_SUFFIXES = (
 RESERVED_PREFIXES = ("/api", "/media", "/panel", "/_astro", "/.well-known")
 DOCUMENT_SUFFIXES = ("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp")
 MAX_PATH_LENGTH = 500
+LEGACY_HOSTS = frozenset({HOST, HOST.removeprefix("www.")})
 
 _SUFFIX = re.compile(r"\.([a-z0-9]+)$")
 
@@ -57,6 +58,9 @@ def legacy_path(raw: str) -> LegacyPath:
     if parsed.scheme not in {"", "http", "https"} or not (parsed.path or "/").startswith("/"):
         message = "not a site path or web address"
         raise LegacyPathError(message)
+    if parsed.netloc != "" and parsed.hostname not in LEGACY_HOSTS:
+        message = "not on the old site"
+        raise LegacyPathError(message)
     if has_dot_segment(parsed.path):
         message = "contains dot segments"
         raise LegacyPathError(message)
@@ -64,7 +68,11 @@ def legacy_path(raw: str) -> LegacyPath:
     if len(request) > MAX_PATH_LENGTH:
         message = f"longer than {MAX_PATH_LENGTH} characters once encoded"
         raise LegacyPathError(message)
-    return LegacyPath(request, normalise_from_path(request), parsed.query != "")
+    return LegacyPath(request, lookup_key_of(request), parsed.query != "")
+
+
+def lookup_key_of(path: str) -> str:
+    return normalise_from_path(encode_path(path))
 
 
 def suffix_of(path: str) -> str:

@@ -57,7 +57,11 @@ def scan_routes(pages: Path) -> tuple[Route, ...]:
         for file in pages.rglob("*")
         if file.is_file()
     )
-    return tuple(sorted((route for route in routes if route is not None), key=lambda r: r.source))
+    found = tuple(sorted((route for route in routes if route is not None), key=lambda r: r.source))
+    if not found:
+        message = f"{pages}: no Astro pages found; pass the apps/web/src/pages directory"
+        raise FileNotFoundError(message)
+    return found
 
 
 def _matches(route: Route, segments: tuple[str, ...]) -> bool:

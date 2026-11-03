@@ -15,6 +15,7 @@ MAX_LISTED = 200
 MEANINGS: dict[Category, str] = {
     Category.MAPPED_LOOP: "redirect chain loops or exceeds 8 hops; the Worker serves 404",
     Category.MAPPED_TARGET_MISSING: "mapped, but the destination is not served",
+    Category.MAPPED_UNENCODED: "the map row holds raw letters, so it never matches a request",
     Category.MAPPED_SHADOWED: "mapped, but the old path is itself served, so it never redirects",
     Category.MAPPED_CHAIN: "mapped through another redirect; collapse to the final destination",
     Category.MISSING: "no mapping and not served: needs a destination or a deliberate 404",
@@ -32,6 +33,7 @@ ACTIONS: dict[Category, str] = {
     Category.MAPPED_SHADOWED: "remove_shadowed",
     Category.MAPPED_LOOP: "break_loop",
     Category.MAPPED_TARGET_MISSING: "choose_target",
+    Category.MAPPED_UNENCODED: "encode_source",
 }
 
 

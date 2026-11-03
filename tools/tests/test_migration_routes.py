@@ -103,3 +103,11 @@ def test_the_site_shadows_the_pages_found_in_the_indexnow_review() -> None:
     assert {finding.path for finding in cms_findings(routes, known)} == set(known)
     assert all(finding.category is CmsCategory.SHADOWED for finding in cms_findings(routes, known))
     assert classify(routes, "/szkola/historia") is RouteMatch.DYNAMIC
+
+
+def test_a_missing_or_empty_pages_directory_is_an_error(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError, match="no Astro pages"):
+        scan_routes(tmp_path / "brak")
+    (tmp_path / "empty").mkdir()
+    with pytest.raises(FileNotFoundError, match="no Astro pages"):
+        scan_routes(tmp_path / "empty")

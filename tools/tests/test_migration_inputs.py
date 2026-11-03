@@ -23,7 +23,7 @@ def write(path: Path, text: str) -> Path:
 
 def test_an_inventory_keeps_its_old_status_and_rejects_unusable_entries(tmp_path: Path) -> None:
     payload = [
-        {"url": "https://www.example.edu.pl/rekrutacja/", "status": "discovered"},
+        {"url": "https://www.zespolszkolmechanicznych.edu.pl/rekrutacja/", "status": "discovered"},
         {"url": "mailto:a@example.edu.pl", "status": "discovered"},
         {"url": "/kontakt"},
         "/plain-string",
@@ -86,10 +86,10 @@ def test_a_map_without_the_header_is_an_input_error(tmp_path: Path) -> None:
 def test_unresolved_rows_are_keyed_like_lookups(tmp_path: Path) -> None:
     source = write(
         tmp_path / "unresolved.csv",
-        "from_path,previous_to_path,reason\n/Tatry/,/uczniowie,archive\n\n",
+        "from_path,previous_to_path,reason\n/Tatry/,/uczniowie,archive\n/Łódź/,/a,trip\n\n",
     )
 
-    assert read_unresolved(source) == {"/tatry": "archive"}
+    assert read_unresolved(source) == {"/tatry": "archive", "/%c5%81%c3%b3d%c5%ba": "trip"}
     with pytest.raises(InputError, match="first row"):
         read_unresolved(write(tmp_path / "bad.csv", "from_path,reason\n"))
     with pytest.raises(InputError, match="exactly 3 columns"):

@@ -43,6 +43,7 @@ STATIC = Evidence(routes())
         ("/stara/", {"/stara": "/x/y", "/x/y": "/nowa"}, {}, (Category.MAPPED_CHAIN, "/nowa")),
         ("/stara/", {"/stara": "/x/y", "/x/y": "/stara"}, {}, (Category.MAPPED_LOOP, None)),
         ("/tatry/", {}, {"/tatry": "archive"}, (Category.UNRESOLVED, "archive")),
+        ("/kontakt", {}, {"/kontakt": "served"}, (Category.LIVE_SAME_PATH, None)),
         ("/kontakt", {}, {}, (Category.LIVE_SAME_PATH, None)),
         ("/rodo/", {}, {}, (Category.UNVERIFIED, None)),
         ("/a/b/c/", {}, {}, (Category.MISSING, None)),
@@ -85,6 +86,37 @@ def test_a_chain_longer_than_the_worker_follows_counts_as_broken() -> None:
     assert follow(redirects, "/p0", STATIC) == Chain(None, MAX_CHAIN)
 
 
+def test_a_map_row_written_with_raw_letters_is_reported_as_unencoded() -> None:
+    redirects = {"/zajęcia-pozalekcyjne": "/nowa", "/kontakt-stary": "/nowa"}
+    findings = audit(
+        [entry("/zajęcia-pozalekcyjne/"), entry("/zaj%C4%99cia-pozalekcyjne")],
+        redirects,
+        {},
+        STATIC,
+    )
+
+    assert findings == [
+        Finding(
+            "/zaj%c4%99cia-pozalekcyjne",
+            Category.MAPPED_UNENCODED,
+            "/nowa",
+            ("/zaj%C4%99cia-pozalekcyjne", "/zajęcia-pozalekcyjne/"),
+            ("variants_collapsed",),
+        )
+    ]
+
+
+def test_an_unencoded_row_does_not_hide_a_page_that_is_served() -> None:
+    redirects = {"/kontakt": "/nowa"}
+
+    assert audit([entry("/kontakt")], {"/kóntakt": "/nowa", **redirects}, {}, STATIC)[
+        0
+    ].category == (Category.MAPPED_SHADOWED)
+    assert audit([entry("/nowa")], {"/nówa": "/kontakt"}, {}, STATIC)[0].category == (
+        Category.LIVE_SAME_PATH
+    )
+
+
 def test_an_unresolved_reason_is_not_checked_against_the_sitemap() -> None:
     evidence = Evidence(routes(), {}, frozenset({"/kontakt"}))
 
@@ -97,7 +129,7 @@ def test_variants_are_grouped_sorted_and_annotated() -> None:
     entries = [
         entry("/a/b/c/", "http_404"),
         entry("/Stara/", "discovered"),
-        entry("https://www.example.edu.pl/stara?p=1", "discovered"),
+        entry("https://www.zespolszkolmechanicznych.edu.pl/stara?p=1", "discovered"),
         entry("/kontakt"),
     ]
     evidence = Evidence(routes(), {}, frozenset({"/kontakt"}))
@@ -110,7 +142,7 @@ def test_variants_are_grouped_sorted_and_annotated() -> None:
             "/stara",
             Category.MAPPED,
             "/nowa",
-            ("/Stara/", "https://www.example.edu.pl/stara?p=1"),
+            ("/Stara/", "https://www.zespolszkolmechanicznych.edu.pl/stara?p=1"),
             ("old_site:discovered", "query_ignored", "variants_collapsed", "target_not_in_sitemap"),
         ),
         Finding("/kontakt", Category.LIVE_SAME_PATH, None, ("/kontakt",), ()),

@@ -2,7 +2,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-from zsm3_tools.migration_paths import LegacyPath, is_document, is_redirectable
+from zsm3_tools.migration_paths import LegacyPath, is_document, is_redirectable, lookup_key_of
 from zsm3_tools.migration_routes import Route, RouteMatch, classify
 
 HTTP_OK = 200
@@ -12,6 +12,7 @@ MAX_CHAIN = 8
 class Category(StrEnum):
     MAPPED_LOOP = "mapped_loop"
     MAPPED_TARGET_MISSING = "mapped_target_missing"
+    MAPPED_UNENCODED = "mapped_unencoded"
     MAPPED_SHADOWED = "mapped_shadowed"
     MAPPED_CHAIN = "mapped_chain"
     MISSING = "missing"
@@ -97,6 +98,8 @@ def categorise(
     redirects: Mapping[str, str],
     unresolved: Mapping[str, str],
     evidence: Evidence,
+    *,
+    unencoded: Mapping[str, str] | None = None,
 ) -> tuple[Category, str | None]:
     if not is_redirectable(path.request_path):
         document = is_document(path.request_path)
@@ -106,10 +109,18 @@ def categorise(
         if live is RouteMatch.STATIC:
             return Category.MAPPED_SHADOWED, redirects[path.lookup_key]
         return _mapped(redirects, path.lookup_key, evidence)
-    if path.lookup_key in unresolved:
-        return Category.UNRESOLVED, unresolved[path.lookup_key]
+    return _unmapped(path.lookup_key, live, unresolved, unencoded or {})
+
+
+def _unmapped(
+    key: str, live: RouteMatch, unresolved: Mapping[str, str], unencoded: Mapping[str, str]
+) -> tuple[Category, str | None]:
     if live is RouteMatch.STATIC:
         return Category.LIVE_SAME_PATH, None
+    if key in unencoded:
+        return Category.MAPPED_UNENCODED, unencoded[key]
+    if key in unresolved:
+        return Category.UNRESOLVED, unresolved[key]
     return (Category.UNVERIFIED if live is RouteMatch.DYNAMIC else Category.MISSING), None
 
 
@@ -132,6 +143,12 @@ def _notes(
     return notes
 
 
+def unencoded_rows(redirects: Mapping[str, str]) -> dict[str, str]:
+    return {
+        lookup_key_of(key): target for key, target in redirects.items() if lookup_key_of(key) != key
+    }
+
+
 def audit(
     entries: Sequence[LegacyEntry],
     redirects: Mapping[str, str],
@@ -142,8 +159,10 @@ def audit(
     for entry in entries:
         grouped.setdefault(entry.path.lookup_key, []).append(entry)
     findings: list[Finding] = []
+    unencoded = unencoded_rows(redirects)
     for key, group in grouped.items():
-        category, target = categorise(group[0].path, redirects, unresolved, evidence)
+        path = group[0].path
+        category, target = categorise(path, redirects, unresolved, evidence, unencoded=unencoded)
         sources = tuple(sorted({entry.source for entry in group}))
         notes = tuple(_notes(group, (category, target), evidence))
         findings.append(Finding(key, category, target, sources, notes))

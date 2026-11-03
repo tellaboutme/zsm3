@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from zsm3_tools.migration_audit import LegacyEntry
-from zsm3_tools.migration_paths import LegacyPathError, legacy_path
-from zsm3_tools.redirect_paths import RedirectRowError, normalise_from_path, parse_redirect_row
+from zsm3_tools.migration_paths import LegacyPathError, legacy_path, lookup_key_of
+from zsm3_tools.redirect_paths import RedirectRowError, parse_redirect_row
 from zsm3_tools.redirect_sources import SourceError, read_csv, read_sitemap
 
 UNRESOLVED_HEADER = ("from_path", "previous_to_path", "reason")
@@ -113,7 +113,7 @@ def read_unresolved(path: Path) -> dict[str, str]:
     if any(len(row) != len(UNRESOLVED_HEADER) for row in rows[1:] if row):
         message = f"{path}: every row must have exactly {len(UNRESOLVED_HEADER)} columns"
         raise InputError(message)
-    return {normalise_from_path(row[0]): row[2] for row in rows[1:] if row}
+    return {lookup_key_of(row[0]): row[2] for row in rows[1:] if row}
 
 
 def read_paths(path: Path) -> frozenset[str]:

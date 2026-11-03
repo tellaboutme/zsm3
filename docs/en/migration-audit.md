@@ -26,7 +26,7 @@ uv run --directory tools --locked zsm3-migration-audit --urls old-urls.txt --pro
 | `--probe`      | none                                   | a local preview origin; only `http` on loopback is accepted    |
 | `--delay`      | 0.05                                   | seconds between probe requests                                 |
 
-At least one `--inventory` or `--urls` source is required. Every address is reduced the way
+At least one `--inventory` or `--urls` source is required. Addresses on any host other than the old site (with or without `www.`) are rejected, so a list that mixes in links to other sites cannot be mistaken for old paths. Unresolved rows are keyed like requests, so a row written with Polish letters still matches; a map row written that way is reported as `mapped_unencoded`, because the Worker would never match it. Every address is reduced the way
 the Worker sees it: the path is percent-encoded once (Polish letters become `%C4%99` and so
 on), the query and fragment are dropped, and the lookup key is lower-cased with one trailing
 slash removed, as in `normalisePath`. Addresses that differ only in case, a trailing slash or
@@ -61,24 +61,25 @@ writes `manifest.json`, `report.md` and `candidates.csv` there, each first to a 
 file that is then renamed. Existing reports are replaced only with `--overwrite`. The same
 inputs give byte-identical files: no timestamps, sorted findings, LF line endings.
 
-| Category                | Meaning                                                           |
-| ----------------------- | ----------------------------------------------------------------- |
-| `mapped_loop`           | the chain loops or needs more than 8 hops; the Worker serves 404  |
-| `mapped_target_missing` | mapped, but the destination is not served                         |
-| `mapped_shadowed`       | mapped, but the old path is itself served, so it never redirects  |
-| `mapped_chain`          | reaches its destination through another redirect                  |
-| `missing`               | no mapping and not served                                         |
-| `document_review`       | a document link (PDF, Office, OpenDocument); never redirected     |
-| `not_redirectable`      | an asset or reserved path the legacy lookup never handles         |
-| `unresolved`            | listed in the unresolved file; needs content or a school decision |
-| `unverified`            | matches only a dynamic route; probe a preview to decide           |
-| `mapped_unverified`     | mapped to a dynamic route; probe a preview to decide              |
-| `mapped`                | redirects to a served destination                                 |
-| `live_same_path`        | served at the same path                                           |
+| Category                | Meaning                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| `mapped_loop`           | the chain loops or needs more than 8 hops; the Worker serves 404             |
+| `mapped_target_missing` | mapped, but the destination is not served                                    |
+| `mapped_unencoded`      | the map row holds raw letters, so it never matches a percent-encoded request |
+| `mapped_shadowed`       | mapped, but the old path is itself served, so it never redirects             |
+| `mapped_chain`          | reaches its destination through another redirect                             |
+| `missing`               | no mapping and not served                                                    |
+| `document_review`       | a document link (PDF, Office, OpenDocument); never redirected                |
+| `not_redirectable`      | an asset or reserved path the legacy lookup never handles                    |
+| `unresolved`            | listed in the unresolved file; needs content or a school decision            |
+| `unverified`            | matches only a dynamic route; probe a preview to decide                      |
+| `mapped_unverified`     | mapped to a dynamic route; probe a preview to decide                         |
+| `mapped`                | redirects to a served destination                                            |
+| `live_same_path`        | served at the same path                                                      |
 
 Findings also carry `old_site:<status>` from the inventory and `target_not_in_sitemap` when a
 sitemap was given and the destination is missing from it. `candidates.csv` proposes
-`collapse_chain`, `remove_shadowed`, `break_loop` and `choose_target` changes; it is a
+`collapse_chain`, `remove_shadowed`, `break_loop`, `choose_target` and `encode_source` changes; it is a
 worklist, not an import file, and nothing applies it.
 
 With `--cms-paths`, D1 pages are checked against the route table: `cms_shadowed` names the

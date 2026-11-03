@@ -24,7 +24,7 @@ WORKER_LOOKUP = (
 def test_a_web_address_and_its_path_give_the_same_lookup_key() -> None:
     expected = LegacyPath("/Rekrutacja-ZSM3/", "/rekrutacja-zsm3", had_query=False)
 
-    assert legacy_path("https://www.example.edu.pl/Rekrutacja-ZSM3/") == expected
+    assert legacy_path("https://www.zespolszkolmechanicznych.edu.pl/Rekrutacja-ZSM3/") == expected
     assert legacy_path("/Rekrutacja-ZSM3/") == expected
     assert legacy_path("  /Rekrutacja-ZSM3/#top ") == expected
 
@@ -39,7 +39,9 @@ def test_polish_characters_are_encoded_the_way_browsers_request_them() -> None:
 
 def test_the_query_is_dropped_but_remembered() -> None:
     assert legacy_path("/?page_id=42") == LegacyPath("/", "/", had_query=True)
-    assert legacy_path("https://www.example.edu.pl") == LegacyPath("/", "/", had_query=False)
+    assert legacy_path("http://zespolszkolmechanicznych.edu.pl") == LegacyPath(
+        "/", "/", had_query=False
+    )
 
 
 @pytest.mark.parametrize(
@@ -49,6 +51,9 @@ def test_the_query_is_dropped_but_remembered() -> None:
         ("/stara strona", "empty or contains whitespace"),
         ("mailto:sekretariat@example.edu.pl", "not a site path or web address"),
         ("ftp://example.edu.pl/plik", "not a site path or web address"),
+        ("https://www.facebook.com/zsm3", "not on the old site"),
+        ("https://zespolszkolmechanicznych.edu.pl.example.com/a", "not on the old site"),
+        ("//cdn.example.com/plik.pdf", "not on the old site"),
         ("strona", "not a site path or web address"),
         ("/a/../wp-admin", "contains dot segments"),
         ("/" + "a" * MAX_PATH_LENGTH, f"longer than {MAX_PATH_LENGTH} characters once encoded"),
