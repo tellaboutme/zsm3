@@ -93,7 +93,7 @@ async function restoreRevision(c: Context<AppEnv>): Promise<Response> {
   const fields = changedFields(plan.before, plan.after);
   const statements = [...plan.writes, restoreAudit(c, restore, fields)];
   const unchanged = async (): Promise<boolean> => atRevision(deps, target, id, expectedRevision);
-  if (!(await committed(deps, statements, unchanged))) {
+  if (!(await committed(deps, { receipt: plan.receipt, statements, unchanged }))) {
     return contentChanged(c);
   }
   if (plan.address !== undefined) {

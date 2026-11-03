@@ -3,7 +3,7 @@ import type { News, PublicationStatus } from "@zsm3/contracts/content";
 import { auditEntry } from "./audit.ts";
 import type { PanelDeps, PanelSession } from "./deps.ts";
 import type { NewsRef } from "./news-data.ts";
-import type { SqlStatement } from "../../storage/database.ts";
+import type { PlannedWrite } from "./versions.ts";
 
 export interface NewsRevision {
   readonly deps: PanelDeps;
@@ -18,19 +18,21 @@ export interface NewsRevision {
   readonly expected: number;
 }
 
-export async function revisedNewsStatements(plan: NewsRevision): Promise<readonly SqlStatement[]> {
+export async function revisedNewsWrite(plan: NewsRevision): Promise<PlannedWrite> {
   const { deps, session, ref, previous, previousStatus, next, status, action, fields } = plan;
-  return [
-    deps.repos.revisions.expectedStatement({
+  return {
+    receipt: deps.repos.revisions.expectedWrite({
       entity: "news",
       entityId: ref.id,
       dataJson: JSON.stringify({ ...previous, status: previousStatus }),
       actorEmail: session.email,
       expected: plan.expected,
     }),
-    ...(await deps.repos.news.saveStatements(next, status)),
-    deps.repos.audit.statement(
-      auditEntry({ session, action: `news.${action}`, entity: "news", entityId: ref.id, fields }),
-    ),
-  ];
+    statements: [
+      ...(await deps.repos.news.saveStatements(next, status)),
+      deps.repos.audit.statement(
+        auditEntry({ session, action: `news.${action}`, entity: "news", entityId: ref.id, fields }),
+      ),
+    ],
+  };
 }

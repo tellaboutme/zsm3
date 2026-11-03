@@ -2,7 +2,7 @@ import type { News, PublicationStatus } from "@zsm3/contracts/content";
 
 import type { BlocksUi } from "./blocks-ui.ts";
 import { areaButton, fieldText, inputValue, setInputValue, speak } from "./dom.ts";
-import { newsPartsFor, type NewsParts } from "./news-parts.ts";
+import { newsPartsFor, type NewsParts, type NewsSaved } from "./news-parts.ts";
 import { applyPublish, syncPublish, type SavedState } from "./news-publish.ts";
 import { panelRead, panelSend, problemPhrase } from "../../lib/panel/api.ts";
 import { newBlock, type BlockDraft } from "../../lib/panel/blocks.ts";
@@ -142,7 +142,7 @@ async function commit(parts: Parts, saved: SavedState): Promise<void> {
     markSaved(parts, candidate.item);
   }
   await syncPublish(parts, path, saved);
-  parts.onSaved();
+  parts.onSaved(`${parts.ref.year}/${parts.ref.slug}`);
 }
 
 async function switchStatus(
@@ -168,7 +168,7 @@ async function switchStatus(
   const current: PublicationStatus = action === "publish" ? "published" : "draft";
   applyPublish(parts, current, saved);
   noteOf(parts, action === "publish" ? "Opublikowano." : "Wycofano publikację.");
-  parts.onSaved();
+  parts.onSaved(`${parts.ref.year}/${parts.ref.slug}`);
 }
 
 function wireSlug(parts: Parts): void {
@@ -189,7 +189,7 @@ function wireSlug(parts: Parts): void {
   });
 }
 
-export function wireEditor(section: HTMLElement, blocks: BlocksUi, onSaved: () => void): NewsForm {
+export function wireEditor(section: HTMLElement, blocks: BlocksUi, onSaved: NewsSaved): NewsForm {
   const parts = newsPartsFor(section, blocks, onSaved);
   const saved: SavedState = { status: "draft", revision: null };
   areaButton(section, "news-save").addEventListener("click", () => {

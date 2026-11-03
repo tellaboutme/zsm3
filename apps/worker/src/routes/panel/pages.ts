@@ -13,10 +13,10 @@ import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { panelGuard, panelJsonOrigin } from "./guards.ts";
 import { parseJsonBody } from "./http.ts";
 import { pageSave, type PageSave } from "./mutations.ts";
-import { atRevision, committed, contentChanged } from "./versions.ts";
+import { atRevision, committed, contentChanged, type GuardedWrite } from "./versions.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse } from "../../http/problem.ts";
-import { allRows, firstRow, type SqlStatement } from "../../storage/database.ts";
+import { allRows, firstRow, type WriteReceipt } from "../../storage/database.ts";
 import { pageFromRow } from "../../storage/pages-repo.ts";
 
 const PAGE_ONE =
@@ -73,16 +73,14 @@ async function showPage(c: Context<AppEnv>): Promise<Response> {
   );
 }
 
-interface PageWrite {
-  readonly statements: readonly SqlStatement[];
+interface PageWrite extends GuardedWrite {
   readonly fields: readonly string[];
-  readonly unchanged: () => Promise<boolean>;
   readonly revision: number;
 }
 
-function pageAudit(c: Context<AppEnv>, path: string, fields: readonly string[]): SqlStatement {
+function pageAudit(c: Context<AppEnv>, path: string, fields: readonly string[]): WriteReceipt {
   const session = requirePanelSession(c);
-  return requirePanelDeps(c).repos.audit.statement(
+  return requirePanelDeps(c).repos.audit.receipt(
     auditEntry({ session, action: "pages.save", entity: "pages", entityId: path, fields }),
   );
 }
@@ -90,10 +88,8 @@ function pageAudit(c: Context<AppEnv>, path: string, fields: readonly string[]):
 function createPage(c: Context<AppEnv>, save: PageSave): PageWrite {
   const fields = createdFields(save.page);
   return {
-    statements: [
-      ...requirePanelDeps(c).repos.pages.createStatements(save.page, save.status),
-      pageAudit(c, save.page.path, fields),
-    ],
+    receipt: pageAudit(c, save.page.path, fields),
+    statements: requirePanelDeps(c).repos.pages.createStatements(save.page, save.status),
     fields,
     unchanged: async () => (await loadPage(c, save.page.path)) === undefined,
     revision: 0,
@@ -105,7 +101,7 @@ function updatePage(c: Context<AppEnv>, save: PageSave, row: PageRow, expected: 
   const { path } = save.page;
   const previous = pageFromRow(row);
   const fields = changedFields(previous, save.page);
-  const revision = deps.repos.revisions.expectedStatement({
+  const receipt = deps.repos.revisions.expectedWrite({
     entity: "pages",
     entityId: path,
     dataJson: JSON.stringify({ ...previous, status: row.status }),
@@ -113,10 +109,10 @@ function updatePage(c: Context<AppEnv>, save: PageSave, row: PageRow, expected: 
     expected,
   });
   return {
+    receipt,
     statements: [
-      revision,
       ...deps.repos.pages.saveStatements(save.page, save.status),
-      pageAudit(c, path, fields),
+      pageAudit(c, path, fields).statement,
     ],
     fields,
     unchanged: async () => atRevision(deps, "pages", path, expected),
@@ -146,7 +142,7 @@ async function savePage(c: Context<AppEnv>): Promise<Response> {
   }
   const row = await loadPage(c, path);
   const write = await plannedWrite(c, save, row);
-  if (write === undefined || !(await committed(deps, write.statements, write.unchanged))) {
+  if (write === undefined || !(await committed(deps, write))) {
     return contentChanged(c);
   }
   const edited = write.fields.length > 0;

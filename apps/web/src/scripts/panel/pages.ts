@@ -9,8 +9,9 @@ import { canEditContent } from "../../lib/panel/gate.ts";
 
 function boot(section: HTMLElement): void {
   const view = gateView(section);
-  const form = wirePageForm(section, () => {
+  const form = wirePageForm(section, (path) => {
     void list.refresh();
+    history.refresh(path);
   });
   const list = wirePageList(section, (path) => {
     form.open(path);

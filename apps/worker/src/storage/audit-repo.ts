@@ -3,10 +3,12 @@ import { z } from "zod";
 import {
   allRows,
   batchChanges,
+  stored,
   timestamp,
   type SqlStatement,
   type SqlValue,
   type Store,
+  type WriteReceipt,
 } from "./database.ts";
 import { uuidv7 } from "./ids.ts";
 
@@ -28,6 +30,7 @@ export interface AuditRecord extends AuditEntry {
 export interface AuditRepo {
   append(entry: AuditEntry): Promise<void>;
   statement(entry: AuditEntry): SqlStatement;
+  receipt(entry: AuditEntry): WriteReceipt;
   list(limit: number): Promise<readonly AuditRecord[]>;
   byEntity(entity: string, entityId: string, limit: number): Promise<readonly AuditRecord[]>;
   before(at: string, id: string, limit: number): Promise<readonly AuditRecord[]>;
@@ -36,6 +39,8 @@ export interface AuditRepo {
 
 const APPEND = `INSERT INTO audit_log (id, at, actor_email, action, entity, entity_id, details_json)
   VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+const STORED = "SELECT 1 AS stored FROM audit_log WHERE id = ?";
 
 const LIST = `SELECT id, at, actor_email, action, entity, entity_id, details_json FROM audit_log
   ORDER BY at DESC, id DESC LIMIT ?`;
@@ -85,10 +90,14 @@ export function clampedLimit(limit: number): number {
   return Math.min(Math.max(limit, 1), MAX_AUDIT_LIMIT);
 }
 
-export function auditValues({ clock, random }: Store, entry: AuditEntry): SqlValue[] {
+export function auditValues(
+  { clock, random }: Store,
+  entry: AuditEntry,
+  id = uuidv7(clock().getTime(), random),
+): SqlValue[] {
   const parsed = auditEntrySchema.parse(entry);
   return [
-    uuidv7(clock().getTime(), random),
+    id,
     timestamp(clock),
     parsed.actorEmail,
     parsed.action,
@@ -100,6 +109,14 @@ export function auditValues({ clock, random }: Store, entry: AuditEntry): SqlVal
 
 function auditStatement(store: Store, entry: AuditEntry): SqlStatement {
   return store.db.prepare(APPEND).bind(...auditValues(store, entry));
+}
+
+function auditReceipt(store: Store, entry: AuditEntry): WriteReceipt {
+  const id = uuidv7(store.clock().getTime(), store.random);
+  return {
+    statement: store.db.prepare(APPEND).bind(...auditValues(store, entry, id)),
+    landed: async () => stored(store.db.prepare(STORED).bind(id)),
+  };
 }
 
 export function auditRepo(store: Store): AuditRepo {
@@ -114,6 +131,7 @@ export function auditRepo(store: Store): AuditRepo {
       await db.batch([auditStatement(store, entry)]);
     },
     statement: (entry) => auditStatement(store, entry),
+    receipt: (entry) => auditReceipt(store, entry),
     list: async (limit) => read(LIST, clampedLimit(limit)),
     byEntity: async (entity, entityId, limit) =>
       read(LIST_BY_ENTITY, entity, entityId, clampedLimit(limit)),

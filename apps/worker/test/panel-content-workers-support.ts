@@ -22,17 +22,20 @@ export async function contentOnWorkerd(): Promise<ContentOnWorkerd> {
   return { send, pegs };
 }
 
-export function interleaved(before: () => Promise<unknown>): Env {
+export type BatchStep = (commit: () => Promise<unknown>) => Promise<unknown>;
+
+export function onceBatch(step: BatchStep): Env {
   let pending = true;
   const DB = new Proxy(env.DB, {
     get(target, property) {
       if (property === "batch") {
         return async (statements: D1PreparedStatement[]) => {
+          const commit = async (): Promise<unknown> => target.batch(statements);
           if (pending) {
             pending = false;
-            await before();
+            return step(commit);
           }
-          return target.batch(statements);
+          return commit();
         };
       }
       const value: unknown = Reflect.get(target, property, target);
@@ -46,6 +49,29 @@ export function interleaved(before: () => Promise<unknown>): Env {
     },
   });
   return { ...env, DB };
+}
+
+export function interleaved(before: () => Promise<unknown>): Env {
+  return onceBatch(async (commit) => {
+    await before();
+    return commit();
+  });
+}
+
+export const LOST_CONNECTION = "D1_ERROR: Network connection lost.";
+
+export function committedButLost(): Env {
+  return onceBatch(async (commit) => {
+    await commit();
+    throw new Error(LOST_CONNECTION);
+  });
+}
+
+export function lostBefore(before: () => Promise<unknown> = async () => Promise.resolve()): Env {
+  return onceBatch(async () => {
+    await before();
+    throw new Error(LOST_CONNECTION);
+  });
 }
 
 const BODY = [{ type: "paragraph", content: [{ type: "text", text: "Relacja." }] }];

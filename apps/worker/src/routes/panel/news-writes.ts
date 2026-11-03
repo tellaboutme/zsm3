@@ -8,7 +8,7 @@ import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { parseJsonBody } from "./http.ts";
 import { newsMutation, newsPublish } from "./mutations.ts";
 import { loadNews, newsRef, type NewsRef, type PanelNewsRow } from "./news-data.ts";
-import { revisedNewsStatements, type NewsRevision } from "./news-statements.ts";
+import { revisedNewsWrite, type NewsRevision } from "./news-statements.ts";
 import { atRevision, committed, contentChanged } from "./versions.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse } from "../../http/problem.ts";
@@ -27,19 +27,17 @@ export async function createNews(c: Context<AppEnv>): Promise<Response> {
   if (!(await absent())) {
     return problemResponse(c, 422);
   }
-  const statements = [
-    ...(await deps.repos.news.createStatements(item, "draft")),
-    deps.repos.audit.statement(
-      auditEntry({
-        session,
-        action: "news.create",
-        entity: "news",
-        entityId: `${year}/${item.slug}`,
-        fields: createdFields(item),
-      }),
-    ),
-  ];
-  if (!(await committed(deps, statements, absent))) {
+  const receipt = deps.repos.audit.receipt(
+    auditEntry({
+      session,
+      action: "news.create",
+      entity: "news",
+      entityId: `${year}/${item.slug}`,
+      fields: createdFields(item),
+    }),
+  );
+  const statements = await deps.repos.news.createStatements(item, "draft");
+  if (!(await committed(deps, { receipt, statements, unchanged: absent }))) {
     return contentChanged(c);
   }
   return c.json({ ok: true, revision: 0 }, 201);
@@ -67,14 +65,10 @@ async function writeRevision(
   plan: Omit<NewsRevision, "deps" | "session">,
 ): Promise<Response | undefined> {
   const deps = requirePanelDeps(c);
-  const statements = await revisedNewsStatements({
-    ...plan,
-    deps,
-    session: requirePanelSession(c),
-  });
+  const write = await revisedNewsWrite({ ...plan, deps, session: requirePanelSession(c) });
   const unchanged = async (): Promise<boolean> =>
     atRevision(deps, "news", plan.ref.id, plan.expected);
-  if (!(await committed(deps, statements, unchanged))) {
+  if (!(await committed(deps, { ...write, unchanged }))) {
     return contentChanged(c);
   }
   await announce(

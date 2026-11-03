@@ -28,7 +28,7 @@ interface Parts {
   readonly editors: Map<HTMLElement, BlocksUi>;
   readonly kept: Map<HTMLElement, readonly ContentBlock[]>;
   readonly loaded: LoadedVersion;
-  readonly onSaved: () => void;
+  readonly onSaved: (path: string) => void;
 }
 
 interface LoadedVersion {
@@ -38,7 +38,7 @@ interface LoadedVersion {
 
 const NAMES: readonly string[] = ["path", "kicker", "title", "intro"];
 
-function partsFor(section: HTMLElement, onSaved: () => void): Parts {
+function partsFor(section: HTMLElement, onSaved: (path: string) => void): Parts {
   return {
     form: areaForm(section, "page-form"),
     status: area(section, "form-status"),
@@ -200,10 +200,10 @@ async function commit(parts: Parts): Promise<void> {
   }
   remember(parts, page.path, revision);
   noteOf(parts, "Zapisano stronę.");
-  parts.onSaved();
+  parts.onSaved(page.path);
 }
 
-export function wirePageForm(section: HTMLElement, onSaved: () => void): PageForm {
+export function wirePageForm(section: HTMLElement, onSaved: (path: string) => void): PageForm {
   const parts = partsFor(section, onSaved);
   areaButton(section, "pages-save").addEventListener("click", () => {
     void commit(parts);

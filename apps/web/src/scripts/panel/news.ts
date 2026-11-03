@@ -29,8 +29,9 @@ function boot(section: HTMLElement): void {
       revealEditor(section);
     },
   );
-  const editor = wireEditor(section, blocks, () => {
+  const editor = wireEditor(section, blocks, (ref) => {
     void list.refresh();
+    history.refresh(ref);
   });
   wireShell(view, (role) => {
     if (!canEditContent(role)) {

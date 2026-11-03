@@ -13,6 +13,7 @@ import {
 
 export interface RevisionsUi {
   readonly open: (id: string) => void;
+  readonly refresh: (id: string) => void;
 }
 
 interface Parts {
@@ -40,7 +41,7 @@ function rowNode(parts: Parts, id: string, item: RevisionSummary, current: numbe
   });
 }
 
-async function load(parts: Parts, id: string): Promise<void> {
+async function load(parts: Parts, id: string, reveal = true): Promise<void> {
   const { root } = parts;
   root.hidden = false;
   const response = await panelRead(revisionsPath(parts.target, id));
@@ -56,7 +57,9 @@ async function load(parts: Parts, id: string): Promise<void> {
       ? "Brak wcześniejszych wersji. Pojawią się po pierwszej zmianie."
       : "Przywrócenie zachowuje obecny status publikacji, a bieżąca treść trafia do historii.",
   ]);
-  parts.onLoaded?.();
+  if (reveal) {
+    parts.onLoaded?.();
+  }
 }
 
 async function restoreVersion(
@@ -97,6 +100,9 @@ export function wireRevisions(
   return {
     open: (id) => {
       void load(parts, id);
+    },
+    refresh: (id) => {
+      void load(parts, id, false);
     },
   };
 }

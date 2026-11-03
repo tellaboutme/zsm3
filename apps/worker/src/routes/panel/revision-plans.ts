@@ -12,7 +12,7 @@ import { z } from "zod";
 import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { loadNews } from "./news-data.ts";
 import type { AppEnv } from "../../app-env.ts";
-import { firstRow, type SqlStatement } from "../../storage/database.ts";
+import { firstRow, type SqlStatement, type WriteReceipt } from "../../storage/database.ts";
 import { newsFromRow } from "../../storage/news-repo.ts";
 import { pageFromRow } from "../../storage/pages-repo.ts";
 
@@ -42,6 +42,7 @@ export interface PublicAddress {
 export interface RestorePlan {
   readonly before: object;
   readonly after: object;
+  readonly receipt: WriteReceipt;
   readonly writes: readonly SqlStatement[];
   readonly address?: PublicAddress;
 }
@@ -69,16 +70,14 @@ async function newsPlan(
   return {
     before: current,
     after: restored,
-    writes: [
-      deps.repos.revisions.expectedStatement({
-        entity: "news",
-        entityId: restore.id,
-        dataJson: JSON.stringify({ ...current, status: row.status }),
-        actorEmail: requirePanelSession(c).email,
-        expected: restore.expectedRevision,
-      }),
-      ...(await deps.repos.news.saveStatements(restored, row.status)),
-    ],
+    receipt: deps.repos.revisions.expectedWrite({
+      entity: "news",
+      entityId: restore.id,
+      dataJson: JSON.stringify({ ...current, status: row.status }),
+      actorEmail: requirePanelSession(c).email,
+      expected: restore.expectedRevision,
+    }),
+    writes: await deps.repos.news.saveStatements(restored, row.status),
     address: { path: newsPath(current), status: row.status },
   };
 }
@@ -102,16 +101,14 @@ async function pagePlan(
   return {
     before: current,
     after: restored,
-    writes: [
-      deps.repos.revisions.expectedStatement({
-        entity: "pages",
-        entityId: restore.id,
-        dataJson: JSON.stringify({ ...current, status: row.status }),
-        actorEmail: requirePanelSession(c).email,
-        expected: restore.expectedRevision,
-      }),
-      ...deps.repos.pages.saveStatements(restored, row.status),
-    ],
+    receipt: deps.repos.revisions.expectedWrite({
+      entity: "pages",
+      entityId: restore.id,
+      dataJson: JSON.stringify({ ...current, status: row.status }),
+      actorEmail: requirePanelSession(c).email,
+      expected: restore.expectedRevision,
+    }),
+    writes: deps.repos.pages.saveStatements(restored, row.status),
     address: { path: current.path, status: row.status },
   };
 }
@@ -133,16 +130,14 @@ async function datasetPlan(
   return {
     before: { [key.data]: current.data },
     after: { [key.data]: data },
-    writes: [
-      deps.repos.revisions.expectedStatement({
-        entity: "datasets",
-        entityId: key.data,
-        dataJson: JSON.stringify(current.data),
-        actorEmail: requirePanelSession(c).email,
-        expected: restore.expectedRevision,
-      }),
-      deps.repos.datasets.saveStatement(key.data, data),
-    ],
+    receipt: deps.repos.revisions.expectedWrite({
+      entity: "datasets",
+      entityId: key.data,
+      dataJson: JSON.stringify(current.data),
+      actorEmail: requirePanelSession(c).email,
+      expected: restore.expectedRevision,
+    }),
+    writes: [deps.repos.datasets.saveStatement(key.data, data)],
   };
 }
 
