@@ -148,3 +148,18 @@ def test_variants_are_grouped_sorted_and_annotated() -> None:
         Finding("/kontakt", Category.LIVE_SAME_PATH, None, ("/kontakt",), ()),
     ]
     assert audit(list(reversed(entries)), {"/stara": "/nowa"}, {}, evidence) == findings
+
+
+def test_case_variants_report_the_worst_answer_whatever_the_input_order() -> None:
+    lower, mixed = entry("/kontakt"), entry("/Kontakt")
+
+    first = audit([lower, mixed], {}, {}, STATIC)
+    second = audit([mixed, lower], {}, {}, STATIC)
+
+    assert first == second
+    assert [(finding.category, finding.notes) for finding in first] == [
+        (Category.UNVERIFIED, ("variants_collapsed",))
+    ]
+    assert audit([entry("/stara/"), entry("/stara")], {"/stara": "/nowa"}, {}, STATIC)[
+        0
+    ].category == (Category.MAPPED)

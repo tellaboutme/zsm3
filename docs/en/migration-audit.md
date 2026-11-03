@@ -31,7 +31,7 @@ the Worker sees it: the path is percent-encoded once (Polish letters become `%C4
 on), the query and fragment are dropped, and the lookup key is lower-cased with one trailing
 slash removed, as in `normalisePath`. Addresses that differ only in case, a trailing slash or
 a query are reported once, with every original listed and a `variants_collapsed` or
-`query_ignored` note. Input that is empty, holds whitespace, is not a site path or web
+`query_ignored` note; because Astro answers each spelling separately, such a finding takes the most severe category of any of its variants, whatever the input order. Input that is empty, holds whitespace, is not a site path or web
 address, has dot segments or is longer than 500 characters once encoded is listed under
 _Rejected input_.
 

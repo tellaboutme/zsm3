@@ -161,8 +161,14 @@ def audit(
     findings: list[Finding] = []
     unencoded = unencoded_rows(redirects)
     for key, group in grouped.items():
-        path = group[0].path
-        category, target = categorise(path, redirects, unresolved, evidence, unencoded=unencoded)
+        variants = sorted({entry.path.request_path: entry.path for entry in group}.items())
+        category, target = min(
+            (
+                categorise(path, redirects, unresolved, evidence, unencoded=unencoded)
+                for _, path in variants
+            ),
+            key=lambda found: ORDER[found[0]],
+        )
         sources = tuple(sorted({entry.source for entry in group}))
         notes = tuple(_notes(group, (category, target), evidence))
         findings.append(Finding(key, category, target, sources, notes))
