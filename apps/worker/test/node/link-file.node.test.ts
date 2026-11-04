@@ -41,6 +41,19 @@ describe("detecting a teaching document", () => {
     expect(detectFormat(docx([{ name: "word/vbaProject.bin" }]))).toBeUndefined();
     expect(detectFormat(docx([{ name: "word/activeX/activeX1.xml" }]))).toBeUndefined();
     expect(detectFormat(docx([{ name: "VBAPROJECT.BIN" }]))).toBeUndefined();
+    expect(detectFormat(docx([{ name: "word/embeddings/oleObject1.bin" }]))).toBeUndefined();
+    expect(
+      detectFormat(
+        zipOf([
+          OFFICE_MANIFEST,
+          { name: "ppt/presentation.xml" },
+          { name: "ppt/embeddings/OLEOBJECT2.BIN" },
+        ]),
+      ),
+    ).toBeUndefined();
+    expect(detectFormat(docx([{ name: "word/embeddings/Microsoft_Excel_Worksheet.xlsx" }]))).toBe(
+      "docx",
+    );
     expect(
       detectFormat(
         zipOf([
@@ -79,7 +92,8 @@ describe("detecting a teaching document", () => {
 
   it("keeps harmless parts that only resemble active ones", ({ expect }) => {
     expect(detectFormat(docx([{ name: "word/media/basic/image.png" }]))).toBe("docx");
-    expect(detectFormat(docx([{ name: "word/embeddings/oleObject1.bin" }]))).toBe("docx");
+    expect(detectFormat(docx([{ name: "word/media/oleObject1.bin.png" }]))).toBe("docx");
+    expect(detectFormat(docx([{ name: "word/oleObject1.bin" }]))).toBe("docx");
   });
 });
 

@@ -355,7 +355,7 @@ Każda zmiana statusu trafia do dziennika zdarzeń (rozdział 8) bez danych wnio
 W **Krótkie linki** tworzysz adresy `/s/<kod>` dla uczniów — do strony w internecie albo do pliku przesłanego prosto do szkolnego serwisu, bez dysków w chmurze.
 
 - **Link do strony.** Wpisz adres zaczynający się od `https://`.
-- **Link do pliku.** Wybierz plik PDF, DOCX, XLSX, PPTX, ODT, ODS lub ODP do 20 MB. Pliki z makrami, archiwa ZIP, strony HTML i obrazy SVG nie przejdą. O rodzaju pliku decyduje jego zawartość, więc zmiana rozszerzenia nie pomoże.
+- **Link do pliku.** Wybierz plik PDF, DOCX, XLSX, PPTX, ODT, ODS lub ODP do 20 MB. Pliki z makrami lub osadzonymi obiektami OLE (np. starymi równaniami z edytora Equation 3.0 — taki dokument zapisz najpierw jako PDF), archiwa ZIP, strony HTML i obrazy SVG nie przejdą. O rodzaju pliku decyduje jego zawartość, więc zmiana rozszerzenia nie pomoże.
 - **Hasło** jest nieobowiązkowe, ma od 12 do 200 znaków i nie da się go później odczytać. Najłatwiej zapamiętać kilka słów połączonych łącznikiem, na przykład `zielony-rower-po-deszczu`. Przekaż je uczniom osobno, na przykład na lekcji. Linki utworzone wcześniej z krótszym hasłem działają dalej.
 - **Termin ważności** jest stały: link działa do końca roku szkolnego, w którym powstał, czyli do 31 sierpnia włącznie. 1 września wygasa sam. Formularz pokazuje tę datę przed utworzeniem linku.
 

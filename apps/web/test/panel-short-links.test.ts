@@ -166,7 +166,7 @@ describe("server answers", () => {
   it("explains a refused link or upload", ({ expect }) => {
     expect(createPhrase(413)).toBe("Plik przekracza limit 20 MB.");
     expect(createPhrase(415)).toBe(
-      "Tego pliku nie można udostępnić. Dozwolone są dokumenty PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP bez makr; o rodzaju pliku decyduje jego zawartość, nie nazwa.",
+      "Tego pliku nie można udostępnić. Dozwolone są dokumenty PDF, DOCX, XLSX, PPTX, ODT, ODS, ODP bez makr i osadzonych obiektów OLE; o rodzaju pliku decyduje jego zawartość, nie nazwa.",
     );
     expect(createPhrase(422)).toBe(
       "Sprawdź pola: adres musi zaczynać się od https://, a hasło mieć od 12 do 200 znaków.",

@@ -139,7 +139,7 @@ export function fileCheckPhrase(check: FileCheck): string {
 
 const CREATE_PROBLEMS: Readonly<Record<number, string>> = {
   413: `Plik przekracza limit ${String(MAX_LINK_FILE_BYTES / MB)} MB.`,
-  415: `Tego pliku nie można udostępnić. Dozwolone są dokumenty ${FORMAT_LIST} bez makr; o rodzaju pliku decyduje jego zawartość, nie nazwa.`,
+  415: `Tego pliku nie można udostępnić. Dozwolone są dokumenty ${FORMAT_LIST} bez makr i osadzonych obiektów OLE; o rodzaju pliku decyduje jego zawartość, nie nazwa.`,
   422: `Sprawdź pola: adres musi zaczynać się od https://, a hasło mieć od ${String(MIN_PASSWORD_LENGTH)} do ${String(MAX_PASSWORD_LENGTH)} znaków.`,
   503: "Linku z hasłem nie da się teraz utworzyć, bo serwer nie ma klucza haseł. Utwórz link bez hasła albo napisz do administratora.",
 };
