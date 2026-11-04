@@ -32,6 +32,7 @@ class RouteMatch(StrEnum):
     STATIC = "static"
     DYNAMIC = "dynamic"
     NONE = "none"
+    ERROR = "error"
 
 
 def _segment_kind(part: str) -> Segment:

@@ -4,7 +4,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from zsm3_tools.migration_audit import Evidence, LegacyEntry, audit
+from zsm3_tools.migration_audit import Category, Evidence, LegacyEntry, audit
 from zsm3_tools.migration_cms import cms_findings
 from zsm3_tools.migration_inputs import (
     InputError,
@@ -33,6 +33,7 @@ DEFAULT_UNRESOLVED = REPOSITORY / "tools" / "data" / "legacy-url-unresolved.csv"
 DEFAULT_PAGES = REPOSITORY / "apps" / "web" / "src" / "pages"
 OUTPUT_FILES = ("manifest.json", "report.md", "candidates.csv")
 USAGE_ERROR = 2
+INCOMPLETE_PROBE = 3
 
 ProberFactory = Callable[[str], Prober]
 
@@ -129,6 +130,10 @@ def run(options: argparse.Namespace, factory: ProberFactory) -> int:
     sys.stdout.write(
         f"{len(findings)} legacy paths audited; reports written to {options.out_dir}\n"
     )
+    failed = sum(finding.category is Category.PROBE_ERROR for finding in findings)
+    if failed:
+        sys.stderr.write(f"warning: the preview failed for {failed} paths; rerun the probe\n")
+        return INCOMPLETE_PROBE
     return 0
 
 

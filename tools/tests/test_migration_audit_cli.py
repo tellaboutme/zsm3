@@ -153,3 +153,23 @@ def test_long_sections_point_to_the_manifest(monkeypatch: pytest.MonkeyPatch) ->
     assert "| … 1 more in the manifest | | |" in text
     assert "a\\|b" in text
     assert "## CMS pages" not in text
+
+
+class Failing:
+    def status(self, path: str) -> int:
+        return 503 if path == "/nowa" else 404
+
+
+def test_a_failing_preview_still_writes_reports_but_exits_with_three(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    args = [*fixture(tmp_path), "--out-dir", str(tmp_path / "out")]
+
+    code = main([*args, "--probe", "http://127.0.0.1:8787", "--delay", "0"], lambda _: Failing())
+
+    manifest = json.loads((tmp_path / "out" / "manifest.json").read_text(encoding="utf-8"))
+    by_key = {row["key"]: row["category"] for row in manifest["findings"]}
+    assert code == 3
+    assert by_key["/kontakt"] == "probe_error"
+    assert "preview failed for" in capsys.readouterr().err
+    assert "## probe_error" in (tmp_path / "out" / "report.md").read_text(encoding="utf-8")

@@ -1,8 +1,8 @@
 import re
 from dataclasses import dataclass
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
-from zsm3_tools.inventory_http import HOST, encode_path, has_dot_segment
+from zsm3_tools.inventory_http import HOST, has_dot_segment
 from zsm3_tools.redirect_paths import normalise_from_path
 
 FILE_SUFFIXES = (
@@ -36,6 +36,10 @@ MAX_PATH_LENGTH = 500
 LEGACY_HOSTS = frozenset({HOST, HOST.removeprefix("www.")})
 
 _SUFFIX = re.compile(r"\.([a-z0-9]+)$")
+_PATH_ENCODED = frozenset('"<>`{}')
+BROWSER_SAFE = "".join(
+    chr(code) for code in range(0x21, 0x7F) if chr(code) not in _PATH_ENCODED | {"\\"}
+)
 
 
 class LegacyPathError(ValueError):
@@ -64,15 +68,22 @@ def legacy_path(raw: str) -> LegacyPath:
     if has_dot_segment(parsed.path):
         message = "contains dot segments"
         raise LegacyPathError(message)
-    request = encode_path(parsed.path or "/")
+    if "\\" in parsed.path:
+        message = "contains a backslash, which browsers read as a slash"
+        raise LegacyPathError(message)
+    request = browser_path(parsed.path or "/")
     if len(request) > MAX_PATH_LENGTH:
         message = f"longer than {MAX_PATH_LENGTH} characters once encoded"
         raise LegacyPathError(message)
     return LegacyPath(request, lookup_key_of(request), parsed.query != "")
 
 
+def browser_path(path: str) -> str:
+    return quote(path, safe=BROWSER_SAFE)
+
+
 def lookup_key_of(path: str) -> str:
-    return normalise_from_path(encode_path(path))
+    return normalise_from_path(browser_path(path))
 
 
 def suffix_of(path: str) -> str:

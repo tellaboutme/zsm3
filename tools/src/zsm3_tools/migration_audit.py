@@ -6,11 +6,15 @@ from zsm3_tools.migration_paths import LegacyPath, is_document, is_redirectable,
 from zsm3_tools.migration_routes import Route, RouteMatch, classify
 
 HTTP_OK = 200
+TOO_MANY_REQUESTS = 429
+FIRST_SERVER_ERROR = 500
 MAX_CHAIN = 8
 
 
 class Category(StrEnum):
+    PROBE_ERROR = "probe_error"
     MAPPED_LOOP = "mapped_loop"
+    MAPPED_RESERVED = "mapped_reserved"
     MAPPED_TARGET_MISSING = "mapped_target_missing"
     MAPPED_UNENCODED = "mapped_unencoded"
     MAPPED_SHADOWED = "mapped_shadowed"
@@ -55,24 +59,32 @@ class Finding:
 class Chain:
     final: str | None
     hops: int
+    failure: Category | None = None
 
 
 def exists(evidence: Evidence, path: str) -> RouteMatch:
     status = evidence.statuses.get(path)
-    if status is not None:
-        return RouteMatch.STATIC if status == HTTP_OK else RouteMatch.NONE
-    return classify(evidence.routes, path)
+    if status is None:
+        return classify(evidence.routes, path)
+    if status == TOO_MANY_REQUESTS or status >= FIRST_SERVER_ERROR:
+        return RouteMatch.ERROR
+    return RouteMatch.STATIC if status == HTTP_OK else RouteMatch.NONE
 
 
 def follow(redirects: Mapping[str, str], key: str, evidence: Evidence) -> Chain:
     seen = {key}
     current = redirects[key]
     for hop in range(1, MAX_CHAIN + 1):
+        if not is_redirectable(current):
+            return Chain(current, hop, Category.MAPPED_RESERVED)
         if current in seen:
             return Chain(None, hop)
         seen.add(current)
+        served = exists(evidence, current)
+        if served is RouteMatch.ERROR:
+            return Chain(current, hop, Category.PROBE_ERROR)
         following = redirects.get(current)
-        if following is None or exists(evidence, current) is RouteMatch.STATIC:
+        if following is None or served is RouteMatch.STATIC:
             return Chain(current, hop)
         current = following
     return Chain(None, MAX_CHAIN)
@@ -82,6 +94,8 @@ def _mapped(
     redirects: Mapping[str, str], key: str, evidence: Evidence
 ) -> tuple[Category, str | None]:
     chain = follow(redirects, key, evidence)
+    if chain.failure is not None:
+        return chain.failure, chain.final
     if chain.final is None:
         return Category.MAPPED_LOOP, None
     target = exists(evidence, chain.final)
@@ -105,6 +119,8 @@ def categorise(
         document = is_document(path.request_path)
         return (Category.DOCUMENT_REVIEW if document else Category.NOT_REDIRECTABLE), None
     live = exists(evidence, path.request_path)
+    if live is RouteMatch.ERROR:
+        return Category.PROBE_ERROR, None
     if path.lookup_key in redirects:
         if live is RouteMatch.STATIC:
             return Category.MAPPED_SHADOWED, redirects[path.lookup_key]

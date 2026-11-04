@@ -13,7 +13,9 @@ MANIFEST_VERSION = 1
 MAX_LISTED = 200
 
 MEANINGS: dict[Category, str] = {
+    Category.PROBE_ERROR: "the preview answered 5xx or 429; rerun the probe, nothing is concluded",
     Category.MAPPED_LOOP: "redirect chain loops or exceeds 8 hops; the Worker serves 404",
+    Category.MAPPED_RESERVED: "the target is a reserved path; the Worker refuses it and serves 404",
     Category.MAPPED_TARGET_MISSING: "mapped, but the destination is not served",
     Category.MAPPED_UNENCODED: "the map row holds raw letters, so it never matches a request",
     Category.MAPPED_SHADOWED: "mapped, but the old path is itself served, so it never redirects",
@@ -32,6 +34,7 @@ ACTIONS: dict[Category, str] = {
     Category.MAPPED_CHAIN: "collapse_chain",
     Category.MAPPED_SHADOWED: "remove_shadowed",
     Category.MAPPED_LOOP: "break_loop",
+    Category.MAPPED_RESERVED: "choose_target",
     Category.MAPPED_TARGET_MISSING: "choose_target",
     Category.MAPPED_UNENCODED: "encode_source",
 }
