@@ -1,6 +1,5 @@
-import { z } from "zod";
-
-import { runHousekeeping } from "./housekeeping.ts";
+import { cronStateRepo, utcDate } from "./cron-state.ts";
+import { HousekeepingError, runHousekeeping } from "./housekeeping.ts";
 import type { MediaBucket } from "../app-env.ts";
 import {
   ANONYMOUS_RETENTION_YEARS,
@@ -15,7 +14,7 @@ import type { EmailSender } from "../mail/email-sender.ts";
 import { drainOutbox, MAX_DRAIN, type DrainResult } from "../mail/outbox-consumer.ts";
 import { piiCrypto, type PiiCrypto } from "../security/pii-crypto.ts";
 import { auditRepo, type AuditRepo } from "../storage/audit-repo.ts";
-import { firstRow, type SqlDatabase, type Store } from "../storage/database.ts";
+import type { SqlDatabase, Store } from "../storage/database.ts";
 import { outboxRepo, type OutboxRepo } from "../storage/outbox-repo.ts";
 import { requestsRepo, type RequestsRepo } from "../storage/requests-repo.ts";
 
@@ -26,10 +25,6 @@ const DAY_MS = 86_400_000;
 const YEAR_MS = 365 * DAY_MS;
 const RETENTION_JOB = "retention";
 export const AUDIT_RETENTION_YEARS = 2;
-
-const SELECT_CRON_STATE = "SELECT last_run_date FROM cron_state WHERE job = ?";
-const UPSERT_CRON_STATE = `INSERT INTO cron_state (job, last_run_date) VALUES (?1, ?2)
-  ON CONFLICT (job) DO UPDATE SET last_run_date = excluded.last_run_date`;
 
 export interface MaintenanceEnv extends RequestsSecretEnv {
   readonly DB: SqlDatabase;
@@ -53,11 +48,6 @@ export interface RetentionCounters {
 }
 
 export interface MaintenanceResult extends RetentionCounters, DrainResult {}
-
-interface CronStateRepo {
-  lastRunDate(job: string): Promise<string | undefined>;
-  markRunDate(job: string, date: string): Promise<void>;
-}
 
 export function maintenanceDeps(env: MaintenanceEnv, store: Store): MaintenanceDeps {
   const config = requestsConfig(env);
@@ -88,10 +78,22 @@ export async function runScheduledMaintenance(
   store: Store,
   now: Date,
 ): Promise<MaintenanceResult> {
+  const failed = await runHousekeeping(store, env.MEDIA, now);
+  const result = await runRequestsMaintenance(env, store, now);
+  if (failed.length > 0) {
+    throw new HousekeepingError(failed);
+  }
+  return result;
+}
+
+async function runRequestsMaintenance(
+  env: MaintenanceEnv,
+  store: Store,
+  now: Date,
+): Promise<MaintenanceResult> {
   const deps = maintenanceDeps(env, store);
   const drained = await drainOutbox(deps, now, MAX_DRAIN);
   const cron = cronStateRepo(store);
-  await runHousekeeping(store, env.MEDIA, now);
   const today = utcDate(now);
   if ((await cron.lastRunDate(RETENTION_JOB)) === today) {
     return { ...drained, rejected: 0, erased: 0, deleted: 0, auditDeleted: 0 };
@@ -177,26 +179,6 @@ async function eraseClosed(
 
 function idsOf(actions: readonly RetentionAction[], kind: RetentionAction["kind"]): string[] {
   return actions.filter((action) => action.kind === kind).map((action) => action.requestId);
-}
-
-function cronStateRepo(store: Store): CronStateRepo {
-  const { db } = store;
-  return {
-    lastRunDate: async (job) => {
-      const row = await firstRow(
-        db.prepare(SELECT_CRON_STATE).bind(job),
-        z.strictObject({ last_run_date: z.string() }),
-      );
-      return row?.last_run_date;
-    },
-    markRunDate: async (job, date) => {
-      await db.prepare(UPSERT_CRON_STATE).bind(job, date).run();
-    },
-  };
-}
-
-function utcDate(now: Date): string {
-  return now.toISOString().slice(0, 10);
 }
 
 function daysAgo(now: Date, days: number): string {

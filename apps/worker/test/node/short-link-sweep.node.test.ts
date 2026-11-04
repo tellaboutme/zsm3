@@ -1,4 +1,4 @@
-import { describe, it, vi } from "vitest";
+import { describe, it } from "vitest";
 
 import {
   AUTHOR,
@@ -13,11 +13,7 @@ import {
   uploadDeps,
 } from "./short-link-files-support.ts";
 import { PDF } from "./zip-fixtures.ts";
-import {
-  PENDING_UPLOAD_GRACE_MS,
-  sweepShortLinkFiles,
-  sweepShortLinkFilesSafely,
-} from "../../src/jobs/short-link-files.ts";
+import { PENDING_UPLOAD_GRACE_MS, sweepShortLinkFiles } from "../../src/jobs/short-link-files.ts";
 import { unlockLink } from "../../src/short-links/resolve.ts";
 import { createFileLink } from "../../src/short-links/upload.ts";
 import type { Store } from "../../src/storage/database.ts";
@@ -161,21 +157,13 @@ describe("sweeping private files", () => {
     const code = await created(store, bucket);
     await shortLinksRepo(store).revoke(code, AUTHOR, NOW.toISOString());
     const broken = { ...bucket, delete: async () => Promise.reject(new TypeError("r2 down")) };
-    const errors = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
-    await sweepShortLinkFilesSafely(store, broken, later(1));
-    expect(errors).toHaveBeenCalledWith(
-      JSON.stringify({ event: "short_link_file_sweep_failed", errorName: "TypeError" }),
+    await expect(sweepShortLinkFiles(shortLinkFilesRepo(store), broken, later(1))).rejects.toThrow(
+      "r2 down",
     );
-    const strange = vi.fn<(key: string) => Promise<void>>().mockRejectedValue(7);
-    await sweepShortLinkFilesSafely(store, { ...bucket, delete: strange }, later(1));
-    expect(errors).toHaveBeenLastCalledWith(
-      JSON.stringify({ event: "short_link_file_sweep_failed", errorName: "UnknownError" }),
-    );
-    errors.mockRestore();
     expect(await fileRows(store)).toEqual([expect.objectContaining({ removed_at: null })]);
 
-    await sweepShortLinkFilesSafely(store, bucket, later(2));
+    await expect(sweepShortLinkFiles(shortLinkFilesRepo(store), bucket, later(2))).resolves.toBe(1);
     expect(bucket.keys()).toEqual([]);
   });
 });
