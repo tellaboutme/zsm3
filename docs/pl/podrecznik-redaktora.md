@@ -180,7 +180,7 @@ Galerię prowadzą osoby z rolą **Redaktor galerii** oraz administratorzy. Obie
 
 1. Otwórz **Galeria**, wybierz rok szkolny, wpisz tytuł i wybierz **Utwórz album**. Nowy album jest szkicem: nikt poza panelem go nie widzi.
 2. Dodaj zdjęcia. Album bez zdjęć nie może zostać opublikowany.
-3. Wybierz **Opublikuj album**. Wszystkie zdjęcia albumu będą widoczne na stronie szkoły, gdy galeria publiczna zacznie działać.
+3. Wybierz **Opublikuj album**. Wszystkie zdjęcia albumu będą widoczne na stronie szkoły, w dziale Szkoła → Galeria.
 
 ### Dodawanie zdjęcia
 

@@ -7,6 +7,7 @@ import { isProblemStatus, problemResponse } from "./http/problem.ts";
 import { assignRequestId } from "./http/request-id.ts";
 import { apiSecurityHeaders, noStore } from "./http/security-headers.ts";
 import { logEvent } from "./logging/log.ts";
+import { galleryRoutes } from "./routes/gallery.ts";
 import { healthRoutes } from "./routes/health.ts";
 import { mediaRoutes } from "./routes/media.ts";
 import { MAX_UPLOAD_BODY_BYTES, PANEL_UPLOAD_PREFIX } from "./routes/panel/files.ts";
@@ -32,6 +33,7 @@ export function createApp(panel: PanelAppOptions = {}): Hono<AppEnv> {
   app.use(assignRequestId, apiSecurityHeaders, noStore, bodyLimitForPath);
   app.route("/api", healthRoutes);
   app.route("/api/short-links", shortLinkRoutes);
+  app.route("/api/gallery", galleryRoutes);
   app.route("/media", mediaRoutes);
   app.route("/api/panel", panelApp(panel));
   app.notFound((c) => problemResponse(c, 404));

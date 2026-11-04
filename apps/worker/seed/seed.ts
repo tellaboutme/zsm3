@@ -9,6 +9,7 @@ import { getPlatformProxy } from "wrangler";
 import { seedBells } from "./bells.ts";
 import { seedSchoolYear } from "./calendar/index.ts";
 import { seedFiles, storedFile, type SeedFile } from "./files.ts";
+import { seedGallery } from "./gallery.ts";
 import { seedNews } from "./news/index.ts";
 import { seedPages } from "./pages/index.ts";
 import { seedRequests } from "./requests.ts";
@@ -76,6 +77,7 @@ if (mediaDirectory !== undefined) {
     await env.MEDIA.put(storedFile(file).key, await verifiedBytes(mediaDirectory, file));
   }
 }
+await seedGallery(env.DB, env.MEDIA);
 const seededLinks = await seedShortLinks(store, env.SHORT_LINK_KEY);
 let seededRequests = 0;
 let requestsAvailable = true;

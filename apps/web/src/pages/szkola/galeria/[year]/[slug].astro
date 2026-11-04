@@ -1,0 +1,106 @@
+---
+import {
+  GALLERY_PATH,
+  galleryYearPath,
+  photoPath,
+  schoolYearFromSlug,
+} from "@zsm3/contracts/gallery-public";
+
+import GalleryHead from "../../../../components/gallery/GalleryHead.astro";
+import GalleryLightbox from "../../../../components/gallery/GalleryLightbox.astro";
+import Base from "../../../../layouts/Base.astro";
+import { photoCountPhrase, photoPositionPhrase } from "../../../../lib/gallery.ts";
+import { galleryReader } from "../../../../server/gallery.ts";
+import { notFound } from "../../../../server/news.ts";
+
+export const prerender = false;
+
+const schoolYear = schoolYearFromSlug(Astro.params["year"] ?? "");
+const view =
+  schoolYear === undefined
+    ? undefined
+    : await galleryReader().albumBySlug(schoolYear, Astro.params["slug"] ?? "");
+if (view === undefined) {
+  return notFound();
+}
+const { item, photos } = view;
+---
+
+<Base
+  title={`${item.title} — galeria ZSM3`}
+  description={
+    item.description === ""
+      ? `Album „${item.title}” z roku szkolnego ${item.schoolYear}.`
+      : item.description
+  }
+  breadcrumbs={[
+    { label: "Szkoła", href: "/szkola" },
+    { label: "Galeria", href: GALLERY_PATH },
+    { label: item.schoolYear, href: galleryYearPath(item.schoolYear) },
+    { label: item.title },
+  ]}
+>
+  <GalleryHead
+    title={item.title}
+    lead={item.description}
+    meta={`Rok szkolny ${item.schoolYear} · ${photoCountPhrase(photos.length)}`}
+  />
+  <ul class="shots">
+    {photos.map((photo, index) => (
+      <li>
+        <a
+          class="shot"
+          href={photoPath(photo.sha256, "l")}
+          data-gallery-photo
+          data-position={photoPositionPhrase(index, photos.length)}
+          data-width={photo.width}
+          data-height={photo.height}
+        >
+          <img
+            src={photoPath(photo.sha256, "s")}
+            alt={photo.alt}
+            width="400"
+            height="267"
+            loading="lazy"
+            decoding="async"
+          />
+        </a>
+      </li>
+    ))}
+  </ul>
+  <GalleryLightbox />
+</Base>
+
+<style>
+  .shots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0 0 var(--space-7);
+    list-style: none;
+  }
+
+  @media (width < 30rem) {
+    .shots {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2);
+    }
+  }
+
+  .shot {
+    display: block;
+    border-radius: var(--radius);
+    cursor: zoom-in;
+  }
+
+  .shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: var(--radius);
+    background: var(--gray);
+  }
+</style>

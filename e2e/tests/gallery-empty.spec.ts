@@ -2,32 +2,22 @@ import { AxeBuilder } from "@axe-core/playwright";
 
 import { expect, test } from "./fixtures.ts";
 
-test("the gallery shows an honest empty state without albums or photos", async ({
-  page,
-  problems,
-}) => {
+test("a school year without albums shows an honest empty state", async ({ page, problems }) => {
   await page.setViewportSize({ width: 360, height: 800 });
-  const response = await page.goto("/szkola/galeria");
+  const response = await page.goto("/szkola/galeria/2019-2020");
 
   expect(response?.status()).toBe(200);
-  await expect(page.getByRole("heading", { level: 1, name: "Galeria" })).toBeVisible();
-  const emptyState = page.getByRole("region", { name: "Brak zdjęć w galerii" });
-  await expect(emptyState).toContainText(
-    "W galerii nie ma obecnie opublikowanych albumów ani zdjęć.",
-  );
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
-    "content",
-    "Galeria Zespołu Szkół Mechanicznych nr 3 w Krakowie. Obecnie nie ma w niej opublikowanych zdjęć.",
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Rok szkolny 2019/2020" }),
+  ).toBeVisible();
+  const emptyState = page.getByRole("region", { name: "Brak opublikowanych albumów" });
+  await expect(emptyState).toContainText("W tym roku szkolnym nie ma jeszcze żadnych albumów.");
+  await expect(emptyState.getByRole("link", { name: "Zobacz inne lata" })).toHaveAttribute(
+    "href",
+    "/szkola/galeria",
   );
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, follow");
-  await expect(page.locator("main")).not.toContainText(
-    /Pracownie mechatroniczne|Warsztaty samochodowe|Pracownie lotnicze|Pracownie informatyczne|Erasmus\+|Dzień Patrona/u,
-  );
-  await expect(page.locator("main section")).toHaveCount(1);
-  await expect(
-    page.locator("main h3, main ul, main article, main figure, main picture, main img"),
-  ).toHaveCount(0);
-  await expect(page.locator('main a[href^="/szkola/galeria/"]')).toHaveCount(0);
+  await expect(page.locator("main img")).toHaveCount(0);
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );

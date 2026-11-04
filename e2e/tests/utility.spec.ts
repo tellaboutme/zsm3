@@ -68,7 +68,11 @@ test.describe("site map", () => {
 
     expect([...missing].toSorted()).toEqual([]);
 
-    expect(unlisted.filter((path) => !path.startsWith(NEWS_ARCHIVE))).toEqual([]);
+    expect(
+      unlisted.filter(
+        (path) => !path.startsWith(NEWS_ARCHIVE) && !path.startsWith("/szkola/galeria/"),
+      ),
+    ).toEqual([]);
     expect(unlisted.length).toBeGreaterThan(0);
     for (const path of listed) {
       expect((await request.get(path)).status(), path).toBe(200);

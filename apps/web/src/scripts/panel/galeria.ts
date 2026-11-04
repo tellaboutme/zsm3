@@ -10,12 +10,12 @@ import { z } from "zod";
 import { area, areaForm, areaList, areaSelect, el, inputValue, speak } from "./dom.ts";
 import { denyContent, gateView } from "./gate-ui.ts";
 import { wireShell } from "./shell.ts";
+import { photoCountPhrase } from "../../lib/gallery.ts";
 import { panelRead, panelSend } from "../../lib/panel/api.ts";
 import {
   albumHref,
   albumStatePhrase,
   galleryProblemPhrase,
-  photoCountPhrase,
   schoolYearChoices,
   schoolYearOf,
 } from "../../lib/panel/gallery.ts";

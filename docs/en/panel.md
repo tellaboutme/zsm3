@@ -55,11 +55,11 @@ Nothing from a request reaches the URL, browser storage or the console. The list
 
 Photos are prepared in the browser by `scripts/panel/photo-worker.ts`: `createImageBitmap` applies the EXIF orientation, an `OffscreenCanvas` scales to 400 px and at most 1600 px on the long edge, and `@jsquash/webp` encodes both, lowering quality until each fits 1.5 MB. Re-encoding drops all metadata. A source below 400 px on its long edge is refused rather than enlarged. This is a convenience only: the server trusts none of it (architecture.md §7.5). Each Worker handles one file and is terminated afterwards, which is also how cancelling works.
 
-The panel shows no stored photo yet, because `/media/g/` arrives with the public gallery and the page's `img-src 'self'` does not allow a local preview. Rows show the description, the dimensions and who confirmed the legal basis.
+The panel shows no stored photo, because `/media/g/` serves published photos only and the page's `img-src 'self'` does not allow a local preview. Rows show the description, the dimensions and who confirmed the legal basis.
 
 ## Gallery API
 
-The gallery routes serve `admin` and `gallery_editor`. The public gallery comes in a later change, so nothing stored here is visible outside the panel yet. Upload rules are in architecture.md §7.5.
+The gallery routes serve `admin` and `gallery_editor`. A photo is visible outside the panel only while its album is published (architecture.md §7.6). Upload rules are in architecture.md §7.5.
 
 | Route                                      | Purpose                                                    |
 | ------------------------------------------ | ---------------------------------------------------------- |

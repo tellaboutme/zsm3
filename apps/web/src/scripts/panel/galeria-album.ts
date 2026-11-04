@@ -21,12 +21,12 @@ import { photoRow } from "./galeria-photos.ts";
 import { wireUpload } from "./galeria-upload.ts";
 import { denyContent, gateView } from "./gate-ui.ts";
 import { wireShell } from "./shell.ts";
+import { photoCountPhrase } from "../../lib/gallery.ts";
 import { panelDelete, panelRead, panelSend } from "../../lib/panel/api.ts";
 import {
   albumIdFrom,
   albumStatePhrase,
   galleryProblemPhrase,
-  photoCountPhrase,
   schoolYearChoices,
 } from "../../lib/panel/gallery.ts";
 import { canManageGallery } from "../../lib/panel/gate.ts";
