@@ -31,13 +31,22 @@ export interface PanelWriteRecoveredEvent {
   readonly errorName: string;
 }
 
+export type HousekeepingTask = "rate_limits" | "short_links" | "questions";
+
+export interface HousekeepingFailedEvent {
+  readonly event: "housekeeping_failed";
+  readonly task: HousekeepingTask;
+  readonly errorName: string;
+}
+
 export type LogEvent =
   | UnhandledErrorEvent
   | TurnstileUnavailableEvent
   | OutboxEnqueueFailedEvent
   | AccessConfigEvent
   | IndexNowUnavailableEvent
-  | PanelWriteRecoveredEvent;
+  | PanelWriteRecoveredEvent
+  | HousekeepingFailedEvent;
 
 export function logEvent(entry: LogEvent): void {
   console.error(JSON.stringify(entry));
