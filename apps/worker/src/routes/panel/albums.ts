@@ -21,6 +21,7 @@ import type { SqlStatement } from "../../storage/database.ts";
 
 const ENTITY = "albums";
 const SLUG_TAKEN = "Album Slug Taken";
+const NO_PHOTOS = "Album Has No Photos";
 
 export async function storedAlbum(c: Context<AppEnv>): Promise<PanelAlbum | Response> {
   const id = z.uuid().safeParse(c.req.param("id"));
@@ -130,6 +131,23 @@ async function updateAlbum(c: Context<AppEnv>): Promise<Response> {
   return refused ?? c.json({ item: await deps.repos.gallery.savedAlbum(previous.id) });
 }
 
+async function writePublication(
+  c: Context<AppEnv>,
+  id: string,
+  statements: readonly SqlStatement[],
+): Promise<Response | undefined> {
+  try {
+    await atomicWrite(requirePanelDeps(c), statements);
+    return undefined;
+  } catch (error) {
+    const album = await requirePanelDeps(c).repos.gallery.album(id);
+    if (album?.photoCount === 0) {
+      return problemResponse(c, 422, NO_PHOTOS);
+    }
+    throw error;
+  }
+}
+
 async function publishAlbum(c: Context<AppEnv>): Promise<Response> {
   const deps = requirePanelDeps(c);
   const session = requirePanelSession(c);
@@ -145,10 +163,7 @@ async function publishAlbum(c: Context<AppEnv>): Promise<Response> {
   if (publishing === (previous.publishedAt !== null)) {
     return problemResponse(c, 422, "Publication Status Unchanged");
   }
-  if (publishing && previous.photoCount === 0) {
-    return problemResponse(c, 422, "Album Has No Photos");
-  }
-  await atomicWrite(deps, [
+  const refused = await writePublication(c, previous.id, [
     deps.repos.gallery.publicationStatement(previous.id, publishing),
     deps.repos.audit.statement(
       auditEntry({
@@ -160,7 +175,7 @@ async function publishAlbum(c: Context<AppEnv>): Promise<Response> {
       }),
     ),
   ]);
-  return c.json({ item: await deps.repos.gallery.savedAlbum(previous.id) });
+  return refused ?? c.json({ item: await deps.repos.gallery.savedAlbum(previous.id) });
 }
 
 async function deleteAlbum(c: Context<AppEnv>): Promise<Response> {

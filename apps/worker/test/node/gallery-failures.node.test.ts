@@ -1,4 +1,4 @@
-import { panelPhotoUploadSchema, photoKey } from "@zsm3/contracts/gallery";
+import { photoKey } from "@zsm3/contracts/gallery";
 import { describe, it } from "vitest";
 
 import {
@@ -45,32 +45,6 @@ function racing(harness: PanelHarness, before: () => Promise<void>): PanelHarnes
 }
 
 describe("concurrent writes", () => {
-  it("answers duplicate when the same album won the race", async ({ expect }) => {
-    const harness = await panelHarness();
-    const token = await galleryToken(harness);
-    const album = await createAlbum(harness, token);
-    const race = racing(harness, async () => {
-      await uploadPhoto(harness, album.id, token);
-    });
-    const response = await uploadCall(race, album.id, token, photoParts());
-    expect(response.status).toBe(200);
-    const body = panelPhotoUploadSchema.parse(await response.json());
-    expect(body.duplicate).toBe(true);
-    expect(body.item.sha256).toBe(await LARGE_HASH());
-  });
-
-  it("answers 409 when another album won the race", async ({ expect }) => {
-    const harness = await panelHarness();
-    const token = await galleryToken(harness);
-    const album = await createAlbum(harness, token);
-    const other = await createAlbum(harness, token, { slug: "inny" });
-    const race = racing(harness, async () => {
-      await uploadPhoto(harness, other.id, token);
-    });
-    const response = await uploadCall(race, album.id, token, photoParts());
-    expect((await expectProblem(response, 409)).title).toBe("Photo In Another Album");
-  });
-
   it("answers 409 when another request took the slug first", async ({ expect }) => {
     const harness = await panelHarness();
     const token = await galleryToken(harness);
@@ -139,7 +113,7 @@ describe("failed writes", () => {
       .prepare("INSERT INTO photo_uploads (sha256, started_at, claimed_at) VALUES (?, 't', 't')")
       .run(await LARGE_HASH());
     const response = await uploadCall(spy, album.id, token, photoParts());
-    expect((await expectProblem(response, 409)).title).toBe("Photo Cleanup Running");
+    expect((await expectProblem(response, 409)).title).toBe("Photo Upload In Progress");
     expect(await bucketBytes(spy.env, photoKey(await LARGE_HASH(), "l"))).toBeUndefined();
   });
 

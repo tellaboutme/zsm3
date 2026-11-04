@@ -40,3 +40,28 @@ CREATE TABLE photo_uploads (
 
 CREATE INDEX photo_uploads_started ON photo_uploads (started_at);
 CREATE INDEX photo_uploads_claimed ON photo_uploads (claimed_at, sha256) WHERE claimed_at IS NOT NULL;
+
+CREATE INDEX photos_deleted ON photos (deleted_at) WHERE deleted_at IS NOT NULL;
+CREATE INDEX albums_deleted ON albums (deleted_at) WHERE deleted_at IS NOT NULL;
+
+CREATE TRIGGER albums_publish_needs_photo BEFORE UPDATE OF published_at ON albums
+WHEN NEW.published_at IS NOT NULL AND OLD.published_at IS NULL
+  AND NOT EXISTS (SELECT 1 FROM photos WHERE album_id = NEW.id AND deleted_at IS NULL)
+BEGIN
+  SELECT RAISE(ABORT, 'album has no photos');
+END;
+
+CREATE TRIGGER photos_album_limit_insert BEFORE INSERT ON photos
+WHEN NEW.deleted_at IS NULL
+  AND (SELECT COUNT(*) FROM photos WHERE album_id = NEW.album_id AND deleted_at IS NULL) >= 1000
+BEGIN
+  SELECT RAISE(ABORT, 'album is full');
+END;
+
+CREATE TRIGGER photos_album_limit_restore BEFORE UPDATE OF album_id, deleted_at ON photos
+WHEN NEW.deleted_at IS NULL
+  AND (SELECT COUNT(*) FROM photos
+    WHERE album_id = NEW.album_id AND deleted_at IS NULL AND id <> NEW.id) >= 1000
+BEGIN
+  SELECT RAISE(ABORT, 'album is full');
+END;

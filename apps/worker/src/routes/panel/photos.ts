@@ -18,13 +18,15 @@ import { requirePanelDeps, requirePanelSession } from "./deps.ts";
 import { UPLOAD_BODY_OVERHEAD } from "./files.ts";
 import { panelGuard, panelJsonOrigin, panelOrigin } from "./guards.ts";
 import { parseJsonBody } from "./http.ts";
-import { photoSavePlan, PHOTO_ENTITY } from "./photo-save.ts";
+import { photoSavePlan, PHOTO_ENTITY, type PhotoSavePlan } from "./photo-save.ts";
 import { readPhotoUpload } from "./photo-upload.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse } from "../../http/problem.ts";
 import type { KnownPhoto } from "../../storage/gallery-repo.ts";
 
 export const MAX_PHOTO_BODY_BYTES = 2 * MAX_PHOTO_VARIANT_BYTES + UPLOAD_BODY_OVERHEAD;
+
+const ALBUM_FULL = "Album Is Full";
 
 const PHOTO_UPLOAD_PATH = /^\/api\/panel\/albums\/[^/]+\/photos$/u;
 
@@ -63,9 +65,38 @@ function answerForKnown(
     : problemResponse(c, 409, "Photo In Another Album");
 }
 
+function refusedUpload(
+  c: Context<AppEnv>,
+  album: PanelAlbum,
+  known: KnownPhoto | undefined,
+): Response | undefined {
+  const answer = answerForKnown(c, album.id, known);
+  if (answer !== undefined || album.photoCount < MAX_ALBUM_PHOTOS) {
+    return answer;
+  }
+  return problemResponse(c, 422, ALBUM_FULL);
+}
+
+async function savePhoto(
+  c: Context<AppEnv>,
+  plan: PhotoSavePlan,
+  albumId: string,
+): Promise<Response | undefined> {
+  const deps = requirePanelDeps(c);
+  try {
+    await atomicWrite(deps, plan.statements);
+    return undefined;
+  } catch (error) {
+    const album = await deps.repos.gallery.album(albumId);
+    if (album !== undefined && album.photoCount >= MAX_ALBUM_PHOTOS) {
+      return problemResponse(c, 422, ALBUM_FULL);
+    }
+    throw error;
+  }
+}
+
 async function uploadPhoto(c: Context<AppEnv>): Promise<Response> {
   const deps = requirePanelDeps(c);
-  const session = requirePanelSession(c);
   const album = await storedAlbum(c);
   if (album instanceof Response) {
     return album;
@@ -74,29 +105,23 @@ async function uploadPhoto(c: Context<AppEnv>): Promise<Response> {
   if (upload instanceof Response) {
     return upload;
   }
-  const { gallery } = deps.repos;
+  const { gallery, photoUploads } = deps.repos;
+  if (!(await photoUploads.begin(upload.sha256))) {
+    return problemResponse(c, 409, "Photo Upload In Progress");
+  }
   const known = await gallery.photoByHash(upload.sha256);
-  const answer = answerForKnown(c, album.id, known);
-  if (answer !== undefined) {
-    return answer;
-  }
-  if (album.photoCount >= MAX_ALBUM_PHOTOS) {
-    return problemResponse(c, 422, "Album Is Full");
-  }
-  if (!(await deps.repos.photoUploads.begin(upload.sha256))) {
-    return problemResponse(c, 409, "Photo Cleanup Running");
+  const refused = refusedUpload(c, album, known);
+  if (refused !== undefined) {
+    await photoUploads.finishStatement(upload.sha256).run();
+    return refused;
   }
   await deps.mediaBucket.put(photoKey(upload.sha256, "l"), upload.large);
   await deps.mediaBucket.put(photoKey(upload.sha256, "s"), upload.small);
+  const session = requirePanelSession(c);
   const plan = photoSavePlan({ deps, session, album, upload, known });
-  try {
-    await atomicWrite(deps, plan.statements);
-  } catch (error) {
-    const raced = answerForKnown(c, album.id, await gallery.photoByHash(upload.sha256));
-    if (raced === undefined) {
-      throw error;
-    }
-    return raced;
+  const notSaved = await savePhoto(c, plan, album.id);
+  if (notSaved !== undefined) {
+    return notSaved;
   }
   const item = await gallery.savedPhoto(album.id, plan.id);
   return c.json(panelPhotoUploadSchema.parse({ item, duplicate: false }), 201);
