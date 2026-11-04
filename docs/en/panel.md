@@ -49,9 +49,17 @@ The end-to-end specs for the page (`e2e/tests/panel.requests-*.spec.ts`) assert 
 
 Nothing from a request reaches the URL, browser storage or the console. The list and detail schemas are parsed only in this page's scripts: importing them into the shared `lib/panel/models.ts` moves zod's schema construction ahead of the `jitless` switch in every panel bundle, and the Trusted Types policy then reports the blocked `Function` probe.
 
+## Gallery pages
+
+`/panel/galeria` lists albums and creates them; `/panel/galeria/album?id=…` edits one album and its photos. Both are shown to `admin` and `gallery_editor`, and `gallery_editor` sees only this section.
+
+Photos are prepared in the browser by `scripts/panel/photo-worker.ts`: `createImageBitmap` applies the EXIF orientation, an `OffscreenCanvas` scales to 400 px and at most 1600 px on the long edge, and `@jsquash/webp` encodes both, lowering quality until each fits 1.5 MB. Re-encoding drops all metadata. A source below 400 px on its long edge is refused rather than enlarged. This is a convenience only: the server trusts none of it (architecture.md §7.5). Each Worker handles one file and is terminated afterwards, which is also how cancelling works.
+
+The panel shows no stored photo yet, because `/media/g/` arrives with the public gallery and the page's `img-src 'self'` does not allow a local preview. Rows show the description, the dimensions and who confirmed the legal basis.
+
 ## Gallery API
 
-The gallery routes serve `admin` and `gallery_editor`. The panel pages for them, the public gallery and the job that purges deleted files from R2 come in later changes, so nothing stored here is visible outside the panel API yet. Upload rules are in architecture.md §7.5.
+The gallery routes serve `admin` and `gallery_editor`. The public gallery comes in a later change, so nothing stored here is visible outside the panel yet. Upload rules are in architecture.md §7.5.
 
 | Route                                      | Purpose                                                    |
 | ------------------------------------------ | ---------------------------------------------------------- |

@@ -1,0 +1,38 @@
+.panel-photo-progress {
+  width: 100%;
+  max-width: 32rem;
+}
+
+.panel-photo-row {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-2);
+  border-block-end: var(--hairline) solid var(--line);
+}
+
+.panel-photo-row label {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.panel-photo-row textarea {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+}
+
+.panel-form .panel-check {
+  display: flex;
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.panel-photo-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
