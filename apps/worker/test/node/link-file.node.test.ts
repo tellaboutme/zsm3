@@ -47,7 +47,7 @@ describe("detecting a teaching document", () => {
         zipOf([
           OFFICE_MANIFEST,
           { name: "ppt/presentation.xml" },
-          { name: "ppt/embeddings/OLEOBJECT2.BIN" },
+          { name: "ppt/embeddings/OLEOBJECT12.BIN" },
         ]),
       ),
     ).toBeUndefined();

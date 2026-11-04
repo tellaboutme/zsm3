@@ -22,7 +22,7 @@ const OFFICE_PARTS: Readonly<Record<OfficeFormat, string>> = {
 const OFFICE_FORMATS: readonly OfficeFormat[] = ["docx", "xlsx", "pptx"];
 const OPEN_DOCUMENT_FORMATS: readonly OpenDocumentFormat[] = ["odt", "ods", "odp"];
 const ACTIVE_PART =
-  /(?:^|\/)(?:vbaproject\.bin|activex\/|macrosheets\/|embeddings\/oleobject[^/]*\.bin$)|^(?:basic|scripts)\//u;
+  /(?:^|\/)(?:vbaproject\.bin|activex\/|macrosheets\/|embeddings\/oleobject[^/]*\.bin)|^(?:basic|scripts)\//u;
 const UNSAFE_NAME_CHARACTERS = /[\p{Cc}\p{Cf}"*:<>?|]/gu;
 
 export type UploadSize = "empty" | "large" | "ok";
