@@ -165,7 +165,7 @@ Wnioskodawca może wycofać wniosek przez ten sam link. Dane osobowe są usuwane
 ### 7.6 Publiczna galeria
 
 - Publicznie widoczne są tylko opublikowane albumy; odpowiedzi API są buforowane przez 60 sekund.
-- Każde żądanie zdjęcia najpierw sprawdza w D1, czy album jest opublikowany. Zdjęcia mają 60-sekundowe buforowanie i nagłówki bezpieczeństwa, więc usunięcie lub cofnięcie publikacji działa od razu na serwerze, a w przeglądarce najpóźniej po minucie.
+- Każde żądanie zdjęcia sprawdza w D1, czy album jest opublikowany, a zdjęcia mają `Cache-Control: no-store`. Usunięcie zdjęcia lub cofnięcie publikacji działa od następnego żądania.
 - **Import archiwum** wykonuje skrypt `tools/import_gallery.py`: pobiera zdjęcia z obecnej strony, obraca je według EXIF, usuwa metadane, zapisuje w WebP i wysyła do R2. Skrypt można bezpiecznie przerwać i wznowić.
 
 ## 8. Bezpieczeństwo

@@ -14,6 +14,25 @@ async function expectAccessible(page: Page): Promise<void> {
   expect(result.violations).toEqual([]);
 }
 
+async function brokenHeadingWords(page: Page): Promise<readonly string[]> {
+  return page.locator("h1").evaluate((heading) => {
+    const text = heading.firstChild;
+    const content = heading.textContent;
+    const broken: string[] = [];
+    let start = 0;
+    for (const word of content.split(" ")) {
+      const range = document.createRange();
+      range.setStart(text ?? heading, start);
+      range.setEnd(text ?? heading, start + word.length);
+      if (new Set([...range.getClientRects()].map((rect) => rect.top)).size > 1) {
+        broken.push(word);
+      }
+      start += word.length + 1;
+    }
+    return broken;
+  });
+}
+
 async function overflow(page: Page): Promise<number> {
   return page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -47,6 +66,16 @@ test("the album fits every width in both themes", async ({ page }) => {
     }
   }
   await expectAccessible(page);
+});
+
+test("gallery headings never break inside a word", async ({ page }) => {
+  for (const width of WIDTHS) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of ["/szkola/galeria", YEAR_PATH, "/szkola/galeria/2019-2020", ALBUM_PATH]) {
+      await page.goto(path);
+      expect(await brokenHeadingWords(page), `${path} ${String(width)}`).toEqual([]);
+    }
+  }
 });
 
 test("the lightbox moves, zooms, announces and returns focus", async ({ page, problems }) => {
@@ -107,7 +136,7 @@ test("published photos are served with safe headers, drafts are not", async ({ p
   const photo = await request.get(href);
   expect(photo.status()).toBe(200);
   expect(photo.headers()["content-type"]).toBe("image/webp");
-  expect(photo.headers()["cache-control"]).toBe("public, max-age=60");
+  expect(photo.headers()["cache-control"]).toBe("no-store");
   expect(photo.headers()["x-content-type-options"]).toBe("nosniff");
   expect(photo.headers()["cross-origin-resource-policy"]).toBe("same-origin");
 

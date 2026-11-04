@@ -4,7 +4,10 @@ import desktopConfig from "lighthouse/core/config/desktop-config.js";
 
 import { expect, test } from "./fixtures.ts";
 
-const DEBUGGING_PORT = 9223;
+const PAGES = [
+  { path: "/", port: 9223 },
+  { path: "/szkola/galeria/2025-2026/przykladowy-album", port: 9224 },
+] as const;
 const MAX_LAYOUT_SHIFT = 0.02;
 
 const minimumScores = {
@@ -19,27 +22,29 @@ test.describe("lighthouse budgets", () => {
     "Lighthouse audits through the Chromium DevTools protocol only.",
   );
 
-  test("the home page meets every budget", async ({ baseURL }) => {
-    const browser = await chromium.launch({
-      args: [`--remote-debugging-port=${String(DEBUGGING_PORT)}`],
-    });
-    try {
-      const result = await lighthouse(
-        `${baseURL ?? ""}/`,
-        { port: DEBUGGING_PORT, output: "json", logLevel: "error" },
-        desktopConfig,
-      );
-      const report = result?.lhr;
+  for (const { path, port } of PAGES) {
+    test(`${path} meets every budget`, async ({ baseURL }) => {
+      const browser = await chromium.launch({
+        args: [`--remote-debugging-port=${String(port)}`],
+      });
+      try {
+        const result = await lighthouse(
+          `${baseURL ?? ""}${path}`,
+          { port, output: "json", logLevel: "error" },
+          desktopConfig,
+        );
+        const report = result?.lhr;
 
-      expect(report?.runtimeError).toBeUndefined();
-      for (const [category, minimum] of Object.entries(minimumScores)) {
-        expect(report?.categories[category]?.score, category).toBeGreaterThanOrEqual(minimum);
+        expect(report?.runtimeError).toBeUndefined();
+        for (const [category, minimum] of Object.entries(minimumScores)) {
+          expect(report?.categories[category]?.score, category).toBeGreaterThanOrEqual(minimum);
+        }
+        expect(report?.audits["cumulative-layout-shift"]?.numericValue).toBeLessThanOrEqual(
+          MAX_LAYOUT_SHIFT,
+        );
+      } finally {
+        await browser.close();
       }
-      expect(report?.audits["cumulative-layout-shift"]?.numericValue).toBeLessThanOrEqual(
-        MAX_LAYOUT_SHIFT,
-      );
-    } finally {
-      await browser.close();
-    }
-  });
+    });
+  }
 });

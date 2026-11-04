@@ -10,8 +10,6 @@ import {
   LIVE,
   NOW,
   OLD_HASH,
-  ORIGIN,
-  SECOND,
   type GalleryFixture,
 } from "./gallery-public-support.ts";
 import { counterRandom, FIXED_CLOCK } from "./memory-database.ts";
@@ -24,37 +22,29 @@ beforeEach(async () => {
 });
 
 describe("public gallery photos", () => {
-  it("serves a published photo with its type and a short cache", async ({ expect }) => {
+  it("serves a published photo with its type and never lets it be stored", async ({ expect }) => {
     const response = await fixture.get(photoPath(HASH, "s"));
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("image/webp");
     expect(response.headers.get("Content-Length")).toBe("8");
-    expect(response.headers.get("Cache-Control")).toBe("public, max-age=60");
-    expect(response.headers.get("ETag")).toBe(`"${HASH}-s.webp"`);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
     expect(await response.text()).toBe("small 01");
   });
 
-  it("stores the first read at the edge under one address for that photo", async ({ expect }) => {
-    await fixture.get(`${photoPath(HASH, "l")}?a=1`);
-    expect([...fixture.edge.keys()]).toEqual([`${ORIGIN}${photoPath(HASH, "l")}`]);
-    const stored = fixture.edge.get(`${ORIGIN}${photoPath(HASH, "l")}`);
-    expect(stored?.headers.get("Cache-Control")).toBe("public, max-age=60");
-    expect(await stored?.clone().text()).toBe("large 01");
-  });
-
-  it("serves the edge copy without reading R2 again", async ({ expect }) => {
-    await fixture.get(photoPath(SECOND, "l"));
-    fixture.files.delete(photoKey(SECOND, "l"));
-    expect(await (await fixture.get(photoPath(SECOND, "l"))).text()).toBe("large 02");
-    expect(fixture.put).toHaveBeenCalledOnce();
-  });
-
-  it("stops an edge copy the moment the album is unpublished", async ({ expect }) => {
-    await fixture.get(photoPath(HASH, "l"));
+  it("stops delivery at the next request after the album is unpublished", async ({ expect }) => {
+    expect((await fixture.get(photoPath(HASH, "l"))).status).toBe(200);
     await fixture.setPublished(LIVE, null);
     const response = await fixture.get(photoPath(HASH, "l"));
     expect(response.status).toBe(404);
     expect(response.headers.get("Cache-Control")).toBe("no-store");
+  });
+
+  it("stops delivery at the next request after the photo is deleted", async ({ expect }) => {
+    expect((await fixture.get(photoPath(HASH, "l"))).status).toBe(200);
+    await fixture.DB.prepare("UPDATE photos SET deleted_at = ? WHERE sha256 = ?")
+      .bind(NOW, HASH)
+      .run();
+    expect((await fixture.get(photoPath(HASH, "l"))).status).toBe(404);
   });
 
   it("refuses draft, deleted, unknown and malformed photos even when R2 holds them", async ({
@@ -70,7 +60,6 @@ describe("public gallery photos", () => {
     ]) {
       expect((await fixture.get(path)).status, path).toBe(404);
     }
-    expect(fixture.put).not.toHaveBeenCalled();
   });
 
   it("answers 404 when a published photo has lost its file", async ({ expect }) => {

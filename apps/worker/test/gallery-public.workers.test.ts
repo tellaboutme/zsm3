@@ -148,29 +148,18 @@ describe("public gallery album addresses", () => {
 });
 
 describe("public gallery photos", () => {
-  it("serves a published photo with its type, a short cache and no sniffing", async ({
-    expect,
-  }) => {
+  it("serves a published photo with its type, no storing and no sniffing", async ({ expect }) => {
     const response = await get(photoPath(HASH, "s"));
     expect(response.status).toBe(200);
     expect(await response.text()).toBe("small 01");
     expect(response.headers.get("Content-Type")).toBe("image/webp");
     expect(response.headers.get("Content-Length")).toBe("8");
-    expect(response.headers.get("Cache-Control")).toBe("public, max-age=60");
-    expect(response.headers.get("ETag")).toBe(`"${HASH}-s.webp"`);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
     expect(response.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(response.headers.get("Cross-Origin-Resource-Policy")).toBe("same-origin");
   });
 
-  it("serves the edge copy once R2 has been read", async ({ expect }) => {
-    await (await get(photoPath(SECOND, "l"))).arrayBuffer();
-    await env.MEDIA.delete(photoKey(SECOND, "l"));
-    const response = await get(photoPath(SECOND, "l"));
-    expect(await response.text()).toBe("large 02");
-    await env.MEDIA.put(photoKey(SECOND, "l"), "large 02");
-  });
-
-  it("stops an edge copy the moment the album is unpublished", async ({ expect }) => {
+  it("stops delivery at the next request after the album is unpublished", async ({ expect }) => {
     await (await get(photoPath(HASH, "l"))).arrayBuffer();
     await setPublished(LIVE, null);
     const response = await get(photoPath(HASH, "l"));

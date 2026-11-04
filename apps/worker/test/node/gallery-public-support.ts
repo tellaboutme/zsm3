@@ -1,5 +1,4 @@
 import { photoKey } from "@zsm3/contracts/gallery";
-import { vi, type Mock } from "vitest";
 
 import { memoryDatabase } from "./memory-database.ts";
 import { createApp } from "../../src/app.ts";
@@ -25,8 +24,6 @@ const INSERT_PHOTO = `INSERT INTO photos (id, album_id, position, width, height,
 export interface GalleryFixture {
   readonly DB: ReturnType<typeof memoryDatabase>;
   readonly files: Map<string, string>;
-  readonly edge: Map<string, Response>;
-  readonly put: Mock<(request: Request, response: Response) => Promise<void>>;
   get(path: string): Promise<Response>;
   setPublished(id: string, publishedAt: string | null): Promise<void>;
 }
@@ -44,25 +41,9 @@ function mediaBucket(files: Map<string, string>): object {
   };
 }
 
-function stubEdge(edge: Map<string, Response>): GalleryFixture["put"] {
-  const put = vi.fn(async (request: Request, response: Response) => {
-    edge.set(request.url, response);
-    await Promise.resolve();
-  });
-  vi.stubGlobal("caches", {
-    default: {
-      match: async (request: Request) => await Promise.resolve(edge.get(request.url)?.clone()),
-      put,
-    },
-  });
-  return put;
-}
-
 export async function galleryFixture(): Promise<GalleryFixture> {
   const DB = memoryDatabase();
   const files = new Map<string, string>();
-  const edge = new Map<string, Response>();
-  const put = stubEdge(edge);
   const insertPhoto = async (
     serial: string,
     album: string,
@@ -95,5 +76,5 @@ export async function galleryFixture(): Promise<GalleryFixture> {
   await setPublished(OLDER, NOW);
   const get = async (path: string): Promise<Response> =>
     await createApp().request(`${ORIGIN}${path}`, {}, { DB, MEDIA: mediaBucket(files) });
-  return { DB, files, edge, put, get, setPublished };
+  return { DB, files, get, setPublished };
 }
