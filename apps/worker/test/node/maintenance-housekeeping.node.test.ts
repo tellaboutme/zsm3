@@ -30,6 +30,16 @@ describe("scheduled housekeeping", () => {
     await expect(leftovers(current)).resolves.toEqual(CLEAN);
   });
 
+  it("cleans everything when only some e-wniosek secrets are set", async ({ expect }) => {
+    const current = await scene();
+    const partial = { ...withSecrets(current), TURNSTILE_SECRET_KEY: undefined, BREVO_API_KEY: "" };
+
+    await expect(runScheduledMaintenance(partial, current.store, AFTER_EXPIRY)).rejects.toThrow(
+      MissingSecretError,
+    );
+    await expect(leftovers(current)).resolves.toEqual(CLEAN);
+  });
+
   it("cleans the same way with valid secrets and keeps the e-wniosek result", async ({
     expect,
   }) => {
