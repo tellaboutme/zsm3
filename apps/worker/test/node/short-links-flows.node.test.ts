@@ -155,20 +155,6 @@ describe("resolving a short link", () => {
     }
   });
 
-  it("forgets the failed guesses once the right password arrives", async ({ expect }) => {
-    const current = store();
-    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp-2026" });
-    for (let attempt = 0; attempt < PASSWORD_ATTEMPTS - 1; attempt += 1) {
-      await unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW);
-    }
-    await unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp-2026", NOW);
-    for (let attempt = 0; attempt < PASSWORD_ATTEMPTS; attempt += 1) {
-      await expect(unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW)).resolves.toEqual({
-        kind: "locked",
-      });
-    }
-  });
-
   it("limits guesses per link, not per visitor", async ({ expect }) => {
     const current = store();
     const links = shortLinksRepo(current);

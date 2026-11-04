@@ -53,10 +53,14 @@ async function guessKey(code: string): Promise<Uint8Array> {
   return sha256(`shortlink:${code}`);
 }
 
-async function guessesExceeded(deps: ResolveDeps, key: Uint8Array, now: Date): Promise<boolean> {
+async function guessWindow(
+  deps: ResolveDeps,
+  key: Uint8Array,
+  now: Date,
+): Promise<string | undefined> {
   const cutoff = new Date(now.getTime() - RATE_LIMIT_WINDOW_MINUTES * MINUTE_MS);
   const state = await deps.rateLimits.consume(key, now.toISOString(), cutoff.toISOString());
-  return state.count > PASSWORD_ATTEMPTS;
+  return state.count > PASSWORD_ATTEMPTS ? undefined : state.windowStartedAt;
 }
 
 async function delivered(deps: OpenDeps, link: ShortLinkRecord): Promise<UnlockOutcome> {
@@ -110,7 +114,8 @@ export async function unlockLink(
     return { kind: "unavailable" };
   }
   const key = await guessKey(normalised);
-  if (await guessesExceeded(deps, key, now)) {
+  const window = await guessWindow(deps, key, now);
+  if (window === undefined) {
     return { kind: "throttled" };
   }
   const slot = await deps.failures.reserve(normalised, now);
@@ -121,7 +126,7 @@ export async function unlockLink(
     return { kind: "locked" };
   }
   await deps.failures.release(slot);
-  await deps.rateLimits.clear(key);
+  await deps.rateLimits.refund(key, window);
   return await delivered(deps, found.link);
 }
 

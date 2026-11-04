@@ -3,6 +3,7 @@ import { env } from "cloudflare:workers";
 import { beforeAll, describe, it } from "vitest";
 import { z } from "zod";
 
+import { sha256 } from "../src/security/hmac.ts";
 import { hashPassword } from "../src/security/passwords.ts";
 import { PASSWORD_ATTEMPTS, unlockLink } from "../src/short-links/resolve.ts";
 import { cryptoRandom } from "../src/storage/ids.ts";
@@ -87,5 +88,23 @@ describe("the daily failure budget on real D1", () => {
 
     expect(new Set(outcomes.map((outcome) => outcome.kind))).toEqual(new Set(["redirect"]));
     await expect(rows("k7mq4rf")).resolves.toBe(0);
+  });
+
+  it("lets concurrent right passwords give back only their own guesses", async ({ expect }) => {
+    await protectedLink("k7mq4rg");
+    for (let index = 0; index < 5; index += 1) {
+      await unlockLink(deps, "k7mq4rg", "zle-haslo-123", NOW);
+    }
+
+    const outcomes = await Promise.all(
+      Array.from({ length: 20 }, async () => unlockLink(deps, "k7mq4rg", RIGHT, NOW)),
+    );
+    const row = await env.DB.prepare("SELECT count AS n FROM rate_limits WHERE key_hash = ?1")
+      .bind(await sha256("shortlink:k7mq4rg"))
+      .first();
+
+    expect(new Set(outcomes.map((outcome) => outcome.kind))).toEqual(new Set(["redirect"]));
+    await expect(rows("k7mq4rg")).resolves.toBe(5);
+    expect(z.strictObject({ n: z.number() }).parse(row).n).toBe(5);
   });
 });
