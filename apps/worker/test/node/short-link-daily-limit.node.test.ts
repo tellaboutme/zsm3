@@ -93,6 +93,16 @@ describe("the rolling daily limit on wrong passwords", () => {
     await expect(failureRows(current, OTHER)).resolves.toBe(1);
   });
 
+  it("counts a differently written code against the same link", async ({ expect }) => {
+    const current = store();
+    await seed(current);
+    const later = at(await failSpread(current, DAILY_FAILED_ATTEMPTS - 1, START), 11 * MINUTE);
+
+    await expect(attempt(current, WRONG, later, ` ${CODE.toUpperCase()} `)).resolves.toBe("locked");
+    await expect(failureRows(current)).resolves.toBe(DAILY_FAILED_ATTEMPTS);
+    await expect(attempt(current, RIGHT, later, CODE.toUpperCase())).resolves.toBe("blocked");
+  });
+
   it("leaves the budget alone while the short pause holds", async ({ expect }) => {
     const current = store();
     await seed(current);
