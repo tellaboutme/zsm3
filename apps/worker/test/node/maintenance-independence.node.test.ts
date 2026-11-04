@@ -180,3 +180,20 @@ it("names a failure that is not an Error without exposing it", async ({ expect }
     [JSON.stringify({ event: "housekeeping_failed", task: "questions", errorName: "unknown" })],
   ]);
 });
+
+it("prunes short links lapsed for more than 30 days without e-wniosek", async ({ expect }) => {
+  const h = harness();
+  const insert = h.store.db.prepare(
+    "INSERT INTO short_links (code, target_url, created_by, created_at, expires_at, revoked_at) VALUES (?, 'https://example.org/', 'a@zsm3.test', '2025-01-01T00:00:00.000Z', ?, NULL)",
+  );
+  await insert.bind("k7mq4ra", "2026-09-21T07:59:59.000Z").run();
+  await insert.bind("k7mq4rb", "2026-09-22T08:00:01.000Z").run();
+  await insert.bind("k7mq4rc", "2027-09-01T00:00:00.000Z").run();
+
+  await expect(runScheduledMaintenance({ DB: h.store.db }, h.store, NOW)).rejects.toThrow(
+    MissingSecretError,
+  );
+
+  const left = await h.store.db.prepare("SELECT code FROM short_links ORDER BY code").all();
+  expect(left.results).toEqual([{ code: "k7mq4rb" }, { code: "k7mq4rc" }]);
+});
