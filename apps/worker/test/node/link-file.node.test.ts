@@ -42,6 +42,20 @@ describe("detecting a teaching document", () => {
     expect(detectFormat(docx([{ name: "word/activeX/activeX1.xml" }]))).toBeUndefined();
     expect(detectFormat(docx([{ name: "VBAPROJECT.BIN" }]))).toBeUndefined();
     expect(
+      detectFormat(
+        zipOf([
+          OFFICE_MANIFEST,
+          { name: "xl/workbook.xml" },
+          { name: "xl/macrosheets/sheet1.xml" },
+        ]),
+      ),
+    ).toBeUndefined();
+    expect(
+      detectFormat(
+        zipOf([OFFICE_MANIFEST, { name: "xl/workbook.xml" }, { name: "XL/MacroSheets/s.xml" }]),
+      ),
+    ).toBeUndefined();
+    expect(
       detectFormat(openDocument(ODT, [{ name: "Basic/Standard/Module1.xml" }])),
     ).toBeUndefined();
     expect(detectFormat(openDocument(ODT, [{ name: "Scripts/python/x.py" }]))).toBeUndefined();
