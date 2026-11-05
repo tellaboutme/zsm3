@@ -27,7 +27,7 @@ describe("the short links table", () => {
   it("stores and reads a link with a password", async ({ expect }) => {
     const current = store();
     const links = shortLinksRepo(current);
-    const password = await hashPassword(KEY, "klasa4tp", counterRandom());
+    const password = await hashPassword(KEY, "klasa4tp-2026", counterRandom());
     await links.create({
       code: "k7mq4ra",
       target: TARGET,
@@ -38,7 +38,7 @@ describe("the short links table", () => {
 
     await expect(links.find("k7mq4ra")).resolves.toEqual({
       code: "k7mq4ra",
-      target: TARGET,
+      destination: { kind: "url", target: TARGET },
       expiresAt: "2027-10-27T08:00:00.000Z",
       revokedAt: null,
       password,
@@ -48,7 +48,7 @@ describe("the short links table", () => {
   it("lists the links of one author, newest first", async ({ expect }) => {
     const current = store();
     const links = shortLinksRepo(current);
-    const password = await hashPassword(KEY, "klasa4tp", counterRandom());
+    const password = await hashPassword(KEY, "klasa4tp-2026", counterRandom());
     for (const code of ["k7mq4ra", "k7mq4rb"]) {
       await links.create({
         code,
@@ -72,6 +72,7 @@ describe("the short links table", () => {
       {
         code: "k7mq4ra",
         target: TARGET,
+        file: null,
         createdAt: FIXED_CLOCK().toISOString(),
         expiresAt: "2027-10-27T08:00:00.000Z",
         revokedAt: null,
@@ -81,6 +82,7 @@ describe("the short links table", () => {
       {
         code: "k7mq4rb",
         target: TARGET,
+        file: null,
         createdAt: FIXED_CLOCK().toISOString(),
         expiresAt: "2027-10-27T08:00:00.000Z",
         revokedAt: null,

@@ -9,6 +9,7 @@ declare global {
     ACCESS_AUDIENCE: string;
     PANEL_ORIGIN: string;
     PII_KEY_PRIMARY?: string;
+    SHORT_LINK_KEY?: string | undefined;
     INDEXNOW_HOST?: string | undefined;
   }
 }

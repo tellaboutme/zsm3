@@ -2,8 +2,6 @@ import { CODE_ALPHABET, CODE_LENGTH } from "@zsm3/contracts/short-links";
 
 import type { RandomBytes } from "../storage/ids.ts";
 
-const DAY_MS = 86_400_000;
-
 export interface LinkWindow {
   readonly expiresAt: string;
   readonly revokedAt: string | null;
@@ -20,10 +18,6 @@ export function generateCode(random: RandomBytes): string {
 
 export function normaliseCode(value: string): string {
   return value.trim().toLowerCase();
-}
-
-export function expiryFrom(createdAt: Date, lifetimeDays: number): string {
-  return new Date(createdAt.getTime() + lifetimeDays * DAY_MS).toISOString();
 }
 
 export function hasLapsed(window: LinkWindow, now: Date): boolean {

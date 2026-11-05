@@ -49,6 +49,9 @@ it("labels every panel action", ({ expect }) => {
         "announcements.delete",
         "bells.save",
         "datasets.save",
+        "short_link.create",
+        "short_link.revoke",
+        "short_link.admin_revoke",
       ].map((action) => [action, auditAction(action)]),
     ),
   ).toMatchSnapshot();
