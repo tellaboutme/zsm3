@@ -31,7 +31,7 @@ export function problemPhrase(status: number): string {
 
 export const DEV_TOKEN_KEY = "panel-dev-token";
 
-function devAssertionHeaders(): Record<string, string> {
+export function devAssertionHeaders(): Record<string, string> {
   try {
     const token = sessionStorage.getItem(DEV_TOKEN_KEY);
     if (token !== null && token.trim().length > 0) {

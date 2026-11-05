@@ -61,6 +61,9 @@ export function memoryBucket(): MediaBucket {
     put: async (key, value) => {
       await Promise.resolve(stored.set(key, value));
     },
+    delete: async (key) => {
+      await Promise.resolve(stored.delete(key));
+    },
   };
 }
 
