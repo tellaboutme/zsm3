@@ -44,10 +44,11 @@ test("visitors walk from years through albums to photos", async ({ page, problem
   await page.goto("/szkola/galeria");
   await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
   await page.getByRole("link", { name: "2025/2026" }).click();
+  await page.waitForURL(YEAR_PATH, { waitUntil: "load" });
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Rok szkolny 2025/2026");
   await expect(page.getByText("Szkic albumu")).toHaveCount(0);
   await page.getByRole("link", { name: "Przykładowy album" }).click();
-  await expect(page).toHaveURL(ALBUM_PATH);
+  await page.waitForURL(ALBUM_PATH, { waitUntil: "load" });
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     new RegExp(`${ALBUM_PATH}$`, "u"),
