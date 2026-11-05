@@ -59,7 +59,7 @@ The panel shows no stored photo yet, because `/media/g/` arrives with the public
 
 ## Gallery API
 
-The gallery routes serve `admin` and `gallery_editor`. The public gallery comes in a later change, so nothing stored here is visible outside the panel yet. Upload rules are in architecture.md §7.5.
+The gallery routes serve `admin` and `gallery_editor`. The public gallery and the job that purges deleted files from R2 come in later changes, so nothing stored here is visible outside the panel yet. Upload rules are in architecture.md §7.5.
 
 | Route                                      | Purpose                                                    |
 | ------------------------------------------ | ---------------------------------------------------------- |
