@@ -11,6 +11,7 @@ import { healthRoutes } from "./routes/health.ts";
 import { mediaRoutes } from "./routes/media.ts";
 import { MAX_UPLOAD_BODY_BYTES, PANEL_UPLOAD_PREFIX } from "./routes/panel/files.ts";
 import { panelApp, type PanelAppOptions } from "./routes/panel/index.ts";
+import { isPhotoUploadPath, MAX_PHOTO_BODY_BYTES } from "./routes/panel/photos.ts";
 import { LINK_UPLOAD_PATH, MAX_LINK_UPLOAD_BODY_BYTES } from "./routes/panel/short-link-files.ts";
 import { shortLinkRoutes } from "./routes/short-links.ts";
 
@@ -20,7 +21,10 @@ export function bodyLimitFor(path: string): number {
   if (path.startsWith(PANEL_UPLOAD_PREFIX)) {
     return MAX_UPLOAD_BODY_BYTES;
   }
-  return path === LINK_UPLOAD_PATH ? MAX_LINK_UPLOAD_BODY_BYTES : MAX_BODY_BYTES;
+  if (path === LINK_UPLOAD_PATH) {
+    return MAX_LINK_UPLOAD_BODY_BYTES;
+  }
+  return isPhotoUploadPath(path) ? MAX_PHOTO_BODY_BYTES : MAX_BODY_BYTES;
 }
 
 const bodyLimitForPath: MiddlewareHandler<AppEnv> = async (c, next) => {

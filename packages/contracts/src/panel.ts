@@ -4,6 +4,7 @@ import { announcementInputSchema } from "./announcements.ts";
 import { bellScheduleSchema } from "./bells.ts";
 import { redirectSchema, schoolEventSchema } from "./content.ts";
 import { panelDatasetSaveSchema } from "./datasets.ts";
+import { GALLERY_ROUTE_NAMES } from "./gallery.ts";
 import { storedFileSchema } from "./media.ts";
 import {
   panelNewsItemSchema,
@@ -171,6 +172,7 @@ export const panelRouteNames = [
   "requests.list",
   "requests.get",
   "requests.transition",
+  ...GALLERY_ROUTE_NAMES,
 ] as const;
 
 export type PanelRouteName = (typeof panelRouteNames)[number];
