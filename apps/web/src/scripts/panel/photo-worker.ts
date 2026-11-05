@@ -62,6 +62,9 @@ async function reply({ id, file }: PhotoRequest): Promise<PhotoReply> {
 }
 
 addEventListener("message", (event: MessageEvent<PhotoRequest>) => {
+  if (event.origin !== "" && event.origin !== location.origin) {
+    return;
+  }
   void reply(event.data).then((answer) => {
     postMessage(answer, { transfer: answer.ok ? [answer.small, answer.large] : [] });
   });
