@@ -25,7 +25,8 @@
     "./short-links": "./src/short-links.ts",
     "./gallery": "./src/gallery.ts",
     "./gallery-limits": "./src/gallery-limits.ts",
-    "./gallery-public": "./src/gallery-public.ts"
+    "./gallery-public": "./src/gallery-public.ts",
+    "./short-link-expiry": "./src/short-link-expiry.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

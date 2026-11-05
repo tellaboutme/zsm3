@@ -35,6 +35,7 @@ function duringFirstWrite(during: () => Promise<void>): PanelHarness {
       ...harness.env,
       MEDIA: {
         get: async (key) => MEDIA.get(key),
+        delete: async (key) => MEDIA.delete(key),
         put: async (key, value) => {
           if (armed) {
             armed = false;

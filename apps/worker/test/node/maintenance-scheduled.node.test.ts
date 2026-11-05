@@ -1,6 +1,7 @@
 import { describe, it } from "vitest";
 
 import { addAudit, auditIds, harness, NOW, SECRETS, setStatus } from "./maintenance-harness.ts";
+import { memoryBucket } from "./panel-support.ts";
 import { runScheduledMaintenance } from "../../src/jobs/retention.ts";
 
 describe("runScheduledMaintenance", () => {
@@ -20,9 +21,17 @@ describe("runScheduledMaintenance", () => {
       .run();
     const count = async () =>
       await h.store.db.prepare("SELECT count(*) AS total FROM rate_limits").first();
-    await runScheduledMaintenance({ ...SECRETS, DB: h.store.db }, h.store, NOW);
+    await runScheduledMaintenance(
+      { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() },
+      h.store,
+      NOW,
+    );
     await expect(count()).resolves.toMatchObject({ total: 2 });
-    await runScheduledMaintenance({ ...SECRETS, DB: h.store.db }, h.store, NOW);
+    await runScheduledMaintenance(
+      { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() },
+      h.store,
+      NOW,
+    );
     await expect(count()).resolves.toMatchObject({ total: 1 });
   });
   it("resumes beyond the per-run cap without waiting for another day", async ({ expect }) => {
@@ -35,7 +44,7 @@ describe("runScheduledMaintenance", () => {
         '2020-01-01T00:00:00Z', '2020-01-01T00:00:00Z', '2020-01-01T00:00:00Z' FROM numbers`,
       )
       .run();
-    const env = { ...SECRETS, DB: h.store.db };
+    const env = { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() };
     expect((await runScheduledMaintenance(env, h.store, NOW)).erased).toBe(1000);
     expect((await runScheduledMaintenance(env, h.store, NOW)).erased).toBe(1);
     expect((await runScheduledMaintenance(env, h.store, NOW)).erased).toBe(0);
@@ -53,11 +62,23 @@ describe("runScheduledMaintenance", () => {
         closedAt: "2020-01-01T00:00:00Z",
       });
     }
-    const first = await runScheduledMaintenance({ ...SECRETS, DB: h.store.db }, h.store, NOW);
+    const first = await runScheduledMaintenance(
+      { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() },
+      h.store,
+      NOW,
+    );
     expect(first.erased).toBe(101);
-    const second = await runScheduledMaintenance({ ...SECRETS, DB: h.store.db }, h.store, NOW);
+    const second = await runScheduledMaintenance(
+      { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() },
+      h.store,
+      NOW,
+    );
     expect(second.erased).toBe(0);
-    const third = await runScheduledMaintenance({ ...SECRETS, DB: h.store.db }, h.store, NOW);
+    const third = await runScheduledMaintenance(
+      { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() },
+      h.store,
+      NOW,
+    );
     expect(third.erased).toBe(0);
     expect(await h.requests.listClosedBefore(NOW.toISOString(), 100)).toHaveLength(0);
   });
@@ -75,7 +96,11 @@ describe("runScheduledMaintenance", () => {
     await h.requests.erasePii("anonymous-old", "2020-01-01T00:00:00Z");
     await h.add("fresh-open");
 
-    const first = await runScheduledMaintenance({ ...SECRETS, DB: h.store.db }, h.store, NOW);
+    const first = await runScheduledMaintenance(
+      { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() },
+      h.store,
+      NOW,
+    );
     expect(first).toEqual({
       sent: 0,
       retried: 0,
@@ -93,7 +118,7 @@ describe("runScheduledMaintenance", () => {
       closedAt: null,
     });
     const sameDay = await runScheduledMaintenance(
-      { ...SECRETS, DB: h.store.db },
+      { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() },
       h.store,
       new Date(NOW.getTime() + 3_600_000),
     );
@@ -109,7 +134,7 @@ describe("runScheduledMaintenance", () => {
     expect(await h.requests.findById("fresh-open")).toMatchObject({ status: "submitted" });
 
     const nextDay = await runScheduledMaintenance(
-      { ...SECRETS, DB: h.store.db },
+      { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() },
       h.store,
       new Date(NOW.getTime() + 86_400_000),
     );
@@ -134,7 +159,7 @@ describe("runScheduledMaintenance", () => {
       SELECT 'audit-' || n, '2020-01-01T00:00:00Z', NULL, 'test.retention', 'request', 'row-' || n, '{}' FROM numbers`,
       )
       .run();
-    const env = { ...SECRETS, DB: h.store.db };
+    const env = { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() };
     expect((await runScheduledMaintenance(env, h.store, NOW)).auditDeleted).toBe(1000);
     expect((await runScheduledMaintenance(env, h.store, NOW)).auditDeleted).toBe(1);
     expect(await auditIds(h)).toHaveLength(0);
@@ -148,7 +173,11 @@ describe("runScheduledMaintenance", () => {
     await addAudit(h, "boundary", "2024-10-22T08:00:00.000Z");
     await addAudit(h, "recent", "2026-10-21T08:00:00.000Z");
 
-    const result = await runScheduledMaintenance({ ...SECRETS, DB: h.store.db }, h.store, NOW);
+    const result = await runScheduledMaintenance(
+      { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() },
+      h.store,
+      NOW,
+    );
 
     expect(result.auditDeleted).toBe(1);
     expect(await auditIds(h)).toEqual(["boundary", "recent"]);
@@ -157,7 +186,7 @@ describe("runScheduledMaintenance", () => {
   it("prunes audit rows at most once per utc day", async ({ expect }) => {
     const h = harness();
     await addAudit(h, "first", "2020-01-01T00:00:00Z");
-    const env = { ...SECRETS, DB: h.store.db };
+    const env = { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() };
     expect((await runScheduledMaintenance(env, h.store, NOW)).auditDeleted).toBe(1);
 
     await addAudit(h, "second", "2020-01-01T00:00:00Z");

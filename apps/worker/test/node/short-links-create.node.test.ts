@@ -5,6 +5,7 @@ import { createShortLink, type CreateDeps } from "../../src/short-links/create.t
 import { openLink, unlockLink } from "../../src/short-links/resolve.ts";
 import type { Store } from "../../src/storage/database.ts";
 import { rateLimitsRepo } from "../../src/storage/rate-limits-repo.ts";
+import { shortLinkFailuresRepo } from "../../src/storage/short-link-failures-repo.ts";
 import { shortLinksRepo, type ShortLinksRepo } from "../../src/storage/short-links-repo.ts";
 
 const KEY = "short-link-pepper-0123456789-0123456789";
@@ -19,6 +20,7 @@ function deps(current: Store, passwordKey: string | undefined) {
   return {
     links: shortLinksRepo(current),
     rateLimits: rateLimitsRepo(current),
+    failures: shortLinkFailuresRepo(current),
     passwordKey,
   };
 }
@@ -31,7 +33,7 @@ describe("creating a short link", () => {
   it("stores the target and returns a code that resolves", async ({ expect }) => {
     const current = store();
     const outcome = await createShortLink(creation(current, KEY), {
-      body: { target: TARGET, lifetimeDays: 30 },
+      body: { target: TARGET },
       createdBy: "nauczyciel@zespolszkolmechanicznych.edu.pl",
       now: NOW,
     });
@@ -47,7 +49,7 @@ describe("creating a short link", () => {
   it("locks a link behind the password the teacher chose", async ({ expect }) => {
     const current = store();
     const outcome = await createShortLink(creation(current, KEY), {
-      body: { target: TARGET, lifetimeDays: 30, password: "klasa4tp" },
+      body: { target: TARGET, password: "klasa4tp-2026" },
       createdBy: "nauczyciel@zespolszkolmechanicznych.edu.pl",
       now: NOW,
     });
@@ -62,7 +64,7 @@ describe("creating a short link", () => {
       kind: "locked",
     });
     await expect(
-      unlockLink(deps(current, KEY), asked.code, "klasa4tp", asked.now),
+      unlockLink(deps(current, KEY), asked.code, "klasa4tp-2026", asked.now),
     ).resolves.toEqual({ kind: "redirect", target: TARGET });
   });
 
@@ -71,7 +73,7 @@ describe("creating a short link", () => {
 
     await expect(
       createShortLink(creation(current, KEY), {
-        body: { target: "http://example.org", lifetimeDays: 30 },
+        body: { target: "http://example.org" },
         createdBy: "a@b.pl",
         now: NOW,
       }),
@@ -83,7 +85,7 @@ describe("creating a short link", () => {
 
     await expect(
       createShortLink(creation(current, undefined), {
-        body: { target: TARGET, lifetimeDays: 30, password: "tajne1" },
+        body: { target: TARGET, password: "tajne-haslo-1" },
         createdBy: "a@b.pl",
         now: NOW,
       }),
@@ -94,37 +96,76 @@ describe("creating a short link", () => {
     const current = store();
     const taken: ShortLinksRepo = {
       ...shortLinksRepo(current),
-      find: async () =>
-        Promise.resolve({
-          code: "k7mq4ra",
-          target: TARGET,
-          expiresAt: "2027-10-27T08:00:00.000Z",
-          revokedAt: null,
-          password: null,
-        }),
+      inUse: async () => Promise.resolve(true),
     };
 
     await expect(
       createShortLink(
         { links: taken, random: current.random, passwordKey: KEY },
-        { body: { target: TARGET, lifetimeDays: 30 }, createdBy: "a@b.pl", now: NOW },
+        { body: { target: TARGET }, createdBy: "a@b.pl", now: NOW },
       ),
     ).resolves.toEqual({ kind: "exhausted" });
   });
 
-  it("expires a link after the chosen number of days", async ({ expect }) => {
+  it("expires a link at the start of the next school year in Warsaw", async ({ expect }) => {
     const current = store();
     const outcome = await createShortLink(creation(current, KEY), {
-      body: { target: TARGET, lifetimeDays: 1 },
+      body: { target: TARGET },
       createdBy: "a@b.pl",
       now: NOW,
     });
 
     expect(outcome.kind).toBe("created");
     if (outcome.kind !== "created") return;
-    const later = new Date("2026-10-28T08:00:01.000Z");
-    await expect(openLink(deps(current, KEY), outcome.code, later)).resolves.toEqual({
+    const lastMoment = new Date("2027-08-31T21:59:59.999Z");
+    await expect(openLink(deps(current, KEY), outcome.code, lastMoment)).resolves.toEqual({
+      kind: "redirect",
+      target: TARGET,
+    });
+    const firstOfSeptember = new Date("2027-08-31T22:00:00.000Z");
+    await expect(openLink(deps(current, KEY), outcome.code, firstOfSeptember)).resolves.toEqual({
       kind: "gone",
     });
+    await expect(shortLinksRepo(current).created(outcome.code, "a@b.pl")).resolves.toMatchObject({
+      expiresAt: "2027-08-31T22:00:00.000Z",
+      target: TARGET,
+      file: null,
+    });
+  });
+
+  it("refuses the lifetime the old contract accepted", async ({ expect }) => {
+    const current = store();
+
+    await expect(
+      createShortLink(creation(current, KEY), {
+        body: { target: TARGET, lifetimeDays: 30 },
+        createdBy: "a@b.pl",
+        now: NOW,
+      }),
+    ).resolves.toEqual({ kind: "invalid" });
+  });
+
+  it("records who created the link in the audit log without the target or password", async ({
+    expect,
+  }) => {
+    const current = store();
+    const outcome = await createShortLink(creation(current, KEY), {
+      body: { target: TARGET, password: "klasa4tp-2026" },
+      createdBy: "a@b.pl",
+      now: NOW,
+    });
+    if (outcome.kind !== "created") throw new Error("fixture");
+    const rows = await current.db
+      .prepare("SELECT actor_email, action, entity, entity_id, details_json FROM audit_log")
+      .all();
+    expect(rows.results).toEqual([
+      {
+        actor_email: "a@b.pl",
+        action: "short_link.create",
+        entity: "short_link",
+        entity_id: outcome.code,
+        details_json: JSON.stringify({ kind: "url", passwordProtected: true }),
+      },
+    ]);
   });
 });

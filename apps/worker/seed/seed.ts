@@ -13,6 +13,7 @@ import { seedGallery } from "./gallery.ts";
 import { seedNews } from "./news/index.ts";
 import { seedPages } from "./pages/index.ts";
 import { seedRequests } from "./requests.ts";
+import { seedShortLinkFiles } from "./short-link-files.ts";
 import { seedShortLinks } from "./short-links.ts";
 import { seedStaff } from "./staff.ts";
 import { MissingSecretError, requestsConfig, type RequestsSecretEnv } from "../src/env.ts";
@@ -78,7 +79,9 @@ if (mediaDirectory !== undefined) {
   }
 }
 await seedGallery(env.DB, env.MEDIA);
-const seededLinks = await seedShortLinks(store, env.SHORT_LINK_KEY);
+const seededLinks =
+  (await seedShortLinks(store, env.SHORT_LINK_KEY)) +
+  (await seedShortLinkFiles(store, env.MEDIA, env.SHORT_LINK_KEY));
 let seededRequests = 0;
 let requestsAvailable = true;
 try {

@@ -3,9 +3,14 @@ import { describe, it } from "vitest";
 import {
   CODE_ALPHABET,
   CODE_LENGTH,
-  lifetimeDaysSchema,
+  linkFileContentTypes,
+  linkFileFormats,
+  linkFileFormatSchema,
+  linkFileNameSchema,
+  linkFileSchema,
   linkPasswordSchema,
-  MAX_LIFETIME_DAYS,
+  MAX_LINK_FILE_BYTES,
+  MAX_LINK_FILE_NAME_LENGTH,
   MAX_PASSWORD_LENGTH,
   MAX_TARGET_LENGTH,
   MIN_PASSWORD_LENGTH,
@@ -53,45 +58,72 @@ describe("short link targets", () => {
   });
 });
 
-describe("link lifetime and password", () => {
-  it("allows between one day and a school year", ({ expect }) => {
-    expect(MAX_LIFETIME_DAYS).toBe(365);
-    expect(lifetimeDaysSchema.safeParse(1).success).toBe(true);
-    expect(lifetimeDaysSchema.safeParse(MAX_LIFETIME_DAYS).success).toBe(true);
-    expect(lifetimeDaysSchema.safeParse(0).success).toBe(false);
-    expect(lifetimeDaysSchema.safeParse(MAX_LIFETIME_DAYS + 1).success).toBe(false);
-    expect(lifetimeDaysSchema.safeParse(1.5).success).toBe(false);
-  });
-
+describe("link password", () => {
   it("keeps passwords long enough to be worth checking", ({ expect }) => {
-    expect([MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH]).toEqual([6, 200]);
+    expect([MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH]).toEqual([12, 200]);
     expect(linkPasswordSchema.safeParse("klasa4".padEnd(MIN_PASSWORD_LENGTH, "x")).success).toBe(
       true,
     );
-    expect(linkPasswordSchema.safeParse("krot").success).toBe(false);
+    expect(
+      linkPasswordSchema.safeParse("klasa4".padEnd(MIN_PASSWORD_LENGTH - 1, "x")).success,
+    ).toBe(false);
+    expect(linkPasswordSchema.safeParse("123456").success).toBe(false);
     expect(linkPasswordSchema.safeParse("x".repeat(MAX_PASSWORD_LENGTH + 1)).success).toBe(false);
   });
 });
 
 describe("a new short link", () => {
-  it("takes a target, a lifetime and an optional password", ({ expect }) => {
+  it("takes a target and an optional password, and no lifetime", ({ expect }) => {
+    expect(newShortLinkSchema.safeParse({ target: "https://example.org/a" }).success).toBe(true);
+    expect(
+      newShortLinkSchema.safeParse({ target: "https://example.org/a", password: "tajne-haslo-1" })
+        .success,
+    ).toBe(true);
+    expect(
+      newShortLinkSchema.safeParse({ target: "https://example.org/a", password: "tajne1" }).success,
+    ).toBe(false);
     expect(
       newShortLinkSchema.safeParse({ target: "https://example.org/a", lifetimeDays: 30 }).success,
-    ).toBe(true);
-    expect(
-      newShortLinkSchema.safeParse({
-        target: "https://example.org/a",
-        lifetimeDays: 30,
-        password: "tajne1",
-      }).success,
-    ).toBe(true);
-    expect(
-      newShortLinkSchema.safeParse({
-        target: "https://example.org/a",
-        lifetimeDays: 30,
-        notes: "nie",
-      }).success,
     ).toBe(false);
-    expect(newShortLinkSchema.safeParse({ lifetimeDays: 30 }).success).toBe(false);
+    expect(
+      newShortLinkSchema.safeParse({ target: "https://example.org/a", notes: "nie" }).success,
+    ).toBe(false);
+    expect(newShortLinkSchema.safeParse({ password: "tajne1" }).success).toBe(false);
+  });
+});
+
+describe("files behind short links", () => {
+  it("accepts teaching documents only, with their exact media types", ({ expect }) => {
+    expect(linkFileFormats).toEqual(["pdf", "docx", "xlsx", "pptx", "odt", "ods", "odp"]);
+    expect(linkFileContentTypes).toEqual({
+      pdf: "application/pdf",
+      docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      odt: "application/vnd.oasis.opendocument.text",
+      ods: "application/vnd.oasis.opendocument.spreadsheet",
+      odp: "application/vnd.oasis.opendocument.presentation",
+    });
+    for (const format of ["zip", "html", "svg", "js", "exe", "docm"]) {
+      expect(linkFileFormatSchema.safeParse(format).success).toBe(false);
+    }
+  });
+
+  it("bounds the size and the name of a file", ({ expect }) => {
+    expect(MAX_LINK_FILE_BYTES).toBe(20 * 1024 * 1024);
+    expect(MAX_LINK_FILE_NAME_LENGTH).toBe(160);
+    expect(linkFileNameSchema.safeParse("").success).toBe(false);
+    expect(linkFileNameSchema.safeParse("a".repeat(MAX_LINK_FILE_NAME_LENGTH)).success).toBe(true);
+    expect(linkFileNameSchema.safeParse("a".repeat(MAX_LINK_FILE_NAME_LENGTH + 1)).success).toBe(
+      false,
+    );
+    const file = { name: "karta.pdf", format: "pdf", bytes: 1 };
+    expect(linkFileSchema.safeParse(file).success).toBe(true);
+    expect(linkFileSchema.safeParse({ ...file, bytes: 0 }).success).toBe(false);
+    expect(linkFileSchema.safeParse({ ...file, bytes: MAX_LINK_FILE_BYTES }).success).toBe(true);
+    expect(linkFileSchema.safeParse({ ...file, bytes: MAX_LINK_FILE_BYTES + 1 }).success).toBe(
+      false,
+    );
+    expect(linkFileSchema.safeParse({ ...file, key: "s/x" }).success).toBe(false);
   });
 });

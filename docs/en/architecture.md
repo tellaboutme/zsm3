@@ -196,14 +196,25 @@ bell_schedule
   id = 1, data_json (regular lessons, named variants, days that use a variant), updated_at
 short_links
   code PK              7 characters from 2-9 a-k m n p-z, so 0/1/l/o are never read wrongly
-  target_url           https only, validated by the contract schema
+  target_url           https only, validated by the contract schema; '' for a file link
   password_salt BLOB   16 random bytes; NULL together with password_hash
   password_hash BLOB   HMAC-SHA256(SHORT_LINK_KEY, base64url(salt):password)
   created_by           the staff member who made the link
   created_at, expires_at TEXT, revoked_at NULL, clicks INTEGER
   CHECK ((password_hash IS NULL) = (password_salt IS NULL)), CHECK (expires_at > created_at)
   INDEX (expires_at), INDEX (created_by, created_at)
+short_link_files
+  object_key PK        s/<uuidv7>, made by the Worker; never derived from the upload
+  code UNIQUE NULL     the link it belongs to; NULL while the upload is in progress
+  name, format, bytes  cleaned display name, format detected from the content, size
+  created_by, created_at, removed_at NULL (set once the R2 object is deleted)
+  INDEX (removed_at, created_at)
+short_link_failures
+  id INTEGER PK, code TEXT, attempted_at INTEGER (milliseconds); nothing about the visitor
+  INDEX (code, attempted_at), INDEX (attempted_at)
 ```
+
+A short link expires at the exclusive instant `1 September 00:00 Europe/Warsaw` that ends the school year in which it was made (`shortLinkExpiry` in `@zsm3/contracts/short-link-expiry`); the Warsaw date and offset come from `Intl` with an explicit time zone, never from the host. Links issued under the earlier day-count contract keep the expiry stored with them.
 
 Repositories in `apps/worker/src/storage` take a `Store` (`db`, `clock`, `random`), use static SQL with `.bind()` only, and parse every row with a schema. They run against real SQLite (`node:sqlite`) in the Node tests, where coverage and mutation testing run, and against D1 in the workerd tests.
 
@@ -294,9 +305,17 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 2. A link that is unknown or malformed answers 404, one that expired or was revoked answers 410, both as a page in the site's own design rather than a problem document.
 3. A link without a password redirects (302) to its target and counts the click.
 4. A link with a password renders a form. The form posts to `POST /api/short-links/<code>` in the Worker, because the Astro middleware refuses every method other than GET. The route accepts the submission when the `Origin` equals the site or the browser reports `Sec-Fetch-Site: same-origin`, a header a script cannot set; the site sends `Referrer-Policy: no-referrer`, under which a form navigation carries `Origin: null`, so the origin alone would refuse the one path that works without JavaScript. With a form body it then answers 303 — to the target when the password matches, otherwise back to the page with an error flag in the query, so a refresh never resubmits the password.
-5. Guesses are limited to 30 per link per 10 minutes through `rate_limits`, keyed by SHA-256 of the code. The limit is per link rather than per visitor: nothing derived from an address is stored, and a distributed guesser gains nothing.
+5. Guesses are limited to 30 per link per 10 minutes through `rate_limits`, keyed by SHA-256 of the code, and wrong passwords to 100 per link in any rolling 24 hours through `short_link_failures`, one row per attempt holding only the code and the time. After the 10-minute check, one statement inserts a row only while fewer than 100 rows for the code are at most 24 hours old (`attempted_at >= now - 24 h`), so concurrent requests on D1 can never take a 101st slot and no fixed window lets a second hundred in at its edge; a failure stops counting 24 hours and 1 ms after it happened. The slot is taken before the password is checked: a link with no slot left answers `?blad=doba` even to the right password and gives no answer to test against, and a right password gives its slot back. Only wrong passwords keep a slot: a correct one, an empty form, a throttled attempt, an open link and a download never do, and a correct password does not clear older failures, so a teacher's own unlock cannot refill a guesser's budget. The 10-minute counter is consumed before every check; a right password gives back only its own attempt, and only within the window that attempt was counted in, so earlier wrong guesses stay counted and a class opening the link together is never throttled. Both limits are per link rather than per visitor: nothing derived from an address is stored, and a distributed guesser gains nothing. The cost is that someone who sends 100 wrong passwords locks the link for everyone until the day ends; the teacher can then share a new link. New passwords need at least 12 characters (`MIN_PASSWORD_LENGTH`); passwords set before the change keep working, because only creation checks the length.
+6. A link to a file never redirects. The page shows a download button for an open file and the password form for a protected one, without naming the file. Both forms post to the same `POST /api/short-links/<code>`, which runs the checks above and then streams the R2 object itself with `Content-Disposition: attachment`, the content type of the detected format, `Cache-Control: private, no-store` and the API security headers. There is no URL for the object: `/media` serves only `d/` keys listed in `files`, and private objects live under `s/`.
 
-### 7.8 Social and search metadata
+### 7.8 Panel: short links
+
+- Staff with a content role create links at `/panel/linki`: `POST /api/panel/short-links` with `{ target, password? }`, or `POST /api/panel/short-links/files` with a multipart body (`file`, optional `password`) of at most 20 MB plus form overhead. The list (`GET /short-links`) and revocation (`DELETE /short-links/:code`) stay limited to the author's own links; no response carries a password, salt, digest or object key. Only the `admin` role may list every active link (`GET /short-links/all`: code, author, page or file, dates, whether a password is set; no destination, file name or object key) and revoke any of them (`DELETE /short-links/all/:code`), for example the links of a teacher who has left; that revocation is audited as `short_link.admin_revoke` with the administrator as the actor and the author in the details. Every creation and revocation writes `audit_log` in the same D1 batch, and a revocation that changes nothing writes nothing.
+- An upload is accepted by its content, not its name or declared type: a PDF signature, an OOXML container with its main part (DOCX, XLSX, PPTX), or an ODF container whose stored `mimetype` names the format (ODT, ODS, ODP). The archive is read from its central directory only, never decompressed; an archive that does not begin with a local file header, a directory that does not end the file exactly, spans disks, uses ZIP64 or lists more than 5000 entries is refused, and so is any VBA project, ActiveX part, Excel 4.0 macro sheet (`macrosheets/`), embedded OLE object (`embeddings/oleObject*.bin`, which covers packaged programs and legacy Equation 3.0 objects; embedded Office documents such as a chart's workbook are kept) or ODF `Basic/` and `Scripts/` folder. This is a structural check, not malware scanning: PDF JavaScript, actions and embedded files, ODF embedded objects, external template or link references and parser exploits pass unless the container rule above refuses them. Downloads are always `Content-Disposition: attachment` with the detected format's `Content-Type`, `X-Content-Type-Options: nosniff` and a `default-src 'none'` CSP, so nothing renders or runs under the site's origin; what remains is the risk of opening a document from a signed-in staff member in a desktop application. The file extension must match the detected format. ZIP and other archives are not accepted.
+- The Worker first records the upload in `short_link_files` with no code, then writes the R2 object under a new `s/<uuidv7>` key, then inserts the link, attaches the file and writes the audit row in one batch that changes nothing unless the pending row still exists. When R2 or D1 fails, the Worker deletes the object and the pending row; if that also fails, the sweep below finds the pending row after an hour.
+- Housekeeping runs before, and independently of, the e-wniosek outbox and retention, which need the e-wniosek secrets. Each step (rate limits, failed passwords, lapsed links, private files) runs even when another fails; a failure is logged as `housekeeping_step_failed` with the step and error name only, and the scheduled run then fails, so it stays visible. Every step is idempotent. The scheduled job (every 15 minutes, together with the rate-limit, lapsed-link and failed-password pruning; failed-password rows go once more than 24 hours old, 1000 per run) deletes the R2 object of every file whose link was revoked, has expired, has been pruned, or never finished uploading within an hour, 50 per run, marks the row removed, and forgets removed rows whose link is gone. Each upload has its own object, so deleting one never affects another link, and a new link never takes a code that a file row still holds.
+
+### 7.9 Social and search metadata
 
 - `Base.astro` renders canonical URL, `robots`, Open Graph (`og:type`, `og:title`, `og:description`, `og:url`, `og:locale`) and Twitter (`summary_large_image` with title, description and image) for every public page.
 - The shared card is `apps/web/public/og-default.png`, a 1200×630 file. `SOCIAL_IMAGE` in `apps/web/src/lib/seo.ts` is the single source of the path, size and alt text, so the layout and the audit test cannot drift apart.
@@ -352,6 +371,7 @@ The gallery upload page in the panel is the only exception to the site-wide CSP,
 | Deleted photos                                 | 30 days in R2, then physically removed                 |
 | Files of an abandoned photo upload             | 24 hours in R2, then physically removed                |
 | Expired or revoked short links                 | 30 days after they stop working, then the row is gone  |
+| Files behind short links                       | deleted from R2 within 15 minutes of the link stopping |
 
 A daily Cron job enforces retention and records every run in `audit_log`. That job deletes `audit_log` rows older than two years in batches of 100 (`RETENTION_BATCH`), at most 10 batches per tick (`RETENTION_BATCHES_PER_RUN`), so a backlog drains across ticks instead of one long query; the `audit_log_at` index serves the cutoff predicate. The daily `cron_state` guard applies the request retention and the audit prune at most once per UTC day, and a remaining backlog resumes on the next tick without marking the day as done.
 
