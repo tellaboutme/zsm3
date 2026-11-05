@@ -161,6 +161,15 @@ test.describe("page frame", () => {
     const crumbs = page.getByRole("navigation", { name: "Okruszki" });
 
     await expect(crumbs.getByRole("link", { name: "Strona główna" })).toHaveAttribute("href", "/");
+    const textTops = await crumbs.locator("li").evaluateAll((items) =>
+      items.map((item) => {
+        const text = item.querySelector("a, [aria-current]")?.firstChild;
+        const range = document.createRange();
+        range.selectNodeContents(text ?? item);
+        return Math.round(range.getBoundingClientRect().top);
+      }),
+    );
+    expect(new Set(textTops).size).toBe(1);
     await expect(crumbs.locator('[aria-current="page"]')).toHaveText("Wzornik");
   });
 
