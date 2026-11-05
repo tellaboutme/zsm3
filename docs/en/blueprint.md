@@ -208,7 +208,7 @@ Polish, lowercase, hyphenated slugs; no dates in page URLs except news; every ol
 ├─ /deklaracja-dostepnosci  /dostepnosc   Accessibility statement, ETR and PJM
 ├─ /rodo  /polityka-prywatnosci           Data protection
 ├─ /zamowienia-publiczne  /wynajem  /konkursy
-├─ /s/{code}                              Short links (redirect)
+├─ /s/{code}                              Short links (redirect or private file)
 └─ /panel/…                               Staff panel (behind Access)
 ```
 

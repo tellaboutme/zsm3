@@ -12,6 +12,7 @@ import {
   staffMember,
 } from "./panel-fixtures.ts";
 import { galleryCases, GALLERY_STATUSES } from "./panel-matrix-gallery.ts";
+import { linkCases } from "./panel-matrix-links.ts";
 import { siteCases } from "./panel-matrix-site.ts";
 import { currentRevision } from "./panel-revision-support.ts";
 import type { PanelHarness } from "./panel-support.ts";
@@ -46,7 +47,10 @@ export const OK_STATUS: Record<PanelRouteName, number> = {
   "files.upload": 201,
   "redirects.list": 200,
   "short-links.list": 200,
+  "short-links.create": 201,
   "short-links.revoke": 422,
+  "short-links.all": 200,
+  "short-links.admin-revoke": 422,
   "redirects.save": 200,
   "redirects.delete": 204,
   "staff.list": 200,
@@ -167,15 +171,6 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
       call: async (token) => panelJsonCall(harness, "GET", "/redirects", { token }),
     },
     {
-      name: "short-links.list",
-      call: async (token) => panelJsonCall(harness, "GET", "/short-links", { token }),
-    },
-    {
-      name: "short-links.revoke",
-      call: async (token) =>
-        panelJsonCall(harness, "DELETE", "/short-links/invalid", { token, body: {} }),
-    },
-    {
       name: "redirects.save",
       call: async (token) =>
         panelJsonCall(harness, "PUT", "/redirects", {
@@ -200,6 +195,7 @@ export function routeCases(harness: PanelHarness): readonly RouteCase[] {
           body: { entity: "staff", item: staffMember("nowy@zsm3.test", "editor", true) },
         }),
     },
+    ...linkCases(harness),
     ...siteCases(harness, rolesByToken),
     ...galleryCases(harness, rolesByToken),
   ];
