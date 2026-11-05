@@ -1,0 +1,178 @@
+---
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@zsm3/contracts/short-links";
+
+import Panel from "../../../layouts/panel.astro";
+
+import "../../../styles/panel-requests.css";
+import "../../../styles/panel-links.css";
+---
+
+<Panel title="Krótkie linki — ZSM3">
+  <div class="panel-page" data-panel-page="links">
+    <div class="panel-gate" data-panel="gate">
+      <div class="panel-note" data-panel="gate-text" role="status" aria-live="polite">
+        <p>Sprawdzam dostęp do panelu…</p>
+      </div>
+      <button type="button" data-panel="gate-retry">
+        Ponów próbę
+      </button>
+    </div>
+    <div class="panel-page" data-panel="app" hidden>
+      <h1>Krótkie linki</h1>
+      <p>
+        Krótki link prowadzi uczniów do strony w internecie albo do pliku przesłanego tutaj. Plik
+        widzą tylko osoby, które mają link i — jeśli je ustawisz — hasło.
+      </p>
+      <section class="panel-links-create" aria-labelledby="linki-nowy">
+        <h2 id="linki-nowy">Nowy link</h2>
+        <form class="panel-form" data-panel="link-form" novalidate>
+          <fieldset>
+            <legend>Dokąd prowadzi link</legend>
+            <label class="panel-choice">
+              <input type="radio" name="kind" value="url" checked />
+              Do strony internetowej
+            </label>
+            <label class="panel-choice">
+              <input type="radio" name="kind" value="file" />
+              Do pliku z komputera
+            </label>
+          </fieldset>
+          <label data-panel="link-target-field">
+            Adres strony (zaczyna się od https://)
+            <input
+              type="url"
+              name="target"
+              inputmode="url"
+              autocomplete="off"
+              spellcheck="false"
+              maxlength="2000"
+              aria-describedby="linki-blad"
+            />
+          </label>
+          <label data-panel="link-file-field" hidden>
+            Plik PDF, DOCX, XLSX, PPTX, ODT, ODS lub ODP (do 20 MB)
+            <input
+              type="file"
+              name="file"
+              accept=".pdf,.docx,.xlsx,.pptx,.odt,.ods,.odp"
+              aria-describedby="linki-blad"
+            />
+          </label>
+          <label>
+            Hasło (nieobowiązkowe, co najmniej {MIN_PASSWORD_LENGTH} znaków)
+            <input
+              type="password"
+              name="password"
+              autocomplete="new-password"
+              minlength={MIN_PASSWORD_LENGTH}
+              maxlength={MAX_PASSWORD_LENGTH}
+              aria-describedby="linki-haslo-opis linki-blad"
+            />
+          </label>
+          <p class="panel-hint" id="linki-haslo-opis">
+            Najłatwiej zapamiętać kilka słów połączonych łącznikiem, na przykład
+            zielony-rower-po-deszczu. Hasło przekaż uczniom osobno, na przykład na lekcji. Nie
+            zobaczysz go ponownie.
+          </p>
+          <p class="panel-links-expiry" data-panel="link-expiry"></p>
+          <p
+            class="panel-note"
+            id="linki-blad"
+            data-panel="link-status"
+            role="status"
+            aria-live="polite"
+          ></p>
+          <div class="panel-actions">
+            <button type="submit" class="panel-save" data-panel="link-submit">
+              Utwórz link
+            </button>
+          </div>
+        </form>
+        <div class="panel-links-result" data-panel="link-result" hidden>
+          <h3 id="linki-gotowy" tabindex="-1" data-panel="link-result-title">
+            Link jest gotowy
+          </h3>
+          <label>
+            Krótki link
+            <input type="text" readonly data-panel="link-result-url" />
+          </label>
+          <div class="panel-actions">
+            <button type="button" data-panel="link-result-copy">
+              Kopiuj link
+            </button>
+          </div>
+        </div>
+      </section>
+      <section aria-labelledby="linki-lista">
+        <h2 id="linki-lista">Twoje linki</h2>
+        <div class="panel-row">
+          <button type="button" data-panel="links-refresh">
+            Odśwież listę
+          </button>
+        </div>
+        <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
+        <ul class="panel-links-list" data-panel="link-rows"></ul>
+        <div class="panel-confirm" data-panel="link-confirm" hidden>
+          <p id="linki-potwierdzenie" data-panel="link-confirm-text"></p>
+          <div class="panel-actions">
+            <button
+              type="button"
+              class="panel-save"
+              data-panel="link-confirm-yes"
+              aria-describedby="linki-potwierdzenie"
+            >
+              Tak, unieważnij link
+            </button>
+            <button type="button" data-panel="link-confirm-no">
+              Anuluj
+            </button>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <button type="button" data-panel="links-more" hidden>
+            Pokaż starsze
+          </button>
+        </div>
+      </section>
+      <section aria-labelledby="linki-admin" data-panel="admin-links" hidden>
+        <h2 id="linki-admin">Aktywne linki wszystkich pracowników</h2>
+        <p class="panel-hint">
+          Widzisz tę część jako administrator. Unieważnij tu link osoby, która odeszła ze szkoły
+          albo nie może tego zrobić sama. Lista nie pokazuje adresów, plików ani haseł.
+        </p>
+        <div class="panel-row">
+          <button type="button" data-panel="admin-refresh">
+            Odśwież listę
+          </button>
+        </div>
+        <p class="panel-note" data-panel="admin-status" role="status" aria-live="polite"></p>
+        <ul class="panel-links-list" data-panel="admin-rows"></ul>
+        <div class="panel-confirm" data-panel="admin-confirm" hidden>
+          <p id="linki-admin-potwierdzenie" data-panel="admin-confirm-text"></p>
+          <div class="panel-actions">
+            <button
+              type="button"
+              class="panel-save"
+              data-panel="admin-confirm-yes"
+              aria-describedby="linki-admin-potwierdzenie"
+            >
+              Tak, unieważnij link
+            </button>
+            <button type="button" data-panel="admin-confirm-no">
+              Anuluj
+            </button>
+          </div>
+        </div>
+        <div class="panel-actions">
+          <button type="button" data-panel="admin-more" hidden>
+            Pokaż starsze
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+</Panel>
+
+<script>
+  import "../../../scripts/panel/linki.ts";
+</script>

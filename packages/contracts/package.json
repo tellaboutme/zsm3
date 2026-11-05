@@ -22,7 +22,8 @@
     "./datasets": "./src/datasets.ts",
     "./programmes": "./src/programmes.ts",
     "./navigation": "./src/navigation.ts",
-    "./short-links": "./src/short-links.ts"
+    "./short-links": "./src/short-links.ts",
+    "./short-link-expiry": "./src/short-link-expiry.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

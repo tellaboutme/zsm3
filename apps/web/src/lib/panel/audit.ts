@@ -20,6 +20,9 @@ const ACTION_LABELS: Readonly<Record<string, string>> = {
   "announcements.delete": "usunął(ęła) ogłoszenie",
   "bells.save": "zapisał(a) dzwonki",
   "datasets.save": "zapisał(a) dane strony",
+  "short_link.create": "utworzył(a) krótki link",
+  "short_link.revoke": "unieważnił(a) swój krótki link",
+  "short_link.admin_revoke": "unieważnił(a) krótki link innego pracownika",
 };
 
 const MOMENT = new Intl.DateTimeFormat("pl-PL", {

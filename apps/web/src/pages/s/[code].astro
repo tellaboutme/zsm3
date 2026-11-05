@@ -24,7 +24,7 @@ Astro.response.status = view.status;
       <h1>{view.heading}</h1>
       <p>{view.message}</p>
     </header>
-    {view.showForm ? (
+    {view.form === "password" && (
       <form method="post" action={`/api/short-links/${code}`}>
         <label for="haslo">Hasło do materiału</label>
         <input
@@ -41,7 +41,18 @@ Astro.response.status = view.status;
         </span>
         <button type="submit">Otwórz materiał</button>
       </form>
-    ) : (
+    )}
+    {view.form === "download" && (
+      <form method="post" action={`/api/short-links/${code}`}>
+        <span id="plik-error" class="field-error" aria-live="polite">
+          {error}
+        </span>
+        <button type="submit" aria-describedby="plik-error">
+          Pobierz plik
+        </button>
+      </form>
+    )}
+    {view.form === null && (
       <p>
         <a href="/kontakt">Skontaktuj się ze szkołą</a>
       </p>

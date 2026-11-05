@@ -1,9 +1,9 @@
+import { shortLinkExpiry } from "@zsm3/contracts/short-link-expiry";
+
 import { hashPassword } from "../src/security/passwords.ts";
 import { timestamp, type Store } from "../src/storage/database.ts";
 import { shortLinksRepo } from "../src/storage/short-links-repo.ts";
 
-const DAY_MS = 86_400_000;
-const LIFETIME_DAYS = 180;
 const AUTHOR = "sekretariat@zespolszkolmechanicznych.edu.pl";
 
 interface LinkSeed {
@@ -53,7 +53,7 @@ export async function seedShortLinks(store: Store, key: string | undefined): Pro
           ? null
           : await hashPassword(key, seed.phrase, store.random),
       createdBy: AUTHOR,
-      expiresAt: new Date(Date.parse(at) + LIFETIME_DAYS * DAY_MS).toISOString(),
+      expiresAt: shortLinkExpiry(new Date(at)).toISOString(),
     });
     if (seed.revoked) {
       await links.revoke(seed.code, AUTHOR, at);

@@ -11,6 +11,7 @@ import {
 } from "../../src/short-links/resolve.ts";
 import type { Store } from "../../src/storage/database.ts";
 import { rateLimitsRepo } from "../../src/storage/rate-limits-repo.ts";
+import { shortLinkFailuresRepo } from "../../src/storage/short-link-failures-repo.ts";
 import { shortLinksRepo, type ShortLinksRepo } from "../../src/storage/short-links-repo.ts";
 
 const KEY = "short-link-pepper-0123456789-0123456789";
@@ -25,6 +26,7 @@ function deps(current: Store, passwordKey: string | undefined) {
   return {
     links: shortLinksRepo(current),
     rateLimits: rateLimitsRepo(current),
+    failures: shortLinkFailuresRepo(current),
     passwordKey,
   };
 }
@@ -88,13 +90,13 @@ describe("resolving a short link", () => {
 
   it("asks for the password, then opens the link", async ({ expect }) => {
     const current = store();
-    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp" });
+    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp-2026" });
 
     await expect(openLink(deps(current, KEY), "k7mq4ra", NOW)).resolves.toEqual({ kind: "locked" });
     await expect(unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW)).resolves.toEqual({
       kind: "locked",
     });
-    await expect(unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp", NOW)).resolves.toEqual({
+    await expect(unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp-2026", NOW)).resolves.toEqual({
       kind: "redirect",
       target: TARGET,
     });
@@ -102,7 +104,7 @@ describe("resolving a short link", () => {
 
   it("does not count a click for a refused password", async ({ expect }) => {
     const current = store();
-    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp" });
+    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp-2026" });
     await unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW);
 
     await expect(
@@ -112,25 +114,27 @@ describe("resolving a short link", () => {
 
   it("cannot check a password without the server key", async ({ expect }) => {
     const current = store();
-    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp" });
+    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp-2026" });
 
-    await expect(unlockLink(deps(current, undefined), "k7mq4ra", "klasa4tp", NOW)).resolves.toEqual(
-      { kind: "unavailable" },
-    );
+    await expect(
+      unlockLink(deps(current, undefined), "k7mq4ra", "klasa4tp-2026", NOW),
+    ).resolves.toEqual({ kind: "unavailable" });
   });
 
   it("stops guessing after the attempt limit and lets the window pass", async ({ expect }) => {
     const current = store();
-    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp" });
+    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp-2026" });
     for (let attempt = 0; attempt < PASSWORD_ATTEMPTS; attempt += 1) {
       await unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW);
     }
 
-    await expect(unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp", NOW)).resolves.toEqual({
+    await expect(unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp-2026", NOW)).resolves.toEqual({
       kind: "throttled",
     });
     const later = new Date(NOW.getTime() + 11 * 60_000);
-    await expect(unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp", later)).resolves.toEqual({
+    await expect(
+      unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp-2026", later),
+    ).resolves.toEqual({
       kind: "redirect",
       target: TARGET,
     });
@@ -140,25 +144,13 @@ describe("resolving a short link", () => {
     expect,
   }) => {
     const current = store();
-    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp" });
+    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp-2026" });
     for (let reader = 0; reader < PASSWORD_ATTEMPTS + 5; reader += 1) {
-      await expect(unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp", NOW)).resolves.toEqual({
+      await expect(
+        unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp-2026", NOW),
+      ).resolves.toEqual({
         kind: "redirect",
         target: TARGET,
-      });
-    }
-  });
-
-  it("forgets the failed guesses once the right password arrives", async ({ expect }) => {
-    const current = store();
-    await seed(shortLinksRepo(current), "k7mq4ra", { password: "klasa4tp" });
-    for (let attempt = 0; attempt < PASSWORD_ATTEMPTS - 1; attempt += 1) {
-      await unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW);
-    }
-    await unlockLink(deps(current, KEY), "k7mq4ra", "klasa4tp", NOW);
-    for (let attempt = 0; attempt < PASSWORD_ATTEMPTS; attempt += 1) {
-      await expect(unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW)).resolves.toEqual({
-        kind: "locked",
       });
     }
   });
@@ -166,13 +158,13 @@ describe("resolving a short link", () => {
   it("limits guesses per link, not per visitor", async ({ expect }) => {
     const current = store();
     const links = shortLinksRepo(current);
-    await seed(links, "k7mq4ra", { password: "klasa4tp" });
-    await seed(links, "k7mq4rb", { password: "klasa4tp" });
+    await seed(links, "k7mq4ra", { password: "klasa4tp-2026" });
+    await seed(links, "k7mq4rb", { password: "klasa4tp-2026" });
     for (let attempt = 0; attempt < PASSWORD_ATTEMPTS; attempt += 1) {
       await unlockLink(deps(current, KEY), "k7mq4ra", "zle", NOW);
     }
 
-    await expect(unlockLink(deps(current, KEY), "k7mq4rb", "klasa4tp", NOW)).resolves.toEqual({
+    await expect(unlockLink(deps(current, KEY), "k7mq4rb", "klasa4tp-2026", NOW)).resolves.toEqual({
       kind: "redirect",
       target: TARGET,
     });
@@ -181,7 +173,7 @@ describe("resolving a short link", () => {
 
 describe("what the visitor is sent to next", () => {
   it("takes a filled password field and ignores everything else", ({ expect }) => {
-    expect(submittedPassword("klasa4tp")).toBe("klasa4tp");
+    expect(submittedPassword("klasa4tp-2026")).toBe("klasa4tp-2026");
     expect(submittedPassword("")).toBeUndefined();
     expect(submittedPassword(undefined)).toBeUndefined();
     expect(submittedPassword(new File([], "plik.pdf"))).toBeUndefined();

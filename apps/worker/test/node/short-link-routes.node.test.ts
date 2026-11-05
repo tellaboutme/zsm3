@@ -78,9 +78,9 @@ describe("the body a form sends", () => {
 describe("checking a short link password", () => {
   it("sends the visitor on to the material", async ({ expect }) => {
     const h = harness();
-    await seed(h.store, "k7mq4ra", "klasa4tp");
+    await seed(h.store, "k7mq4ra", "klasa4tp-2026");
 
-    const response = await h.post("k7mq4ra", "haslo=klasa4tp");
+    const response = await h.post("k7mq4ra", "haslo=klasa4tp-2026");
 
     expect(response.status).toBe(303);
     expect(response.headers.get("Location")).toBe(TARGET);
@@ -99,7 +99,7 @@ describe("checking a short link password", () => {
 
   it("sends a wrong password back to the form", async ({ expect }) => {
     const h = harness();
-    await seed(h.store, "k7mq4ra", "klasa4tp");
+    await seed(h.store, "k7mq4ra", "klasa4tp-2026");
 
     const response = await h.post("k7mq4ra", "haslo=zle");
 
@@ -109,7 +109,7 @@ describe("checking a short link password", () => {
 
   it("sends an empty field back to the form without a complaint", async ({ expect }) => {
     const h = harness();
-    await seed(h.store, "k7mq4ra", "klasa4tp");
+    await seed(h.store, "k7mq4ra", "klasa4tp-2026");
 
     expect((await h.post("k7mq4ra", "haslo=")).headers.get("Location")).toBe(
       "/s/k7mq4ra?blad=haslo",
@@ -118,9 +118,9 @@ describe("checking a short link password", () => {
 
   it("reports a missing server key", async ({ expect }) => {
     const h = harness();
-    await seed(h.store, "k7mq4ra", "klasa4tp");
+    await seed(h.store, "k7mq4ra", "klasa4tp-2026");
 
-    const response = await h.post("k7mq4ra", "haslo=klasa4tp", { noKey: true });
+    const response = await h.post("k7mq4ra", "haslo=klasa4tp-2026", { noKey: true });
 
     expect(response.headers.get("Location")).toBe("/s/k7mq4ra?blad=brak");
   });
@@ -128,7 +128,9 @@ describe("checking a short link password", () => {
   it("sends an unknown or lapsed code to the page that explains it", async ({ expect }) => {
     const h = harness();
 
-    expect((await h.post("k7mq4ra", "haslo=klasa4tp")).headers.get("Location")).toBe("/s/k7mq4ra");
+    expect((await h.post("k7mq4ra", "haslo=klasa4tp-2026")).headers.get("Location")).toBe(
+      "/s/k7mq4ra",
+    );
   });
 
   it("keeps a slash out of the redirect it builds", async ({ expect }) => {
@@ -141,9 +143,9 @@ describe("checking a short link password", () => {
     expect,
   }) => {
     const h = harness();
-    await seed(h.store, "k7mq4ra", "klasa4tp");
+    await seed(h.store, "k7mq4ra", "klasa4tp-2026");
 
-    const response = await h.post("k7mq4ra", "haslo=klasa4tp", {
+    const response = await h.post("k7mq4ra", "haslo=klasa4tp-2026", {
       origin: null,
       fetchSite: "same-origin",
     });
@@ -154,34 +156,40 @@ describe("checking a short link password", () => {
 
   it("refuses a form the browser marks as cross-site", async ({ expect }) => {
     const h = harness();
-    await seed(h.store, "k7mq4ra", "klasa4tp");
+    await seed(h.store, "k7mq4ra", "klasa4tp-2026");
 
     expect(
-      (await h.post("k7mq4ra", "haslo=klasa4tp", { origin: null, fetchSite: "cross-site" })).status,
+      (await h.post("k7mq4ra", "haslo=klasa4tp-2026", { origin: null, fetchSite: "cross-site" }))
+        .status,
     ).toBe(403);
     expect(
-      (await h.post("k7mq4ra", "haslo=klasa4tp", { origin: null, fetchSite: "none" })).status,
+      (await h.post("k7mq4ra", "haslo=klasa4tp-2026", { origin: null, fetchSite: "none" })).status,
     ).toBe(403);
   });
 
   it("refuses a request from another site", async ({ expect }) => {
     const h = harness();
-    await seed(h.store, "k7mq4ra", "klasa4tp");
+    await seed(h.store, "k7mq4ra", "klasa4tp-2026");
 
     expect(
-      (await h.post("k7mq4ra", "haslo=klasa4tp", { origin: "https://zly.example" })).status,
+      (await h.post("k7mq4ra", "haslo=klasa4tp-2026", { origin: "https://zly.example" })).status,
     ).toBe(403);
-    expect((await h.post("k7mq4ra", "haslo=klasa4tp", { origin: null })).status).toBe(403);
-    expect((await h.post("k7mq4ra", "haslo=klasa4tp", { origin: "nie-adres" })).status).toBe(403);
+    expect((await h.post("k7mq4ra", "haslo=klasa4tp-2026", { origin: null })).status).toBe(403);
+    expect((await h.post("k7mq4ra", "haslo=klasa4tp-2026", { origin: "nie-adres" })).status).toBe(
+      403,
+    );
   });
 
   it("refuses a body that is not a form", async ({ expect }) => {
     const h = harness();
-    await seed(h.store, "k7mq4ra", "klasa4tp");
+    await seed(h.store, "k7mq4ra", "klasa4tp-2026");
 
     expect(
-      (await h.post("k7mq4ra", '{"haslo":"klasa4tp"}', { contentType: "application/json" })).status,
+      (await h.post("k7mq4ra", '{"haslo":"klasa4tp-2026"}', { contentType: "application/json" }))
+        .status,
     ).toBe(415);
-    expect((await h.post("k7mq4ra", "haslo=klasa4tp", { noContentType: true })).status).toBe(415);
+    expect((await h.post("k7mq4ra", "haslo=klasa4tp-2026", { noContentType: true })).status).toBe(
+      415,
+    );
   });
 });
