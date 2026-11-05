@@ -8,6 +8,7 @@ const ALBUM_PATH = `${YEAR_PATH}/przykladowy-album`;
 const WIDTHS = [360, 768, 1280, 1920] as const;
 
 async function expectAccessible(page: Page): Promise<void> {
+  await page.waitForLoadState("load");
   const result = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();
