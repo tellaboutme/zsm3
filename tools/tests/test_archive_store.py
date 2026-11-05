@@ -130,3 +130,25 @@ def test_preparing_again_removes_interrupted_writes(store: Store) -> None:
 
     assert store.prepare() == 2
     assert list(store.records.iterdir()) == []
+
+
+def test_discard_removes_a_record_and_its_variants(store: Store, encoded: Encoded) -> None:
+    large_sha = encoded.conversion.large_sha256
+    assert large_sha is not None
+    store.save("photo", encoded)
+
+    store.discard("photo")
+
+    assert not store.variant_path(large_sha, "l").exists()
+    assert not store.variant_path(large_sha, "s").exists()
+    assert not (store.records / "photo.json").exists()
+
+
+def test_discard_accepts_missing_and_damaged_records(store: Store) -> None:
+    store.discard("missing")
+    damaged = store.records / "damaged.json"
+    damaged.write_text("{", encoding="utf-8")
+
+    store.discard("damaged")
+
+    assert not damaged.exists()

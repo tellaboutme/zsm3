@@ -13,6 +13,10 @@ def _inside(child: Path, parent: Path) -> bool:
     return child == parent or child.is_relative_to(parent)
 
 
+def _inside_git_repository(path: Path) -> bool:
+    return any((folder / ".git").exists() for folder in (path, *path.parents))
+
+
 def source_root(value: Path) -> Path:
     if value.is_symlink():
         message = f"{value}: the source must not be a symbolic link"
@@ -28,6 +32,9 @@ def output_root(value: Path, source: Path, *, resume: bool) -> Path:
     out = value.resolve()
     if _inside(out, REPOSITORY):
         message = f"{value}: write outputs outside the repository; they hold archive paths"
+        raise ArchivePathError(message)
+    if _inside_git_repository(out):
+        message = f"{value}: write outputs outside any Git repository; they hold archive paths"
         raise ArchivePathError(message)
     if _inside(out, source) or _inside(source, out):
         message = f"{value}: the output must not overlap the source directory"

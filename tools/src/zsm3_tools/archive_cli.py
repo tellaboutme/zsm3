@@ -9,7 +9,7 @@ from zsm3_tools.archive_manifest import build, serialise
 from zsm3_tools.archive_model import Settings
 from zsm3_tools.archive_paths import ArchivePathError, output_root, source_root, write_atomic
 from zsm3_tools.archive_permissions import PermissionsError, load_permissions
-from zsm3_tools.archive_pipeline import Progress, process
+from zsm3_tools.archive_pipeline import Progress, Steps, process
 from zsm3_tools.archive_report import markdown
 from zsm3_tools.archive_store import Store
 from zsm3_tools.archive_validate import validate
@@ -51,6 +51,7 @@ def parser() -> argparse.ArgumentParser:
     run.add_argument("--permissions", type=Path)
     run.add_argument("--label", default="local archive")
     run.add_argument("--resume", action="store_true")
+    run.add_argument("--convert-unapproved", action="store_true")
     run.add_argument("--quality", type=_quality, default=DEFAULTS.quality)
     run.add_argument("--max-files", type=_positive, default=DEFAULTS.max_files)
     run.add_argument("--max-depth", type=_positive, default=DEFAULTS.max_depth)
@@ -81,7 +82,17 @@ def dry_run(options: argparse.Namespace, progress: Progress = _progress) -> int:
     inventory = discover(source, settings)
     store = Store(out, settings)
     store.prepare()
-    results = process(source, inventory, store, progress)
+    results = process(
+        source,
+        inventory,
+        store,
+        progress,
+        Steps(
+            may_convert=lambda photo: (
+                options.convert_unapproved or permissions.is_approved(photo.path, photo.album)
+            )
+        ),
+    )
     manifest = build(inventory, results, permissions, settings, options.label)
     problems = validate(manifest, store.variants)
     write_atomic(out / "manifest.json", serialise(manifest))

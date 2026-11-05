@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from zsm3_tools import archive_permissions
-from zsm3_tools.archive_model import Authorization
+from zsm3_tools.archive_model import Authorization, SourceAlbum
 from zsm3_tools.archive_permissions import (
     UNKNOWN,
     Decision,
@@ -13,7 +13,13 @@ from zsm3_tools.archive_permissions import (
     load_permissions,
 )
 
-APPROVED = {"status": "approved", "basis": "zgoda rodziców", "reference": "DOC-2026-7"}
+APPROVED = {
+    "status": "approved",
+    "basis": "zgoda rodziców",
+    "reference": "DOC-2026-7",
+    "by": "sekretariat@zsm3.test",
+    "at": "2027-01-01",
+}
 
 
 def document(tmp_path: Path, content: object) -> Path:
@@ -51,7 +57,12 @@ def test_photo_decisions_refine_album_decisions(tmp_path: Path) -> None:
     permissions = load_permissions(path)
 
     assert permissions.for_photo("2019-2020/Bal/a.jpg", "2019-2020/Bal") == Decision(
-        Authorization.APPROVED, "zgoda rodziców", "DOC-2026-7", "Uczniowie na sali"
+        Authorization.APPROVED,
+        "zgoda rodziców",
+        "DOC-2026-7",
+        "Uczniowie na sali",
+        "sekretariat@zsm3.test",
+        "2027-01-01",
     )
     assert permissions.for_photo("2019-2020/Bal/b.jpg", "2019-2020/Bal").status is (
         Authorization.REJECTED
@@ -102,3 +113,54 @@ def test_oversized_or_undecodable_files_are_refused(
 
 def test_an_empty_permissions_object_grants_nothing() -> None:
     assert Permissions().for_photo("a/b.jpg", "a") == UNKNOWN
+
+
+@pytest.mark.parametrize("missing", ["basis", "reference", "by", "at"])
+def test_approval_needs_every_field(tmp_path: Path, missing: str) -> None:
+    entry = {"path": "a", **{k: v for k, v in APPROVED.items() if k != missing}}
+    with pytest.raises(PermissionsError, match="approval needs"):
+        load_permissions(document(tmp_path, {"version": 1, "albums": [entry]}))
+
+
+def test_approval_date_must_be_iso(tmp_path: Path) -> None:
+    entry = {"path": "a", **APPROVED, "at": "wczoraj"}
+    with pytest.raises(PermissionsError, match="ISO 8601"):
+        load_permissions(document(tmp_path, {"version": 1, "albums": [entry]}))
+
+
+def test_albums_can_supply_their_details(tmp_path: Path) -> None:
+    entry = {
+        "path": "luzne",
+        **APPROVED,
+        "school_year": "2019/2020",
+        "title": "Bal",
+        "slug": "bal",
+        "description": "Opis",
+    }
+    permissions = load_permissions(document(tmp_path, {"version": 1, "albums": [entry]}))
+
+    found = permissions.album_with_details(SourceAlbum("luzne", None, "luzne", "luzne"))
+
+    assert found == SourceAlbum("luzne", "2019/2020", "Bal", "bal", "Opis")
+    other = SourceAlbum("inny", "2018/2019", "Inny", "inny")
+    assert permissions.album_with_details(other) == other
+
+
+def test_only_albums_accept_details(tmp_path: Path) -> None:
+    content = {"version": 1, "photos": [{"path": "a.jpg", "title": "x"}]}
+    with pytest.raises(PermissionsError, match="only"):
+        load_permissions(document(tmp_path, content))
+
+
+def test_refuses_a_long_album_description(tmp_path: Path) -> None:
+    content = {"version": 1, "albums": [{"path": "a", "description": "x" * 2001}]}
+    with pytest.raises(PermissionsError, match="description"):
+        load_permissions(document(tmp_path, content))
+
+
+def test_knows_which_photos_are_approved(tmp_path: Path) -> None:
+    content = {"version": 1, "albums": [{"path": "a", **APPROVED}]}
+    permissions = load_permissions(document(tmp_path, content))
+
+    assert permissions.is_approved("a/x.jpg", "a")
+    assert not permissions.is_approved("b/x.jpg", "b")

@@ -15,6 +15,8 @@ def photo(**changes: object) -> Json:
         "album_path": "2019-2020/Bal",
         "outcome": "eligible",
         "authorization": "approved",
+        "authorization_by": "sekretariat@zsm3.test",
+        "authorization_at": "2027-01-01",
         "alt": "Uczniowie",
         "large_sha256": SHA,
         "large": {"width": 1600, "height": 1200, "size_bytes": 1000},
@@ -31,6 +33,7 @@ def album(**changes: object) -> Json:
         "school_year": "2019/2020",
         "slug_candidate": "bal",
         "title_candidate": "Bal",
+        "description": "",
         "eligible_count": 1,
     }
     base.update(changes)
@@ -128,3 +131,20 @@ def test_variant_files_are_verified_when_given(tmp_path: Path) -> None:
     (tmp_path / f"{sha}-l.webp").write_bytes(data[:-1] + b"\1")
     broken = copy.deepcopy(document)
     assert validate(broken, tmp_path) == ["photo p1: large variant hash differs"]
+
+
+@pytest.mark.parametrize("field", ["authorization_by", "authorization_at"])
+def test_eligible_needs_who_and_when(field: str) -> None:
+    assert "eligible without a person and date of approval" in photo_problems(
+        photo(**{field: None})
+    )
+
+
+@pytest.mark.parametrize("description", ["x" * 2001, None])
+def test_album_description_is_bounded(description: str | None) -> None:
+    problems = album_problems(album(description=description))
+    assert "description must be at most 2000 characters" in problems
+
+
+def test_album_description_may_reach_the_limit() -> None:
+    assert album_problems(album(description="x" * 2000)) == []

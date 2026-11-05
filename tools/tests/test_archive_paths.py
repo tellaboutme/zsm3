@@ -38,6 +38,15 @@ def test_outputs_stay_outside_the_repository_and_the_source(tmp_path: Path) -> N
     assert output_root(tmp_path / "fresh", source, resume=False) == (tmp_path / "fresh").resolve()
 
 
+def test_outputs_stay_outside_any_git_repository(tmp_path: Path) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    other = tmp_path / "other-project"
+    (other / ".git").mkdir(parents=True)
+    with pytest.raises(ArchivePathError, match="any Git repository"):
+        output_root(other / "deep" / "out", source, resume=False)
+
+
 def test_existing_outputs_are_never_silently_reused(tmp_path: Path) -> None:
     source = tmp_path / "source"
     source.mkdir()

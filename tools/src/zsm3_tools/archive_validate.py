@@ -22,6 +22,7 @@ _YEAR = re.compile(r"^(\d{4})/(\d{4})$")
 MAX_SLUG = 120
 MAX_TITLE = 200
 MAX_ALT = 300
+MAX_DESCRIPTION = 2000
 
 
 def _dimensions(value: object) -> tuple[int, int, int] | None:
@@ -66,6 +67,8 @@ def photo_problems(photo: Json) -> list[str]:
         problems.append("alt text must be 1-300 characters")
     if photo.get("authorization") != "approved":
         problems.append("eligible without approval")
+    if not (photo.get("authorization_by") and photo.get("authorization_at")):
+        problems.append("eligible without a person and date of approval")
     return problems
 
 
@@ -80,6 +83,9 @@ def album_problems(album: Json) -> list[str]:
     title = album.get("title_candidate")
     if not isinstance(title, str) or not 1 <= len(title.strip()) <= MAX_TITLE:
         problems.append("title must be 1-200 characters")
+    description = album.get("description")
+    if not isinstance(description, str) or len(description) > MAX_DESCRIPTION:
+        problems.append("description must be at most 2000 characters")
     eligible = album.get("eligible_count")
     if not isinstance(eligible, int) or eligible > MAX_ALBUM_PHOTOS:
         problems.append("more than 1000 photos in one album")

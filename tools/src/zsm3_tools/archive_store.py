@@ -57,6 +57,19 @@ class Store:
             return None
         return conversion if self._variants_intact(conversion) else None
 
+    def discard(self, identifier: str) -> None:
+        path = self._record_path(identifier)
+        try:
+            sha = _conversion(
+                json.loads(path.read_text(encoding="utf-8"))["conversion"]
+            ).large_sha256
+        except (OSError, ValueError, KeyError, TypeError):
+            sha = None
+        if sha is not None:
+            self.variant_path(sha, "l").unlink(missing_ok=True)
+            self.variant_path(sha, "s").unlink(missing_ok=True)
+        path.unlink(missing_ok=True)
+
     def _variants_intact(self, conversion: Conversion) -> bool:
         sha = conversion.large_sha256
         if sha is None or conversion.large is None or conversion.small is None:

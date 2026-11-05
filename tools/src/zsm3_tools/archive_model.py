@@ -43,6 +43,7 @@ class SourceAlbum:
     school_year: str | None
     title: str | None
     slug: str | None
+    description: str = ""
 
 
 @dataclass(frozen=True, slots=True)

@@ -11,7 +11,7 @@ from zsm3_tools.archive_images import Encoded, convert
 from zsm3_tools.archive_manifest import build, serialise
 from zsm3_tools.archive_model import Settings
 from zsm3_tools.archive_permissions import Permissions
-from zsm3_tools.archive_pipeline import PhotoResult, file_sha256, process
+from zsm3_tools.archive_pipeline import PhotoResult, Steps, file_sha256, process
 from zsm3_tools.archive_store import Store
 
 SETTINGS = Settings()
@@ -39,7 +39,7 @@ def run(
 ) -> list[PhotoResult]:
     store = Store(out, SETTINGS)
     store.prepare()
-    return process(source, discover(source, SETTINGS), store, lambda *_: None, converter)
+    return process(source, discover(source, SETTINGS), store, lambda *_: None, Steps(converter))
 
 
 def manifest_bytes(source: Path, results: list[PhotoResult]) -> bytes:

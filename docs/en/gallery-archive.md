@@ -42,7 +42,16 @@ uv run --directory tools --locked zsm3-gallery-archive validate --manifest "$env
         "path": "2019-2020/Dzień Sportu",
         "status": "approved",
         "basis": "zgoda rodziców z 2019 r.",
-        "reference": "SEK/123/2019"
+        "reference": "SEK/123/2019",
+        "by": "sekretariat@example.org",
+        "at": "2026-11-05"
+      },
+      {
+        "path": "luzne zdjecia",
+        "school_year": "2019/2020",
+        "title": "Dzień Sportu",
+        "slug": "dzien-sportu",
+        "description": "Zawody na boisku szkolnym."
       }
     ],
     "photos": [
@@ -60,7 +69,15 @@ uv run --directory tools --locked zsm3-gallery-archive validate --manifest "$env
   ```
 
   A photo decision overrides its album, except that a rejected album rejects every photo in
-  it. Alt text is written by a person and is required by the gallery, so it lives here.
+  it. `approved` needs a basis, a reference, the person who decided (`by`) and an ISO 8601 date
+  (`at`); this records a decision made elsewhere and does not itself prove consent. Alt text is
+  written by a person and is required by the gallery, so it lives here. An album entry can also
+  supply or correct `school_year`, `title`, `slug` and `description`; these are checked against
+  the gallery contract like values read from folder names.
+
+- **Photos without approval** are hashed to find duplicates, but they are not decoded and no
+  variant or record is kept for them; a withdrawn approval removes earlier files on `--resume`.
+  `--convert-unapproved` converts them too, to find broken files before any decision.
 
 ## Outcomes
 
@@ -86,7 +103,7 @@ uv run --directory tools --locked zsm3-gallery-archive validate --manifest "$env
 ```
 
 The output holds folder and file names of the archive, which can contain names of people,
-so it must stay outside the repository; the tool refuses a path inside it.
+so it must stay outside the repository; the tool refuses a path inside any Git repository.
 
 ## Manifest (schema 1)
 
@@ -94,9 +111,9 @@ Top level: `schema_version`, `dry_run: true`, `processing` (tool version, Pillow
 WebP quality and method, edge and size limits), `source` (`local_directory` and a label, never
 an absolute path), `summary`, `albums`, `photos`, `ignored`. Each photo holds `source_id`
 (SHA-256 of the relative path, 32 hex characters), `source_path`, `source_url` (`null` for
-local files), `album_path`, `source_sha256`, `source_format`, `conversion`, `large` and
+local files), `album_path`, `source_sha256`, `source_format`, `conversion` (`converted`, `failed` or `skipped`), `large` and
 `small` (`width`, `height`, `size_bytes`), `large_sha256`, `planned_keys`, `duplicate_of`,
-`authorization` with its basis and reference, `alt`, `outcome` and `reasons`. The same inputs,
+`authorization` with its basis, reference, person and date, `alt`, `outcome` and `reasons`. The same inputs,
 settings and Pillow version give a byte-identical manifest.
 
 ## Resume and failures

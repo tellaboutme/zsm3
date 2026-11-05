@@ -11,6 +11,7 @@ HASH_CHUNK_BYTES = 1 << 20
 
 Progress = Callable[[int, int], None]
 Converter = Callable[[bytes, Settings], Encoded]
+MayConvert = Callable[[SourcePhoto], bool]
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,13 +43,36 @@ def _encode(file: Path, sha: str, settings: Settings, converter: Converter) -> E
     return converter(data, settings)
 
 
-def _one(source: Path, photo: SourcePhoto, store: Store, converter: Converter) -> PhotoResult:
+def _any_photo(_: SourcePhoto) -> bool:
+    return True
+
+
+@dataclass(frozen=True, slots=True)
+class Steps:
+    converter: Converter = convert
+    may_convert: MayConvert = _any_photo
+
+
+DEFAULT_STEPS = Steps()
+
+
+def _one(
+    source: Path,
+    photo: SourcePhoto,
+    store: Store,
+    converter: Converter,
+    may_convert: MayConvert,
+) -> PhotoResult:
     identifier = source_id(photo.path)
     file = source.joinpath(*photo.path.split("/"))
     if file.is_symlink() or not file.is_file():
         reason = "link_not_followed" if file.is_symlink() else "missing_source"
         return PhotoResult(photo, identifier, _refused("", reason).conversion, reused=False)
     sha = file_sha256(file)
+    if not may_convert(photo):
+        store.discard(identifier)
+        skipped = Conversion(sha, None, None, None, None, None)
+        return PhotoResult(photo, identifier, skipped, reused=False)
     cached = store.load(identifier, sha)
     if cached is not None:
         return PhotoResult(photo, identifier, cached, reused=True)
@@ -62,11 +86,11 @@ def process(
     inventory: Inventory,
     store: Store,
     progress: Progress,
-    converter: Converter = convert,
+    steps: Steps = DEFAULT_STEPS,
 ) -> list[PhotoResult]:
     results: list[PhotoResult] = []
     total = len(inventory.photos)
     for index, photo in enumerate(inventory.photos, start=1):
-        results.append(_one(source, photo, store, converter))
+        results.append(_one(source, photo, store, steps.converter, steps.may_convert))
         progress(index, total)
     return results

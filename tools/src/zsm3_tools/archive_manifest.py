@@ -13,6 +13,7 @@ from zsm3_tools.archive_model import (
     SCHEMA_VERSION,
     SMALL_LONG_EDGE,
     Authorization,
+    Conversion,
     Inventory,
     Outcome,
     Settings,
@@ -71,6 +72,12 @@ def _outcome(
     return (Outcome.INCOMPLETE, sorted(reasons)) if reasons else (Outcome.ELIGIBLE, [])
 
 
+def _conversion_state(conversion: Conversion) -> str:
+    if conversion.error is not None:
+        return "failed"
+    return "skipped" if conversion.large_sha256 is None else "converted"
+
+
 def _photo(result: PhotoResult, decision: Decision, outcome: tuple[Outcome, list[str]]) -> Json:
     conversion = result.conversion
     sha = conversion.large_sha256
@@ -83,7 +90,7 @@ def _photo(result: PhotoResult, decision: Decision, outcome: tuple[Outcome, list
         "source_bytes": result.photo.size_bytes,
         "source_sha256": conversion.source_sha256 or None,
         "source_format": conversion.source_format,
-        "conversion": "failed" if conversion.error else "converted",
+        "conversion": _conversion_state(conversion),
         "large": None if conversion.large is None else asdict(conversion.large),
         "small": None if conversion.small is None else asdict(conversion.small),
         "large_sha256": sha,
@@ -94,6 +101,8 @@ def _photo(result: PhotoResult, decision: Decision, outcome: tuple[Outcome, list
         "authorization": decision.status.value,
         "authorization_basis": decision.basis,
         "authorization_reference": decision.reference,
+        "authorization_by": decision.by,
+        "authorization_at": decision.at,
         "alt": decision.alt,
         "outcome": outcome[0].value,
         "reasons": outcome[1],
@@ -129,6 +138,7 @@ def _album(album: SourceAlbum, permissions: Permissions, photos: list[Json]) -> 
         "school_year": album.school_year,
         "title_candidate": album.title,
         "slug_candidate": album.slug,
+        "description": album.description,
         "authorization": permissions.for_album(album.path).status.value,
         "photo_count": len(own),
         "eligible_count": sum(photo["outcome"] == Outcome.ELIGIBLE.value for photo in own),
@@ -143,7 +153,8 @@ def build(
     settings: Settings,
     label: str,
 ) -> Json:
-    albums = {album.path: album for album in inventory.albums}
+    described = [permissions.album_with_details(album) for album in inventory.albums]
+    albums = {album.path: album for album in described}
     photos = _photos(results, permissions, albums)
     outcomes = Counter(str(photo["outcome"]) for photo in photos)
     return {
@@ -165,7 +176,7 @@ def build(
             "ignored": len(inventory.ignored),
             "outcomes": {outcome.value: outcomes[outcome.value] for outcome in Outcome},
         },
-        "albums": [_album(album, permissions, photos) for album in inventory.albums],
+        "albums": [_album(album, permissions, photos) for album in described],
         "photos": photos,
         "ignored": [asdict(item) for item in inventory.ignored],
     }

@@ -28,6 +28,8 @@ def permissions(root: Path, source: Path) -> Path:
             {
                 "path": f"2015-2016/{album}",
                 "status": "approved",
+                "by": "sekretariat@zsm3.test",
+                "at": "2027-01-01",
                 "basis": "zgoda",
                 "reference": "D-1",
             }
@@ -60,10 +62,10 @@ def test_a_dry_run_writes_a_deterministic_gated_manifest(
     assert (tmp_path / "again" / "manifest.json").read_bytes() == first
     manifest = json.loads(first)
     assert manifest["summary"]["outcomes"] == {
-        "invalid": 1,
+        "invalid": 0,
         "duplicate": 1,
         "rejected": 0,
-        "missing_permission": 10,
+        "missing_permission": 11,
         "incomplete": 1,
         "eligible": 2,
     }
@@ -87,6 +89,48 @@ def test_a_dry_run_writes_a_deterministic_gated_manifest(
         )
         == 0
     )
+
+
+def test_photos_without_approval_leave_no_derived_files(tmp_path: Path) -> None:
+    source = source_tree(tmp_path)
+    out = tmp_path / "out"
+
+    assert dry_run(source, out, "--permissions", str(permissions(tmp_path, source))) == 0
+
+    photos = json.loads((out / "manifest.json").read_bytes())["photos"]
+    waiting = [p for p in photos if p["outcome"] == "missing_permission"]
+    assert waiting
+    assert {p["conversion"] for p in waiting} == {"skipped"}
+    assert all(p["large_sha256"] is None for p in waiting)
+    allowed = {p["large_sha256"] for p in photos if p["conversion"] == "converted"}
+    kept = {file.name.rsplit("-", 1)[0] for file in (out / "variants").iterdir()}
+    assert kept == allowed
+
+
+def test_a_full_check_can_convert_photos_without_approval(tmp_path: Path) -> None:
+    source = source_tree(tmp_path)
+    out = tmp_path / "out"
+    grant = str(permissions(tmp_path, source))
+
+    assert dry_run(source, out, "--permissions", grant, "--convert-unapproved") == 0
+
+    summary = json.loads((out / "manifest.json").read_bytes())["summary"]
+    assert summary["outcomes"]["invalid"] == 1
+    assert summary["outcomes"]["missing_permission"] == 10
+
+
+def test_withdrawn_approval_removes_earlier_files_on_resume(tmp_path: Path) -> None:
+    source = source_tree(tmp_path)
+    out = tmp_path / "out"
+    grant = permissions(tmp_path, source)
+    assert dry_run(source, out, "--permissions", str(grant)) == 0
+    assert list((out / "variants").iterdir())
+
+    grant.write_text('{"version": 1}', encoding="utf-8")
+    assert dry_run(source, out, "--permissions", str(grant), "--resume") == 0
+
+    assert list((out / "variants").iterdir()) == []
+    assert list((out / "records").iterdir()) == []
 
 
 def test_validation_problems_fail_the_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
