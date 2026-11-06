@@ -23,6 +23,7 @@
     "./programmes": "./src/programmes.ts",
     "./navigation": "./src/navigation.ts",
     "./short-links": "./src/short-links.ts",
+    "./gallery": "./src/gallery.ts",
     "./short-link-expiry": "./src/short-link-expiry.ts"
   },
   "scripts": {
