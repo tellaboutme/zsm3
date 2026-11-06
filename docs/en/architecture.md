@@ -48,7 +48,7 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
                         │     ├─ Static assets: HTML, CSS, JS, fonts, images              │
                         │     ├─ /api/requests/*   public request API (Turnstile, limits) │
                         │     ├─ /api/gallery/*    gallery reads (edge cache)             │
-                        │     ├─ /media/*          photos from R2 (published, 60 s cache) │
+                        │     ├─ /media/*          photos from R2 (published, no store)  │
  Staff ─────Access──►   │     ├─ /panel/*          static panel pages                     │
  (SSO / one-time code)  │     └─ /api/panel/*      panel API (Access JWT, roles, Origin)  │
                         │  D1 (eu)  — requests, gallery, staff, audit log                 │

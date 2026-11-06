@@ -61,6 +61,7 @@ class Lightbox {
   #setZoom(zoomed: boolean): void {
     const { stage, zoom } = this.#parts;
     stage.classList.toggle("zoomed", zoomed);
+    stage.tabIndex = zoomed ? 0 : -1;
     zoom.setAttribute("aria-pressed", String(zoomed));
     zoom.textContent = zoomed ? "Pomniejsz" : "Powiększ";
   }

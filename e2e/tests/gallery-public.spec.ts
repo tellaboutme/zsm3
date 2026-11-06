@@ -108,6 +108,7 @@ test("the lightbox moves, zooms, announces and returns focus", async ({ page, pr
     "aria-pressed",
     "true",
   );
+  await expect(dialog.locator("[data-lightbox-stage]")).toHaveAttribute("tabindex", "0");
   await page.keyboard.press("ArrowRight");
   await expect(place).toHaveText("Zdjęcie 1 z 5");
   await dialog.getByRole("button", { name: "Pomniejsz" }).click();

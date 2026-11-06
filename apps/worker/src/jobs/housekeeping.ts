@@ -16,7 +16,11 @@ const DAY_MS = 86_400_000;
 export const LAPSED_RETENTION_MS = 30 * DAY_MS;
 
 export type HousekeepingStep =
-  "rate_limits" | "short_link_failures" | "lapsed_short_links" | "short_link_files";
+  | "rate_limits"
+  | "short_link_failures"
+  | "lapsed_short_links"
+  | "short_link_files"
+  | "photo_cleanup";
 
 export class HousekeepingError extends Error {
   readonly steps: readonly HousekeepingStep[];
