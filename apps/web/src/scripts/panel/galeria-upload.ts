@@ -49,8 +49,11 @@ function partsFor(section: HTMLElement): Parts {
 }
 
 function setBusy(parts: Parts, busy: boolean, onCancel: () => void): void {
-  const { send, cancel, progress } = parts;
+  const { send, cancel, progress, file, alt, consent } = parts;
   send.disabled = busy;
+  file.disabled = busy;
+  alt.disabled = busy;
+  consent.disabled = busy;
   cancel.hidden = !busy;
   cancel.onclick = onCancel;
   progress.hidden = !busy;

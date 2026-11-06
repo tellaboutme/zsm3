@@ -6,17 +6,8 @@ import {
   type PanelPhoto,
 } from "@zsm3/contracts/gallery";
 
-import {
-  area,
-  areaButton,
-  areaForm,
-  areaList,
-  areaSelect,
-  el,
-  inputValue,
-  setInputValue,
-  speak,
-} from "./dom.ts";
+import { area, areaButton, areaForm, areaList, areaSelect, el, inputValue, speak } from "./dom.ts";
+import { presentAlbumForm, unsavedAlts } from "./galeria-album-form.ts";
 import { photoRow } from "./galeria-photos.ts";
 import { wireUpload } from "./galeria-upload.ts";
 import { denyContent, gateView } from "./gate-ui.ts";
@@ -27,6 +18,8 @@ import {
   albumIdFrom,
   albumStatePhrase,
   galleryProblemPhrase,
+  photoRemovedPhrase,
+  removalHidesAlbum,
   schoolYearChoices,
 } from "../../lib/panel/gallery.ts";
 import { canManageGallery } from "../../lib/panel/gate.ts";
@@ -47,28 +40,28 @@ interface Parts {
 }
 
 function present(parts: Parts, album: PanelAlbum, photos: readonly PanelPhoto[]): void {
-  const { title, state, year, description, publish, unpublish } = parts;
+  const { title, state, publish, unpublish } = parts;
   title.textContent = album.title;
   document.title = `${album.title} — galeria — ZSM3`;
   state.textContent = `${album.schoolYear} · ${albumStatePhrase(album.publishedAt)} · ${photoCountPhrase(album.photoCount)}`;
-  setInputValue(parts.form, "title", album.title);
-  setInputValue(parts.form, "slug", album.slug);
-  year.value = album.schoolYear;
-  description.value = album.description;
   publish.hidden = album.publishedAt !== null;
   unpublish.hidden = album.publishedAt === null;
+  const hidesAlbum = removalHidesAlbum(album.publishedAt, album.photoCount);
+  const drafts = unsavedAlts(parts.photos);
   parts.photos.replaceChildren(
     ...photos.map((photo, index) =>
       photoRow({
         albumId: parts.id,
         photo,
         index,
+        hidesAlbum,
+        draft: drafts.get(photo.id),
         say: (phrase) => {
           speak(parts.status, [phrase]);
         },
         afterRemoved: async () => {
-          await load(parts);
-          speak(parts.status, ["Usunięto zdjęcie."]);
+          await load(parts, false);
+          speak(parts.status, [photoRemovedPhrase(hidesAlbum)]);
           parts.title.focus();
         },
       }),
@@ -76,12 +69,15 @@ function present(parts: Parts, album: PanelAlbum, photos: readonly PanelPhoto[])
   );
 }
 
-async function load(parts: Parts): Promise<boolean> {
+async function load(parts: Parts, withForm: boolean): Promise<boolean> {
   const response = await panelRead(`/api/panel/albums/${parts.id}`);
   const view = parse(panelAlbumViewSchema, response.data);
   if (view === undefined) {
     speak(parts.status, [galleryProblemPhrase(response.status, response.data)]);
     return false;
+  }
+  if (withForm) {
+    presentAlbumForm(parts, view.item);
   }
   present(parts, view.item, view.photos);
   return true;
@@ -103,7 +99,7 @@ async function saveDetails(parts: Parts): Promise<void> {
     speak(parts.status, [galleryProblemPhrase(response.status, response.data)]);
     return;
   }
-  await load(parts);
+  await load(parts, true);
   speak(parts.status, ["Zapisano album."]);
 }
 
@@ -120,7 +116,7 @@ async function setPublication(parts: Parts, action: "publish" | "unpublish"): Pr
     speak(parts.status, [galleryProblemPhrase(response.status, response.data)]);
     return;
   }
-  await load(parts);
+  await load(parts, false);
   speak(parts.status, [action === "publish" ? "Opublikowano album." : "Ukryto album."]);
   parts.title.focus();
 }
@@ -173,9 +169,9 @@ function wire(section: HTMLElement, id: string): void {
     void removeAlbum(parts);
   });
   wireUpload(section, id, () => {
-    void load(parts);
+    void load(parts, false);
   });
-  void load(parts);
+  void load(parts, true);
 }
 
 const section = document.querySelector<HTMLElement>('[data-panel-page="gallery-album"]');
@@ -189,6 +185,9 @@ if (section !== null) {
     }
     const id = albumIdFrom(location.search);
     if (id === undefined) {
+      areaForm(section, "album-form").remove();
+      areaForm(section, "photo-form").remove();
+      areaButton(section, "album-remove").remove();
       speak(area(section, "status"), ["Nie znaleziono albumu. Wróć do listy."]);
       return;
     }

@@ -28,16 +28,29 @@ function exactUrl(input: string): string {
   return input;
 }
 
-const policy = window.trustedTypes?.createPolicy(PHOTO_WORKER_POLICY, {
-  createScriptURL: exactUrl,
-});
+let policy: ScriptUrlPolicy | undefined;
 
 function startWorker(): Worker {
+  policy ??= window.trustedTypes?.createPolicy(PHOTO_WORKER_POLICY, {
+    createScriptURL: exactUrl,
+  });
   return new Worker(policy?.createScriptURL(workerUrl) ?? workerUrl, { type: "module" });
 }
 
+function failedToStart(): PhotoPreparation {
+  return {
+    done: Promise.resolve({ id: 1, ok: false, failure: "unreadable" }),
+    cancel: () => undefined,
+  };
+}
+
 export function preparePhoto(file: File): PhotoPreparation {
-  const worker = startWorker();
+  let worker: Worker;
+  try {
+    worker = startWorker();
+  } catch {
+    return failedToStart();
+  }
   let finish: (answer: PhotoReply | undefined) => void = () => undefined;
   const done = new Promise<PhotoReply | undefined>((resolve) => {
     finish = resolve;

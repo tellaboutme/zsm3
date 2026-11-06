@@ -65,7 +65,10 @@ addEventListener("message", (event: MessageEvent<PhotoRequest>) => {
   if (event.origin !== "" && event.origin !== location.origin) {
     return;
   }
-  void reply(event.data).then((answer) => {
-    postMessage(answer, { transfer: answer.ok ? [answer.small, answer.large] : [] });
-  });
+  const { id } = event.data;
+  void reply(event.data)
+    .catch((): PhotoReply => ({ id, ok: false, failure: "unreadable" }))
+    .then((answer) => {
+      postMessage(answer, { transfer: answer.ok ? [answer.small, answer.large] : [] });
+    });
 });

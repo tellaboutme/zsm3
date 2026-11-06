@@ -1,17 +1,19 @@
 import { schoolYearSchema } from "@zsm3/contracts/gallery";
 import { z } from "zod";
 
-import { problemPhrase } from "./api.ts";
+import { CONNECTION_PHRASE, problemPhrase } from "./api.ts";
 import { MAX_SOURCE_BYTES } from "./photo-sizing.ts";
 import type { PhotoFailure } from "./photo-worker-protocol.ts";
 
 const MB = 1024 * 1024;
-const YEARS_LISTED = 14;
+const FIRST_LISTED_START = 2013;
+const CONNECTION_STATUS = 0;
 const SCHOOL_YEAR_START_MONTH = 8;
 const LIMIT_MB = 1.5;
 
 const PROBLEM_TITLES: Readonly<Record<string, string>> = {
-  "Album Slug Taken": "W tym roku szkolnym istnieje już album o takim adresie. Zmień adres.",
+  "Album Slug Taken":
+    "W tym roku szkolnym istnieje już album o takim adresie. Zmień tytuł lub adres.",
   "Album Has No Photos": "Album bez zdjęć nie może zostać opublikowany. Dodaj co najmniej jedno.",
   "Album Is Full": "Album ma już 1000 zdjęć. Utwórz kolejny album.",
   "Publication Status Unchanged": "Stan publikacji już się zmienił. Odśwież stronę.",
@@ -35,7 +37,10 @@ export function galleryProblemPhrase(status: number, data: unknown): string {
   }
   const parsed = problemTitleSchema.safeParse(data);
   const known = parsed.success ? PROBLEM_TITLES[parsed.data.title] : undefined;
-  return known ?? problemPhrase(status);
+  if (known !== undefined) {
+    return known;
+  }
+  return status === CONNECTION_STATUS ? CONNECTION_PHRASE : problemPhrase(status);
 }
 
 export function photoFailurePhrase(failure: PhotoFailure): string {
@@ -60,7 +65,7 @@ export function schoolYearOf(today: Date): string {
 
 export function schoolYearChoices(today: Date): readonly string[] {
   const first = Number(schoolYearOf(today).slice(0, 4));
-  return [...Array(YEARS_LISTED).keys()].map((index) => {
+  return [...Array(first - FIRST_LISTED_START + 1).keys()].map((index) => {
     const start = first - index;
     return schoolYearSchema.parse(`${String(start)}/${String(start + 1)}`);
   });
@@ -68,6 +73,21 @@ export function schoolYearChoices(today: Date): readonly string[] {
 
 export function albumStatePhrase(publishedAt: string | null): string {
   return publishedAt === null ? "Szkic" : "Opublikowany";
+}
+
+export function removalHidesAlbum(publishedAt: string | null, photoCount: number): boolean {
+  return publishedAt !== null && photoCount === 1;
+}
+
+export function removePhotoQuestion(alt: string, hidesAlbum: boolean): string {
+  const effect = hidesAlbum
+    ? "To ostatnie zdjęcie, więc album zniknie ze strony do czasu ponownej publikacji."
+    : "Zniknie ze strony od razu.";
+  return `Usunąć to zdjęcie z albumu? ${effect}\n\n${alt}`;
+}
+
+export function photoRemovedPhrase(hidesAlbum: boolean): string {
+  return hidesAlbum ? "Usunięto zdjęcie. Album bez zdjęć został ukryty." : "Usunięto zdjęcie.";
 }
 
 export function albumHref(id: string): string {

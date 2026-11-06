@@ -46,11 +46,19 @@ function albumRow(album: PanelAlbum): HTMLElement {
   });
 }
 
+let latestRefresh = 0;
+
 async function refresh(parts: Parts): Promise<void> {
+  latestRefresh += 1;
+  const current = latestRefresh;
+  parts.rows.replaceChildren();
   speak(parts.status, ["Wczytywanie albumów…"]);
   const year = parts.filter.value;
   const query = year === "" ? "" : `?schoolYear=${encodeURIComponent(year)}`;
   const response = await panelRead(`/api/panel/albums${query}`);
+  if (current !== latestRefresh) {
+    return;
+  }
   const list = parse(panelAlbumListSchema, response.data);
   if (list === undefined) {
     speak(parts.status, [galleryProblemPhrase(response.status, response.data)]);
