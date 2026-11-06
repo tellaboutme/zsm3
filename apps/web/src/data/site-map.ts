@@ -81,7 +81,7 @@ const BASE_MAP: readonly MapNode[] = [
       {
         label: "Skrzynka #OgarniamŻycie",
         href: "/skrzynka",
-        description: "Zadaj anonimowe pytanie pedagogowi, psychologowi albo dyrekcji.",
+        description: "Zadaj anonimowe pytanie zespołowi wyznaczonemu przez szkołę.",
       },
       {
         label: "Oferty pracy",

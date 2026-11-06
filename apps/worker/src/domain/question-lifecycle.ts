@@ -39,6 +39,15 @@ export interface RetentionCutoffs {
 
 const DAY_MS = 86_400_000;
 
+export function warsawDay(now: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Warsaw",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}
+
 export function retentionCutoffs(now: Date): RetentionCutoffs {
   return {
     unanswered: new Date(now.getTime() - UNANSWERED_RETENTION_DAYS * DAY_MS).toISOString(),

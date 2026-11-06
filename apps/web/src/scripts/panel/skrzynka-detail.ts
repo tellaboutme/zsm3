@@ -1,13 +1,12 @@
-import type {
-  PanelQuestionDecision,
-  PanelQuestionDetail,
-  PanelQuestionDraftSave,
-} from "@zsm3/contracts/questions";
+import type { PanelQuestionDetail, PanelQuestionDraftSave } from "@zsm3/contracts/questions";
 
 import { button, speak } from "./dom.ts";
 import {
   clearQuestion,
+  decisionBody,
   fetchQuestion,
+  freezeEditor,
+  lockControls,
   renderQuestion,
   reviewed,
   showConfirm,
@@ -15,6 +14,7 @@ import {
 } from "./skrzynka-view.ts";
 import { panelSend } from "../../lib/panel/api.ts";
 import {
+  DISCARD_PHRASE,
   UNSAVED_PHRASE,
   canEditDraft,
   decisionActions,
@@ -71,12 +71,19 @@ export class QuestionDetail {
     });
     view.confirmYes.addEventListener("click", () => {
       const pending = this.shown.pending;
-      if (pending !== undefined && reviewed(view, pending)) void this.decide(pending);
+      if (pending === undefined) return;
+      if (this.shown.dirty) {
+        this.close();
+        speak(view.feedback, [UNSAVED_PHRASE]);
+        return;
+      }
+      if (reviewed(view, pending)) void this.decide(pending);
     });
   }
 
   async open(id: string): Promise<void> {
     const { view, shown } = this;
+    if (shown.dirty && !confirm(DISCARD_PHRASE)) return;
     shown.wanted = id;
     this.forget();
     view.root.hidden = false;
@@ -113,7 +120,7 @@ export class QuestionDetail {
     const node = button(spec.label, spec.action === "publish" ? undefined : "panel-danger");
     node.dataset["action"] = spec.action;
     node.addEventListener("click", () => {
-      if (spec.action === "publish" && this.shown.dirty) {
+      if (this.shown.dirty) {
         speak(this.view.feedback, [UNSAVED_PHRASE]);
         return;
       }
@@ -127,6 +134,7 @@ export class QuestionDetail {
     shown.pending = spec;
     shown.returnTo = from;
     showConfirm(view, spec, shown.detail?.draft ?? null);
+    freezeEditor(view, true);
     (spec.action === "publish" ? view.confirmCheck : view.confirmYes).focus();
   }
 
@@ -142,14 +150,11 @@ export class QuestionDetail {
     shown.pending = undefined;
     shown.returnTo = undefined;
     view.confirm.hidden = true;
+    freezeEditor(view, false);
   }
 
   private lock(): void {
-    const { view, shown } = this;
-    for (const node of [view.confirmYes, view.confirmNo, view.save, view.confirmCheck]) {
-      node.disabled = shown.busy;
-    }
-    for (const node of view.actions.querySelectorAll("button")) node.disabled = shown.busy;
+    lockControls(this.view, this.shown.busy);
   }
 
   private async saveDraft(): Promise<void> {
@@ -161,6 +166,7 @@ export class QuestionDetail {
       answer: this.view.draftAnswer.value,
     };
     const status = await this.send("PUT", questionPath(seen.id, "/draft"), body);
+    if (this.shown.wanted !== seen.id) return;
     if (status === 200) {
       this.shown.dirty = false;
       await this.reload(seen.id);
@@ -172,11 +178,12 @@ export class QuestionDetail {
     const seen = this.shown.detail;
     if (seen === undefined) return;
     this.close();
-    const body: PanelQuestionDecision =
-      spec.action === "publish"
-        ? { action: "publish", expectedVersion: seen.version, privacyReviewed: true }
-        : { action: spec.action, expectedVersion: seen.version };
+    const body = decisionBody(spec, seen.version);
     const status = await this.send("POST", questionPath(seen.id, "/decision"), body);
+    if (this.shown.wanted !== seen.id) {
+      if (status === 200 && spec.action === "delete") this.changed(seen.id);
+      return;
+    }
     const phrases = [decisionPhrase(status, spec.action)];
     if (status === 200 && spec.action === "delete") {
       this.forget();

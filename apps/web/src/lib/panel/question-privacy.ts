@@ -27,7 +27,7 @@ const RULES: readonly HintRule[] = [
   },
   {
     pattern:
-      /\b(?:wychowawc|nauczyciel|pani|pan|kolega|koleżank|brat|siostr|mam[aą]|tat[aą])\p{Ll}*/iu,
+      /(?<!\p{L})(?:(?:wychowawc|wychowawcz|nauczyciel|dyrektor|koleg|koleżank|brat|bracia|siostr|ojc|ojciec|matk|matce|kuzyn|tatuś)\p{L}*|pan|pana|panu|panem|panie|pani|panią|mama|mamy|mamie|mamę|mamą|mamo|tata|taty|tacie|tatę|tatą|tato)(?!\p{L})/iu,
     hint: "Tekst wspomina konkretne osoby (np. nauczyciela, kolegę, rodzica) — sprawdź, czy razem z innymi szczegółami nie wskazuje, o kogo chodzi.",
   },
 ];

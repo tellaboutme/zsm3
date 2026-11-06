@@ -78,7 +78,7 @@ zagrożenie życia lub zdrowia):
 
 | Dane                                              | Okres                                      |
 | ------------------------------------------------- | ------------------------------------------ |
-| Pytanie bez decyzji lub ze szkicem                | 90 dni od ostatniej zmiany                 |
+| Pytanie bez decyzji lub ze szkicem                | 90 dni od wpływu pytania                   |
 | Pytanie odrzucone albo wycofane                   | 30 dni od decyzji                          |
 | Oryginalna treść opublikowanego pytania           | usuwana w chwili publikacji                |
 | Opublikowane pytanie i odpowiedź                  | do wycofania przez pracownika              |

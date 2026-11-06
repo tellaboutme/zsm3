@@ -36,6 +36,30 @@ describe("privacy hints before publication", () => {
     expect(hints[3]).toContain("konkretne osoby");
   });
 
+  it("recognises inflected forms of people", ({ expect }) => {
+    for (const text of [
+      "Boję się kolegi",
+      "koleżanką z ławki",
+      "powiedziałem mamie",
+      "pytam tatę",
+      "rozmawiałem z tacie",
+      "ojcem",
+      "matką",
+      "panem od fizyki",
+      "pani od biologii",
+      "dyrektorem",
+      "wychowawczynią",
+    ]) {
+      expect(privacyHints(text).join(" "), text).toContain("konkretne osoby");
+    }
+  });
+
+  it("does not take other words for people", ({ expect }) => {
+    for (const text of ["panować nad stresem", "mamut", "tatarak", "spanie", "kopanie"]) {
+      expect(privacyHints(text), text).toEqual([]);
+    }
+  });
+
   it("stays silent for a neutral question and an answer at sentence starts", ({ expect }) => {
     expect(privacyHints("Jak radzić sobie ze stresem? Czy to normalne.", "Tak. Spróbuj")).toEqual(
       [],

@@ -51,6 +51,6 @@ export const DELETE_QUESTION = `DELETE FROM questions
   WHERE id = ?1 AND version = ?2 AND status IN ('received', 'draft', 'rejected', 'withdrawn')`;
 
 export const PRUNE_QUESTIONS = `DELETE FROM questions WHERE id IN (SELECT id FROM questions
-  WHERE (status IN ('received', 'draft') AND coalesce(changed_at, received_on) < ?1)
+  WHERE (status IN ('received', 'draft') AND received_on < ?1)
      OR (status IN ('rejected', 'withdrawn') AND coalesce(changed_at, received_on) < ?2)
   LIMIT ?3)`;

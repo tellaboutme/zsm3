@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import type { QuestionsConfig } from "./config.ts";
 import { seal } from "./sealing.ts";
+import { warsawDay } from "../domain/question-lifecycle.ts";
 import type { PiiCrypto } from "../security/pii-crypto.ts";
 import type { TurnstileVerifier } from "../security/turnstile.ts";
 import { uuidv4, type RandomBytes } from "../storage/ids.ts";
@@ -95,7 +96,7 @@ export async function submitQuestion(
     addressee: parsed.data.addressee,
     question: await seal(deps.crypto, "question", id, parsed.data.question),
     formKey: parsed.data.formKey,
-    receivedOn: input.now.toISOString().slice(0, 10),
+    receivedOn: warsawDay(input.now),
   });
   return { kind: "received" };
 }

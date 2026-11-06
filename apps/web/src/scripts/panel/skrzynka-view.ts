@@ -1,4 +1,8 @@
-import { panelQuestionDetailSchema, type PanelQuestionDetail } from "@zsm3/contracts/questions";
+import {
+  panelQuestionDetailSchema,
+  type PanelQuestionDecision,
+  type PanelQuestionDetail,
+} from "@zsm3/contracts/questions";
 
 import { area, areaButton, areaForm, areaInput, el, speak } from "./dom.ts";
 import { panelRead } from "../../lib/panel/api.ts";
@@ -154,4 +158,23 @@ export function reviewed(view: QuestionView, spec: DecisionSpec): boolean {
   speak(view.feedback, [PRIVACY_REVIEW_MISSING]);
   view.confirmCheck.focus();
   return false;
+}
+
+export function freezeEditor(view: QuestionView, frozen: boolean): void {
+  const { draftQuestion, draftAnswer } = view;
+  draftQuestion.readOnly = frozen;
+  draftAnswer.readOnly = frozen;
+}
+
+export function lockControls(view: QuestionView, busy: boolean): void {
+  const nodes = [view.confirmYes, view.confirmNo, view.save, view.confirmCheck];
+  for (const node of [...nodes, ...view.actions.querySelectorAll("button")]) {
+    node.disabled = busy;
+  }
+}
+
+export function decisionBody(spec: DecisionSpec, expectedVersion: number): PanelQuestionDecision {
+  return spec.action === "publish"
+    ? { action: "publish", expectedVersion, privacyReviewed: true }
+    : { action: spec.action, expectedVersion };
 }

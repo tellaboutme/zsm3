@@ -191,8 +191,8 @@ rotation, makes the question readable again with the same key id and additional 
   e-wniosek key pair. The plaintext columns hold only what a counsellor chose to publish.
 - **Publication erases the original.** Only the redacted published version and the draft
   remain.
-- **Retention.** Unanswered (`received`, `draft`) questions are deleted 90 days after the
-  last activity; `rejected` and `withdrawn` ones 30 days after the decision. The cutoff uses
+- **Retention.** Unanswered (`received`, `draft`) questions are deleted 90 days after they
+  were received, however often a draft is saved; `rejected` and `withdrawn` ones 30 days after the decision. The cutoff uses
   the start of the received day, so the deletion is never later than the stated period. The
   15-minute cron prunes in batches of 100. Published pairs stay until a counsellor withdraws
   them.
@@ -244,7 +244,8 @@ questions.
 
 ## Enabling it
 
-Set `SKRZYNKA_ENABLED=true` as a Worker variable together with the existing
+Set `SKRZYNKA_ENABLED=true` with `wrangler secret put`, because a deploy removes plain variables
+that are not in `wrangler.jsonc`, together with the existing
 `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `RATE_LIMIT_SALT` and `PII_KEY_PRIMARY`. The page
 reads the flag and the site key at request time, so switching it off needs no rebuild. Then:
 

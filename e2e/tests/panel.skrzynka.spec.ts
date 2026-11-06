@@ -53,6 +53,7 @@ test.describe("Skrzynka moderation", () => {
     await expect(page.locator('[data-panel="confirm-hints"]')).toContainText("konkretne osoby");
     const review = page.getByRole("checkbox", { name: /^Sprawdziłem\/am pytanie i odpowiedź/u });
     await expect(review).toBeFocused();
+    await expect(page.getByLabel("Pytanie do publikacji")).not.toBeEditable();
     await page.getByRole("button", { name: "Tak, opublikuj" }).click();
     await expect(page.locator('[data-panel="question-feedback"]')).toContainText(
       "zaznacz potwierdzenie",

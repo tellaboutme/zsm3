@@ -201,5 +201,7 @@ export function decisionPhrase(status: number, action: QuestionDecision): string
   return readPhrase(status);
 }
 
+export const DISCARD_PHRASE = "Masz niezapisane zmiany w tym pytaniu. Czy na pewno je porzucić?";
+
 export const UNSAVED_PHRASE =
-  "Masz niezapisane zmiany w szkicu. Zapisz szkic, zanim go opublikujesz.";
+  "Masz niezapisane zmiany w szkicu. Zapisz szkic, zanim podejmiesz decyzję.";

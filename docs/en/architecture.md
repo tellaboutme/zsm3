@@ -376,7 +376,7 @@ The gallery upload page in the panel is the only exception to the site-wide CSP,
 | Deleted photos                                 | 30 days in R2, then physically removed                 |
 | Files of an abandoned photo upload             | 24 hours in R2, then physically removed                |
 | Expired or revoked short links                 | 30 days after they stop working, then the row is gone  |
-| Skrzynka question without a decision           | 90 days after the last change                          |
+| Skrzynka question without a decision           | 90 days after it was received                          |
 | Skrzynka question rejected or withdrawn        | 30 days after the decision                             |
 | Original text of a published Skrzynka question | erased at publication                                  |
 | Files behind short links                       | deleted from R2 within 15 minutes of the link stopping |

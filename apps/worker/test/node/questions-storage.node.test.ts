@@ -74,14 +74,14 @@ describe("question retention", () => {
     await storedAs(live, {
       id: ID(3),
       status: "draft",
-      receivedOn: "2026-01-01",
+      receivedOn: "2026-08-01",
       changedAt: "2026-10-01T10:00:00.000Z",
     });
     await storedAs(live, {
       id: ID(4),
       status: "draft",
       receivedOn: "2026-01-01",
-      changedAt: "2026-07-20T10:00:00.000Z",
+      changedAt: "2026-10-20T10:00:00.000Z",
     });
     await storedAs(live, {
       id: ID(5),

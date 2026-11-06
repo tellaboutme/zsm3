@@ -9,6 +9,7 @@ import {
   SAVE_DRAFT,
   WITHDRAW,
 } from "./questions-sql.ts";
+import { warsawDay } from "../domain/question-lifecycle.ts";
 
 export type QuestionWrite =
   | { readonly kind: "draft"; readonly draft: SealedText }
@@ -48,7 +49,15 @@ function changeStatement(
     case "publish":
       return db
         .prepare(PUBLISH)
-        .bind(write.question, write.answer, now.slice(0, 10), write.slug, now, id, expectedVersion);
+        .bind(
+          write.question,
+          write.answer,
+          warsawDay(new Date(now)),
+          write.slug,
+          now,
+          id,
+          expectedVersion,
+        );
     case "reject":
       return db.prepare(REJECT).bind(now, id, expectedVersion);
     case "withdraw":
