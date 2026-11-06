@@ -78,6 +78,14 @@ Verified on 2026-11-02 with the pinned image (`zricethezav/gitleaks@sha256:c00b6
 
 Checked: 2026-11-02. Review: 2027-02-02, or sooner on key rotation, a Gitleaks image or rule update, or the stage 7 launch.
 
+## Recorded new dependencies
+
+New dependencies that follow the policy without an exception, recorded with the reason they were added.
+
+| Package         | Where            | Reason                                                                                                                                                                                                                                                                                                                                                                                                                      | Checked    |
+| --------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `pillow` 13.0.0 | `tools` (Python) | decodes archive photos and encodes the gallery's WebP variants for `zsm3-gallery-archive` ([gallery-archive.md](gallery-archive.md)); its wheels bundle libwebp 1.6.0. It parses untrusted images, so the tool allows six formats only, refuses images over the pixel limit and treats a decompression-bomb warning as an error. Resolved through uv under `exclude-newer = "7 days"`; OSV-Scanner reports no vulnerability | 2026-11-04 |
+
 ## Known scanner limitations
 
 - **OSV-Scanner** reads only the first YAML document of a pnpm 12 `pnpm-lock.yaml` (15 internal packages). `.github/scripts/osv-scan.sh` extracts the last document (~1,000 packages) and fails if it has no `importers:` section.

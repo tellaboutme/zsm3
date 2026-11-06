@@ -44,7 +44,7 @@ function formatFrom(name: string): MediaFormat | undefined {
   return format.success ? format.data : undefined;
 }
 
-function hexDigest(digest: ArrayBuffer): string {
+export function hexDigest(digest: ArrayBuffer): string {
   return [...new Uint8Array(digest)]
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("")

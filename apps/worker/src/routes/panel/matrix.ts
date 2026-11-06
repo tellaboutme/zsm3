@@ -4,6 +4,7 @@ import type { StaffRole } from "../../storage/staff-repo.ts";
 
 const CONTENT_ROLES: readonly StaffRole[] = ["admin", "secretariat", "editor"];
 const SECRETARIAT_ROLES: readonly StaffRole[] = ["admin", "secretariat"];
+const GALLERY_ROLES: readonly StaffRole[] = ["admin", "gallery_editor"];
 const ALL_STAFF_ROLES: readonly StaffRole[] = ["admin", "secretariat", "editor", "gallery_editor"];
 
 export const PANEL_MATRIX: Readonly<Record<PanelRouteName, readonly StaffRole[]>> = {
@@ -22,7 +23,10 @@ export const PANEL_MATRIX: Readonly<Record<PanelRouteName, readonly StaffRole[]>
   "files.upload": CONTENT_ROLES,
   "redirects.list": ["admin"],
   "short-links.list": CONTENT_ROLES,
+  "short-links.create": CONTENT_ROLES,
   "short-links.revoke": CONTENT_ROLES,
+  "short-links.all": ["admin"],
+  "short-links.admin-revoke": ["admin"],
   "redirects.save": ["admin"],
   "redirects.delete": ["admin"],
   "staff.list": ["admin"],
@@ -41,6 +45,15 @@ export const PANEL_MATRIX: Readonly<Record<PanelRouteName, readonly StaffRole[]>
   "requests.list": SECRETARIAT_ROLES,
   "requests.get": SECRETARIAT_ROLES,
   "requests.transition": SECRETARIAT_ROLES,
+  "albums.list": GALLERY_ROLES,
+  "albums.get": GALLERY_ROLES,
+  "albums.create": GALLERY_ROLES,
+  "albums.update": GALLERY_ROLES,
+  "albums.publish": GALLERY_ROLES,
+  "albums.delete": GALLERY_ROLES,
+  "photos.upload": GALLERY_ROLES,
+  "photos.update": GALLERY_ROLES,
+  "photos.delete": GALLERY_ROLES,
 };
 
 export function routeAllowed(name: PanelRouteName, role: StaffRole): boolean {

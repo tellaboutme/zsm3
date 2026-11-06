@@ -29,10 +29,10 @@ Local development has no Cloudflare Access, so `pnpm dev:auth` stands in for it:
 
 | Role             | Can do                                                                             |
 | ---------------- | ---------------------------------------------------------------------------------- |
-| `admin`          | everything, plus staff and roles, redirects and the audit log                      |
+| `admin`          | everything, plus staff and roles, redirects, the gallery and the audit log         |
 | `secretariat`    | all site content, plus handling e-wniosek requests                                 |
 | `editor`         | all site content: news, pages, calendar, documents, announcements, bells, datasets |
-| `gallery_editor` | the gallery once it ships; no content editing                                      |
+| `gallery_editor` | gallery albums and photos; no content editing                                      |
 
 The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/matrix.ts`, and a test calls every route with every role. Administrators cannot remove their own admin role or disable themselves, so the panel always keeps one administrator.
 
@@ -48,6 +48,44 @@ The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/
 The end-to-end specs for the page (`e2e/tests/panel.requests-*.spec.ts`) assert a clean console, with one recorded exception: WebKit reports a `style-src-attr` violation for the native `<select>` control's own rendering ("Refused to apply a stylesheet because its hash…"). The page sets no style attribute, and `/panel/pracownicy` on `main` shows the same report. `pageProblems` in `e2e/tests/panel-requests-fake.ts` drops exactly that message, in WebKit only (checked 2026-11-02, review 2027-02-02).
 
 Nothing from a request reaches the URL, browser storage or the console. The list and detail schemas are parsed only in this page's scripts: importing them into the shared `lib/panel/models.ts` moves zod's schema construction ahead of the `jitless` switch in every panel bundle, and the Trusted Types policy then reports the blocked `Function` probe.
+
+## Gallery API
+
+The gallery routes serve `admin` and `gallery_editor`. The panel pages for them, the public gallery and the job that purges deleted files from R2 come in later changes, so nothing stored here is visible outside the panel API yet. Upload rules are in architecture.md §7.5.
+
+| Route                                      | Purpose                                                    |
+| ------------------------------------------ | ---------------------------------------------------------- |
+| `GET /api/panel/albums`                    | albums, newest year first; `?schoolYear=2026/2027` filters |
+| `POST /api/panel/albums`                   | create a hidden album                                      |
+| `GET /api/panel/albums/:id`                | an album with its photos in order                          |
+| `PUT /api/panel/albums/:id`                | change year, slug, title or description                    |
+| `PATCH /api/panel/albums/:id`              | `{ "action": "publish" }` or `{ "action": "unpublish" }`   |
+| `DELETE /api/panel/albums/:id`             | soft delete, which also clears publication                 |
+| `POST /api/panel/albums/:id/photos`        | multipart `small`, `large`, `alt`, `consent=true`          |
+| `PATCH /api/panel/albums/:id/photos/:pid`  | change the alt text                                        |
+| `DELETE /api/panel/albums/:id/photos/:pid` | soft delete                                                |
+
+Every write is audited with field names only. `photos.consent_by` and `photos.consent_at` record who confirmed that the school holds a permission or another agreed legal basis, and when. That is not proof of consent, which stays with the school. `POST .../photos` answers `409` with "Photo Upload In Progress" while another upload of the same file runs, or while cleanup removes an earlier abandoned one (architecture.md §7.5). Sending it again later works: a finished upload then answers `duplicate: true`.
+
+Photos are uploaded by school staff with the `gallery_editor` role and supervised by `admin`; both roles can publish and unpublish albums. The school names the person responsible separately; until then no real archive is imported or published.
+
+## Short links and teaching files
+
+`/panel/linki` is open to the content roles (`admin`, `secretariat`, `editor`). It reads and writes only the API from architecture.md §7.8.
+
+- **Creating.** A link points either to an `https` page or to a file uploaded with it: PDF, DOCX, XLSX, PPTX, ODT, ODS or ODP, at most 20 MB, without macros or embedded OLE objects (an older document with such an object can be exported to PDF first). The check is structural, not a virus scan. The Worker decides the format from the content; a renamed file is refused. A password is optional (12–200 characters; the form suggests a few words joined by hyphens) and is never shown again. Links made before the 12-character rule keep their shorter passwords.
+- **Expiry.** The form states the date before anything is saved: every link stops working at the start of 1 September (Warsaw time) after the school year in which it was made. There is no lifetime field to choose.
+- **Ownership.** The list shows only the signed-in author's links — newest first, 20 per page, with **Pokaż starsze** following the `(createdAt, code)` cursor. Only the author can revoke a link from this list; revocation asks for confirmation inside the list item, keeps keyboard focus there, and cannot be undone.
+- **Administrators.** The `admin` role also sees **Aktywne linki wszystkich pracowników**: every active link with its author, kind, dates and whether it has a password, but no destination, file name or password. An administrator can revoke any of them, for example when a teacher has left; the audit log records the administrator, the link and its author. No other role sees the section or can call its API.
+- **Wrong passwords.** After 30 wrong passwords in 10 minutes a link pauses for the rest of those minutes; after 100 wrong passwords within any 24 hours it stays locked, even for the right password, until the oldest of those failures is more than 24 hours old. Nothing about the visitor is stored. Anyone who knows the address can use this to lock a protected link for a day; if that happens, revoke it and share a new one.
+- **Files stay private.** An uploaded file is reachable only through its short link and, if set, its password; `/media` never serves it. Within 15 minutes of a link being revoked or expiring, the scheduled job deletes the file from R2; the link's metadata stays for 30 days, as for any lapsed link.
+
+Open file links (without a password) have no download limit, on purpose: a school document link must not stop working because it was shared widely. Each download is one Worker request and one R2 read, both within the free plan's quotas for normal use; an abusive client downloading in a loop would consume them. If that is ever seen, add a limit in front of the download route the same way as the password limits — a per-link count in `rate_limits`, or Cloudflare's free rate-limiting rule on the zone — without storing any visitor address. No paid service is needed for either.
+
+Production needs no new binding, secret or schedule: files go to the existing `MEDIA` bucket under the `s/` prefix and the existing `*/15 * * * *` cron removes them. Check two conditions before deploying:
+
+1. `SHORT_LINK_KEY` is set as a Worker secret, otherwise links with a password are refused with 503.
+2. The `MEDIA` bucket has **no public access** — no `r2.dev` subdomain and no custom domain on the bucket itself. Public R2 access would expose every object by key, including private files.
 
 ## Enabling the panel in production
 

@@ -23,22 +23,22 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
 
 ## 2. Legal requirements → design decisions
 
-| Act                                        | Requirement                                                        | Decision                                                                                                                                                                     |
-| ------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GDPR art. 5, 25                            | data minimisation, privacy by design                               | only the fields needed to issue the document; no PESEL, no photos, no IP addresses; field-level encryption (§8.3)                                                            |
-| GDPR art. 6                                | lawful basis                                                       | art. 6(1)(c)/(e) (the school's public task), **not consent**; confirmed by the school's data protection officer (IOD)                                                        |
-| GDPR art. 13                               | information notice                                                 | notice text from the IOD below the form with a link to the full version; an "I have read it" checkbox, which is not consent                                                  |
-| GDPR art. 17, 21                           | erasure                                                            | the applicant withdraws a request themselves (§7.3); automatic deletion after the retention period (§8.4)                                                                    |
-| GDPR art. 28                               | data processing agreements                                         | the Cloudflare and Brevo accounts **belong to the school**, which accepts their DPAs; a developer with access to production data signs a _umowa powierzenia_ with the school |
-| GDPR art. 30, 32, 33                       | records of processing, security, breaches                          | processing description for the school's register (`docs/RODO.md`), measures from §8, a 72-hour incident procedure (§12.3)                                                    |
-| GDPR art. 44+                              | transfers outside the EEA                                          | D1 and R2 in the `eu` jurisdiction; Cloudflare and Brevo under DPA/SCC; Brevo is a French company                                                                            |
-| Ustawa o dostępności cyfrowej (2019)       | WCAG 2.1 AA, accessibility statement                               | zero axe violations on every page in CI; `/deklaracja-dostepnosci` page in the official format, linked from the footer                                                       |
-| Ustawa o zapewnianiu dostępności (2019)    | information about the school in machine-readable text, PJM and ETR | `/dostepnosc` page with an easy-to-read text and a Polish Sign Language video, both provided by the school                                                                   |
-| Prawo komunikacji elektronicznej, art. 399 | cookies and browser storage                                        | strictly necessary only: theme choice in `localStorage` (requested by the user), the Access session cookie for staff; no analytics or trackers, so no consent banner         |
-| UŚUDE art. 8                               | terms of an electronic service                                     | `/e-wniosek/regulamin` page, text approved by the school                                                                                                                     |
-| Copyright act art. 81                      | images of people                                                   | every gallery upload confirms that consents exist and is written to the audit log; photos can be removed within minutes on request                                           |
-| KRI regulation (2024)                      | security and accessibility of public-sector systems                | sections 8, 10 and 12 of this document and the audit log                                                                                                                     |
-| Ustawa o dostępie do informacji publicznej | BIP                                                                | the website does not replace the BIP; links to the BIP in the header and footer                                                                                              |
+| Act                                        | Requirement                                                        | Decision                                                                                                                                                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GDPR art. 5, 25                            | data minimisation, privacy by design                               | only the fields needed to issue the document; no PESEL, no photos, no IP addresses; field-level encryption (§8.3)                                                                                  |
+| GDPR art. 6                                | lawful basis                                                       | art. 6(1)(c)/(e) (the school's public task), **not consent**; confirmed by the school's data protection officer (IOD)                                                                              |
+| GDPR art. 13                               | information notice                                                 | notice text from the IOD below the form with a link to the full version; an "I have read it" checkbox, which is not consent                                                                        |
+| GDPR art. 17, 21                           | erasure                                                            | the applicant withdraws a request themselves (§7.3); automatic deletion after the retention period (§8.4)                                                                                          |
+| GDPR art. 28                               | data processing agreements                                         | the Cloudflare and Brevo accounts **belong to the school**, which accepts their DPAs; a developer with access to production data signs a _umowa powierzenia_ with the school                       |
+| GDPR art. 30, 32, 33                       | records of processing, security, breaches                          | processing description for the school's register (`docs/RODO.md`), measures from §8, a 72-hour incident procedure (§12.3)                                                                          |
+| GDPR art. 44+                              | transfers outside the EEA                                          | D1 and R2 in the `eu` jurisdiction; Cloudflare and Brevo under DPA/SCC; Brevo is a French company                                                                                                  |
+| Ustawa o dostępności cyfrowej (2019)       | WCAG 2.1 AA, accessibility statement                               | zero axe violations on every page in CI; `/deklaracja-dostepnosci` page in the official format, linked from the footer                                                                             |
+| Ustawa o zapewnianiu dostępności (2019)    | information about the school in machine-readable text, PJM and ETR | `/dostepnosc` page with an easy-to-read text and a Polish Sign Language video, both provided by the school                                                                                         |
+| Prawo komunikacji elektronicznej, art. 399 | cookies and browser storage                                        | strictly necessary only: theme choice in `localStorage` (requested by the user), the Access session cookie for staff; no analytics or trackers, so no consent banner                               |
+| UŚUDE art. 8                               | terms of an electronic service                                     | `/e-wniosek/regulamin` page, text approved by the school                                                                                                                                           |
+| Copyright act art. 81                      | images of people                                                   | every gallery upload confirms that a permission or agreed legal basis exists and is written to the audit log, which does not itself prove consent; photos can be removed within minutes on request |
+| KRI regulation (2024)                      | security and accessibility of public-sector systems                | sections 8, 10 and 12 of this document and the audit log                                                                                                                                           |
+| Ustawa o dostępie do informacji publicznej | BIP                                                                | the website does not replace the BIP; links to the BIP in the header and footer                                                                                                                    |
 
 ## 3. Overview
 
@@ -48,7 +48,7 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
                         │     ├─ Static assets: HTML, CSS, JS, fonts, images              │
                         │     ├─ /api/requests/*   public request API (Turnstile, limits) │
                         │     ├─ /api/gallery/*    gallery reads (edge cache)             │
-                        │     ├─ /media/*          photos from R2 (cached, immutable)     │
+                        │     ├─ /media/*          photos from R2 (published, 60 s cache) │
  Staff ─────Access──►   │     ├─ /panel/*          static panel pages                     │
  (SSO / one-time code)  │     └─ /api/panel/*      panel API (Access JWT, roles, Origin)  │
                         │  D1 (eu)  — requests, gallery, staff, audit log                 │
@@ -142,13 +142,18 @@ requests
   INDEX (status, created_at), INDEX (email_index, status), INDEX (closed_at)
 
 albums
-  id, school_year (TEXT '2025/2026'), slug UNIQUE(school_year, slug), title, description,
-  cover_photo_id NULL, published_at NULL, deleted_at NULL, created_by, created_at, updated_at
+  id, school_year (TEXT '2025/2026'), slug, title, description,
+  published_at NULL, deleted_at NULL, created_by, created_at, updated_at
+  UNIQUE (school_year, slug) WHERE deleted_at IS NULL
 
 photos
-  id, album_id FK, position, width, height, alt, key_small, key_large, sha256 UNIQUE,
+  id, album_id FK, position, width, height, alt, sha256 UNIQUE, consent_by, consent_at,
   deleted_at NULL, created_by, created_at
-  INDEX (album_id, position)
+  INDEX (album_id, deleted_at, position)
+
+photo_uploads
+  sha256 PK, started_at, claimed_at NULL
+  INDEX (started_at), partial INDEX (claimed_at, sha256)
 
 staff
   email PK (lower case), role (admin | secretariat | editor | gallery_editor), active, created_at, updated_at
@@ -191,14 +196,25 @@ bell_schedule
   id = 1, data_json (regular lessons, named variants, days that use a variant), updated_at
 short_links
   code PK              7 characters from 2-9 a-k m n p-z, so 0/1/l/o are never read wrongly
-  target_url           https only, validated by the contract schema
+  target_url           https only, validated by the contract schema; '' for a file link
   password_salt BLOB   16 random bytes; NULL together with password_hash
   password_hash BLOB   HMAC-SHA256(SHORT_LINK_KEY, base64url(salt):password)
   created_by           the staff member who made the link
   created_at, expires_at TEXT, revoked_at NULL, clicks INTEGER
   CHECK ((password_hash IS NULL) = (password_salt IS NULL)), CHECK (expires_at > created_at)
   INDEX (expires_at), INDEX (created_by, created_at)
+short_link_files
+  object_key PK        s/<uuidv7>, made by the Worker; never derived from the upload
+  code UNIQUE NULL     the link it belongs to; NULL while the upload is in progress
+  name, format, bytes  cleaned display name, format detected from the content, size
+  created_by, created_at, removed_at NULL (set once the R2 object is deleted)
+  INDEX (removed_at, created_at)
+short_link_failures
+  id INTEGER PK, code TEXT, attempted_at INTEGER (milliseconds); nothing about the visitor
+  INDEX (code, attempted_at), INDEX (attempted_at)
 ```
+
+A short link expires at the exclusive instant `1 September 00:00 Europe/Warsaw` that ends the school year in which it was made (`shortLinkExpiry` in `@zsm3/contracts/short-link-expiry`); the Warsaw date and offset come from `Intl` with an explicit time zone, never from the host. Links issued under the earlier day-count contract keep the expiry stored with them.
 
 Repositories in `apps/worker/src/storage` take a `Store` (`db`, `clock`, `random`), use static SQL with `.bind()` only, and parse every row with a schema. They run against real SQLite (`node:sqlite`) in the Node tests, where coverage and mutation testing run, and against D1 in the workerd tests.
 
@@ -260,19 +276,27 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 
 1. An editor creates an album (school year, title, description) and drops in photos.
 2. A Web Worker in the browser decodes each file (`createImageBitmap`, EXIF orientation), produces two sizes, 400 and 1600 px on the long edge, and encodes them to WebP with jSquash. Re-encoding drops EXIF and GPS data.
-3. Photos upload one at a time: `POST /api/panel/albums/:id/photos`, a multipart body with both files, each at most 1.5 MB, plus the mandatory "consent to publish images obtained" confirmation.
+3. Photos upload one at a time: `POST /api/panel/albums/:id/photos`, a multipart body with both files, each at most 1.5 MB, plus the mandatory confirmation that the school holds a permission, or another legal basis it has agreed, to publish the image. The checkbox and its audit entry record who confirmed this and when; they are not proof of consent, which stays with the school.
 4. The server **does not trust the client**:
    - it parses RIFF/WebP and accepts only `VP8 `, `VP8L`, `VP8X` and `ALPH` chunks; `EXIF`, `XMP `, `ANIM`, `ICCP` and anything unknown are rejected;
-   - it checks the dimensions in the header against the allowed sizes;
-   - it computes SHA-256; the R2 keys are `g/<sha256>-s.webp` and `g/<sha256>-l.webp`, so no user input reaches a key;
-   - a repeated upload of the same file is recognised by `sha256`.
-5. An album is public only after "Opublikuj". Deletion is soft (`deleted_at`); a scheduled job removes the files from R2 after 30 days.
+   - it allows only the layouts `VP8 `, `VP8L`, `VP8X` + `VP8 `/`VP8L`, and `VP8X` + `ALPH` + `VP8 `, and requires the RIFF size, chunk sizes, padding and canvas to agree with the file;
+   - it checks the dimensions in the header: the large variant is at most 1600 px on the long edge, the small one exactly 400 px, and both have the same proportions (±1 px);
+   - it computes SHA-256 of the large variant; the R2 keys are derived as `g/<sha256>-s.webp` and `g/<sha256>-l.webp`, so no user input reaches a key and the keys are not stored;
+   - a repeated upload is recognised by `sha256`: in the same album it answers `200` with `duplicate: true` and changes nothing, a photo live in another album answers `409`, and a soft-deleted photo, or one in a deleted album, comes back with the new album, alt text and consent.
+5. R2 is written before D1, so a failed D1 batch leaves unreachable objects but never a row without a file. The media route serves only what `photos` lists. Every R2 write and removal goes through the journal in `photo_uploads`, so nothing has to guess what a key in R2 belongs to:
+   - an upload takes a five-minute lease on its hash before anything else. While the lease runs, or while cleanup holds a claim, another upload of the same hash answers `409`. A second upload therefore cannot replace the first one's thumbnail, and it looks at `photos` only after it holds the lease, so it also sees a photo that has just been saved. A crashed or failed upload holds the lease until it expires, and the same file can then be sent again;
+   - the D1 batch that saves the photo removes the journal row, so a crash at any point leaves the row behind;
+   - every Cron tick (`jobs/photo-cleanup.ts`), rows older than 24 hours whose hash has a row in `photos`, soft-deleted included, are dropped without touching R2. `photos.sha256` is unique, so this keeps files in use by another record safe;
+   - the remaining old rows are claimed in one statement that rechecks `photos`, then both variants are deleted and the row removed, at most 50 per tick. A failed R2 delete keeps the claim and retries on the next tick.
+6. An album is public only after "Opublikuj", which needs at least one photo. Every photo has its own recorded confirmation, so a published album never contains an unconfirmed one. Both `admin` and `gallery_editor` can publish and unpublish. Deleting the last photo of a published album unpublishes it in the same batch, so an urgent removal is never refused. Triggers on `albums` and `photos` hold these limits in the database, whatever order concurrent requests commit in: an album without photos cannot become published, and an album cannot exceed 1000 live photos through an insert or a restore.
+7. Deletion is soft (`deleted_at`) and ends access immediately, including when the school withdraws permission: the media route checks D1 on every request, and §7.6 limits how long a cached copy can last. After 30 days the same job turns the photo row into a claimed journal row in one batch, skipping any hash an upload holds, then removes the files with the same retries and records `photos.purge` in the audit log. A deleted album is treated the same way, and its row goes once no photo refers to it.
 
 ### 7.6 Public gallery and media
 
-- `GET /api/gallery/years`, `/api/gallery/years/:year/albums`, `/api/gallery/albums/:id` return published albums only, cached at the edge (`s-maxage=60, stale-while-revalidate=600`).
-- `GET /media/g/<sha256>-(s|l).webp` checks `photos` (album published, photo not deleted), then serves R2 through the Cache API with `Content-Type: image/webp`, `nosniff`, `Cache-Control: public, max-age=31536000, immutable` and `Cross-Origin-Resource-Policy: same-origin`.
-- **Archive import** by `tools/import_gallery.py`: downloads from the current site (at most 4 parallel connections), Pillow (EXIF rotation, metadata removal, WebP 400/1600), upload to R2 over the S3 API, SQL for D1. The script is idempotent and resumes where it stopped.
+- `GET /api/gallery/years`, `/api/gallery/years/:year/albums`, `/api/gallery/albums/:id` return published albums only, cached for 60 seconds (`public, max-age=60`) with no `stale-while-revalidate`.
+- `GET /media/g/<sha256>-(s|l).webp` checks `photos` (album published, photo not deleted), then serves R2 through the Cache API with `Content-Type: image/webp`, `nosniff`, `Cache-Control: public, max-age=60` and `Cross-Origin-Resource-Policy: same-origin`.
+- Photos deliberately do not use the year-long immutable cache that documents have (§6). A school can withdraw permission to publish a student's photo, and a copy in a browser or at the edge cannot be recalled, so 60 seconds is the longest a removed photo may stay visible. Deleting a photo or album, or unpublishing an album, ends access at once in D1, and the same request also removes the affected URLs from the Cache API where it can; that purge only reaches the local data centre, so the 60-second limit is what the design relies on.
+- **Archive import** by `tools/import_gallery.py`: downloads from the current site (at most 4 parallel connections), Pillow (EXIF rotation, metadata removal, WebP 400/1600), upload to R2 over the S3 API, SQL for D1. The script is idempotent and resumes where it stopped. No real archive is imported or published until the school has named who is responsible for it.
 
 ### 7.7 Opening a short link
 
@@ -280,9 +304,17 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 2. A link that is unknown or malformed answers 404, one that expired or was revoked answers 410, both as a page in the site's own design rather than a problem document.
 3. A link without a password redirects (302) to its target and counts the click.
 4. A link with a password renders a form. The form posts to `POST /api/short-links/<code>` in the Worker, because the Astro middleware refuses every method other than GET. The route accepts the submission when the `Origin` equals the site or the browser reports `Sec-Fetch-Site: same-origin`, a header a script cannot set; the site sends `Referrer-Policy: no-referrer`, under which a form navigation carries `Origin: null`, so the origin alone would refuse the one path that works without JavaScript. With a form body it then answers 303 — to the target when the password matches, otherwise back to the page with an error flag in the query, so a refresh never resubmits the password.
-5. Guesses are limited to 30 per link per 10 minutes through `rate_limits`, keyed by SHA-256 of the code. The limit is per link rather than per visitor: nothing derived from an address is stored, and a distributed guesser gains nothing.
+5. Guesses are limited to 30 per link per 10 minutes through `rate_limits`, keyed by SHA-256 of the code, and wrong passwords to 100 per link in any rolling 24 hours through `short_link_failures`, one row per attempt holding only the code and the time. After the 10-minute check, one statement inserts a row only while fewer than 100 rows for the code are at most 24 hours old (`attempted_at >= now - 24 h`), so concurrent requests on D1 can never take a 101st slot and no fixed window lets a second hundred in at its edge; a failure stops counting 24 hours and 1 ms after it happened. The slot is taken before the password is checked: a link with no slot left answers `?blad=doba` even to the right password and gives no answer to test against, and a right password gives its slot back. Only wrong passwords keep a slot: a correct one, an empty form, a throttled attempt, an open link and a download never do, and a correct password does not clear older failures, so a teacher's own unlock cannot refill a guesser's budget. The 10-minute counter is consumed before every check; a right password gives back only its own attempt, and only within the window that attempt was counted in, so earlier wrong guesses stay counted and a class opening the link together is never throttled. Both limits are per link rather than per visitor: nothing derived from an address is stored, and a distributed guesser gains nothing. The cost is that someone who sends 100 wrong passwords locks the link for everyone until the day ends; the teacher can then share a new link. New passwords need at least 12 characters (`MIN_PASSWORD_LENGTH`); passwords set before the change keep working, because only creation checks the length.
+6. A link to a file never redirects. The page shows a download button for an open file and the password form for a protected one, without naming the file. Both forms post to the same `POST /api/short-links/<code>`, which runs the checks above and then streams the R2 object itself with `Content-Disposition: attachment`, the content type of the detected format, `Cache-Control: private, no-store` and the API security headers. There is no URL for the object: `/media` serves only `d/` keys listed in `files`, and private objects live under `s/`.
 
-### 7.8 Social and search metadata
+### 7.8 Panel: short links
+
+- Staff with a content role create links at `/panel/linki`: `POST /api/panel/short-links` with `{ target, password? }`, or `POST /api/panel/short-links/files` with a multipart body (`file`, optional `password`) of at most 20 MB plus form overhead. The list (`GET /short-links`) and revocation (`DELETE /short-links/:code`) stay limited to the author's own links; no response carries a password, salt, digest or object key. Only the `admin` role may list every active link (`GET /short-links/all`: code, author, page or file, dates, whether a password is set; no destination, file name or object key) and revoke any of them (`DELETE /short-links/all/:code`), for example the links of a teacher who has left; that revocation is audited as `short_link.admin_revoke` with the administrator as the actor and the author in the details. Every creation and revocation writes `audit_log` in the same D1 batch, and a revocation that changes nothing writes nothing.
+- An upload is accepted by its content, not its name or declared type: a PDF signature, an OOXML container with its main part (DOCX, XLSX, PPTX), or an ODF container whose stored `mimetype` names the format (ODT, ODS, ODP). The archive is read from its central directory only, never decompressed; an archive that does not begin with a local file header, a directory that does not end the file exactly, spans disks, uses ZIP64 or lists more than 5000 entries is refused, and so is any VBA project, ActiveX part, Excel 4.0 macro sheet (`macrosheets/`), embedded OLE object (`embeddings/oleObject*.bin`, which covers packaged programs and legacy Equation 3.0 objects; embedded Office documents such as a chart's workbook are kept) or ODF `Basic/` and `Scripts/` folder. This is a structural check, not malware scanning: PDF JavaScript, actions and embedded files, ODF embedded objects, external template or link references and parser exploits pass unless the container rule above refuses them. Downloads are always `Content-Disposition: attachment` with the detected format's `Content-Type`, `X-Content-Type-Options: nosniff` and a `default-src 'none'` CSP, so nothing renders or runs under the site's origin; what remains is the risk of opening a document from a signed-in staff member in a desktop application. The file extension must match the detected format. ZIP and other archives are not accepted.
+- The Worker first records the upload in `short_link_files` with no code, then writes the R2 object under a new `s/<uuidv7>` key, then inserts the link, attaches the file and writes the audit row in one batch that changes nothing unless the pending row still exists. When R2 or D1 fails, the Worker deletes the object and the pending row; if that also fails, the sweep below finds the pending row after an hour.
+- Housekeeping runs before, and independently of, the e-wniosek outbox and retention, which need the e-wniosek secrets. Each step (rate limits, failed passwords, lapsed links, private files) runs even when another fails; a failure is logged as `housekeeping_step_failed` with the step and error name only, and the scheduled run then fails, so it stays visible. Every step is idempotent. The scheduled job (every 15 minutes, together with the rate-limit, lapsed-link and failed-password pruning; failed-password rows go once more than 24 hours old, 1000 per run) deletes the R2 object of every file whose link was revoked, has expired, has been pruned, or never finished uploading within an hour, 50 per run, marks the row removed, and forgets removed rows whose link is gone. Each upload has its own object, so deleting one never affects another link, and a new link never takes a code that a file row still holds.
+
+### 7.9 Social and search metadata
 
 - `Base.astro` renders canonical URL, `robots`, Open Graph (`og:type`, `og:title`, `og:description`, `og:url`, `og:locale`) and Twitter (`summary_large_image` with title, description and image) for every public page.
 - The shared card is `apps/web/public/og-default.png`, a 1200×630 file. `SOCIAL_IMAGE` in `apps/web/src/lib/seo.ts` is the single source of the path, size and alt text, so the layout and the audit test cannot drift apart.
@@ -315,6 +347,8 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 
 `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`, a strict `Content-Security-Policy` (Turnstile and `youtube-nocookie.com` only where used), `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy` with every feature off, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`, `Cross-Origin-Resource-Policy: same-origin`. Static files get them from `_headers`, Worker responses from middleware; tests check the full set. Target: A+ on Mozilla Observatory.
 
+The gallery upload page in the panel is the only exception to the site-wide CSP, for the image Worker in §7.5: it adds `worker-src 'self'` and `'wasm-unsafe-eval'`, and only on that page. `blob:` is added only if the implementation really needs it and tests justify it. General `unsafe-eval`, `unsafe-inline` and any relaxation for the rest of the site are not allowed.
+
 ### 8.3 Cryptography
 
 - A request's personal data is one JSON document encrypted with AES-256-GCM (WebCrypto), a random 96-bit IV per record and `request.id` as AAD. The key `PII_KEY_<id>` is a Worker secret; `pii_key_id` in each row allows key rotation without downtime.
@@ -334,7 +368,9 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 | `audit_log`                                    | 2 years                                                |
 | Worker logs                                    | Cloudflare's retention (a few days), no personal data  |
 | Deleted photos                                 | 30 days in R2, then physically removed                 |
+| Files of an abandoned photo upload             | 24 hours in R2, then physically removed                |
 | Expired or revoked short links                 | 30 days after they stop working, then the row is gone  |
+| Files behind short links                       | deleted from R2 within 15 minutes of the link stopping |
 
 A daily Cron job enforces retention and records every run in `audit_log`. That job deletes `audit_log` rows older than two years in batches of 100 (`RETENTION_BATCH`), at most 10 batches per tick (`RETENTION_BATCHES_PER_RUN`), so a backlog drains across ticks instead of one long query; the `audit_log_at` index serves the cutoff predicate. The daily `cron_state` guard applies the request retention and the audit prune at most once per UTC day, and a remaining backlog resumes on the next tick without marking the day as done.
 

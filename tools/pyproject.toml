@@ -3,13 +3,17 @@ name = "zsm3-tools"
 version = "0.1.0"
 description = "Build and maintenance tooling for the ZSM3 website."
 requires-python = ">=3.13,<3.14"
-dependencies = ["defusedxml"]
+dependencies = [
+    "defusedxml",
+    "pillow>=13.0.0",
+]
 
 [project.scripts]
 zsm3-no-comments = "zsm3_tools.no_comments:main"
 zsm3-import-legacy-urls = "zsm3_tools.redirect_import:main"
 zsm3-content-inventory = "zsm3_tools.content_inventory:main"
 zsm3-repo-rules = "zsm3_tools.repo_rules:main"
+zsm3-gallery-archive = "zsm3_tools.archive_cli:main"
 zsm3-migration-audit = "zsm3_tools.migration_audit_cli:main"
 
 [dependency-groups]

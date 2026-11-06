@@ -1,13 +1,14 @@
-import { shortCodeSchema } from "@zsm3/contracts/short-links";
+import { shortCodeSchema, type LinkFile } from "@zsm3/contracts/short-links";
 
 import { hasLapsed, normaliseCode } from "../domain/short-link.ts";
 import { sha256 } from "../security/hmac.ts";
 import { verifyPassword } from "../security/passwords.ts";
 import { RATE_LIMIT_WINDOW_MINUTES, type RateLimitsRepo } from "../storage/rate-limits-repo.ts";
+import type { ShortLinkFailuresRepo } from "../storage/short-link-failures-repo.ts";
 import type { ShortLinkRecord, ShortLinksRepo } from "../storage/short-links-repo.ts";
+import type { StoredLinkFile } from "../storage/short-links-rows.ts";
 
 export const PASSWORD_ATTEMPTS = 30;
-
 const MINUTE_MS = 60_000;
 
 export interface OpenDeps {
@@ -16,6 +17,7 @@ export interface OpenDeps {
 
 export interface ResolveDeps extends OpenDeps {
   readonly rateLimits: RateLimitsRepo;
+  readonly failures: ShortLinkFailuresRepo;
   readonly passwordKey: string | undefined;
 }
 
@@ -23,11 +25,16 @@ export type LapsedOutcome = { readonly kind: "gone" } | { readonly kind: "missin
 
 export type OpenOutcome =
   | { readonly kind: "redirect"; readonly target: string }
+  | { readonly kind: "download"; readonly file: LinkFile }
   | { readonly kind: "locked" }
   | LapsedOutcome;
 
 export type UnlockOutcome =
-  OpenOutcome | { readonly kind: "throttled" } | { readonly kind: "unavailable" };
+  | Exclude<OpenOutcome, { readonly kind: "download" }>
+  | { readonly kind: "file"; readonly file: StoredLinkFile }
+  | { readonly kind: "throttled" }
+  | { readonly kind: "blocked" }
+  | { readonly kind: "unavailable" };
 
 type FoundLink = { readonly kind: "found"; readonly link: ShortLinkRecord } | LapsedOutcome;
 
@@ -46,15 +53,26 @@ async function guessKey(code: string): Promise<Uint8Array> {
   return sha256(`shortlink:${code}`);
 }
 
-async function guessesExceeded(deps: ResolveDeps, key: Uint8Array, now: Date): Promise<boolean> {
+async function guessWindow(
+  deps: ResolveDeps,
+  key: Uint8Array,
+  now: Date,
+): Promise<string | undefined> {
   const cutoff = new Date(now.getTime() - RATE_LIMIT_WINDOW_MINUTES * MINUTE_MS);
   const state = await deps.rateLimits.consume(key, now.toISOString(), cutoff.toISOString());
-  return state.count > PASSWORD_ATTEMPTS;
+  return state.count > PASSWORD_ATTEMPTS ? undefined : state.windowStartedAt;
 }
 
-async function opened(deps: OpenDeps, link: ShortLinkRecord): Promise<OpenOutcome> {
+async function delivered(deps: OpenDeps, link: ShortLinkRecord): Promise<UnlockOutcome> {
   await deps.links.countClick(link.code);
-  return { kind: "redirect", target: link.target };
+  const { destination } = link;
+  return destination.kind === "url"
+    ? { kind: "redirect", target: destination.target }
+    : { kind: "file", file: destination.file };
+}
+
+function publicFile(file: StoredLinkFile): LinkFile {
+  return { name: file.name, format: file.format, bytes: file.bytes };
 }
 
 export async function openLink(deps: OpenDeps, code: string, now: Date): Promise<OpenOutcome> {
@@ -62,13 +80,22 @@ export async function openLink(deps: OpenDeps, code: string, now: Date): Promise
   if (found.kind !== "found") {
     return found;
   }
-  return found.link.password === null ? await opened(deps, found.link) : { kind: "locked" };
+  const { destination } = found.link;
+  const digest = found.link.password;
+  if (digest !== null) {
+    return { kind: "locked" };
+  }
+  if (destination.kind === "file") {
+    return { kind: "download", file: publicFile(destination.file) };
+  }
+  await deps.links.countClick(found.link.code);
+  return { kind: "redirect", target: destination.target };
 }
 
 export async function unlockLink(
   deps: ResolveDeps,
   code: string,
-  password: string,
+  attempt: string | undefined,
   now: Date,
 ): Promise<UnlockOutcome> {
   const normalised = normaliseCode(code);
@@ -78,27 +105,39 @@ export async function unlockLink(
   }
   const digest = found.link.password;
   if (digest === null) {
-    return await opened(deps, found.link);
+    return await delivered(deps, found.link);
+  }
+  if (attempt === undefined) {
+    return { kind: "locked" };
   }
   if (deps.passwordKey === undefined) {
     return { kind: "unavailable" };
   }
   const key = await guessKey(normalised);
-  if (await guessesExceeded(deps, key, now)) {
+  const window = await guessWindow(deps, key, now);
+  if (window === undefined) {
     return { kind: "throttled" };
   }
-  if (!(await verifyPassword(deps.passwordKey, password, digest))) {
+  const slot = await deps.failures.reserve(normalised, now);
+  if (slot === undefined) {
+    return { kind: "blocked" };
+  }
+  if (!(await verifyPassword(deps.passwordKey, attempt, digest))) {
     return { kind: "locked" };
   }
-  await deps.rateLimits.clear(key);
-  return await opened(deps, found.link);
+  await deps.failures.release(slot);
+  await deps.rateLimits.refund(key, window);
+  return await delivered(deps, found.link);
 }
 
 export function submittedPassword(value: unknown): string | undefined {
   return typeof value === "string" && value !== "" ? value : undefined;
 }
 
-export function passwordRedirect(outcome: UnlockOutcome, path: string): string {
+export function passwordRedirect(
+  outcome: Exclude<UnlockOutcome, { readonly kind: "file" }>,
+  path: string,
+): string {
   switch (outcome.kind) {
     case "redirect":
       return outcome.target;
@@ -106,6 +145,8 @@ export function passwordRedirect(outcome: UnlockOutcome, path: string): string {
       return `${path}?blad=haslo`;
     case "throttled":
       return `${path}?blad=limit`;
+    case "blocked":
+      return `${path}?blad=doba`;
     case "unavailable":
       return `${path}?blad=brak`;
     case "gone":
