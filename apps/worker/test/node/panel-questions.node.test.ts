@@ -4,6 +4,7 @@ import type { z } from "zod";
 
 import { ANSWER, decision, ORIGINAL, questionsPanel, REDACTED } from "./panel-questions-support.ts";
 import { expectProblem } from "./panel-support.ts";
+import { warsawDay } from "../../src/domain/question-lifecycle.ts";
 
 const draft = (version: number, answer = ANSWER) => ({
   expectedVersion: version,
@@ -76,7 +77,7 @@ describe("moderating a question", () => {
         addressee: "pedagogue",
         question: REDACTED,
         answer: ANSWER,
-        publishedOn: new Date().toISOString().slice(0, 10),
+        publishedOn: warsawDay(new Date()),
       },
     ]);
     expect(JSON.stringify(listed)).not.toContain("Przykładow");
