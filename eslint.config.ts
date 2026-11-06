@@ -139,6 +139,10 @@ export default defineConfig(
     files: ["**/*.astro"],
   },
   {
+    files: ["apps/web/src/scripts/panel/photo-worker-client.ts"],
+    rules: { "import-x/default": "off" },
+  },
+  {
     files: ["apps/worker/src/logging/log.ts"],
     rules: { "no-console": "off" },
   },

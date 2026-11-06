@@ -1,11 +1,10 @@
 import { z } from "zod";
 
 import { slugSchema } from "./content.ts";
+import { LARGE_LONG_EDGE } from "./gallery-limits.ts";
 import { sha256Schema } from "./media.ts";
 
-export const MAX_PHOTO_VARIANT_BYTES = 1_500_000;
-export const SMALL_LONG_EDGE = 400;
-export const LARGE_LONG_EDGE = 1600;
+export { LARGE_LONG_EDGE, MAX_PHOTO_VARIANT_BYTES, SMALL_LONG_EDGE } from "./gallery-limits.ts";
 export const MAX_LISTED_ALBUMS = 500;
 export const MAX_ALBUM_PHOTOS = 1000;
 
