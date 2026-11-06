@@ -32,6 +32,7 @@ function detail(overrides: Partial<PanelQuestionDetail> = {}): PanelQuestionDeta
     version: 1,
     receivedOn: "2026-10-20",
     question: "Oryginał",
+    unreadable: [],
     draft: null,
     published: null,
     history: [],
@@ -83,7 +84,10 @@ describe("decisions per status", () => {
   it("offers only the moves the API allows", ({ expect }) => {
     const statuses = ["received", "draft", "published", "rejected", "withdrawn"] as const;
     const offered = Object.fromEntries(
-      statuses.map((status) => [status, decisionActions(status).map((spec) => spec.action)]),
+      statuses.map((status) => [
+        status,
+        decisionActions(detail({ status })).map((spec) => spec.action),
+      ]),
     );
     expect(Object.keys(QUESTION_STATUS_LABELS)).toEqual([...statuses]);
     expect(offered).toEqual({
@@ -93,26 +97,32 @@ describe("decisions per status", () => {
       rejected: ["delete"],
       withdrawn: ["reject", "delete"],
     });
-    expect(decisionActions("draft")[0]).toMatchObject({
+    expect(decisionActions(detail({ status: "draft" }))[0]).toMatchObject({
       label: "Opublikuj pytanie i odpowiedź",
       confirm: "Tak, opublikuj",
     });
-    expect(decisionActions("draft")[0]?.warning).toContain("danych, po których można kogoś");
-    expect(decisionActions("published")[0]?.confirm).toBe("Tak, wycofaj");
-    expect(decisionActions("rejected")[0]?.warning).toContain("nie można cofnąć");
-    expect(decisionActions("received")[0]?.warning).toContain("po 30 dniach");
+    expect(decisionActions(detail({ status: "draft" }))[0]?.warning).toContain(
+      "oznaczeń klas, danych kontaktowych",
+    );
+    expect(decisionActions(detail({ status: "published" }))[0]?.confirm).toBe("Tak, wycofaj");
+    expect(decisionActions(detail({ status: "rejected" }))[0]?.warning).toContain(
+      "nie można cofnąć",
+    );
+    expect(decisionActions(detail({ status: "received" }))[0]?.warning).toContain("po 30 dniach");
   });
 
   it("lets drafts be edited before publication and after withdrawal", ({ expect }) => {
     expect(
-      (["received", "draft", "published", "rejected", "withdrawn"] as const).map(canEditDraft),
+      (["received", "draft", "published", "rejected", "withdrawn"] as const).map((status) =>
+        canEditDraft(detail({ status })),
+      ),
     ).toEqual([true, true, false, false, true]);
   });
 });
 
 describe("detail text", () => {
-  it("seeds the editor from the draft or the original question", ({ expect }) => {
-    expect(draftSeed(detail())).toEqual({ question: "Oryginał", answer: "" });
+  it("starts a publication draft blank instead of copying the original", ({ expect }) => {
+    expect(draftSeed(detail())).toEqual({ question: "", answer: "" });
     expect(draftSeed(detail({ question: null }))).toEqual({ question: "", answer: "" });
     expect(draftSeed(detail({ draft: { question: "Szkic", answer: "Tak" } }))).toEqual({
       question: "Szkic",
@@ -123,7 +133,9 @@ describe("detail text", () => {
   });
 
   it("describes the head and history in Polish", ({ expect }) => {
-    expect(questionHead(detail())).toBe("Pedagog szkolny · wpłynęło 20 października 2026");
+    expect(questionHead(detail())).toBe(
+      "wskazany adresat: Pedagog szkolny · wpłynęło 20 października 2026",
+    );
     const at = "2026-10-22T08:00:00Z";
     expect(historyLine({ at, action: "questions.publish", actorEmail: "p@zsm3.pl" })).toBe(
       `${panelMoment(at)} — opublikowano — p@zsm3.pl`,
@@ -160,7 +172,7 @@ describe("feedback", () => {
     expect(decisionPhrase(200, "withdraw")).toContain("nie jest już widoczne");
     expect(decisionPhrase(200, "delete")).toBe("Usunięto pytanie na stałe.");
     expect(decisionPhrase(409, "reject")).toContain("Wczytano aktualny stan");
-    expect(decisionPhrase(422, "publish")).toContain("niepustą odpowiedzią");
+    expect(decisionPhrase(422, "publish")).toContain("nie kopią oryginału");
     expect(decisionPhrase(422, "withdraw")).toContain("w obecnym stanie");
     expect(decisionPhrase(403, "delete")).toBe("Brak uprawnień do tej czynności.");
     expect(readPhrase(404)).toBe("Nie znaleziono elementu. Odśwież listę.");
@@ -178,18 +190,17 @@ describe("exact wording", () => {
       withdrawn: "Wycofane",
     });
     expect(
-      [...decisionActions("draft"), ...decisionActions("published")].map((spec) => [
-        spec.action,
-        spec.label,
-        spec.confirm,
-      ]),
+      [
+        ...decisionActions(detail({ status: "draft" })),
+        ...decisionActions(detail({ status: "published" })),
+      ].map((spec) => [spec.action, spec.label, spec.confirm]),
     ).toEqual([
       ["publish", "Opublikuj pytanie i odpowiedź", "Tak, opublikuj"],
       ["reject", "Odrzuć pytanie", "Tak, odrzuć"],
       ["delete", "Usuń na stałe", "Tak, usuń na stałe"],
       ["withdraw", "Wycofaj publikację", "Tak, wycofaj"],
     ]);
-    expect(decisionActions("published")[0]?.warning).toBe(
+    expect(decisionActions(detail({ status: "published" }))[0]?.warning).toBe(
       "Pytanie i odpowiedź znikną ze strony. Szkic zostanie w panelu i będzie można go poprawić albo odrzucić.",
     );
   });

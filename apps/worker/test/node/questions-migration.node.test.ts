@@ -66,5 +66,6 @@ describe("migration 0016", () => {
       }, statement).toThrow(/CHECK constraint failed/u);
     }
     expect(db.prepare("SELECT count(*) AS total FROM questions").get()).toEqual({ total: 0 });
+    expect(() => db.prepare("SELECT rowid FROM questions").all()).toThrow(/rowid/u);
   });
 });

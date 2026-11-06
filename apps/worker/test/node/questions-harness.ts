@@ -39,7 +39,6 @@ export function questionBody(overrides: Record<string, unknown> = {}): Record<st
     rulesAccepted: true,
     honeypot: "",
     formKey: crypto.randomUUID(),
-    submittedAtMs: NOW.getTime() - 10_000,
     turnstileToken: "tok",
     ...overrides,
   };

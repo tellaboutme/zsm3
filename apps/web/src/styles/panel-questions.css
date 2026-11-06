@@ -37,6 +37,19 @@
   display: none;
 }
 
+.panel-hints {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-inline-start: var(--space-4);
+}
+
+.panel-review {
+  display: flex;
+  gap: var(--space-2);
+  align-items: start;
+}
+
 .panel-history {
   display: grid;
   gap: var(--space-1);

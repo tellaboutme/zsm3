@@ -9,6 +9,7 @@ export interface FakeQuestion {
   version: number;
   receivedOn: string;
   question: string | null;
+  unreadable: ("question" | "draft")[];
   draft: { question: string; answer: string } | null;
   published: { slug: string; publishedOn: string } | null;
 }
@@ -29,6 +30,7 @@ export function fakeQuestion(n: number, overrides: Partial<FakeQuestion> = {}): 
     version: 1,
     receivedOn: `2026-10-${String(10 + n).padStart(2, "0")}`,
     question: HOSTILE,
+    unreadable: [],
     draft: null,
     published: null,
     ...overrides,

@@ -9,7 +9,13 @@ import { Hono, type Context } from "hono";
 import { requirePanelDeps } from "./deps.ts";
 import { panelGuard, panelJsonOrigin } from "./guards.ts";
 import { uniqueQuery } from "./http.ts";
-import { findQuestion, openDraft, openQuestion, QUESTIONS_ENTITY } from "./question-reads.ts";
+import {
+  findQuestion,
+  openDraft,
+  openQuestion,
+  QUESTIONS_ENTITY,
+  valueOf,
+} from "./question-reads.ts";
 import { decideQuestion, saveQuestionDraft } from "./question-writes.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { problemResponse } from "../../http/problem.ts";
@@ -54,11 +60,17 @@ async function showQuestion(c: Context<AppEnv>): Promise<Response> {
     return problemResponse(c, 404);
   }
   const history = await deps.repos.audit.byEntity(QUESTIONS_ENTITY, record.id, HISTORY_LIMIT);
+  const question = await openQuestion(deps, record);
+  const draft = await openDraft(deps, record);
   return c.json(
     panelQuestionDetailSchema.parse({
       ...summaryOf(record),
-      question: await openQuestion(deps, record),
-      draft: await openDraft(deps, record),
+      question: valueOf(question),
+      unreadable: [
+        ...(question.readable ? [] : ["question"]),
+        ...(draft.readable ? [] : ["draft"]),
+      ],
+      draft: valueOf(draft),
       published:
         record.status === "published"
           ? { slug: record.publicSlug, publishedOn: record.publishedOn }

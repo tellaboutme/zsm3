@@ -1,4 +1,5 @@
 import {
+  normaliseText,
   panelQuestionDecisionSchema,
   panelQuestionDraftSaveSchema,
   publishableDraftSchema,
@@ -9,7 +10,7 @@ import type { Context } from "hono";
 import { auditEntry } from "./audit.ts";
 import { requirePanelDeps, requirePanelSession, type PanelDeps } from "./deps.ts";
 import { parseJsonBody } from "./http.ts";
-import { findQuestion, openDraft, QUESTIONS_ENTITY } from "./question-reads.ts";
+import { findQuestion, openDraft, openQuestion, QUESTIONS_ENTITY } from "./question-reads.ts";
 import type { AppEnv } from "../../app-env.ts";
 import { canChange, type QuestionChange } from "../../domain/question-lifecycle.ts";
 import { problemResponse } from "../../http/problem.ts";
@@ -20,7 +21,13 @@ import type { QuestionWrite } from "../../storage/questions-writes.ts";
 
 const CHANGED = "Question Changed";
 const NOT_ALLOWED = "Invalid Question Transition";
-const ANSWER_REQUIRED = "Answer Required";
+const PUBLISH_REFUSALS = {
+  answer_required: "Answer Required",
+  unreadable: "Question Unreadable",
+  unchanged: "Draft Matches Original",
+} as const;
+
+type PublishRefusal = keyof typeof PUBLISH_REFUSALS;
 
 const AUDIT_FIELDS: Readonly<Record<QuestionChange, readonly string[]>> = {
   draft: ["draft"],
@@ -87,13 +94,25 @@ export async function saveQuestionDraft(c: Context<AppEnv>): Promise<Response> {
   return commit(c, record, "draft", { kind: "draft", draft });
 }
 
+function comparable(value: string): string {
+  return normaliseText(value).replaceAll(/\s+/gu, " ").toLocaleLowerCase("pl");
+}
+
 async function publication(
   deps: PanelDeps,
   record: QuestionRecord,
-): Promise<QuestionWrite | undefined> {
-  const draft = publishableDraftSchema.safeParse(await openDraft(deps, record));
+): Promise<QuestionWrite | PublishRefusal> {
+  const opened = await openDraft(deps, record);
+  const original = await openQuestion(deps, record);
+  if (!opened.readable || !original.readable) {
+    return "unreadable";
+  }
+  const draft = publishableDraftSchema.safeParse(opened.value);
   if (!draft.success) {
-    return undefined;
+    return "answer_required";
+  }
+  if (original.value !== null && comparable(original.value) === comparable(draft.data.question)) {
+    return "unchanged";
   }
   return {
     kind: "publish",
@@ -107,7 +126,7 @@ async function decisionWrite(
   deps: PanelDeps,
   record: QuestionRecord,
   action: QuestionDecision,
-): Promise<QuestionWrite | undefined> {
+): Promise<QuestionWrite | PublishRefusal> {
   switch (action) {
     case "publish":
       return publication(deps, record);
@@ -130,8 +149,8 @@ export async function decideQuestion(c: Context<AppEnv>): Promise<Response> {
     return record;
   }
   const write = await decisionWrite(requirePanelDeps(c), record, body.action);
-  if (write === undefined) {
-    return problemResponse(c, 422, ANSWER_REQUIRED);
+  if (typeof write === "string") {
+    return problemResponse(c, 422, PUBLISH_REFUSALS[write]);
   }
   return commit(c, record, body.action, write);
 }

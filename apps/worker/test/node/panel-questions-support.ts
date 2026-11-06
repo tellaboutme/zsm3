@@ -26,6 +26,11 @@ export const ORIGINAL =
 export const REDACTED = "Mam problem z koleżanką z klasy. Co mogę zrobić?";
 export const ANSWER = "Porozmawiaj z wychowawcą albo przyjdź do pedagoga w czasie dyżuru.";
 
+export function decision(action: string, version: number): Record<string, unknown> {
+  const base = { action, expectedVersion: version };
+  return action === "publish" ? { ...base, privacyReviewed: true } : base;
+}
+
 export interface QuestionsPanel {
   readonly harness: PanelHarness;
   readonly store: Store;

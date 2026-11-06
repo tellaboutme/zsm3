@@ -115,7 +115,7 @@ describe("form messages", () => {
   });
 
   it("names the field to fix", ({ expect }) => {
-    expect(fieldError("addressee")).toBe("Wybierz, do kogo kierujesz pytanie.");
+    expect(fieldError("addressee")).toBe("Wybierz, kto Twoim zdaniem najlepiej odpowie.");
     expect(fieldError("question")).toContain("od 10 do 1500 znaków");
     expect(fieldError("rulesAccepted")).toContain("zasady");
     expect(fieldError("turnstileToken")).toContain("weryfikacji");

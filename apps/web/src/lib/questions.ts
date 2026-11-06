@@ -112,7 +112,7 @@ export function questionRefusal(status: number): string {
 }
 
 export const QUESTION_FIELD_ERRORS: Readonly<Record<string, string>> = {
-  addressee: "Wybierz, do kogo kierujesz pytanie.",
+  addressee: "Wybierz, kto Twoim zdaniem najlepiej odpowie.",
   question: `Napisz pytanie – od 10 do ${String(QUESTION_MAX_LENGTH)} znaków, bez znaków sterujących.`,
   rulesAccepted: "Potwierdź, że znasz zasady Skrzynki.",
   turnstileToken: "Zaczekaj na zakończenie weryfikacji i spróbuj ponownie.",

@@ -2,6 +2,7 @@
 import { ANSWER_MAX_LENGTH, QUESTION_MAX_LENGTH } from "@zsm3/contracts/questions";
 
 import Panel from "../../../layouts/panel.astro";
+import { PRIVACY_REVIEW_LABEL } from "../../../lib/panel/question-privacy.ts";
 import { QUESTION_STATUS_LABELS } from "../../../lib/panel/questions.ts";
 
 import "../../../styles/panel-requests.css";
@@ -70,6 +71,10 @@ const statuses = Object.entries(QUESTION_STATUS_LABELS);
           <p class="panel-note" data-panel="question-feedback" role="status" aria-live="polite"></p>
           <section class="panel-question-original" aria-labelledby="pytanie-oryginal">
             <h3 id="pytanie-oryginal">Treść od ucznia</h3>
+            <p class="panel-note">
+              Widoczna tylko w panelu Skrzynki. Ta treść nigdy nie trafia na stronę — publikowany
+              jest wyłącznie szkic poniżej.
+            </p>
             <p class="panel-warning" data-panel="question-erased" hidden></p>
             <div class="panel-question-text" data-panel="question-original"></div>
           </section>
@@ -81,7 +86,9 @@ const statuses = Object.entries(QUESTION_STATUS_LABELS);
           <form class="panel-form" data-panel="question-editor" hidden>
             <label for="szkic-pytanie">Pytanie do publikacji</label>
             <p id="szkic-pytanie-opis" class="panel-note">
-              Przepisz pytanie tak, aby nie dało się rozpoznać autora ani innych osób.
+              Pole jest na początku puste. Napisz pytanie własnymi słowami, bez imion i nazwisk,
+              oznaczeń klas, numerów telefonów, adresów e-mail i szczegółów (wydarzeń, miejsc, dat),
+              po których można rozpoznać autora albo inne osoby.
             </p>
             <textarea
               id="szkic-pytanie"
@@ -106,6 +113,11 @@ const statuses = Object.entries(QUESTION_STATUS_LABELS);
           <div class="panel-actions" data-panel="question-actions"></div>
           <div class="panel-confirm" data-panel="question-confirm" hidden>
             <p id="pytanie-potwierdzenie" data-panel="confirm-text"></p>
+            <ul class="panel-hints" data-panel="confirm-hints" hidden></ul>
+            <label class="panel-review" data-panel="confirm-review" hidden>
+              <input type="checkbox" data-panel="confirm-check" />
+              <span>{PRIVACY_REVIEW_LABEL}</span>
+            </label>
             <div class="panel-actions">
               <button
                 type="button"

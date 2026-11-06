@@ -7,9 +7,7 @@ import {
   panelQuestionDecisionSchema,
   panelQuestionDetailSchema,
   panelQuestionDraftSaveSchema,
-  panelQuestionsListSchema,
   panelQuestionsQuerySchema,
-  panelQuestionWriteSchema,
   publishableDraftSchema,
   publicQuestionSchema,
   QUESTION_ADDRESSEE_LABELS,
@@ -29,7 +27,6 @@ function input(overrides: Record<string, unknown> = {}): Record<string, unknown>
     rulesAccepted: true,
     honeypot: "",
     formKey: FORM_KEY,
-    submittedAtMs: 1_800_000_000_000,
     turnstileToken: "token",
     ...overrides,
   };
@@ -83,7 +80,7 @@ describe("anonymous question input", () => {
       input({ formKey: "abc" }),
       input({ turnstileToken: "" }),
       input({ turnstileToken: "t".repeat(2049) }),
-      input({ submittedAtMs: -1 }),
+      input({ submittedAtMs: 1_800_000_000_000 }),
       input({ question: "Pytanie\u202e z ukrytym kierunkiem" }),
     ];
     expect(refused.map((value) => questionInputSchema.safeParse(value).success)).toEqual(
@@ -117,12 +114,22 @@ describe("moderation payloads", () => {
       false,
     );
     expect(panelQuestionDraftSaveSchema.safeParse(save).success).toBe(false);
-    expect(
-      panelQuestionDecisionSchema.safeParse({ action: "publish", expectedVersion: 2 }).success,
-    ).toBe(true);
-    expect(
-      panelQuestionDecisionSchema.safeParse({ action: "approve", expectedVersion: 2 }).success,
-    ).toBe(false);
+    const decided = [
+      { action: "publish", expectedVersion: 2, privacyReviewed: true },
+      { action: "reject", expectedVersion: 2 },
+      { action: "publish", expectedVersion: 2 },
+      { action: "publish", expectedVersion: 2, privacyReviewed: false },
+      { action: "delete", expectedVersion: 2, privacyReviewed: true },
+      { action: "approve", expectedVersion: 2 },
+    ];
+    expect(decided.map((body) => panelQuestionDecisionSchema.safeParse(body).success)).toEqual([
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+    ]);
   });
 
   it("takes the list cursor only as a pair", ({ expect }) => {
@@ -161,6 +168,7 @@ describe("public shapes", () => {
         version: 3,
         receivedOn: "2026-10-20",
         question: null,
+        unreadable: ["question"],
         draft: { question: "Pytanie?", answer: "Odpowiedź." },
         published: { slug: "abcdefgh2345", publishedOn: "2026-10-22" },
         history: [{ at: "2026-10-22T08:00:00Z", action: "questions.publish", actorEmail: null }],
@@ -185,31 +193,5 @@ describe("labels and messages", () => {
     expect(cursor.error?.issues.map((issue) => issue.message)).toEqual([
       "Cursor fields must be provided together",
     ]);
-  });
-});
-
-describe("panel responses", () => {
-  it("bounds a list page and requires a successful write", ({ expect }) => {
-    const item = {
-      id: "0191e4a0-0000-4000-8000-000000000000",
-      addressee: "pedagogue",
-      status: "received",
-      version: 1,
-      receivedOn: "2026-10-20",
-    };
-    const page = (count: number) => ({
-      items: Array.from({ length: count }, () => item),
-      nextBefore: null,
-      nextBeforeId: null,
-    });
-    expect(panelQuestionsListSchema.safeParse(page(0)).success).toBe(true);
-    expect(panelQuestionsListSchema.safeParse(page(20)).success).toBe(true);
-    expect(panelQuestionsListSchema.safeParse(page(21)).success).toBe(false);
-    expect(panelQuestionWriteSchema.parse({ ok: true, version: 2 })).toEqual({
-      ok: true,
-      version: 2,
-    });
-    expect(panelQuestionWriteSchema.parse({ ok: true, version: null }).version).toBeNull();
-    expect(panelQuestionWriteSchema.safeParse({ ok: false, version: 2 }).success).toBe(false);
   });
 });

@@ -41,7 +41,7 @@ const DECISIONS: Readonly<Record<QuestionDecision, Omit<DecisionSpec, "action">>
   publish: {
     label: "Opublikuj pytanie i odpowiedź",
     warning:
-      "Zapisany szkic pytania i odpowiedź będą widoczne dla wszystkich na stronie /skrzynka. Oryginalna treść pytania zostanie usunięta. Upewnij się, że nie ma w nich danych, po których można kogoś rozpoznać.",
+      "Zapisany szkic pytania i odpowiedź będą widoczne dla wszystkich na stronie /skrzynka. Oryginalna treść pytania zostanie usunięta. Sprawdź jeszcze raz, czy nie ma w nich imion, nazwisk, oznaczeń klas, danych kontaktowych ani szczegółów, po których można kogoś rozpoznać.",
     confirm: "Tak, opublikuj",
   },
   reject: {
@@ -119,15 +119,18 @@ export function nextQuestionsCursor(list: PanelQuestionsList): QuestionsCursor |
 }
 
 export function questionHead(summary: PanelQuestionSummary): string {
-  return `${QUESTION_ADDRESSEE_LABELS[summary.addressee]} · wpłynęło ${longDate(summary.receivedOn)}`;
+  return `wskazany adresat: ${QUESTION_ADDRESSEE_LABELS[summary.addressee]} · wpłynęło ${longDate(summary.receivedOn)}`;
 }
 
-export function decisionActions(status: QuestionStatus): readonly DecisionSpec[] {
-  return DECISIONS_BY_STATUS[status].map((action) => ({ action, ...DECISIONS[action] }));
+export function decisionActions(detail: PanelQuestionDetail): readonly DecisionSpec[] {
+  return DECISIONS_BY_STATUS[detail.status]
+    .filter((action) => action !== "publish" || detail.unreadable.length === 0)
+    .map((action) => ({ action, ...DECISIONS[action] }));
 }
 
-export function canEditDraft(status: QuestionStatus): boolean {
-  return status === "received" || status === "draft" || status === "withdrawn";
+export function canEditDraft(detail: PanelQuestionDetail): boolean {
+  const editable = ["received", "draft", "withdrawn"].includes(detail.status);
+  return editable && detail.unreadable.length === 0;
 }
 
 export interface DraftSeed {
@@ -136,10 +139,16 @@ export interface DraftSeed {
 }
 
 export function draftSeed(detail: PanelQuestionDetail): DraftSeed {
-  return detail.draft ?? { question: detail.question ?? "", answer: "" };
+  return detail.draft ?? { question: "", answer: "" };
 }
 
+const UNREADABLE_NOTICE =
+  "Nie można odczytać zaszyfrowanej treści. Zapis jest zachowany, ale do czasu naprawy nie można go edytować ani opublikować. Zgłoś to administratorowi panelu — najczęściej brakuje klucza szyfrowania po jego zmianie.";
+
 export function originalNotice(detail: PanelQuestionDetail): string | null {
+  if (detail.unreadable.length > 0) {
+    return UNREADABLE_NOTICE;
+  }
   return detail.question === null
     ? "Oryginalna treść pytania została usunięta przy publikacji. Zostaje tylko szkic."
     : null;
@@ -184,7 +193,7 @@ export function decisionPhrase(status: number, action: QuestionDecision): string
     return "Ktoś inny zmienił to pytanie w międzyczasie. Wczytano aktualny stan — sprawdź go i zdecyduj ponownie.";
   }
   if (status === 422 && action === "publish") {
-    return "Aby opublikować, zapisz szkic z treścią pytania i niepustą odpowiedzią.";
+    return "Nie opublikowano. Zapisz szkic z pytaniem przepisanym własnymi słowami (nie kopią oryginału) i niepustą odpowiedzią. Jeśli treści nie da się odczytać, publikacja jest zablokowana.";
   }
   if (status === 422) {
     return "Tej czynności nie można wykonać w obecnym stanie pytania. Wczytano aktualny stan.";

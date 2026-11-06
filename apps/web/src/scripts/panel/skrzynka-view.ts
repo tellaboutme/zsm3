@@ -1,14 +1,20 @@
 import { panelQuestionDetailSchema, type PanelQuestionDetail } from "@zsm3/contracts/questions";
 
-import { area, areaButton, areaForm, el } from "./dom.ts";
+import { area, areaButton, areaForm, areaInput, el, speak } from "./dom.ts";
 import { panelRead } from "../../lib/panel/api.ts";
 import { parse } from "../../lib/panel/models.ts";
+import {
+  PRIVACY_HINTS_NONE,
+  PRIVACY_REVIEW_MISSING,
+  privacyHints,
+} from "../../lib/panel/question-privacy.ts";
 import {
   QUESTION_STATUS_LABELS,
   historyLine,
   originalNotice,
   questionHead,
   questionPath,
+  type DecisionSpec,
 } from "../../lib/panel/questions.ts";
 
 const UNEXPECTED_STATUS = 500;
@@ -29,6 +35,9 @@ export interface QuestionView {
   readonly actions: HTMLElement;
   readonly confirm: HTMLElement;
   readonly confirmText: HTMLElement;
+  readonly confirmHints: HTMLElement;
+  readonly confirmReview: HTMLElement;
+  readonly confirmCheck: HTMLInputElement;
   readonly confirmYes: HTMLButtonElement;
   readonly confirmNo: HTMLButtonElement;
   readonly history: HTMLElement;
@@ -68,6 +77,9 @@ export function questionView(section: HTMLElement): QuestionView {
     actions: area(section, "question-actions"),
     confirm: area(section, "question-confirm"),
     confirmText: area(section, "confirm-text"),
+    confirmHints: area(section, "confirm-hints"),
+    confirmReview: area(section, "confirm-review"),
+    confirmCheck: areaInput(section, "confirm-check"),
     confirmYes: areaButton(section, "confirm-yes"),
     confirmNo: areaButton(section, "confirm-no"),
     history: area(section, "question-history"),
@@ -101,7 +113,7 @@ export function clearQuestion(view: QuestionView): void {
 
 export function renderQuestion(view: QuestionView, detail: PanelQuestionDetail): void {
   const { title, meta, erased, original, publicRow, publicLink, history } = view;
-  title.textContent = `Pytanie do: ${questionHead(detail)}`;
+  title.textContent = `Pytanie — ${questionHead(detail)}`;
   meta.textContent = `Status: ${QUESTION_STATUS_LABELS[detail.status]}`;
   const notice = originalNotice(detail);
   erased.hidden = notice === null;
@@ -114,4 +126,32 @@ export function renderQuestion(view: QuestionView, detail: PanelQuestionDetail):
       ? [el("li", { text: "Brak zmian." })]
       : detail.history.map((entry) => el("li", { text: historyLine(entry) }))),
   );
+}
+
+export function showConfirm(
+  view: QuestionView,
+  spec: DecisionSpec,
+  draft: PanelQuestionDetail["draft"],
+): void {
+  const { confirm, confirmText, confirmYes, confirmHints, confirmReview, confirmCheck } = view;
+  const reviewing = spec.action === "publish";
+  const hints = draft === null ? [] : privacyHints(draft.question, draft.answer);
+  confirmText.textContent = spec.warning;
+  confirmYes.textContent = spec.confirm;
+  confirmHints.hidden = !reviewing;
+  confirmHints.replaceChildren(
+    ...(hints.length === 0 ? [PRIVACY_HINTS_NONE] : hints).map((text) => el("li", { text })),
+  );
+  confirmReview.hidden = !reviewing;
+  confirmCheck.checked = false;
+  confirm.hidden = false;
+}
+
+export function reviewed(view: QuestionView, spec: DecisionSpec): boolean {
+  if (spec.action !== "publish" || view.confirmCheck.checked) {
+    return true;
+  }
+  speak(view.feedback, [PRIVACY_REVIEW_MISSING]);
+  view.confirmCheck.focus();
+  return false;
 }

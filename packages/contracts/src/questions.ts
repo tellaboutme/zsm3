@@ -77,7 +77,6 @@ export const questionInputSchema = z.strictObject({
   rulesAccepted: z.literal(true),
   honeypot: z.literal(""),
   formKey: z.uuid(),
-  submittedAtMs: z.number().int().nonnegative(),
   turnstileToken: z.string().min(1).max(2048),
 });
 export type QuestionInput = z.infer<typeof questionInputSchema>;
@@ -146,8 +145,13 @@ export const panelQuestionHistorySchema = z.strictObject({
   actorEmail: z.string().nullable(),
 });
 
+export const questionSealedParts = ["question", "draft"] as const;
+export const questionSealedPartSchema = z.enum(questionSealedParts);
+export type QuestionSealedPart = z.infer<typeof questionSealedPartSchema>;
+
 export const panelQuestionDetailSchema = panelQuestionSummarySchema.extend({
   question: z.string().nullable(),
+  unreadable: z.array(questionSealedPartSchema).max(questionSealedParts.length),
   draft: z.strictObject({ question: z.string(), answer: z.string() }).nullable(),
   published: z.strictObject({ slug: questionSlugSchema, publishedOn: isoDateSchema }).nullable(),
   history: z.array(panelQuestionHistorySchema),
@@ -163,10 +167,17 @@ export const questionDecisions = ["publish", "reject", "withdraw", "delete"] as 
 export const questionDecisionSchema = z.enum(questionDecisions);
 export type QuestionDecision = z.infer<typeof questionDecisionSchema>;
 
-export const panelQuestionDecisionSchema = z.strictObject({
-  action: questionDecisionSchema,
-  expectedVersion: versionSchema,
-});
+export const panelQuestionDecisionSchema = z.discriminatedUnion("action", [
+  z.strictObject({
+    action: z.literal("publish"),
+    expectedVersion: versionSchema,
+    privacyReviewed: z.literal(true),
+  }),
+  z.strictObject({
+    action: z.enum(["reject", "withdraw", "delete"]),
+    expectedVersion: versionSchema,
+  }),
+]);
 export type PanelQuestionDecision = z.infer<typeof panelQuestionDecisionSchema>;
 
 export const panelQuestionWriteSchema = z.strictObject({

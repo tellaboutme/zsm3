@@ -23,7 +23,7 @@ interface Parts {
   readonly count: HTMLElement;
 }
 
-const session = { started: Date.now(), formKey: crypto.randomUUID() };
+const session = { formKey: crypto.randomUUID() };
 
 function showError(parts: Parts, message: string, field?: string): void {
   const summary = parts.summary;
@@ -57,7 +57,6 @@ function collect(parts: Parts): unknown {
     rulesAccepted: values.has("rulesAccepted"),
     honeypot: values.get("honeypot"),
     formKey: session.formKey,
-    submittedAtMs: session.started,
     turnstileToken: window.turnstile?.getResponse(parts.challenge) ?? "",
   };
 }
@@ -81,7 +80,6 @@ function received(parts: Parts): void {
   form.reset();
   updateCount(parts);
   session.formKey = crypto.randomUUID();
-  session.started = Date.now();
   form.hidden = true;
   success.hidden = false;
   success.focus();

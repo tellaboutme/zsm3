@@ -6,6 +6,7 @@ import { questionBody } from "./questions-harness.ts";
 import { SECRETS } from "./request-harness.ts";
 import type { AppBindings } from "../../src/app-env.ts";
 import { questionsEnabled } from "../../src/questions/config.ts";
+import { QUESTION_ACCEPTED_LIMIT, QUESTION_ATTEMPT_LIMIT } from "../../src/questions/submit.ts";
 import { MAX_QUESTION_BODY_BYTES, createQuestionsApp } from "../../src/questions-app.ts";
 import { QUESTION_TURNSTILE_ACTION } from "../../src/security/turnstile.ts";
 
@@ -61,11 +62,12 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
 function body(overrides: Record<string, unknown> = {}): string {
-  return JSON.stringify(questionBody({ submittedAtMs: Date.now() - 10_000, ...overrides }));
+  return JSON.stringify(questionBody(overrides));
 }
 
 describe("the public question endpoint", () => {
@@ -85,9 +87,10 @@ describe("the public question endpoint", () => {
   });
 
   it("still rate-limits a sender whose address the edge did not pass on", async ({ expect }) => {
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-10-22T08:00:01Z") });
     const env = bindings();
     const statuses = [];
-    for (let attempt = 0; attempt < 4; attempt += 1) {
+    for (let attempt = 0; attempt <= QUESTION_ACCEPTED_LIMIT; attempt += 1) {
       const response = await createQuestionsApp().request(
         `${ORIGIN}/api/questions`,
         {
@@ -100,7 +103,7 @@ describe("the public question endpoint", () => {
       statuses.push(response.status);
     }
 
-    expect(statuses).toEqual([202, 202, 202, 429]);
+    expect(statuses).toEqual([...Array.from({ length: QUESTION_ACCEPTED_LIMIT }, () => 202), 429]);
   });
 
   it("is closed unless the school switched it on", async ({ expect }) => {
@@ -139,14 +142,18 @@ describe("the public question endpoint", () => {
   });
 
   it("maps refusals to problem responses", async ({ expect }) => {
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-10-22T08:00:01Z") });
     const env = bindings();
     const invalid = await post(env, body({ question: "krótko" }));
-    const trap = await post(env, body({ submittedAtMs: Date.now() }));
+    const timed = await post(env, body({ submittedAtMs: Date.now() }));
     vi.stubGlobal("fetch", async () => Promise.resolve(new Response("{}", { status: 500 })));
     const challenge = await post(env, body());
+    for (let attempt = 3; attempt < QUESTION_ATTEMPT_LIMIT; attempt += 1) {
+      await post(env, body());
+    }
     const limited = await post(env, body());
 
-    expect([invalid.status, trap.status, challenge.status, limited.status]).toEqual([
+    expect([invalid.status, timed.status, challenge.status, limited.status]).toEqual([
       400, 400, 403, 429,
     ]);
     expect(invalid.headers.get("content-type")).toBe("application/problem+json");

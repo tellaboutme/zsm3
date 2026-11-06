@@ -3,31 +3,9 @@ import type { Page, Request } from "@playwright/test";
 
 import { expect, test } from "./fixtures.ts";
 import { pageProblems } from "./panel-requests-fake.ts";
+import { QUESTION, fillQuestion, stubTurnstile } from "./skrzynka-support.ts";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"];
-const TURNSTILE_STUB =
-  "window.turnstile = { getResponse: () => 'stub-token', reset: () => undefined };";
-const QUESTION = "Jak mogę umówić się na rozmowę, jeśli nie chcę, żeby klasa o tym wiedziała?";
-
-async function stubTurnstile(page: Page): Promise<void> {
-  await page.route("https://challenges.cloudflare.com/**", async (route) =>
-    route.fulfill({
-      contentType: "text/javascript",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Cross-Origin-Resource-Policy": "cross-origin",
-      },
-      body: TURNSTILE_STUB,
-    }),
-  );
-}
-
-async function fillQuestion(page: Page, text = QUESTION): Promise<void> {
-  await page.getByRole("radio", { name: "Psycholog szkolny" }).check();
-  await page.getByLabel("Twoje pytanie").fill(text);
-  await page.getByRole("checkbox", { name: /Rozumiem, że pytanie czytają/u }).check();
-}
-
 async function noScroll(page: Page): Promise<boolean> {
   return page.evaluate(async () => {
     await document.fonts.ready;
@@ -96,7 +74,6 @@ test.describe("Skrzynka public page", () => {
       "honeypot",
       "question",
       "rulesAccepted",
-      "submittedAtMs",
       "turnstileToken",
     ]);
     expect(await sent[0]?.headerValue("cookie")).toBeNull();
@@ -116,7 +93,7 @@ test.describe("Skrzynka public page", () => {
 
     await page.getByRole("button", { name: "Wyślij pytanie" }).click();
     await expect(page.locator("#question-errors")).toHaveText(
-      "Wybierz, do kogo kierujesz pytanie.",
+      "Wybierz, kto Twoim zdaniem najlepiej odpowie.",
     );
     await expect(page.getByRole("radio", { name: "Pedagog szkolny" })).toBeFocused();
 

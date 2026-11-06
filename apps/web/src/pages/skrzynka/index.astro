@@ -15,7 +15,7 @@ const listing = await publishedQuestions(1);
 
 <Base
   title="Skrzynka #OgarniamŻycie – ZSM3"
-  description="Anonimowe pytania do pedagoga, psychologa i dyrekcji ZSM3. Wybrane pytania publikujemy razem z odpowiedzią, bez danych pozwalających rozpoznać autora."
+  description="Anonimowe pytania do zespołu wyznaczonego przez ZSM3. Wybrane pytania publikujemy razem z odpowiedzią, przepisane bez danych pozwalających rozpoznać autora."
   breadcrumbs={[{ label: "Skrzynka #OgarniamŻycie" }]}
 >
   <div class="request-page questions-page">
@@ -23,8 +23,8 @@ const listing = await publishedQuestions(1);
       <p class="tag">Uczniowie · pytania anonimowe</p>
       <h1>Skrzynka #OgarniamŻycie</h1>
       <p>
-        Zapytaj anonimowo pedagoga, psychologa albo dyrekcję o sprawy związane ze szkołą, nauką i
-        codziennym życiem. Nie zakładasz konta i nie podajesz swoich danych.
+        Zadaj anonimowo pytanie o sprawy związane ze szkołą, nauką i codziennym życiem. Pytania
+        czyta zespół wyznaczony przez szkołę. Nie zakładasz konta i nie podajesz swoich danych.
       </p>
     </header>
     <HelpLines />
@@ -33,12 +33,14 @@ const listing = await publishedQuestions(1);
       <ol>
         <li>Wysyłasz pytanie bez podpisu. Nikt nie odpowiada od razu.</li>
         <li>
-          Pytanie czytają tylko wyznaczeni przez szkołę pracownicy. Żadne pytanie nie pojawia się na
-          stronie automatycznie.
+          Pytanie czyta zespół wyznaczony przez szkołę do obsługi Skrzynki. To, kogo wskażesz jako
+          najlepszą osobę do odpowiedzi, jest tylko wskazówką i nie ogranicza, kto zobaczy pytanie.
+          Żadne pytanie nie pojawia się na stronie automatycznie.
         </li>
         <li>
-          Jeśli odpowiedź może pomóc też innym, pracownik publikuje pytanie razem z odpowiedzią.
-          Przed publikacją usuwa z pytania wszystko, po czym można rozpoznać Ciebie albo inne osoby.
+          Jeśli odpowiedź może pomóc też innym, pracownik przepisuje pytanie własnymi słowami, bez
+          niczego, po czym można rozpoznać Ciebie albo inne osoby, i publikuje je razem z
+          odpowiedzią. Oryginalnej treści nie publikujemy.
         </li>
         <li>
           Pytań odrzuconych nie publikujemy. Nie każde pytanie dostaje odpowiedź, a odpowiedź może
@@ -48,16 +50,21 @@ const listing = await publishedQuestions(1);
       <h3>Co dzieje się z Twoim pytaniem</h3>
       <ul>
         <li>
-          Przy pytaniu nie zapisujemy adresu IP, konta ani danych urządzenia. Treść pytania jest
-          przechowywana w postaci zaszyfrowanej.
+          Przy pytaniu nie zapisujemy adresu IP, konta ani danych urządzenia, a datę wpływu — bez
+          godziny. Treść pytania jest przechowywana w postaci zaszyfrowanej, a w panelu czyta ją
+          tylko zespół Skrzynki.
         </li>
         <li>
-          Aby chronić Skrzynkę przed spamem, formularz sprawdza usługa Cloudflare Turnstile, a skrót
-          adresu IP (bez samego adresu) przechowujemy najwyżej 24 godziny.
+          Aby chronić Skrzynkę przed spamem, formularz sprawdza usługa Cloudflare Turnstile. Do
+          limitu prób zapisujemy liczniki oznaczone jednokierunkowym skrótem adresu IP z tajnym
+          kluczem — bez samego adresu i bez powiązania z pytaniem — i usuwamy je po około dobie.
+          Serwery dostawcy obsługujące połączenie mogą przez krótki czas prowadzić własne dzienniki
+          techniczne; nie łączymy ich z pytaniami.
         </li>
         <li>
           Pytania bez odpowiedzi usuwamy po 90 dniach, odrzucone i wycofane — po 30 dniach. Przy
-          publikacji usuwamy oryginalną treść pytania i zostaje tylko wersja opublikowana.
+          publikacji usuwamy oryginalną treść pytania i zostaje tylko wersja opublikowana. Kopie
+          zapasowe bazy danych mogą jeszcze przez ograniczony czas zawierać usunięte dane.
         </li>
       </ul>
       <p>

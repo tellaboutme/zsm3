@@ -24,8 +24,8 @@ const pages = pageCount(total);
         <li>
           <article aria-labelledby={`pytanie-${item.slug}`}>
             <p class="meta">
-              <time datetime={item.publishedOn}>{longDate(item.publishedOn)}</time> ·{" "}
-              {addresseeLabel(item.addressee)}
+              <time datetime={item.publishedOn}>{longDate(item.publishedOn)}</time> · wskazany
+              adresat: {addresseeLabel(item.addressee)}
             </p>
             <h3 id={`pytanie-${item.slug}`}>
               <a href={`/skrzynka/${item.slug}`}>{excerpt(item.question, 140)}</a>

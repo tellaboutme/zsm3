@@ -22,7 +22,7 @@ CREATE TABLE questions (
   CHECK (status <> 'published' OR public_slug IS NOT NULL),
   CHECK (status <> 'received' OR question_ciphertext IS NOT NULL),
   CHECK (status NOT IN ('draft', 'published') OR draft_ciphertext IS NOT NULL)
-);
+) WITHOUT ROWID;
 
 CREATE INDEX questions_queue ON questions (status, received_on, id);
 CREATE INDEX questions_listing ON questions (received_on, id);

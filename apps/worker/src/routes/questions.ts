@@ -15,7 +15,6 @@ import { rateLimitsRepo } from "../storage/rate-limits-repo.ts";
 const REFUSAL_STATUS: Readonly<Record<QuestionRefusal, 400 | 403 | 429>> = {
   rate_limit: 429,
   turnstile: 403,
-  trap: 400,
   invalid: 400,
 };
 

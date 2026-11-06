@@ -12,7 +12,9 @@ const ANSWER = "Przyjdź do pedagoga w czasie dyżuru albo porozmawiaj z wychowa
 async function openFirst(page: Page): Promise<void> {
   await page.goto("/panel/skrzynka");
   await page
-    .getByRole("button", { name: /^Otwórz pytanie: Pedagog szkolny · wpłynęło 12/u })
+    .getByRole("button", {
+      name: /^Otwórz pytanie: wskazany adresat: Pedagog szkolny · wpłynęło 12/u,
+    })
     .click();
   await expect(page.locator('[data-panel="question-title"]')).toBeFocused();
 }
@@ -37,8 +39,9 @@ test.describe("Skrzynka moderation", () => {
     await expect(original).toHaveText(HOSTILE);
     await expect(original.locator("img")).toHaveCount(0);
     expect(await page.title()).not.toBe("zhakowane");
+    await expect(page.getByLabel("Pytanie do publikacji")).toHaveValue("");
     await page.getByLabel("Pytanie do publikacji").fill(REDACTED);
-    await page.getByLabel("Odpowiedź").fill(ANSWER);
+    await page.getByLabel("Odpowiedź", { exact: true }).fill(ANSWER);
     await page.getByRole("button", { name: "Zapisz szkic" }).click();
     await expect(page.locator('[data-panel="question-feedback"]')).toHaveText(
       "Zapisano szkic. Nic nie zostało opublikowane.",
@@ -47,6 +50,16 @@ test.describe("Skrzynka moderation", () => {
     await expect(page.locator('[data-panel="confirm-text"]')).toContainText(
       "widoczne dla wszystkich",
     );
+    await expect(page.locator('[data-panel="confirm-hints"]')).toContainText("konkretne osoby");
+    const review = page.getByRole("checkbox", { name: /^Sprawdziłem\/am pytanie i odpowiedź/u });
+    await expect(review).toBeFocused();
+    await page.getByRole("button", { name: "Tak, opublikuj" }).click();
+    await expect(page.locator('[data-panel="question-feedback"]')).toContainText(
+      "zaznacz potwierdzenie",
+    );
+    await expect(review).toBeFocused();
+    expect(fake.writes).toHaveLength(1);
+    await review.check();
     await page.getByRole("button", { name: "Tak, opublikuj" }).click();
 
     await expect(page.locator('[data-panel="question-feedback"]')).toHaveText(
@@ -64,7 +77,7 @@ test.describe("Skrzynka moderation", () => {
       },
       {
         path: `/api/panel/questions/${fakeQuestion(2).id}/decision`,
-        body: { action: "publish", expectedVersion: 2 },
+        body: { action: "publish", expectedVersion: 2, privacyReviewed: true },
       },
     ]);
     expect(pageProblems(problems, browserName)).toEqual([]);
@@ -80,7 +93,7 @@ test.describe("Skrzynka moderation", () => {
     ]);
     await openFirst(page);
 
-    await page.getByLabel("Odpowiedź").fill(`${ANSWER} Dopisek.`);
+    await page.getByLabel("Odpowiedź", { exact: true }).fill(`${ANSWER} Dopisek.`);
     await page.getByRole("button", { name: "Opublikuj pytanie i odpowiedź" }).click();
 
     await expect(page.locator('[data-panel="question-feedback"]')).toContainText(
@@ -117,6 +130,24 @@ test.describe("Skrzynka moderation", () => {
     await expect(reject).toBeFocused();
   });
 
+  test("keeps an unreadable question stored but closed to editing and publication", async ({
+    page,
+  }) => {
+    await fakeQuestionsPanel(page, "counsellor", [
+      fakeQuestion(2, { status: "draft", version: 2, question: null, unreadable: ["question"] }),
+    ]);
+    await openFirst(page);
+
+    await expect(page.locator('[data-panel="question-erased"]')).toContainText(
+      "Zapis jest zachowany",
+    );
+    await expect(page.locator('[data-panel="question-editor"]')).toBeHidden();
+    await expect(page.getByRole("button", { name: "Opublikuj pytanie i odpowiedź" })).toHaveCount(
+      0,
+    );
+    await expect(page.getByRole("button", { name: "Odrzuć pytanie" })).toBeVisible();
+  });
+
   test("keeps other staff out of the questions", async ({ page }) => {
     const fake = await fakeQuestionsPanel(page, "admin", [fakeQuestion(2)]);
     await page.goto("/panel/skrzynka");
@@ -131,10 +162,16 @@ test.describe("Skrzynka moderation accessibility", () => {
   for (const colorScheme of ["light", "dark"] as const) {
     test(`has no violations with a confirmation open in ${colorScheme} theme`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
-      await fakeQuestionsPanel(page, "counsellor", [fakeQuestion(2)]);
+      await fakeQuestionsPanel(page, "counsellor", [
+        fakeQuestion(2, {
+          status: "draft",
+          version: 2,
+          draft: { question: REDACTED, answer: ANSWER },
+        }),
+      ]);
       await openFirst(page);
-      await page.getByRole("button", { name: "Usuń na stałe" }).click();
-      await expect(page.locator('[data-panel="question-confirm"]')).toBeVisible();
+      await page.getByRole("button", { name: "Opublikuj pytanie i odpowiedź" }).click();
+      await expect(page.locator('[data-panel="confirm-review"]')).toBeVisible();
 
       const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
       expect(results.violations).toEqual([]);

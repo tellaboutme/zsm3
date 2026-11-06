@@ -10,7 +10,12 @@ import {
   storedRows,
 } from "./questions-harness.ts";
 import { unseal } from "../../src/questions/sealing.ts";
-import { QUESTION_RATE_LIMIT_MAX, submitQuestion } from "../../src/questions/submit.ts";
+import {
+  QUESTION_ACCEPTED_LIMIT,
+  QUESTION_ATTEMPT_LIMIT,
+  submitQuestion,
+  windowStart,
+} from "../../src/questions/submit.ts";
 
 describe("an anonymous question", () => {
   it("is stored encrypted, dated to the day and never published", async ({ expect }) => {
@@ -67,20 +72,72 @@ describe("an anonymous question", () => {
     expect(storedRows(harness.db)).toHaveLength(1);
   });
 
-  it("refuses senders over the rate limit before verifying them", async ({ expect }) => {
+  it("counts only verified, well-formed questions against the accepted quota", async ({
+    expect,
+  }) => {
     const harness = questionHarness();
     const outcomes = [];
-    for (let attempt = 0; attempt <= QUESTION_RATE_LIMIT_MAX; attempt += 1) {
+    for (let attempt = 0; attempt <= QUESTION_ACCEPTED_LIMIT; attempt += 1) {
       outcomes.push(await submitQuestion(harness.deps, questionInput(questionBody())));
     }
     const other = await submitQuestion(harness.deps, questionInput(questionBody(), "192.0.2.9"));
 
     expect(outcomes.at(-1)).toEqual({ kind: "refused", reason: "rate_limit" });
-    expect(outcomes.slice(0, QUESTION_RATE_LIMIT_MAX)).toEqual(
-      Array.from({ length: QUESTION_RATE_LIMIT_MAX }, () => ({ kind: "received" })),
+    expect(outcomes.slice(0, QUESTION_ACCEPTED_LIMIT)).toEqual(
+      Array.from({ length: QUESTION_ACCEPTED_LIMIT }, () => ({ kind: "received" })),
     );
     expect(other).toEqual({ kind: "received" });
-    expect(harness.verifications).toHaveLength(QUESTION_RATE_LIMIT_MAX + 1);
+    expect(storedRows(harness.db)).toHaveLength(QUESTION_ACCEPTED_LIMIT + 1);
+  });
+
+  it("does not let invalid attempts use up the accepted quota", async ({ expect }) => {
+    const harness = questionHarness();
+    for (let attempt = 0; attempt < QUESTION_ATTEMPT_LIMIT - 1; attempt += 1) {
+      await submitQuestion(harness.deps, questionInput(questionBody({ honeypot: "bot" })));
+    }
+
+    const valid = await submitQuestion(harness.deps, questionInput(questionBody()));
+
+    expect(valid).toEqual({ kind: "received" });
+  });
+
+  it("caps every attempt per window before verifying and resets in the next", async ({
+    expect,
+  }) => {
+    const harness = questionHarness();
+    const previous = new Date(NOW.getTime() - 1);
+    for (let attempt = 0; attempt < QUESTION_ATTEMPT_LIMIT; attempt += 1) {
+      await submitQuestion(harness.deps, {
+        ...questionInput({ turnstileToken: "tok" }),
+        now: previous,
+      });
+    }
+    const capped = await submitQuestion(harness.deps, {
+      ...questionInput(questionBody()),
+      now: previous,
+    });
+    const next = await submitQuestion(harness.deps, questionInput(questionBody()));
+
+    expect(capped).toEqual({ kind: "refused", reason: "rate_limit" });
+    expect(harness.verifications).toHaveLength(QUESTION_ATTEMPT_LIMIT + 1);
+    expect(next).toEqual({ kind: "received" });
+  });
+
+  it("keeps only window-aligned counters without the address", async ({ expect }) => {
+    const harness = questionHarness();
+    const now = new Date("2026-10-22T08:01:07.412Z");
+
+    await submitQuestion(harness.deps, { ...questionInput(questionBody(), "198.51.100.23"), now });
+
+    const counters = harness.db.sqlite.prepare("SELECT * FROM rate_limits").all();
+    expect(counters.map((row) => row["window_started_at"])).toEqual([
+      "2026-10-22T08:00:00.000Z",
+      "2026-10-22T08:00:00.000Z",
+    ]);
+    expect(JSON.stringify(counters)).not.toContain("198.51.100.23");
+    expect(windowStart(new Date("2026-10-22T08:09:59.999Z")).toISOString()).toBe(
+      "2026-10-22T08:00:00.000Z",
+    );
   });
 
   it("refuses a failed, foreign or reused challenge", async ({ expect }) => {
@@ -96,9 +153,7 @@ describe("an anonymous question", () => {
     );
   });
 
-  it("refuses bodies without a token, with invalid fields or filled too fast", async ({
-    expect,
-  }) => {
+  it("refuses bodies without a token or with invalid or unknown fields", async ({ expect }) => {
     const harness = questionHarness();
     let sender = 0;
     const submit = async (body: unknown) => {
@@ -112,33 +167,13 @@ describe("an anonymous question", () => {
       await submit(questionBody({ question: "Za krótko" })),
       await submit(questionBody({ honeypot: "bot" })),
       await submit(questionBody({ email: "uczen@example.com" })),
-      await submit(questionBody({ submittedAtMs: NOW.getTime() - 1000 })),
+      await submit(questionBody({ submittedAtMs: NOW.getTime() - 60_000 })),
     ];
 
-    expect(outcomes.map((outcome) => (outcome.kind === "refused" ? outcome.reason : "x"))).toEqual([
-      "invalid",
-      "invalid",
-      "invalid",
-      "invalid",
-      "invalid",
-      "trap",
-    ]);
+    expect(outcomes).toEqual(
+      Array.from({ length: 6 }, () => ({ kind: "refused", reason: "invalid" })),
+    );
     expect(storedRows(harness.db)).toEqual([]);
-  });
-
-  it("treats a sender who fills the form in under five seconds as a bot", async ({ expect }) => {
-    const harness = questionHarness();
-
-    const fast = await submitQuestion(
-      harness.deps,
-      questionInput(questionBody({ submittedAtMs: NOW.getTime() - 4999 })),
-    );
-    const slow = await submitQuestion(
-      harness.deps,
-      questionInput(questionBody({ submittedAtMs: NOW.getTime() - 5000 })),
-    );
-
-    expect([fast, slow]).toEqual([{ kind: "refused", reason: "trap" }, { kind: "received" }]);
   });
 
   it("stores markup as plain text without interpreting it", async ({ expect }) => {

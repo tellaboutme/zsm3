@@ -2,7 +2,7 @@ import { panelQuestionDetailSchema, panelQuestionWriteSchema } from "@zsm3/contr
 import { describe, it } from "vitest";
 import type { z } from "zod";
 
-import { ANSWER, ORIGINAL, REDACTED, questionsPanel } from "./panel-questions-support.ts";
+import { ANSWER, decision, ORIGINAL, questionsPanel, REDACTED } from "./panel-questions-support.ts";
 import { expectProblem } from "./panel-support.ts";
 
 const draft = (version: number, answer = ANSWER) => ({
@@ -10,7 +10,6 @@ const draft = (version: number, answer = ANSWER) => ({
   question: REDACTED,
   answer,
 });
-const decision = (action: string, version: number) => ({ action, expectedVersion: version });
 
 async function read<T>(schema: z.ZodType<T>, response: Response): Promise<T> {
   return schema.parse(await response.json());
@@ -31,6 +30,7 @@ describe("moderating a question", () => {
       version: 1,
       receivedOn: "2026-10-20",
       question: ORIGINAL,
+      unreadable: [],
       draft: null,
       published: null,
       history: [],

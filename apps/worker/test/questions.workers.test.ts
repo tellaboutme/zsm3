@@ -82,7 +82,6 @@ async function ask(formKey = crypto.randomUUID()): Promise<Response> {
         rulesAccepted: true,
         honeypot: "",
         formKey,
-        submittedAtMs: Date.now() - 10_000,
         turnstileToken: "tok",
       }),
     },
@@ -143,6 +142,7 @@ describe("Skrzynka on workerd with D1", () => {
     const published = await staff("POST", `/questions/${queued.id}/decision`, {
       action: "publish",
       expectedVersion: 2,
+      privacyReviewed: true,
     });
     const repo = questionsRepo(liveStore(env.DB));
     const [shown] = await repo.published(5, 0);

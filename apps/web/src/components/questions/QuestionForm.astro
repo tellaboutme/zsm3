@@ -20,10 +20,15 @@ const { siteKey } = Astro.props;
   </noscript>
   <form data-question-form method="post" action="/api/questions" novalidate>
     <div class="request-errors" id="question-errors" tabindex="-1" role="alert" hidden></div>
-    <fieldset aria-describedby="addressee-error">
+    <fieldset aria-describedby="addressee-hint addressee-error">
       <legend>
-        Do kogo kierujesz pytanie? <span aria-hidden="true">*</span>
+        Kto, Twoim zdaniem, najlepiej odpowie? <span aria-hidden="true">*</span>
       </legend>
+      <p id="addressee-hint">
+        To tylko wskazówka. Pytanie może przeczytać każda osoba z zespołu wyznaczonego przez szkołę
+        do obsługi Skrzynki — wybór nie ogranicza, kto je zobaczy, i nie wysyła go bezpośrednio do
+        tej osoby.
+      </p>
       {ADDRESSEE_OPTIONS.map((option) => (
         <label class="request-check">
           <input type="radio" name="addressee" value={option.value} required />
@@ -65,9 +70,9 @@ const { siteKey } = Astro.props;
         aria-describedby="rulesAccepted-error"
       />
       <span>
-        Rozumiem, że pytanie czytają tylko wyznaczeni pracownicy szkoły, że może pozostać bez
-        odpowiedzi i że publikowane są wyłącznie wybrane pytania, bez danych pozwalających kogoś
-        rozpoznać.
+        Rozumiem, że pytanie czyta zespół wyznaczony przez szkołę (niezależnie od tego, kogo
+        wskażę), że może pozostać bez odpowiedzi i że publikowane są wyłącznie wybrane pytania,
+        przepisane bez danych pozwalających kogoś rozpoznać.
       </span>
     </label>
     <span id="rulesAccepted-error" class="field-error" aria-live="polite"></span>

@@ -9,6 +9,8 @@ import {
   clearQuestion,
   fetchQuestion,
   renderQuestion,
+  reviewed,
+  showConfirm,
   type QuestionView,
 } from "./skrzynka-view.ts";
 import { panelSend } from "../../lib/panel/api.ts";
@@ -69,7 +71,7 @@ export class QuestionDetail {
     });
     view.confirmYes.addEventListener("click", () => {
       const pending = this.shown.pending;
-      if (pending !== undefined) void this.decide(pending);
+      if (pending !== undefined && reviewed(view, pending)) void this.decide(pending);
     });
   }
 
@@ -99,12 +101,10 @@ export class QuestionDetail {
     shown.detail = detail;
     renderQuestion(view, detail);
     const seed = draftSeed(detail);
-    view.editor.hidden = !canEditDraft(detail.status);
+    view.editor.hidden = !canEditDraft(detail);
     view.draftQuestion.value = seed.question;
     view.draftAnswer.value = seed.answer;
-    view.actions.replaceChildren(
-      ...decisionActions(detail.status).map((spec) => this.actionButton(spec)),
-    );
+    view.actions.replaceChildren(...decisionActions(detail).map((spec) => this.actionButton(spec)));
     this.lock();
     this.changed(detail);
   }
@@ -126,10 +126,8 @@ export class QuestionDetail {
     const { view, shown } = this;
     shown.pending = spec;
     shown.returnTo = from;
-    view.confirmText.textContent = spec.warning;
-    view.confirmYes.textContent = spec.confirm;
-    view.confirm.hidden = false;
-    view.confirmYes.focus();
+    showConfirm(view, spec, shown.detail?.draft ?? null);
+    (spec.action === "publish" ? view.confirmCheck : view.confirmYes).focus();
   }
 
   private cancel(): void {
@@ -148,7 +146,9 @@ export class QuestionDetail {
 
   private lock(): void {
     const { view, shown } = this;
-    for (const node of [view.confirmYes, view.confirmNo, view.save]) node.disabled = shown.busy;
+    for (const node of [view.confirmYes, view.confirmNo, view.save, view.confirmCheck]) {
+      node.disabled = shown.busy;
+    }
     for (const node of view.actions.querySelectorAll("button")) node.disabled = shown.busy;
   }
 
@@ -172,7 +172,10 @@ export class QuestionDetail {
     const seen = this.shown.detail;
     if (seen === undefined) return;
     this.close();
-    const body: PanelQuestionDecision = { action: spec.action, expectedVersion: seen.version };
+    const body: PanelQuestionDecision =
+      spec.action === "publish"
+        ? { action: "publish", expectedVersion: seen.version, privacyReviewed: true }
+        : { action: spec.action, expectedVersion: seen.version };
     const status = await this.send("POST", questionPath(seen.id, "/decision"), body);
     const phrases = [decisionPhrase(status, spec.action)];
     if (status === 200 && spec.action === "delete") {

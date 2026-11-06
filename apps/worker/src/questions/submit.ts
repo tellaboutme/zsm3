@@ -13,10 +13,11 @@ import {
   type RateLimitsRepo,
 } from "../storage/rate-limits-repo.ts";
 
-export const QUESTION_RATE_LIMIT_MAX = 3;
-export const MIN_QUESTION_FILL_MS = 5000;
+export const QUESTION_ATTEMPT_LIMIT = 30;
+export const QUESTION_ACCEPTED_LIMIT = 10;
+export const QUESTION_WINDOW_MS = RATE_LIMIT_WINDOW_MINUTES * 60_000;
 
-export type QuestionRefusal = "rate_limit" | "turnstile" | "trap" | "invalid";
+export type QuestionRefusal = "rate_limit" | "turnstile" | "invalid";
 
 export type QuestionOutcome =
   { readonly kind: "received" } | { readonly kind: "refused"; readonly reason: QuestionRefusal };
@@ -39,18 +40,27 @@ export interface QuestionSubmitInput {
 
 const tokenSchema = z.object({ turnstileToken: z.string().min(1).max(2048) });
 
-async function overLimit(deps: QuestionSubmitDeps, input: QuestionSubmitInput): Promise<boolean> {
-  const key = await rateLimitKey(deps.config.rateLimitSalt, input.clientIp, "question");
-  const cutoff = new Date(input.now.getTime() - RATE_LIMIT_WINDOW_MINUTES * 60_000);
-  const state = await deps.rateLimits.consume(key, input.now.toISOString(), cutoff.toISOString());
-  return state.count > QUESTION_RATE_LIMIT_MAX;
+export function windowStart(now: Date): Date {
+  return new Date(Math.floor(now.getTime() / QUESTION_WINDOW_MS) * QUESTION_WINDOW_MS);
+}
+
+async function overLimit(
+  deps: QuestionSubmitDeps,
+  input: QuestionSubmitInput,
+  purpose: "question-attempt" | "question",
+  limit: number,
+): Promise<boolean> {
+  const key = await rateLimitKey(deps.config.rateLimitSalt, input.clientIp, purpose);
+  const slot = windowStart(input.now).toISOString();
+  const state = await deps.rateLimits.consume(key, slot, slot);
+  return state.count > limit;
 }
 
 async function refuseEarly(
   deps: QuestionSubmitDeps,
   input: QuestionSubmitInput,
 ): Promise<QuestionRefusal | undefined> {
-  if (await overLimit(deps, input)) {
+  if (await overLimit(deps, input, "question-attempt", QUESTION_ATTEMPT_LIMIT)) {
     return "rate_limit";
   }
   const token = tokenSchema.safeParse(input.body);
@@ -76,8 +86,8 @@ export async function submitQuestion(
   if (!parsed.success) {
     return { kind: "refused", reason: "invalid" };
   }
-  if (input.now.getTime() - parsed.data.submittedAtMs < MIN_QUESTION_FILL_MS) {
-    return { kind: "refused", reason: "trap" };
+  if (await overLimit(deps, input, "question", QUESTION_ACCEPTED_LIMIT)) {
+    return { kind: "refused", reason: "rate_limit" };
   }
   const id = uuidv4(deps.random);
   await deps.questions.receive({

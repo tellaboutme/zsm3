@@ -1,6 +1,6 @@
 import { afterEach, describe, it, vi } from "vitest";
 
-import { ANSWER, ORIGINAL, REDACTED, questionsPanel } from "./panel-questions-support.ts";
+import { ANSWER, decision, ORIGINAL, questionsPanel, REDACTED } from "./panel-questions-support.ts";
 import { panelRawCall } from "./panel-support.ts";
 import { piiCrypto } from "../../src/security/pii-crypto.ts";
 import { cryptoRandom } from "../../src/storage/ids.ts";
@@ -11,7 +11,6 @@ const draft = (version: number) => ({
   question: REDACTED,
   answer: ANSWER,
 });
-const decision = (action: string, version: number) => ({ action, expectedVersion: version });
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -106,10 +105,11 @@ describe("Skrzynka panel under attack", () => {
     ];
     const bodies = await Promise.all(responses.map(async (response) => response.text()));
 
-    expect(responses.map((response) => response.status)).toEqual([422, 409, 422, 500]);
+    expect(responses.map((response) => response.status)).toEqual([422, 409, 422, 200]);
     expect(bodies.join(" ")).not.toContain("Przykładow");
     expect(logged.mock.calls.flat().join(" ")).not.toContain("Przykładow");
-    expect(logged.mock.calls.flat().join(" ")).toContain('"errorName":"PiiDecryptionError"');
+    expect(logged.mock.calls.flat().join(" ")).not.toContain(other);
+    expect(logged.mock.calls.flat().join(" ")).toContain('"event":"question_unreadable"');
   });
 
   it("publishes a question only once", async ({ expect }) => {

@@ -18,14 +18,14 @@ if (item === undefined) {
 
 <Base
   title="Odpowiedź ze Skrzynki #OgarniamŻycie – ZSM3"
-  description="Odpowiedź pracownika szkoły na anonimowe pytanie ucznia."
+  description="Odpowiedź zespołu Skrzynki ZSM3 na anonimowe pytanie ucznia."
   breadcrumbs={[{ label: "Skrzynka #OgarniamŻycie", href: "/skrzynka" }, { label: "Odpowiedź" }]}
   noindex
 >
   <article class="request-page questions-page question-answer" aria-labelledby="pytanie">
     <header class="request-intro">
       <p class="tag">
-        <time datetime={item.publishedOn}>{longDate(item.publishedOn)}</time> ·{" "}
+        <time datetime={item.publishedOn}>{longDate(item.publishedOn)}</time> · wskazany adresat:{" "}
         {addresseeLabel(item.addressee)}
       </p>
       <h1 id="pytanie">Pytanie</h1>
