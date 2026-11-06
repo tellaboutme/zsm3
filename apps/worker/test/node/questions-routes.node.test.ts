@@ -16,7 +16,11 @@ function bindings(overrides: Partial<AppBindings> = {}): AppBindings {
   return {
     ...SECRETS,
     DB: memoryDatabase(),
-    MEDIA: { get: async () => Promise.resolve(null), put: async () => Promise.resolve(null) },
+    MEDIA: {
+      get: async () => Promise.resolve(null),
+      put: async () => Promise.resolve(null),
+      delete: async () => Promise.resolve(),
+    },
     PANEL_ORIGIN: ORIGIN,
     ACCESS_TEAM_DOMAIN: "",
     ACCESS_AUDIENCE: "",

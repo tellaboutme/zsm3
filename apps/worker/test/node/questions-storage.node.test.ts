@@ -1,6 +1,7 @@
 import { describe, it, vi } from "vitest";
 
 import { counterRandom, FIXED_CLOCK, memoryDatabase } from "./memory-database.ts";
+import { memoryBucket } from "./panel-support.ts";
 import { SECRETS } from "./request-harness.ts";
 import {
   CLOSED_RETENTION_DAYS,
@@ -133,7 +134,7 @@ describe("question retention", () => {
     });
     vi.spyOn(console, "error").mockImplementation(() => undefined);
 
-    await runScheduledMaintenance({ ...SECRETS, DB: live.db }, live, NOW);
+    await runScheduledMaintenance({ ...SECRETS, DB: live.db, MEDIA: memoryBucket() }, live, NOW);
 
     expect(await questionsRepo(live).list({ limit: 5 })).toEqual([]);
     vi.restoreAllMocks();

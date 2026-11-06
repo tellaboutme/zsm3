@@ -14,6 +14,7 @@ export const panelSections: readonly PanelSection[] = [
   { href: "/panel/strony", label: "Strony", short: "Strony" },
   { href: "/panel/terminarz", label: "Terminarz", short: "Terminarz" },
   { href: "/panel/dokumenty", label: "Dokumenty", short: "Dokumenty" },
+  { href: "/panel/linki", label: "Krótkie linki do materiałów", short: "Linki" },
   { href: "/panel/ogloszenia", label: "Ogłoszenia", short: "Ogłoszenia" },
   {
     href: "/panel/zestawy",

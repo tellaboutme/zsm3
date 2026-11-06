@@ -1,7 +1,7 @@
 import { CODE_ALPHABET, CODE_LENGTH, shortCodeSchema } from "@zsm3/contracts/short-links";
 import { describe, it } from "vitest";
 
-import { expiryFrom, generateCode, hasLapsed, normaliseCode } from "../../src/domain/short-link.ts";
+import { generateCode, hasLapsed, normaliseCode } from "../../src/domain/short-link.ts";
 import type { RandomBytes } from "../../src/storage/ids.ts";
 
 const bytes =
@@ -40,11 +40,6 @@ describe("codes typed by hand", () => {
 });
 
 describe("expiry", () => {
-  it("counts whole days from the moment the link is made", ({ expect }) => {
-    expect(expiryFrom(new Date("2026-10-27T08:00:00.000Z"), 1)).toBe("2026-10-28T08:00:00.000Z");
-    expect(expiryFrom(new Date("2026-10-27T08:00:00.000Z"), 365)).toBe("2027-10-27T08:00:00.000Z");
-  });
-
   it("treats a link as lapsed once it expires or is revoked", ({ expect }) => {
     const now = new Date("2026-10-27T08:00:00.000Z");
 

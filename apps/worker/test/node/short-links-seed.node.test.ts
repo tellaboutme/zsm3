@@ -5,6 +5,7 @@ import { seedShortLinks } from "../../seed/short-links.ts";
 import { openLink, unlockLink } from "../../src/short-links/resolve.ts";
 import type { Store } from "../../src/storage/database.ts";
 import { rateLimitsRepo } from "../../src/storage/rate-limits-repo.ts";
+import { shortLinkFailuresRepo } from "../../src/storage/short-link-failures-repo.ts";
 import { shortLinksRepo } from "../../src/storage/short-links-repo.ts";
 
 const KEY = "short-link-pepper-0123456789-0123456789";
@@ -26,7 +27,12 @@ describe("short link demo seeds", () => {
     await expect(openLink({ links }, "zhasqem", NOW)).resolves.toEqual({ kind: "missing" });
     await expect(
       unlockLink(
-        { links, rateLimits: rateLimitsRepo(current), passwordKey: undefined },
+        {
+          links,
+          rateLimits: rateLimitsRepo(current),
+          failures: shortLinkFailuresRepo(current),
+          passwordKey: undefined,
+        },
         "zhasqem",
         "zsm3-demo",
         NOW,
@@ -45,7 +51,12 @@ describe("short link demo seeds", () => {
   }) => {
     const current = store();
     const links = shortLinksRepo(current);
-    const deps = { links, rateLimits: rateLimitsRepo(current), passwordKey: KEY };
+    const deps = {
+      links,
+      rateLimits: rateLimitsRepo(current),
+      failures: shortLinkFailuresRepo(current),
+      passwordKey: KEY,
+    };
 
     await expect(seedShortLinks(current, undefined)).resolves.toBe(2);
     const openBefore = await links.find("materia");
@@ -83,7 +94,12 @@ describe("short link demo seeds", () => {
     await expect(links.find("zhasqem")).resolves.toEqual(original);
     await expect(
       unlockLink(
-        { links, rateLimits: rateLimitsRepo(current), passwordKey: otherKey },
+        {
+          links,
+          rateLimits: rateLimitsRepo(current),
+          failures: shortLinkFailuresRepo(current),
+          passwordKey: otherKey,
+        },
         "zhasqem",
         "zsm3-demo",
         NOW,
@@ -91,7 +107,12 @@ describe("short link demo seeds", () => {
     ).resolves.toEqual({ kind: "locked" });
     await expect(
       unlockLink(
-        { links, rateLimits: rateLimitsRepo(current), passwordKey: KEY },
+        {
+          links,
+          rateLimits: rateLimitsRepo(current),
+          failures: shortLinkFailuresRepo(current),
+          passwordKey: KEY,
+        },
         "zhasqem",
         "zsm3-demo",
         NOW,

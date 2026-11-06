@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { firstRow, type Store } from "./database.ts";
+import { firstRow, type Store } from "../storage/database.ts";
 
 const SELECT_CRON_STATE = "SELECT last_run_date FROM cron_state WHERE job = ?";
 const UPSERT_CRON_STATE = `INSERT INTO cron_state (job, last_run_date) VALUES (?1, ?2)
@@ -25,4 +25,8 @@ export function cronStateRepo(store: Store): CronStateRepo {
       await db.prepare(UPSERT_CRON_STATE).bind(job, date).run();
     },
   };
+}
+
+export function utcDate(now: Date): string {
+  return now.toISOString().slice(0, 10);
 }

@@ -11,6 +11,7 @@ export interface MediaObject {
 export interface MediaBucket {
   get(key: string, options?: unknown): Promise<MediaObject | null>;
   put(key: string, value: ArrayBuffer, options?: unknown): Promise<unknown>;
+  delete(key: string): Promise<void>;
 }
 
 export interface AppBindings extends RequestsSecretEnv {

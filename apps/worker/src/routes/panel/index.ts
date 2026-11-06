@@ -1,5 +1,6 @@
 import { Hono, type Context, type MiddlewareHandler } from "hono";
 
+import { albumsRoutes } from "./albums.ts";
 import { announcementsRoutes } from "./announcements.ts";
 import { auditRoutes } from "./audit-log.ts";
 import { authenticatePanel } from "./auth.ts";
@@ -11,6 +12,7 @@ import { eventsRoutes } from "./events.ts";
 import { filesRoutes } from "./files.ts";
 import { newsRoutes } from "./news.ts";
 import { pagesRoutes } from "./pages.ts";
+import { photosRoutes } from "./photos.ts";
 import { questionsRoutes } from "./questions.ts";
 import { redirectsRoutes } from "./redirects.ts";
 import { requestsRoutes } from "./requests.ts";
@@ -36,12 +38,16 @@ import { liveStore, systemClock } from "../../storage/database.ts";
 import { datasetsRepo } from "../../storage/datasets-repo.ts";
 import { eventsRepo } from "../../storage/events-repo.ts";
 import { filesRepo } from "../../storage/files-repo.ts";
+import { galleryRepo } from "../../storage/gallery-repo.ts";
 import { newsRepo } from "../../storage/news-repo.ts";
 import { pagesRepo } from "../../storage/pages-repo.ts";
+import { photoUploadsRepo } from "../../storage/photo-uploads-repo.ts";
 import { questionsRepo } from "../../storage/questions-repo.ts";
 import { redirectsRepo } from "../../storage/redirects-repo.ts";
 import { requestsRepo } from "../../storage/requests-repo.ts";
 import { revisionsRepo } from "../../storage/revisions-repo.ts";
+import { shortLinkFilesRepo } from "../../storage/short-link-files-repo.ts";
+import { shortLinksAdminRepo } from "../../storage/short-links-admin-repo.ts";
 import { shortLinksRepo } from "../../storage/short-links-repo.ts";
 import { staffRepo } from "../../storage/staff-repo.ts";
 
@@ -98,13 +104,19 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
         files: filesRepo(store),
         redirects: redirectsRepo(store),
         shortLinks: shortLinksRepo(store),
+        shortLinkFiles: shortLinkFilesRepo(store),
+        shortLinksAdmin: shortLinksAdminRepo(store),
         announcements: announcementsRepo(store),
         bells: bellsRepo(store),
         datasets: datasetsRepo(store),
         requests: requestsRepo(store),
         questions: questionsRepo(store),
+        gallery: galleryRepo(store),
+        photoUploads: photoUploadsRepo(store),
       },
       mediaBucket: c.env.MEDIA,
+      clock: store.clock,
+      random: store.random,
       origin: options.origin ?? panelOrigin(c.env),
       verifier: options.verifier ?? (async (token) => envAccessVerifier(c.env)(token)),
       piiCrypto: options.piiCrypto ?? piiCrypto(piiKeys(c.env), ACTIVE_PII_KEY_ID, store.random),
@@ -135,5 +147,7 @@ export function panelApp(options: PanelAppOptions = {}): Hono<AppEnv> {
   panel.route("/", datasetsRoutes());
   panel.route("/", requestsRoutes());
   panel.route("/", questionsRoutes());
+  panel.route("/", albumsRoutes());
+  panel.route("/", photosRoutes());
   return panel;
 }

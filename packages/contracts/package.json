@@ -23,7 +23,9 @@
     "./programmes": "./src/programmes.ts",
     "./navigation": "./src/navigation.ts",
     "./short-links": "./src/short-links.ts",
-    "./questions": "./src/questions.ts"
+    "./gallery": "./src/gallery.ts",
+    "./questions": "./src/questions.ts",
+    "./short-link-expiry": "./src/short-link-expiry.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

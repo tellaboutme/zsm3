@@ -1,3 +1,6 @@
+import { cronStateRepo, utcDate } from "./cron-state.ts";
+import { HousekeepingError, runHousekeeping } from "./housekeeping.ts";
+import type { MediaBucket } from "../app-env.ts";
 import {
   ANONYMOUS_RETENTION_YEARS,
   CLOSED_PII_RETENTION_DAYS,
@@ -6,13 +9,11 @@ import {
   type RetentionAction,
 } from "../domain/retention-policy.ts";
 import { requestsConfig, type RequestsConfig, type RequestsSecretEnv } from "../env.ts";
-import { runHousekeeping } from "./housekeeping.ts";
 import { brevoSender } from "../mail/brevo-sender.ts";
 import type { EmailSender } from "../mail/email-sender.ts";
 import { drainOutbox, MAX_DRAIN, type DrainResult } from "../mail/outbox-consumer.ts";
 import { piiCrypto, type PiiCrypto } from "../security/pii-crypto.ts";
 import { auditRepo, type AuditRepo } from "../storage/audit-repo.ts";
-import { cronStateRepo } from "../storage/cron-state-repo.ts";
 import type { SqlDatabase, Store } from "../storage/database.ts";
 import { outboxRepo, type OutboxRepo } from "../storage/outbox-repo.ts";
 import { requestsRepo, type RequestsRepo } from "../storage/requests-repo.ts";
@@ -27,6 +28,7 @@ export const AUDIT_RETENTION_YEARS = 2;
 
 export interface MaintenanceEnv extends RequestsSecretEnv {
   readonly DB: SqlDatabase;
+  readonly MEDIA: MediaBucket;
 }
 
 export interface MaintenanceDeps {
@@ -76,16 +78,15 @@ export async function runScheduledMaintenance(
   store: Store,
   now: Date,
 ): Promise<MaintenanceResult> {
-  const failures = await runHousekeeping(store, now);
-  const result = await runRequestMaintenance(env, store, now);
-  const [failure] = failures;
-  if (failures.length > 0) {
-    throw failure;
+  const failed = await runHousekeeping(store, env.MEDIA, now);
+  const result = await runRequestsMaintenance(env, store, now);
+  if (failed.length > 0) {
+    throw new HousekeepingError(failed);
   }
   return result;
 }
 
-async function runRequestMaintenance(
+async function runRequestsMaintenance(
   env: MaintenanceEnv,
   store: Store,
   now: Date,
@@ -178,10 +179,6 @@ async function eraseClosed(
 
 function idsOf(actions: readonly RetentionAction[], kind: RetentionAction["kind"]): string[] {
   return actions.filter((action) => action.kind === kind).map((action) => action.requestId);
-}
-
-function utcDate(now: Date): string {
-  return now.toISOString().slice(0, 10);
 }
 
 function daysAgo(now: Date, days: number): string {

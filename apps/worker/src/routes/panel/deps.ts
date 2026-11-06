@@ -10,16 +10,21 @@ import { indexNowSender, type IndexNowEndpoint } from "../../services/indexnow.t
 import type { AnnouncementsRepo } from "../../storage/announcements-repo.ts";
 import type { AuditRepo } from "../../storage/audit-repo.ts";
 import type { BellsRepo } from "../../storage/bells-repo.ts";
-import type { SqlDatabase } from "../../storage/database.ts";
+import type { Clock, SqlDatabase } from "../../storage/database.ts";
 import type { DatasetsRepo } from "../../storage/datasets-repo.ts";
 import type { EventsRepo } from "../../storage/events-repo.ts";
 import type { FilesRepo } from "../../storage/files-repo.ts";
+import type { GalleryRepo } from "../../storage/gallery-repo.ts";
+import type { RandomBytes } from "../../storage/ids.ts";
 import type { NewsRepo } from "../../storage/news-repo.ts";
 import type { PagesRepo } from "../../storage/pages-repo.ts";
+import type { PhotoUploadsRepo } from "../../storage/photo-uploads-repo.ts";
 import type { QuestionsRepo } from "../../storage/questions-repo.ts";
 import type { RedirectsRepo } from "../../storage/redirects-repo.ts";
 import type { RequestsRepo } from "../../storage/requests-repo.ts";
 import type { RevisionsRepo } from "../../storage/revisions-repo.ts";
+import type { ShortLinkFilesRepo } from "../../storage/short-link-files-repo.ts";
+import type { ShortLinksAdminRepo } from "../../storage/short-links-admin-repo.ts";
 import type { ShortLinksRepo } from "../../storage/short-links-repo.ts";
 import type { StaffRepo, StaffRole } from "../../storage/staff-repo.ts";
 
@@ -42,11 +47,15 @@ export interface PanelRepos {
   readonly files: FilesRepo;
   readonly redirects: RedirectsRepo;
   readonly shortLinks: ShortLinksRepo;
+  readonly shortLinkFiles: ShortLinkFilesRepo;
+  readonly shortLinksAdmin: ShortLinksAdminRepo;
   readonly announcements: AnnouncementsRepo;
   readonly bells: BellsRepo;
   readonly datasets: DatasetsRepo;
   readonly requests: RequestsRepo;
   readonly questions: QuestionsRepo;
+  readonly gallery: GalleryRepo;
+  readonly photoUploads: PhotoUploadsRepo;
 }
 
 export interface PanelSession {
@@ -83,6 +92,8 @@ export interface PanelDeps {
   readonly db: SqlDatabase;
   readonly repos: PanelRepos;
   readonly mediaBucket: MediaBucket;
+  readonly clock: Clock;
+  readonly random: RandomBytes;
   readonly origin: string;
   readonly verifier: AccessVerifier;
   readonly piiCrypto: PiiCrypto;

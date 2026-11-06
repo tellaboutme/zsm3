@@ -36,9 +36,9 @@ it("deletes an expired question on D1 even when e-wniosek is not configured", as
     });
   }
 
-  await expect(runScheduledMaintenance({ DB: env.DB }, store, new Date())).rejects.toThrow(
-    MissingSecretError,
-  );
+  await expect(
+    runScheduledMaintenance({ DB: env.DB, MEDIA: env.MEDIA }, store, new Date()),
+  ).rejects.toThrow(MissingSecretError);
 
   expect(await count()).toBe(1);
 });

@@ -1,5 +1,6 @@
 import { handle } from "@astrojs/cloudflare/handler";
 import { createApp } from "@zsm3/worker/app";
+import { runPhotoCleanup } from "@zsm3/worker/jobs/photo-cleanup";
 import { runScheduledMaintenance } from "@zsm3/worker/jobs/retention";
 import { createQuestionsApp, QUESTIONS_PREFIX } from "@zsm3/worker/questions-app";
 import { createRequestsApp } from "@zsm3/worker/requests-app";
@@ -55,8 +56,9 @@ export default {
     return withQueryNoindex(request, page);
   },
   scheduled: (event, env, context) => {
-    context.waitUntil(
-      runScheduledMaintenance(env, liveStore(env.DB), new Date(event.scheduledTime)),
-    );
+    const store = liveStore(env.DB);
+    const now = new Date(event.scheduledTime);
+    context.waitUntil(runScheduledMaintenance(env, store, now));
+    context.waitUntil(runPhotoCleanup(env.MEDIA, store, now));
   },
 } satisfies ExportedHandler<Env>;

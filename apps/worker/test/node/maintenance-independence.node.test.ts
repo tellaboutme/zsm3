@@ -3,7 +3,9 @@ import { z } from "zod";
 
 import { harness, NOW, SECRETS, type Harness } from "./maintenance-harness.ts";
 import { counterRandom, FIXED_CLOCK } from "./memory-database.ts";
+import { memoryBucket } from "./panel-support.ts";
 import { MissingSecretError } from "../../src/env.ts";
+import { HousekeepingError } from "../../src/jobs/housekeeping.ts";
 import { runScheduledMaintenance } from "../../src/jobs/retention.ts";
 import { seal } from "../../src/questions/sealing.ts";
 import { piiCrypto } from "../../src/security/pii-crypto.ts";
@@ -82,9 +84,9 @@ describe("scheduled housekeeping without e-wniosek secrets", () => {
     await staleRateLimit(h);
     const logged = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
-    await expect(runScheduledMaintenance({ DB: h.store.db }, h.store, NOW)).rejects.toThrow(
-      MissingSecretError,
-    );
+    await expect(
+      runScheduledMaintenance({ DB: h.store.db, MEDIA: memoryBucket() }, h.store, NOW),
+    ).rejects.toThrow(MissingSecretError);
 
     expect(await counts(h)).toEqual({ questions: 0, rateLimits: 0 });
     expect(logged.mock.calls.flat().join(" ")).not.toContain("zniknąć");
@@ -93,7 +95,7 @@ describe("scheduled housekeeping without e-wniosek secrets", () => {
   it("runs again on every tick without e-wniosek and stays idempotent", async ({ expect }) => {
     const h = harness();
     await staleQuestion(h, ID);
-    const env = { DB: h.store.db };
+    const env = { DB: h.store.db, MEDIA: memoryBucket() };
 
     await expect(runScheduledMaintenance(env, h.store, NOW)).rejects.toThrow(MissingSecretError);
     await staleQuestion(h, "00000000-0000-4000-8000-000000000102");
@@ -111,7 +113,7 @@ describe("scheduled housekeeping with e-wniosek configured", () => {
     const h = harness();
     await staleQuestion(h, ID);
     await staleQuestion(h, "00000000-0000-4000-8000-000000000103", "2026-10-20");
-    const env = { ...SECRETS, DB: h.store.db };
+    const env = { ...SECRETS, DB: h.store.db, MEDIA: memoryBucket() };
 
     const first = await runScheduledMaintenance(env, h.store, NOW);
     const second = await runScheduledMaintenance(env, h.store, NOW);
@@ -134,14 +136,20 @@ describe("a transient database failure in one cleanup task", () => {
       random: counterRandom(),
     };
 
-    await expect(runScheduledMaintenance({ ...SECRETS, DB: store.db }, store, NOW)).rejects.toThrow(
-      "D1 unavailable",
-    );
+    await expect(
+      runScheduledMaintenance({ ...SECRETS, DB: store.db, MEDIA: memoryBucket() }, store, NOW),
+    ).rejects.toThrow(HousekeepingError);
 
     expect(await counts(h)).toEqual({ questions: 1, rateLimits: 0 });
     expect(await marker(h)).toBe("2026-10-22");
     expect(logged.mock.calls).toEqual([
-      [JSON.stringify({ event: "housekeeping_failed", task: "questions", errorName: "TypeError" })],
+      [
+        JSON.stringify({
+          event: "housekeeping_step_failed",
+          step: "questions",
+          errorName: "TypeError",
+        }),
+      ],
     ]);
   });
 
@@ -155,14 +163,14 @@ describe("a transient database failure in one cleanup task", () => {
       random: counterRandom(),
     };
 
-    await expect(runScheduledMaintenance({ DB: broken.db }, broken, NOW)).rejects.toThrow(
-      MissingSecretError,
-    );
+    await expect(
+      runScheduledMaintenance({ DB: broken.db, MEDIA: memoryBucket() }, broken, NOW),
+    ).rejects.toThrow(MissingSecretError);
     expect((await counts(h)).questions).toBe(0);
     await staleRateLimit(h);
-    await expect(runScheduledMaintenance({ DB: h.store.db }, h.store, NOW)).rejects.toThrow(
-      MissingSecretError,
-    );
+    await expect(
+      runScheduledMaintenance({ DB: h.store.db, MEDIA: memoryBucket() }, h.store, NOW),
+    ).rejects.toThrow(MissingSecretError);
     expect((await counts(h)).rateLimits).toBe(0);
   });
 });
@@ -173,11 +181,17 @@ it("names a failure that is not an Error without exposing it", async ({ expect }
   const db = failing(h.store.db, PRUNE_QUESTIONS, "opaque D1 fault");
   const store: Store = { db, clock: FIXED_CLOCK, random: counterRandom() };
 
-  await expect(runScheduledMaintenance({ ...SECRETS, DB: db }, store, NOW)).rejects.toBe(
-    "opaque D1 fault",
-  );
+  await expect(
+    runScheduledMaintenance({ ...SECRETS, DB: db, MEDIA: memoryBucket() }, store, NOW),
+  ).rejects.toThrow(HousekeepingError);
   expect(logged.mock.calls).toEqual([
-    [JSON.stringify({ event: "housekeeping_failed", task: "questions", errorName: "unknown" })],
+    [
+      JSON.stringify({
+        event: "housekeeping_step_failed",
+        step: "questions",
+        errorName: "UnknownError",
+      }),
+    ],
   ]);
 });
 
@@ -190,9 +204,9 @@ it("prunes short links lapsed for more than 30 days without e-wniosek", async ({
   await insert.bind("k7mq4rb", "2026-09-22T08:00:01.000Z").run();
   await insert.bind("k7mq4rc", "2027-09-01T00:00:00.000Z").run();
 
-  await expect(runScheduledMaintenance({ DB: h.store.db }, h.store, NOW)).rejects.toThrow(
-    MissingSecretError,
-  );
+  await expect(
+    runScheduledMaintenance({ DB: h.store.db, MEDIA: memoryBucket() }, h.store, NOW),
+  ).rejects.toThrow(MissingSecretError);
 
   const left = await h.store.db.prepare("SELECT code FROM short_links ORDER BY code").all();
   expect(left.results).toEqual([{ code: "k7mq4rb" }, { code: "k7mq4rc" }]);

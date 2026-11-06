@@ -30,6 +30,7 @@
   "exports": {
     "./app": "./src/app.ts",
     "./env": "./src/env.ts",
+    "./jobs/photo-cleanup": "./src/jobs/photo-cleanup.ts",
     "./jobs/retention": "./src/jobs/retention.ts",
     "./requests-app": "./src/requests-app.ts",
     "./questions-app": "./src/questions-app.ts",

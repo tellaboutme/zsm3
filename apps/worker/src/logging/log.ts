@@ -1,3 +1,5 @@
+import type { HousekeepingStep } from "../jobs/housekeeping.ts";
+
 export interface UnhandledErrorEvent {
   readonly event: "unhandled_error";
   readonly requestId: string;
@@ -26,16 +28,19 @@ export interface IndexNowUnavailableEvent {
   readonly status?: number;
 }
 
-export interface PanelWriteRecoveredEvent {
-  readonly event: "panel_write_recovered";
+export interface ShortLinkFileCleanupEvent {
+  readonly event: "short_link_file_cleanup_deferred";
   readonly errorName: string;
 }
 
-export type HousekeepingTask = "rate_limits" | "short_links" | "questions";
-
 export interface HousekeepingFailedEvent {
-  readonly event: "housekeeping_failed";
-  readonly task: HousekeepingTask;
+  readonly event: "housekeeping_step_failed";
+  readonly step: HousekeepingStep;
+  readonly errorName: string;
+}
+
+export interface PanelWriteRecoveredEvent {
+  readonly event: "panel_write_recovered";
   readonly errorName: string;
 }
 
@@ -51,8 +56,9 @@ export type LogEvent =
   | OutboxEnqueueFailedEvent
   | AccessConfigEvent
   | IndexNowUnavailableEvent
-  | PanelWriteRecoveredEvent
+  | ShortLinkFileCleanupEvent
   | HousekeepingFailedEvent
+  | PanelWriteRecoveredEvent
   | QuestionUnreadableEvent;
 
 export function logEvent(entry: LogEvent): void {
