@@ -27,6 +27,7 @@ from zsm3_tools.inventory_http import (
 from zsm3_tools.inventory_robots import RobotsRules, parse_rules
 
 MAX_HTML_BYTES = 1_000_000
+MAX_PAGE_BYTES_CEILING = 8_000_000
 MAX_ROBOTS_BYTES = 100_000
 MAX_PAGES = 1000
 MAX_DEPTH = 5
@@ -70,6 +71,7 @@ class Limits:
     pages: int = 100
     depth: int = 2
     delay: float = 1.0
+    page_bytes: int = MAX_HTML_BYTES
 
 
 DEFAULT_LIMITS = Limits()
@@ -106,14 +108,14 @@ def _links(response: Response, url: str) -> list[str]:
     ]
 
 
-def _fetch(url: str, transport: Transport) -> tuple[str, list[str]]:
+def _fetch(url: str, transport: Transport, page_bytes: int) -> tuple[str, list[str]]:
     try:
-        response = transport.get(url, MAX_HTML_BYTES)
+        response = transport.get(url, page_bytes)
     except TRANSPORT_ERRORS as error:
         return "fetch_error:" + type(error).__name__, []
     if response.status != HTTP_OK:
         return f"http_{response.status}", []
-    if response.content_type != "text/html" or len(response.body) > MAX_HTML_BYTES:
+    if response.content_type != "text/html" or len(response.body) > page_bytes:
         return "not_html_or_too_large", []
     return "discovered", _links(response, url)
 
@@ -124,8 +126,9 @@ def _check_limits(limits: Limits) -> None:
         or not 0 <= limits.depth <= MAX_DEPTH
         or not math.isfinite(limits.delay)
         or limits.delay < 1
+        or not MAX_HTML_BYTES <= limits.page_bytes <= MAX_PAGE_BYTES_CEILING
     ):
-        message = "limits require 1-1000 pages, depth 0-5 and delay >= 1 second"
+        message = "limits require 1-1000 pages, depth 0-5, delay >= 1 second and 1-8 MB per page"
         raise InventoryError(message)
 
 
@@ -161,7 +164,7 @@ def inventory(
             continue
         pause(interval)
         fetched += 1
-        status, links = _fetch(url, transport)
+        status, links = _fetch(url, transport, limits.page_bytes)
         for linked in links:
             if linked not in seen:
                 if len(queue) + len(seen) >= MAX_DISCOVERED:
@@ -199,12 +202,13 @@ def main(
     cli.add_argument("--max-pages", type=int, default=DEFAULT_LIMITS.pages)
     cli.add_argument("--max-depth", type=int, default=DEFAULT_LIMITS.depth)
     cli.add_argument("--delay", type=float, default=DEFAULT_LIMITS.delay)
+    cli.add_argument("--max-page-bytes", type=int, default=DEFAULT_LIMITS.page_bytes)
     args = cli.parse_args(sys.argv[1:] if argv is None else argv)
     try:
         entries = inventory(
             [ORIGIN + "/", *args.seed],
             HttpTransport() if transport is None else transport,
-            limits=Limits(args.max_pages, args.max_depth, args.delay),
+            limits=Limits(args.max_pages, args.max_depth, args.delay, args.max_page_bytes),
             pause=pause,
         )
         args.output.write_bytes(render(entries))

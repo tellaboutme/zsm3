@@ -14,6 +14,7 @@ zsm3-import-legacy-urls = "zsm3_tools.redirect_import:main"
 zsm3-content-inventory = "zsm3_tools.content_inventory:main"
 zsm3-repo-rules = "zsm3_tools.repo_rules:main"
 zsm3-gallery-archive = "zsm3_tools.archive_cli:main"
+zsm3-migration-audit = "zsm3_tools.migration_audit_cli:main"
 
 [dependency-groups]
 dev = [
