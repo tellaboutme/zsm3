@@ -27,14 +27,15 @@ Local development has no Cloudflare Access, so `pnpm dev:auth` stands in for it:
 
 ## Roles
 
-| Role             | Can do                                                                             |
-| ---------------- | ---------------------------------------------------------------------------------- |
-| `admin`          | everything, plus staff and roles, redirects, the gallery and the audit log         |
-| `secretariat`    | all site content, plus handling e-wniosek requests                                 |
-| `editor`         | all site content: news, pages, calendar, documents, announcements, bells, datasets |
-| `gallery_editor` | gallery albums and photos; no content editing                                      |
+| Role             | Can do                                                                                               |
+| ---------------- | ---------------------------------------------------------------------------------------------------- |
+| `admin`          | everything except Skrzynka questions, plus staff and roles, redirects, the gallery and the audit log |
+| `secretariat`    | all site content, plus handling e-wniosek requests                                                   |
+| `editor`         | all site content: news, pages, calendar, documents, announcements, bells, datasets                   |
+| `gallery_editor` | gallery albums and photos; no content editing                                                        |
+| `counsellor`     | only the anonymous questions of Skrzynka #OgarniamŻycie (`/panel/skrzynka`)                          |
 
-The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/matrix.ts`, and a test calls every route with every role. Administrators cannot remove their own admin role or disable themselves, so the panel always keeps one administrator.
+The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/matrix.ts`, and a test calls every route with every role. Administrators cannot remove their own admin role or disable themselves, so the panel always keeps one administrator. Moderating Skrzynka is described in [skrzynka.md](skrzynka.md).
 
 ## Handling requests
 

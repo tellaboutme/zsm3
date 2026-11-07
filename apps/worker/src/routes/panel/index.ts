@@ -13,6 +13,7 @@ import { filesRoutes } from "./files.ts";
 import { newsRoutes } from "./news.ts";
 import { pagesRoutes } from "./pages.ts";
 import { photosRoutes } from "./photos.ts";
+import { questionsRoutes } from "./questions.ts";
 import { redirectsRoutes } from "./redirects.ts";
 import { requestsRoutes } from "./requests.ts";
 import { revisionsRoutes } from "./revisions.ts";
@@ -41,6 +42,7 @@ import { galleryRepo } from "../../storage/gallery-repo.ts";
 import { newsRepo } from "../../storage/news-repo.ts";
 import { pagesRepo } from "../../storage/pages-repo.ts";
 import { photoUploadsRepo } from "../../storage/photo-uploads-repo.ts";
+import { questionsRepo } from "../../storage/questions-repo.ts";
 import { redirectsRepo } from "../../storage/redirects-repo.ts";
 import { requestsRepo } from "../../storage/requests-repo.ts";
 import { revisionsRepo } from "../../storage/revisions-repo.ts";
@@ -108,6 +110,7 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
         bells: bellsRepo(store),
         datasets: datasetsRepo(store),
         requests: requestsRepo(store),
+        questions: questionsRepo(store),
         gallery: galleryRepo(store),
         photoUploads: photoUploadsRepo(store),
       },
@@ -143,6 +146,7 @@ export function panelApp(options: PanelAppOptions = {}): Hono<AppEnv> {
   panel.route("/", auditRoutes());
   panel.route("/", datasetsRoutes());
   panel.route("/", requestsRoutes());
+  panel.route("/", questionsRoutes());
   panel.route("/", albumsRoutes());
   panel.route("/", photosRoutes());
   return panel;

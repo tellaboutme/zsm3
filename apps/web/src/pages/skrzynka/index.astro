@@ -1,0 +1,99 @@
+---
+import HelpLines from "../../components/questions/HelpLines.astro";
+import QuestionForm from "../../components/questions/QuestionForm.astro";
+import QuestionList from "../../components/questions/QuestionList.astro";
+import Base from "../../layouts/Base.astro";
+import { publishedQuestions, questionBox } from "../../server/questions.ts";
+import "../../styles/request.css";
+import "../../styles/questions.css";
+
+export const prerender = false;
+
+const box = questionBox();
+const listing = await publishedQuestions(1);
+---
+
+<Base
+  title="Skrzynka #OgarniamŻycie – ZSM3"
+  description="Anonimowe pytania do zespołu wyznaczonego przez ZSM3. Wybrane pytania publikujemy razem z odpowiedzią, przepisane bez danych pozwalających rozpoznać autora."
+  breadcrumbs={[{ label: "Skrzynka #OgarniamŻycie" }]}
+>
+  <div class="request-page questions-page">
+    <header class="request-intro">
+      <p class="tag">Uczniowie · pytania anonimowe</p>
+      <h1>Skrzynka #OgarniamŻycie</h1>
+      <p>
+        Zadaj anonimowo pytanie o sprawy związane ze szkołą, nauką i codziennym życiem. Pytania
+        czyta zespół wyznaczony przez szkołę. Nie zakładasz konta i nie podajesz swoich danych.
+      </p>
+    </header>
+    <HelpLines />
+    <section class="questions-rules" aria-labelledby="jak-to-dziala">
+      <h2 id="jak-to-dziala">Jak to działa</h2>
+      <ol>
+        <li>Wysyłasz pytanie bez podpisu. Nikt nie odpowiada od razu.</li>
+        <li>
+          Pytanie czyta zespół wyznaczony przez szkołę do obsługi Skrzynki. To, kogo wskażesz jako
+          najlepszą osobę do odpowiedzi, jest tylko wskazówką i nie ogranicza, kto zobaczy pytanie.
+          Żadne pytanie nie pojawia się na stronie automatycznie.
+        </li>
+        <li>
+          Jeśli odpowiedź może pomóc też innym, pracownik przepisuje pytanie własnymi słowami, bez
+          niczego, po czym można rozpoznać Ciebie albo inne osoby, i publikuje je razem z
+          odpowiedzią. Oryginalnej treści nie publikujemy.
+        </li>
+        <li>
+          Pytań odrzuconych nie publikujemy. Nie każde pytanie dostaje odpowiedź, a odpowiedź może
+          pojawić się dopiero po kilku dniach roboczych.
+        </li>
+      </ol>
+      <h3>Co dzieje się z Twoim pytaniem</h3>
+      <ul>
+        <li>
+          Przy pytaniu nie zapisujemy adresu IP, konta ani danych urządzenia, a datę wpływu — bez
+          godziny. Treść pytania jest przechowywana w postaci zaszyfrowanej, a w panelu czyta ją
+          tylko zespół Skrzynki.
+        </li>
+        <li>
+          Aby chronić Skrzynkę przed spamem, formularz sprawdza usługa Cloudflare Turnstile. Do
+          limitu prób zapisujemy liczniki oznaczone jednokierunkowym skrótem adresu IP z tajnym
+          kluczem — bez samego adresu i bez powiązania z pytaniem — i usuwamy je po około dobie.
+          Serwery dostawcy obsługujące połączenie mogą przez krótki czas prowadzić własne dzienniki
+          techniczne; nie łączymy ich z pytaniami.
+        </li>
+        <li>
+          Pytania bez odpowiedzi usuwamy po 90 dniach, odrzucone i wycofane — po 30 dniach. Przy
+          publikacji usuwamy oryginalną treść pytania i zostaje tylko wersja opublikowana. Kopie
+          zapasowe bazy danych mogą jeszcze przez ograniczony czas zawierać usunięte dane.
+        </li>
+      </ul>
+      <p>
+        Więcej o danych na stronie szkoły znajdziesz w{" "}
+        <a href="/polityka-prywatnosci">polityce prywatności</a>.
+      </p>
+    </section>
+    {box.open ? (
+      <QuestionForm siteKey={box.siteKey} />
+    ) : (
+      <section class="request-notice" aria-labelledby="skrzynka-zamknieta">
+        <h2 id="skrzynka-zamknieta">Skrzynka jest teraz zamknięta</h2>
+        <p>
+          Nowych pytań nie można teraz wysyłać. Porozmawiaj z wychowawcą, pedagogiem albo
+          psychologiem szkolnym.
+        </p>
+      </section>
+    )}
+    <QuestionList items={listing.items} total={listing.total} page={1} />
+  </div>
+</Base>
+{box.open && (
+  <script
+    is:inline
+    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+    async
+    defer
+  ></script>
+)}
+{box.open && <script>
+  import "../../scripts/question-form.ts";
+</script>}

@@ -203,6 +203,12 @@ short_links
   created_at, expires_at TEXT, revoked_at NULL, clicks INTEGER
   CHECK ((password_hash IS NULL) = (password_salt IS NULL)), CHECK (expires_at > created_at)
   INDEX (expires_at), INDEX (created_by, created_at)
+
+questions (Skrzynka #OgarniamŻycie, see skrzynka.md)
+  id PK (random UUIDv4), addressee, status (received | draft | published | rejected | withdrawn),
+  version, question_ciphertext NULL, draft_ciphertext NULL (AES-GCM, PII keys),
+  public_slug UNIQUE NULL, published_question / published_answer / published_on (only while published),
+  form_key UNIQUE, received_on (day only), changed_at NULL
 short_link_files
   object_key PK        s/<uuidv7>, made by the Worker; never derived from the upload
   code UNIQUE NULL     the link it belongs to; NULL while the upload is in progress
@@ -371,6 +377,9 @@ The gallery upload page in the panel is the only exception to the site-wide CSP,
 | Deleted photos                                 | 30 days in R2, then physically removed                 |
 | Files of an abandoned photo upload             | 24 hours in R2, then physically removed                |
 | Expired or revoked short links                 | 30 days after they stop working, then the row is gone  |
+| Skrzynka question without a decision           | 90 days after it was received                          |
+| Skrzynka question rejected or withdrawn        | 30 days after the decision                             |
+| Original text of a published Skrzynka question | erased at publication                                  |
 | Files behind short links                       | deleted from R2 within 15 minutes of the link stopping |
 
 A daily Cron job enforces retention and records every run in `audit_log`. That job deletes `audit_log` rows older than two years in batches of 100 (`RETENTION_BATCH`), at most 10 batches per tick (`RETENTION_BATCHES_PER_RUN`), so a backlog drains across ticks instead of one long query; the `audit_log_at` index serves the cutoff predicate. The daily `cron_state` guard applies the request retention and the audit prune at most once per UTC day, and a remaining backlog resumes on the next tick without marking the day as done.

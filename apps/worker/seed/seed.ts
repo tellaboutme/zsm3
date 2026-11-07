@@ -12,11 +12,18 @@ import { seedFiles, storedFile, type SeedFile } from "./files.ts";
 import { seedGallery } from "./gallery.ts";
 import { seedNews } from "./news/index.ts";
 import { seedPages } from "./pages/index.ts";
+import { seedQuestionBox } from "./questions.ts";
 import { seedRequests } from "./requests.ts";
 import { seedShortLinkFiles } from "./short-link-files.ts";
 import { seedShortLinks } from "./short-links.ts";
 import { seedStaff } from "./staff.ts";
-import { MissingSecretError, requestsConfig, type RequestsSecretEnv } from "../src/env.ts";
+import {
+  ACTIVE_PII_KEY_ID,
+  MissingSecretError,
+  piiKeys,
+  requestsConfig,
+  type RequestsSecretEnv,
+} from "../src/env.ts";
 import { piiCrypto } from "../src/security/pii-crypto.ts";
 import { bellsRepo } from "../src/storage/bells-repo.ts";
 import { liveStore, type SqlDatabase } from "../src/storage/database.ts";
@@ -97,11 +104,26 @@ try {
   }
   requestsAvailable = false;
 }
+let seededQuestions: number | undefined;
+try {
+  seededQuestions = await seedQuestionBox(
+    store,
+    piiCrypto(piiKeys(env), ACTIVE_PII_KEY_ID, store.random),
+  );
+} catch (error) {
+  if (!(error instanceof MissingSecretError)) {
+    throw error;
+  }
+}
 await dispose();
 process.stdout.write(
   `Seeded ${String(seedNews.length)} news items, ${String(seedPages.length)} pages, ${String(seedStaff.length)} staff accounts, ${String(manifest.length)} files${mediaDirectory === undefined ? " without their contents" : ""} and ${String(seededLinks)} short links.${
     requestsAvailable
       ? ` Seeded ${String(seededRequests)} e-wniosek requests.`
       : " Skipped e-wniosek requests (missing secrets)."
+  }${
+    seededQuestions === undefined
+      ? " Skipped Skrzynka questions (missing PII_KEY_PRIMARY)."
+      : ` Seeded ${String(seededQuestions)} Skrzynka questions.`
   }\n`,
 );

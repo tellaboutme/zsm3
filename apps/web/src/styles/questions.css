@@ -1,0 +1,74 @@
+.questions-page fieldset {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.questions-page legend {
+  margin-block-end: var(--space-2);
+  font-weight: 700;
+}
+
+.questions-page .request-check {
+  min-height: var(--target);
+  font-weight: 400;
+}
+
+.questions-rules {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.questions-rules ol,
+.questions-rules ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-inline-start: var(--space-5);
+}
+
+.questions-rules h3 {
+  font-size: var(--step-1);
+}
+
+.question-form,
+.question-form form,
+.question-success {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.question-count {
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--step-n1);
+}
+
+.question-success {
+  padding: var(--space-5);
+  border-left: var(--rule) solid var(--blue);
+  background: var(--gray);
+}
+
+.question-answer blockquote {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding-inline-start: var(--space-4);
+  border-left: var(--rule) solid var(--blue);
+  font-size: var(--step-1);
+}
+
+.question-answer section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.questions-page h1,
+.questions-page p,
+.questions-page li,
+.questions-page blockquote {
+  overflow-wrap: anywhere;
+}

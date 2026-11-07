@@ -19,7 +19,6 @@ import { radaRodzicow } from "./rada-rodzicow.ts";
 import { rekrutacja } from "./rekrutacja.ts";
 import { rodo } from "./rodo.ts";
 import { samorzad } from "./samorzad.ts";
-import { skrzynka } from "./skrzynka.ts";
 import { standardy } from "./standardy.ts";
 import { statut } from "./statut.ts";
 import { strefaKursow } from "./strefa-kursow.ts";
@@ -49,7 +48,6 @@ export const seedPages: readonly ContentPage[] = [
   kolaIKluby,
   kursyZawodowe,
   konkursy,
-  skrzynka,
   rodo,
   deklaracjaDostepnosci,
 ].map((page) => contentPageSchema.parse(page));

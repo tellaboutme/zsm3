@@ -26,6 +26,7 @@
     "./gallery": "./src/gallery.ts",
     "./gallery-limits": "./src/gallery-limits.ts",
     "./gallery-public": "./src/gallery-public.ts",
+    "./questions": "./src/questions.ts",
     "./short-link-expiry": "./src/short-link-expiry.ts"
   },
   "scripts": {
