@@ -30,10 +30,13 @@ const SELECT_CLAIMED = `SELECT sha256 FROM photo_uploads WHERE claimed_at IS NOT
 
 const FORGET_CLAIMED = "DELETE FROM photo_uploads WHERE sha256 = ? AND claimed_at IS NOT NULL";
 
-const SELECT_EXPIRED = `SELECT p.id, p.sha256 FROM photos p JOIN albums a ON a.id = p.album_id
-  WHERE (p.deleted_at < ?1 OR a.deleted_at < ?1)
-  AND NOT EXISTS (SELECT 1 FROM photo_uploads j WHERE j.sha256 = p.sha256)
-  ORDER BY p.id LIMIT ?2`;
+const SELECT_EXPIRED = `SELECT e.id, e.sha256 FROM (
+    SELECT p.id, p.sha256 FROM photos p WHERE p.deleted_at < ?1
+    UNION
+    SELECT p.id, p.sha256 FROM albums a JOIN photos p ON p.album_id = a.id WHERE a.deleted_at < ?1
+  ) e
+  WHERE NOT EXISTS (SELECT 1 FROM photo_uploads j WHERE j.sha256 = e.sha256)
+  ORDER BY e.id LIMIT ?2`;
 
 const CLAIM_EXPIRED = `INSERT INTO photo_uploads (sha256, started_at, claimed_at)
   SELECT p.sha256, ?2, ?2 FROM photos p JOIN albums a ON a.id = p.album_id

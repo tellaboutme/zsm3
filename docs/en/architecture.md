@@ -48,7 +48,7 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
                         │     ├─ Static assets: HTML, CSS, JS, fonts, images              │
                         │     ├─ /api/requests/*   public request API (Turnstile, limits) │
                         │     ├─ /api/gallery/*    gallery reads (edge cache)             │
-                        │     ├─ /media/*          photos from R2 (published, 60 s cache) │
+                        │     ├─ /media/*          photos from R2 (published, no store)  │
  Staff ─────Access──►   │     ├─ /panel/*          static panel pages                     │
  (SSO / one-time code)  │     └─ /api/panel/*      panel API (Access JWT, roles, Origin)  │
                         │  D1 (eu)  — requests, gallery, staff, audit log                 │
@@ -299,9 +299,10 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 
 ### 7.6 Public gallery and media
 
+- Pages: `/szkola/galeria` (years), `/szkola/galeria/<yyyy-yyyy>` (albums), `/szkola/galeria/<yyyy-yyyy>/<slug>` (photos and the lightbox). A year or gallery with nothing published shows an empty state marked `noindex` and stays out of the sitemap.
 - `GET /api/gallery/years`, `/api/gallery/years/:year/albums`, `/api/gallery/albums/:id` return published albums only, cached for 60 seconds (`public, max-age=60`) with no `stale-while-revalidate`.
-- `GET /media/g/<sha256>-(s|l).webp` checks `photos` (album published, photo not deleted), then serves R2 through the Cache API with `Content-Type: image/webp`, `nosniff`, `Cache-Control: public, max-age=60` and `Cross-Origin-Resource-Policy: same-origin`.
-- Photos deliberately do not use the year-long immutable cache that documents have (§6). A school can withdraw permission to publish a student's photo, and a copy in a browser or at the edge cannot be recalled, so 60 seconds is the longest a removed photo may stay visible. Deleting a photo or album, or unpublishing an album, ends access at once in D1, and the same request also removes the affected URLs from the Cache API where it can; that purge only reaches the local data centre, so the 60-second limit is what the design relies on.
+- `GET /media/g/<sha256>-(s|l).webp` checks `photos` in D1 on every request (album published, photo not deleted), then streams the object from R2 with `Content-Type: image/webp`, `nosniff`, `Cache-Control: no-store` and `Cross-Origin-Resource-Policy: same-origin`.
+- Photos are not cached by the Worker, the Cache API or the browser. A school can withdraw permission to publish a student's photo, and a stored copy cannot be recalled, so deleting a photo or album, or unpublishing an album, ends delivery at the next request. The album pages and the JSON above can still list it for up to 60 seconds in a browser, but its files already answer 404. Caching photos is a later optimisation that needs agreed requirements first.
 - **Archive import** by `tools/import_gallery.py`: downloads from the current site (at most 4 parallel connections), Pillow (EXIF rotation, metadata removal, WebP 400/1600), upload to R2 over the S3 API, SQL for D1. The script is idempotent and resumes where it stopped. No real archive is imported or published until the school has named who is responsible for it.
 
 ### 7.7 Opening a short link

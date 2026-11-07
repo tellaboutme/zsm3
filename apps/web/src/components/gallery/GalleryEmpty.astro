@@ -1,0 +1,32 @@
+---
+interface Props {
+  heading: string;
+  text: string;
+  backHref: string;
+  backLabel: string;
+}
+
+const { heading, text, backHref, backLabel } = Astro.props;
+---
+
+<section class="empty" aria-labelledby="brak-zdjec">
+  <h2 id="brak-zdjec">{heading}</h2>
+  <p>{text}</p>
+  <a href={backHref}>{backLabel}</a>
+</section>
+
+<style>
+  .empty {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+    max-width: var(--measure);
+    padding: var(--space-5);
+    border: 1px dashed var(--line);
+    border-radius: var(--radius);
+  }
+
+  h2 {
+    font-size: var(--step-2);
+  }
+</style>

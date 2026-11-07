@@ -3,6 +3,8 @@ import type { MediaFormat } from "@zsm3/contracts/media";
 export const IMMUTABLE = "public, max-age=31536000, immutable";
 export const PRIVATE_DOWNLOAD = "private, no-store";
 
+export const GALLERY_CACHE = "public, max-age=60";
+
 const SHOWN_INLINE: ReadonlySet<MediaFormat> = new Set(["pdf", "jpg", "png"]);
 const COMBINING_MARKS = /\p{M}/gu;
 const DASHES = /\p{Pd}/gu;
