@@ -99,6 +99,16 @@ blocked by branch protection. A pull request is merged when every CI job is gree
 lint, types, unit and integration tests, mutation tests, end-to-end tests, ZAP, static
 security analysis, dependency review and CodeQL, and the branch is up to date with `main`.
 
+Mutation tests run per package in parallel (`Mutation (apps/worker)`, `Mutation (apps/web)`,
+`Mutation (packages/contracts)`); the required `Mutation tests` check gathers their results.
+`.github/scripts/mutation-scope.sh` picks the packages for a pull request from its diff: a
+change to `packages/contracts`, the lockfile, the root configuration or the CI setup selects
+all three, a change to `apps/worker` or to the mutated code and tests of `apps/web` selects that
+package, and anything else (tools, docs, styles, pages, e2e) skips mutation testing. Pull
+requests run Stryker in incremental mode against the result cached from `main`, so only
+mutants in changed code or touched by changed tests run again; every push to `main` runs all
+mutants and refreshes that cache.
+
 The `static` job also runs two guards that do not appear elsewhere:
 
 - `pnpm lint:repo` (`tools/src/zsm3_tools/repo_rules.py`) scans every tracked file for
