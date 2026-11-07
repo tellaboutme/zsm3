@@ -1,0 +1,85 @@
+---
+import { HELP_LINES } from "../../lib/questions.ts";
+
+interface Props {
+  headingLevel?: "h2" | "h3";
+}
+
+const { headingLevel = "h2" } = Astro.props;
+const Heading = headingLevel;
+---
+
+<aside class="help-lines" aria-labelledby="pilna-pomoc">
+  <Heading id="pilna-pomoc">Potrzebujesz pomocy teraz?</Heading>
+  <p>
+    Skrzynka nie jest telefonem zaufania i nikt nie czyta pytań na bieżąco. Jeśli dzieje się coś
+    złego albo myślisz o zrobieniu sobie krzywdy, nie czekaj na odpowiedź tutaj:
+  </p>
+  <ul>
+    {HELP_LINES.map((line) => (
+      <li>
+        <a href={line.href}>
+          <span class="number">{line.number}</span>
+          <span class="name">{line.name}</span>
+        </a>
+        <span class="when">{line.when}</span>
+      </li>
+    ))}
+  </ul>
+  <p>
+    W szkole porozmawiaj z wychowawcą, pedagogiem, psychologiem albo dowolnym nauczycielem, któremu
+    ufasz. <a href="/szkola/pomoc">Pomoc w szkole</a>
+  </p>
+</aside>
+
+<style>
+  .help-lines {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border-left: var(--rule) solid var(--orange);
+    border-radius: var(--radius);
+    background: var(--gray);
+    color: var(--ink);
+  }
+
+  .help-lines :is(h2, h3) {
+    font-size: var(--step-2);
+  }
+
+  ul {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  li a {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    align-items: baseline;
+    min-height: var(--target);
+    color: var(--ink);
+  }
+
+  .number {
+    font-family: var(--font-mono);
+    font-size: var(--step-3);
+    font-weight: 700;
+  }
+
+  .name {
+    font-weight: 700;
+  }
+
+  .when {
+    color: var(--ink-2);
+  }
+</style>

@@ -6,9 +6,10 @@ export type FetchLike = typeof fetch;
 
 export const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 export const TURNSTILE_ACTION = "request";
+export const QUESTION_TURNSTILE_ACTION = "question";
 export const TURNSTILE_MAX_AGE_MS = 300_000;
 
-const verificationSchema = z.strictObject({
+const verificationSchema = z.object({
   success: z.boolean(),
   hostname: z.string().optional(),
   action: z.string().optional(),
@@ -25,17 +26,24 @@ export interface TurnstileVerifier {
   verify(input: TurnstileInput, now: Date): Promise<boolean>;
 }
 
+interface VerifierConfig {
+  readonly secretKey: string;
+  readonly doFetch: FetchLike;
+  readonly action: string;
+}
+
 export function turnstileVerifier(
   secretKey: string,
   doFetch: FetchLike = fetch,
+  action: string = TURNSTILE_ACTION,
 ): TurnstileVerifier {
   return {
-    verify: async (input, now) => verifyChallenge({ secretKey, doFetch }, input, now),
+    verify: async (input, now) => verifyChallenge({ secretKey, doFetch, action }, input, now),
   };
 }
 
 async function verifyChallenge(
-  config: { readonly secretKey: string; readonly doFetch: FetchLike },
+  config: VerifierConfig,
   input: TurnstileInput,
   now: Date,
 ): Promise<boolean> {
@@ -55,7 +63,7 @@ async function verifyChallenge(
     }
     return (
       parsed.data.success &&
-      parsed.data.action === TURNSTILE_ACTION &&
+      parsed.data.action === config.action &&
       parsed.data.hostname === input.hostname &&
       isFresh(parsed.data.challenge_ts, now)
     );

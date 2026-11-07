@@ -10,13 +10,15 @@ export const STAFF_ROLE_LABELS: Readonly<Record<PanelStaffRole, string>> = {
   secretariat: "sekretariat",
   editor: "redaktor treści",
   gallery_editor: "redaktor galerii",
+  counsellor: "Skrzynka (pedagog, psycholog)",
 };
 
 const STAFF_ROLE_HINTS: Readonly<Record<PanelStaffRole, string>> = {
-  admin: "wszystko, także pracownicy i przekierowania",
+  admin: "treści, wnioski, pracownicy i przekierowania (bez pytań ze Skrzynki)",
   secretariat: "treści strony i wnioski z formularza e-wniosek",
   editor: "treści strony: aktualności, strony, terminarz, dokumenty, ogłoszenia, dzwonki",
   gallery_editor: "galeria zdjęć",
+  counsellor: "tylko pytania uczniów w Skrzynce #OgarniamŻycie",
 };
 
 export interface StaffRoleOption {
