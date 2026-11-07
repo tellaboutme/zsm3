@@ -18,14 +18,13 @@ if grep -qE "${shared}" <<<"${changed}"; then
   exit 0
 fi
 
-selected=()
+joined=""
 if grep -qE '^apps/worker/' <<<"${changed}"; then
-  selected+=('"apps/worker"')
+  joined='"apps/worker"'
 fi
 if grep -qE "${web}" <<<"${changed}"; then
-  selected+=('"apps/web"')
+  joined="${joined:+${joined},}\"apps/web\""
 fi
 
-joined="$(IFS=,; echo "${selected[*]-}")"
 echo "packages=[${joined}]" >>"${output}"
 echo "Mutation scope: [${joined}]"

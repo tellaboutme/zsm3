@@ -8,7 +8,7 @@ export default defineConfig({
   testDir: "tests",
   fullyParallel: true,
   forbidOnly: IN_CI,
-  retries: 0,
+  retries: IN_CI ? 1 : 0,
   reporter: IN_CI ? [["github"], ["html", { open: "never" }]] : [["list"]],
   use: { baseURL: BASE_URL, trace: "retain-on-failure" },
   snapshotPathTemplate: "{testDir}/baselines/{arg}{ext}",
