@@ -1,8 +1,13 @@
+import { PHOTO_WORKER_POLICY } from "./panel/photo-worker-protocol.ts";
 import { bootScript } from "./preferences.ts";
 
 export interface HeaderOptions {
   readonly scriptHashes: readonly string[];
+  readonly photoWorker?: boolean;
 }
+
+export const PHOTO_PAGE = "/panel/galeria/album";
+export const PHOTO_WORKER_FILES = "/_astro/photo-worker-*";
 
 export type HeaderEntry = readonly [string, string];
 
@@ -11,7 +16,10 @@ export async function sha256Base64(text: string): Promise<string> {
   return btoa(String.fromCodePoint(...new Uint8Array(digest)));
 }
 
-export function contentSecurityPolicy({ scriptHashes }: HeaderOptions): string {
+export function contentSecurityPolicy({
+  scriptHashes,
+  photoWorker = false,
+}: HeaderOptions): string {
   const directives: readonly (readonly string[])[] = [
     ["default-src", "'none'"],
     [
@@ -19,7 +27,9 @@ export function contentSecurityPolicy({ scriptHashes }: HeaderOptions): string {
       "'self'",
       "https://challenges.cloudflare.com",
       ...scriptHashes.map((hash) => `'sha256-${hash}'`),
+      ...(photoWorker ? ["'wasm-unsafe-eval'"] : []),
     ],
+    ...(photoWorker ? [["worker-src", "'self'"]] : []),
     ["style-src", "'self'"],
     ["img-src", "'self'"],
     ["font-src", "'self'"],
@@ -30,7 +40,7 @@ export function contentSecurityPolicy({ scriptHashes }: HeaderOptions): string {
     ["form-action", "'self'"],
     ["frame-ancestors", "'none'"],
     ["require-trusted-types-for", "'script'"],
-    ["trusted-types", "'none'"],
+    ["trusted-types", photoWorker ? PHOTO_WORKER_POLICY : "'none'"],
   ];
   return directives.map((directive) => directive.join(" ")).join("; ");
 }
@@ -72,6 +82,12 @@ export function renderHeaders(options: HeaderOptions): string {
     "/panel/*",
     `  Cache-Control: ${PANEL_CACHE}`,
     "",
+    ...[PHOTO_PAGE, PHOTO_WORKER_FILES].flatMap((path) => [
+      path,
+      "  ! Content-Security-Policy",
+      `  Content-Security-Policy: ${contentSecurityPolicy({ ...options, photoWorker: true })}`,
+      "",
+    ]),
   ].join("\n");
 }
 

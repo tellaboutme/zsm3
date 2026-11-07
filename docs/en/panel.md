@@ -27,14 +27,15 @@ Local development has no Cloudflare Access, so `pnpm dev:auth` stands in for it:
 
 ## Roles
 
-| Role             | Can do                                                                             |
-| ---------------- | ---------------------------------------------------------------------------------- |
-| `admin`          | everything, plus staff and roles, redirects, the gallery and the audit log         |
-| `secretariat`    | all site content, plus handling e-wniosek requests                                 |
-| `editor`         | all site content: news, pages, calendar, documents, announcements, bells, datasets |
-| `gallery_editor` | gallery albums and photos; no content editing                                      |
+| Role             | Can do                                                                                               |
+| ---------------- | ---------------------------------------------------------------------------------------------------- |
+| `admin`          | everything except Skrzynka questions, plus staff and roles, redirects, the gallery and the audit log |
+| `secretariat`    | all site content, plus handling e-wniosek requests                                                   |
+| `editor`         | all site content: news, pages, calendar, documents, announcements, bells, datasets                   |
+| `gallery_editor` | gallery albums and photos; no content editing                                                        |
+| `counsellor`     | only the anonymous questions of Skrzynka #OgarniamŻycie (`/panel/skrzynka`)                          |
 
-The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/matrix.ts`, and a test calls every route with every role. Administrators cannot remove their own admin role or disable themselves, so the panel always keeps one administrator.
+The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/matrix.ts`, and a test calls every route with every role. Administrators cannot remove their own admin role or disable themselves, so the panel always keeps one administrator. Moderating Skrzynka is described in [skrzynka.md](skrzynka.md).
 
 ## Handling requests
 
@@ -49,9 +50,17 @@ The end-to-end specs for the page (`e2e/tests/panel.requests-*.spec.ts`) assert 
 
 Nothing from a request reaches the URL, browser storage or the console. The list and detail schemas are parsed only in this page's scripts: importing them into the shared `lib/panel/models.ts` moves zod's schema construction ahead of the `jitless` switch in every panel bundle, and the Trusted Types policy then reports the blocked `Function` probe.
 
+## Gallery pages
+
+`/panel/galeria` lists albums and creates them; `/panel/galeria/album?id=…` edits one album and its photos. Both are shown to `admin` and `gallery_editor`, and `gallery_editor` sees only this section.
+
+Photos are prepared in the browser by `scripts/panel/photo-worker.ts`: `createImageBitmap` applies the EXIF orientation, an `OffscreenCanvas` scales to 400 px and at most 1600 px on the long edge, and `@jsquash/webp` encodes both, lowering quality until each fits 1.5 MB. Re-encoding drops all metadata. A source below 400 px on its long edge is refused rather than enlarged. This is a convenience only: the server trusts none of it (architecture.md §7.5). Each Worker handles one file and is terminated afterwards, which is also how cancelling works.
+
+The panel shows no stored photo, because `/media/g/` serves published photos only and the page's `img-src 'self'` does not allow a local preview. Rows show the description, the dimensions and who confirmed the legal basis.
+
 ## Gallery API
 
-The gallery routes serve `admin` and `gallery_editor`. The panel pages for them, the public gallery and the job that purges deleted files from R2 come in later changes, so nothing stored here is visible outside the panel API yet. Upload rules are in architecture.md §7.5.
+The gallery routes serve `admin` and `gallery_editor`. A photo is visible outside the panel only while its album is published (architecture.md §7.6). Upload rules are in architecture.md §7.5.
 
 | Route                                      | Purpose                                                    |
 | ------------------------------------------ | ---------------------------------------------------------- |

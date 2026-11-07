@@ -48,7 +48,7 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
                         │     ├─ Static assets: HTML, CSS, JS, fonts, images              │
                         │     ├─ /api/requests/*   public request API (Turnstile, limits) │
                         │     ├─ /api/gallery/*    gallery reads (edge cache)             │
-                        │     ├─ /media/*          photos from R2 (published, 60 s cache) │
+                        │     ├─ /media/*          photos from R2 (published, no store)  │
  Staff ─────Access──►   │     ├─ /panel/*          static panel pages                     │
  (SSO / one-time code)  │     └─ /api/panel/*      panel API (Access JWT, roles, Origin)  │
                         │  D1 (eu)  — requests, gallery, staff, audit log                 │
@@ -203,6 +203,12 @@ short_links
   created_at, expires_at TEXT, revoked_at NULL, clicks INTEGER
   CHECK ((password_hash IS NULL) = (password_salt IS NULL)), CHECK (expires_at > created_at)
   INDEX (expires_at), INDEX (created_by, created_at)
+
+questions (Skrzynka #OgarniamŻycie, see skrzynka.md)
+  id PK (random UUIDv4), addressee, status (received | draft | published | rejected | withdrawn),
+  version, question_ciphertext NULL, draft_ciphertext NULL (AES-GCM, PII keys),
+  public_slug UNIQUE NULL, published_question / published_answer / published_on (only while published),
+  form_key UNIQUE, received_on (day only), changed_at NULL
 short_link_files
   object_key PK        s/<uuidv7>, made by the Worker; never derived from the upload
   code UNIQUE NULL     the link it belongs to; NULL while the upload is in progress
@@ -293,9 +299,10 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 
 ### 7.6 Public gallery and media
 
+- Pages: `/szkola/galeria` (years), `/szkola/galeria/<yyyy-yyyy>` (albums), `/szkola/galeria/<yyyy-yyyy>/<slug>` (photos and the lightbox). A year or gallery with nothing published shows an empty state marked `noindex` and stays out of the sitemap.
 - `GET /api/gallery/years`, `/api/gallery/years/:year/albums`, `/api/gallery/albums/:id` return published albums only, cached for 60 seconds (`public, max-age=60`) with no `stale-while-revalidate`.
-- `GET /media/g/<sha256>-(s|l).webp` checks `photos` (album published, photo not deleted), then serves R2 through the Cache API with `Content-Type: image/webp`, `nosniff`, `Cache-Control: public, max-age=60` and `Cross-Origin-Resource-Policy: same-origin`.
-- Photos deliberately do not use the year-long immutable cache that documents have (§6). A school can withdraw permission to publish a student's photo, and a copy in a browser or at the edge cannot be recalled, so 60 seconds is the longest a removed photo may stay visible. Deleting a photo or album, or unpublishing an album, ends access at once in D1, and the same request also removes the affected URLs from the Cache API where it can; that purge only reaches the local data centre, so the 60-second limit is what the design relies on.
+- `GET /media/g/<sha256>-(s|l).webp` checks `photos` in D1 on every request (album published, photo not deleted), then streams the object from R2 with `Content-Type: image/webp`, `nosniff`, `Cache-Control: no-store` and `Cross-Origin-Resource-Policy: same-origin`.
+- Photos are not cached by the Worker, the Cache API or the browser. A school can withdraw permission to publish a student's photo, and a stored copy cannot be recalled, so deleting a photo or album, or unpublishing an album, ends delivery at the next request. The album pages and the JSON above can still list it for up to 60 seconds in a browser, but its files already answer 404. Caching photos is a later optimisation that needs agreed requirements first.
 - **Archive import** by `tools/import_gallery.py`: downloads from the current site (at most 4 parallel connections), Pillow (EXIF rotation, metadata removal, WebP 400/1600), upload to R2 over the S3 API, SQL for D1. The script is idempotent and resumes where it stopped. No real archive is imported or published until the school has named who is responsible for it.
 
 ### 7.7 Opening a short link
@@ -347,7 +354,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 
 `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`, a strict `Content-Security-Policy` (Turnstile and `youtube-nocookie.com` only where used), `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Permissions-Policy` with every feature off, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`, `Cross-Origin-Resource-Policy: same-origin`. Static files get them from `_headers`, Worker responses from middleware; tests check the full set. Target: A+ on Mozilla Observatory.
 
-The gallery upload page in the panel is the only exception to the site-wide CSP, for the image Worker in §7.5: it adds `worker-src 'self'` and `'wasm-unsafe-eval'`, and only on that page. `blob:` is added only if the implementation really needs it and tests justify it. General `unsafe-eval`, `unsafe-inline` and any relaxation for the rest of the site are not allowed.
+The gallery upload page in the panel is the only exception to the site-wide CSP, for the image Worker in §7.5. `renderHeaders` gives two paths their own policy: `/panel/galeria/album` and `/_astro/photo-worker-*`, because a Worker obeys the CSP of its own script response, not the page's. That policy adds `worker-src 'self'`, `'wasm-unsafe-eval'` and one Trusted Types policy, `zsm3-photo-worker`, which accepts only the Worker's own URL; `new Worker` is a Trusted Types sink, so without it the page could not start the Worker. `blob:` is not used. General `unsafe-eval`, `unsafe-inline` and any relaxation for the rest of the site are not allowed. A test in `e2e/tests/panel.gallery.spec.ts` encodes a real photo under this policy and checks the rest of the panel keeps the strict one.
 
 ### 8.3 Cryptography
 
@@ -370,6 +377,9 @@ The gallery upload page in the panel is the only exception to the site-wide CSP,
 | Deleted photos                                 | 30 days in R2, then physically removed                 |
 | Files of an abandoned photo upload             | 24 hours in R2, then physically removed                |
 | Expired or revoked short links                 | 30 days after they stop working, then the row is gone  |
+| Skrzynka question without a decision           | 90 days after it was received                          |
+| Skrzynka question rejected or withdrawn        | 30 days after the decision                             |
+| Original text of a published Skrzynka question | erased at publication                                  |
 | Files behind short links                       | deleted from R2 within 15 minutes of the link stopping |
 
 A daily Cron job enforces retention and records every run in `audit_log`. That job deletes `audit_log` rows older than two years in batches of 100 (`RETENTION_BATCH`), at most 10 batches per tick (`RETENTION_BATCHES_PER_RUN`), so a backlog drains across ticks instead of one long query; the `audit_log_at` index serves the cutoff predicate. The daily `cron_state` guard applies the request retention and the audit prune at most once per UTC day, and a remaining backlog resumes on the next tick without marking the day as done.

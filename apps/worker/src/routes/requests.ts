@@ -2,6 +2,7 @@ import { Hono, type Context } from "hono";
 
 import type { AppEnv } from "../app-env.ts";
 import { requestsConfig } from "../env.ts";
+import { readJson } from "../http/json-body.ts";
 import { isSameOrigin, originOf } from "../http/origin.ts";
 import { problemResponse } from "../http/problem.ts";
 import { requestStatus } from "../requests/request-status.ts";
@@ -19,28 +20,10 @@ import {
 } from "../storage/rate-limits-repo.ts";
 import { requestsRepo } from "../storage/requests-repo.ts";
 
-const JSON_CONTENT_TYPE = "application/json";
-
-type JsonBody =
-  | { readonly ok: true; readonly body: unknown }
-  | { readonly ok: false; readonly status: 400 | 415 };
-
 type RefusalStatus = 400 | 403 | 409 | 429;
 
 function clientIp(c: Context<AppEnv>): string {
   return c.req.header("CF-Connecting-IP") ?? "";
-}
-
-async function readJson(c: Context<AppEnv>): Promise<JsonBody> {
-  const contentType = c.req.header("Content-Type") ?? "";
-  if (!contentType.startsWith(JSON_CONTENT_TYPE)) {
-    return { ok: false, status: 415 };
-  }
-  try {
-    return { ok: true, body: await c.req.json() };
-  } catch {
-    return { ok: false, status: 400 };
-  }
 }
 
 function refusalStatus(reason: SubmitRefusalReason): RefusalStatus {

@@ -125,6 +125,30 @@ def test_http_and_content_failures_are_explicit() -> None:
     ] == ["http_503", "not_html_or_too_large"]
 
 
+def test_a_larger_page_cap_is_opt_in_and_bounded() -> None:
+    home = ORIGIN + "/"
+    large = b'<a href="/page">A</a>' + b" " * content_inventory.MAX_HTML_BYTES
+    responses = {
+        ORIGIN + "/robots.txt": Response(200, "text/plain", b"User-agent: *\nAllow: /"),
+        home: Response(200, "text/html", large),
+    }
+    bounded = inventory(
+        [home], FakeTransport(responses), limits=Limits(pages=1), pause=lambda _: None
+    )
+    raised = inventory(
+        [home],
+        FakeTransport(responses),
+        limits=Limits(pages=1, page_bytes=len(large)),
+        pause=lambda _: None,
+    )
+
+    assert [entry.status for entry in bounded] == ["fetch_error:InventoryError"]
+    assert [entry.status for entry in raised] == ["discovered", "limit_not_fetched"]
+    for page_bytes in (content_inventory.MAX_HTML_BYTES - 1, 8_000_001):
+        with pytest.raises(InventoryError, match="1-8 MB per page"):
+            inventory([home], FakeTransport(responses), limits=Limits(page_bytes=page_bytes))
+
+
 def test_rejects_invalid_limits_and_foreign_seeds() -> None:
     transport = FakeTransport({ORIGIN + "/robots.txt": Response(200, "text/plain", b"")})
     with pytest.raises(InventoryError, match="limits"):

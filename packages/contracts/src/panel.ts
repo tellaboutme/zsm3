@@ -90,7 +90,13 @@ export const panelFileViewSchema = z.strictObject({ item: storedFileSchema });
 
 export const panelRedirectListSchema = z.strictObject({ items: z.array(redirectSchema) });
 
-export const panelStaffRoleSchema = z.enum(["admin", "secretariat", "editor", "gallery_editor"]);
+export const panelStaffRoleSchema = z.enum([
+  "admin",
+  "secretariat",
+  "editor",
+  "gallery_editor",
+  "counsellor",
+]);
 export type PanelStaffRole = z.infer<typeof panelStaffRoleSchema>;
 export const panelMeSchema = z.strictObject({
   email: z.string().trim().toLowerCase().min(1),
@@ -172,6 +178,10 @@ export const panelRouteNames = [
   "requests.list",
   "requests.get",
   "requests.transition",
+  "questions.list",
+  "questions.get",
+  "questions.draft",
+  "questions.decide",
   ...GALLERY_ROUTE_NAMES,
 ] as const;
 

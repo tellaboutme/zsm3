@@ -172,6 +172,33 @@ Dokumenty przesyłane w panelu trafiają do magazynu R2 (Cloudflare, w UE). Serw
 
 Lista kontrolna dostępności PDF pojawi się w panelu razem z pełnym przeglądem istniejących PDF (etap 7, przy uruchomieniu serwisu). Już teraz pamiętaj o podstawie: plik PDF musi zawierać prawdziwy tekst, a nie być wyłącznie fotografią kartki. Przy pierwszych plikach pomoże sekretariat i administrator.
 
+## Galeria
+
+Galerię prowadzą osoby z rolą **Redaktor galerii** oraz administratorzy. Obie role mogą publikować albumy i je ukrywać.
+
+### Album
+
+1. Otwórz **Galeria**, wybierz rok szkolny, wpisz tytuł i wybierz **Utwórz album**. Nowy album jest szkicem: nikt poza panelem go nie widzi.
+2. Dodaj zdjęcia. Album bez zdjęć nie może zostać opublikowany.
+3. Wybierz **Opublikuj album**. Wszystkie zdjęcia albumu będą widoczne na stronie szkoły, w dziale Szkoła → Galeria.
+
+### Dodawanie zdjęcia
+
+Zdjęcia dodaje się pojedynczo. Przeglądarka sama obraca zdjęcie, zmniejsza je i usuwa z pliku dane takie jak miejsce wykonania. Dłuższy bok oryginału musi mieć co najmniej 400 pikseli.
+
+Każde zdjęcie wymaga:
+
+- **opisu dla osób niewidomych**, który mówi, co widać na zdjęciu;
+- **potwierdzenia**, że szkoła ma zgodę lub inną uzgodnioną podstawę prawną do publikacji. Potwierdzenie trafia do dziennika zmian, ale nie zastępuje samej zgody, którą przechowuje szkoła.
+
+Jeśli zobaczysz komunikat, że zdjęcie jest właśnie przetwarzane, spróbuj ponownie za kilka minut.
+
+### Usuwanie i wycofanie zgody
+
+Gdy szkoła wycofa zgodę, od razu usuń zdjęcie przyciskiem **Usuń zdjęcie**. Przestaje być dostępne w panelu natychmiast, a plik jest trwale usuwany po 30 dniach.
+
+W panelu nie ma jeszcze podglądu zapisanych zdjęć. Pojawi się wraz z galerią publiczną.
+
 ## 7. Przekierowania starych adresów
 
 Stara strona WordPress ma tysiące adresów. Po przeniesieniu na nową stronę każdy stary adres musi wskazywać na odpowiednik w nowym serwisie — dzięki temu odnośniki w PDF, w wiadomościach Librusa i w wyszukiwarkach nie zepsują się.
@@ -369,7 +396,6 @@ Po utworzeniu link pojawia się z przyciskiem **Kopiuj link**. Na liście widzis
 
 Ten podręcznik na razie opisuje etap 3. W kolejnych etapach dojdzie reszta panelu (zgodnie z [architekturą](architektura.md), rozdział 14):
 
-- **Etap 5 — galeria**: albumy według lat szkolnych, dodawanie zdjęć przeciąganiem w przeglądarce, która sama je zmniejsza, publikacja po potwierdzeniu zgód wizerunku.
 - **Etap 6 — narzędzia społeczności**: Skrzynka #OgarniamŻycie moderowana w panelu, statystyki bez plików cookie (krótkie linki opisuje rozdział 16).
 - **Etap 7 — uruchomienie**: szkolenie pracowników, przegląd PDF, rejestracja w wyszukiwarkach i przełączenie DNS.
 

@@ -4,9 +4,13 @@ import { STAFF_ROLE_LABELS } from "./staff.ts";
 
 export type GateState = "loading" | "anonymous" | "denied" | "ready" | "error";
 
-export const CONTENT_ROLES: readonly string[] = ["admin", "secretariat", "editor"];
+export const CONTENT_ROLES: readonly PanelStaffRole[] = ["admin", "secretariat", "editor"];
+
+export const GALLERY_ROLES: readonly PanelStaffRole[] = ["admin", "gallery_editor"];
 
 export const REQUEST_ROLES: readonly PanelStaffRole[] = ["admin", "secretariat"];
+
+export const QUESTION_ROLES: readonly PanelStaffRole[] = ["counsellor"];
 
 const ROLE_LABELS: Readonly<Record<string, string>> = STAFF_ROLE_LABELS;
 
@@ -27,8 +31,16 @@ export function sectionAllowed(roles: string | undefined, role: string): boolean
   return roles === undefined || roles.split(" ").includes(role);
 }
 
+function hasRole(roles: readonly PanelStaffRole[], role: string): boolean {
+  return roles.some((allowed) => allowed === role);
+}
+
 export function canEditContent(role: string): boolean {
-  return CONTENT_ROLES.includes(role);
+  return hasRole(CONTENT_ROLES, role);
+}
+
+export function canManageGallery(role: string): boolean {
+  return hasRole(GALLERY_ROLES, role);
 }
 
 export function gatePhrases(state: GateState): readonly string[] {

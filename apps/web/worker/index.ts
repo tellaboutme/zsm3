@@ -1,7 +1,8 @@
 import { handle } from "@astrojs/cloudflare/handler";
 import { createApp } from "@zsm3/worker/app";
-import { runPhotoCleanup } from "@zsm3/worker/jobs/photo-cleanup";
+import { runLoggedPhotoCleanup } from "@zsm3/worker/jobs/photo-cleanup";
 import { runScheduledMaintenance } from "@zsm3/worker/jobs/retention";
+import { createQuestionsApp, QUESTIONS_PREFIX } from "@zsm3/worker/questions-app";
 import { createRequestsApp } from "@zsm3/worker/requests-app";
 import { liveStore } from "@zsm3/worker/storage/database.ts";
 import { redirectsRepo } from "@zsm3/worker/storage/redirects-repo.ts";
@@ -12,19 +13,23 @@ import { withQueryNoindex } from "./seo-response.ts";
 
 const api = createApp();
 const requestsApi = createRequestsApp();
+const questionsApi = createQuestionsApp();
 
 const REQUESTS_PREFIX = "/api/requests";
 const API_PREFIXES = ["/api/", "/media/"];
 
-function isRequestsPath(pathname: string): boolean {
-  return pathname === REQUESTS_PREFIX || pathname.startsWith(`${REQUESTS_PREFIX}/`);
+function under(prefix: string, pathname: string): boolean {
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
 export default {
   fetch: async (request, env, context) => {
     const { pathname } = new URL(request.url);
-    if (isRequestsPath(pathname)) {
+    if (under(REQUESTS_PREFIX, pathname)) {
       return requestsApi.fetch(request, env, context);
+    }
+    if (under(QUESTIONS_PREFIX, pathname)) {
+      return questionsApi.fetch(request, env, context);
     }
     if (API_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
       return api.fetch(request, env, context);
@@ -54,6 +59,6 @@ export default {
     const store = liveStore(env.DB);
     const now = new Date(event.scheduledTime);
     context.waitUntil(runScheduledMaintenance(env, store, now));
-    context.waitUntil(runPhotoCleanup(env.MEDIA, store, now));
+    context.waitUntil(runLoggedPhotoCleanup(env.MEDIA, store, now));
   },
 } satisfies ExportedHandler<Env>;

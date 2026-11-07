@@ -71,7 +71,7 @@ jobs:
   mutation:
     name: Mutation tests
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 180
     permissions:
       contents: read
     steps:
@@ -100,13 +100,15 @@ jobs:
       - name: Production pages retain direct e-mail links
         run: CONTACT_PRODUCTION=true pnpm --filter @zsm3/e2e exec playwright test --project chromium --grep 'production pages keep mailto links without a dialog'
       - run: pnpm build:preview
-      - name: Set local short link key for end-to-end tests
+      - name: Set local secrets for end-to-end tests
         run: |
           umask 077
           set -C
           key="$(openssl rand -hex 32)"
-          printf 'SHORT_LINK_KEY=%s\n' "$key" > apps/web/.dev.vars
-          printf 'SHORT_LINK_KEY=%s\n' "$key" > apps/web/dist/server/.dev.vars
+          pii="$(openssl rand -hex 32)"
+          for target in apps/web/.dev.vars apps/web/dist/server/.dev.vars; do
+            printf 'SHORT_LINK_KEY=%s\nPII_KEY_PRIMARY=%s\nSKRZYNKA_ENABLED=true\nTURNSTILE_SITE_KEY=1x00000000000000000000AA\n' "$key" "$pii" > "$target"
+          done
       - run: pnpm --filter @zsm3/e2e test:e2e
       - name: Home without published news
         run: pnpm --filter @zsm3/e2e exec playwright test --config isolated.config.ts

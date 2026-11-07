@@ -1,0 +1,96 @@
+---
+import { galleryYearPath } from "@zsm3/contracts/gallery-public";
+
+import GalleryEmpty from "../../../components/gallery/GalleryEmpty.astro";
+import GalleryHead from "../../../components/gallery/GalleryHead.astro";
+import Base from "../../../layouts/Base.astro";
+import { albumCountPhrase } from "../../../lib/gallery.ts";
+import { galleryReader } from "../../../server/gallery.ts";
+
+export const prerender = false;
+
+const years = await galleryReader().years();
+const empty = years.length === 0;
+---
+
+<Base
+  title="Galeria — ZSM3"
+  description={
+    empty
+      ? "Galeria Zespołu Szkół Mechanicznych nr 3 w Krakowie. Obecnie nie ma w niej opublikowanych zdjęć."
+      : "Zdjęcia z życia Zespołu Szkół Mechanicznych nr 3 w Krakowie, uporządkowane według lat szkolnych."
+  }
+  noindex={empty}
+  breadcrumbs={[{ label: "Szkoła", href: "/szkola" }, { label: "Galeria" }]}
+>
+  <GalleryHead
+    title="Galeria"
+    lead={empty ? "" : "Zdjęcia z życia szkoły, uporządkowane według lat szkolnych."}
+  />
+  <div class="body">
+    {empty ? (
+      <GalleryEmpty
+        heading="Brak zdjęć w galerii"
+        text="W galerii nie ma obecnie opublikowanych albumów ani zdjęć."
+        backHref="/szkola"
+        backLabel="Wróć do strony o szkole"
+      />
+    ) : (
+      <ul class="years">
+        {years.map((year) => (
+          <li class="year">
+            <a href={galleryYearPath(year.schoolYear)}>{year.schoolYear}</a>
+            <p>{albumCountPhrase(year.albumCount)}</p>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Base>
+
+<style>
+  .body {
+    padding-block-end: var(--space-7);
+  }
+
+  .years {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .year {
+    position: relative;
+    display: grid;
+    gap: var(--space-1);
+    padding-block-start: var(--space-4);
+    border-block-start: var(--rule) solid var(--orange);
+  }
+
+  .year a {
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .year a::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+  }
+
+  .year:hover a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
+  .year p {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+</style>

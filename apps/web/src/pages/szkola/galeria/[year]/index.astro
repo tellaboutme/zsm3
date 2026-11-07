@@ -1,0 +1,130 @@
+---
+import {
+  GALLERY_PATH,
+  galleryAlbumPath,
+  photoPath,
+  schoolYearFromSlug,
+} from "@zsm3/contracts/gallery-public";
+
+import GalleryEmpty from "../../../../components/gallery/GalleryEmpty.astro";
+import GalleryHead from "../../../../components/gallery/GalleryHead.astro";
+import Base from "../../../../layouts/Base.astro";
+import { albumCountPhrase, photoCountPhrase } from "../../../../lib/gallery.ts";
+import { galleryReader } from "../../../../server/gallery.ts";
+import { notFound } from "../../../../server/news.ts";
+
+export const prerender = false;
+
+const schoolYear = schoolYearFromSlug(Astro.params["year"] ?? "");
+if (schoolYear === undefined) {
+  return notFound();
+}
+const albums = await galleryReader().albums(schoolYear);
+const empty = albums.length === 0;
+---
+
+<Base
+  title={`Galeria ${schoolYear} — ZSM3`}
+  description={`Albumy ze zdjęciami z roku szkolnego ${schoolYear} w Zespole Szkół Mechanicznych nr 3 w Krakowie.`}
+  noindex={empty}
+  breadcrumbs={[
+    { label: "Szkoła", href: "/szkola" },
+    { label: "Galeria", href: GALLERY_PATH },
+    { label: schoolYear },
+  ]}
+>
+  <GalleryHead
+    title={`Rok szkolny ${schoolYear}`}
+    {...(empty ? {} : { lead: albumCountPhrase(albums.length) })}
+  />
+  <div class="body">
+    {empty ? (
+      <GalleryEmpty
+        heading="Brak opublikowanych albumów"
+        text="W tym roku szkolnym nie ma jeszcze żadnych albumów."
+        backHref={GALLERY_PATH}
+        backLabel="Zobacz inne lata"
+      />
+    ) : (
+      <ul class="albums">
+        {albums.map((album) => (
+          <li class="album">
+            <img
+              class="cover"
+              src={photoPath(album.coverSha256, "s")}
+              alt=""
+              width="400"
+              height="267"
+              loading="lazy"
+              decoding="async"
+            />
+            <h2>
+              <a href={galleryAlbumPath(album)}>{album.title}</a>
+            </h2>
+            {album.description !== "" && <p class="meta">{album.description}</p>}
+            <p class="meta">{photoCountPhrase(album.photoCount)}</p>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Base>
+
+<style>
+  .body {
+    padding-block-end: var(--space-7);
+  }
+
+  .albums {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: var(--space-6) var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .album {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+
+  .cover {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: var(--radius);
+    background: var(--gray);
+  }
+
+  h2 {
+    font-size: var(--step-1);
+    overflow-wrap: anywhere;
+  }
+
+  .album a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .album a::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+  }
+
+  .album:hover a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
+  .meta {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+    overflow-wrap: anywhere;
+  }
+</style>

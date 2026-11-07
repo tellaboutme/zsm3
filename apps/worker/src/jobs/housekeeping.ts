@@ -1,7 +1,9 @@
 import { sweepShortLinkFiles } from "./short-link-files.ts";
 import type { MediaBucket } from "../app-env.ts";
+import { retentionCutoffs } from "../domain/question-lifecycle.ts";
 import { logEvent } from "../logging/log.ts";
 import type { Store } from "../storage/database.ts";
+import { questionsRepo } from "../storage/questions-repo.ts";
 import {
   RATE_LIMIT_PRUNE_BATCH,
   RATE_LIMIT_RETENTION_MS,
@@ -14,9 +16,15 @@ import { LAPSED_PRUNE_BATCH, shortLinksRepo } from "../storage/short-links-repo.
 const DAY_MS = 86_400_000;
 
 export const LAPSED_RETENTION_MS = 30 * DAY_MS;
+export const QUESTION_PRUNE_BATCH = 100;
 
 export type HousekeepingStep =
-  "rate_limits" | "short_link_failures" | "lapsed_short_links" | "short_link_files";
+  | "rate_limits"
+  | "short_link_failures"
+  | "lapsed_short_links"
+  | "short_link_files"
+  | "questions"
+  | "photo_cleanup";
 
 export class HousekeepingError extends Error {
   readonly steps: readonly HousekeepingStep[];
@@ -60,6 +68,11 @@ const STEPS: readonly (readonly [HousekeepingStep, Step])[] = [
   [
     "short_link_files",
     async ({ store, bucket, now }) => sweepShortLinkFiles(shortLinkFilesRepo(store), bucket, now),
+  ],
+  [
+    "questions",
+    async ({ store, now }) =>
+      questionsRepo(store).prune(retentionCutoffs(now), QUESTION_PRUNE_BATCH),
   ],
 ];
 

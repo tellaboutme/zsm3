@@ -1,0 +1,106 @@
+---
+import { QUESTION_MAX_LENGTH } from "@zsm3/contracts/questions";
+
+import { ADDRESSEE_OPTIONS, lengthHint } from "../../lib/questions.ts";
+
+interface Props {
+  siteKey: string;
+}
+
+const { siteKey } = Astro.props;
+---
+
+<section class="question-form" aria-labelledby="zadaj-pytanie">
+  <h2 id="zadaj-pytanie">Zadaj pytanie</h2>
+  <noscript>
+    <p>
+      Wysłanie pytania wymaga JavaScriptu. Możesz też porozmawiać z pedagogiem lub psychologiem
+      szkolnym osobiście.
+    </p>
+  </noscript>
+  <form data-question-form method="post" action="/api/questions" novalidate>
+    <div class="request-errors" id="question-errors" tabindex="-1" role="alert" hidden></div>
+    <fieldset aria-describedby="addressee-hint addressee-error">
+      <legend>
+        Kto, Twoim zdaniem, najlepiej odpowie? <span aria-hidden="true">*</span>
+      </legend>
+      <p id="addressee-hint">
+        To tylko wskazówka. Pytanie może przeczytać każda osoba z zespołu wyznaczonego przez szkołę
+        do obsługi Skrzynki — wybór nie ogranicza, kto je zobaczy, i nie wysyła go bezpośrednio do
+        tej osoby.
+      </p>
+      {ADDRESSEE_OPTIONS.map((option) => (
+        <label class="request-check">
+          <input type="radio" name="addressee" value={option.value} required />
+          {option.label}
+        </label>
+      ))}
+    </fieldset>
+    <span id="addressee-error" class="field-error" aria-live="polite"></span>
+    <label for="question-text">
+      Twoje pytanie <span aria-hidden="true">*</span>
+    </label>
+    <p id="question-hint">
+      Nie podpisuj się. Nie wpisuj imion, nazwisk, klasy, numeru telefonu ani niczego, po czym można
+      rozpoznać Ciebie albo inne osoby.
+    </p>
+    <textarea
+      id="question-text"
+      name="question"
+      rows="8"
+      maxlength={QUESTION_MAX_LENGTH}
+      required
+      autocomplete="off"
+      aria-describedby="question-hint question-count question-error"
+    ></textarea>
+    <p id="question-count" class="question-count" data-question-count>
+      {lengthHint(0)}
+    </p>
+    <span id="question-error" class="field-error" aria-live="polite"></span>
+    <div class="request-trap" aria-hidden="true">
+      <label for="question-honeypot">Pozostaw puste</label>
+      <input id="question-honeypot" name="honeypot" tabindex="-1" autocomplete="off" />
+    </div>
+    <label class="request-check" for="question-rules">
+      <input
+        id="question-rules"
+        name="rulesAccepted"
+        type="checkbox"
+        required
+        aria-describedby="rulesAccepted-error"
+      />
+      <span>
+        Rozumiem, że pytanie czyta zespół wyznaczony przez szkołę (niezależnie od tego, kogo
+        wskażę), że może pozostać bez odpowiedzi i że publikowane są wyłącznie wybrane pytania,
+        przepisane bez danych pozwalających kogoś rozpoznać.
+      </span>
+    </label>
+    <span id="rulesAccepted-error" class="field-error" aria-live="polite"></span>
+    <div
+      class="cf-turnstile"
+      data-sitekey={siteKey}
+      data-action="question"
+      data-response-field="false"
+    ></div>
+    <button type="submit" data-submit>
+      Wyślij pytanie
+    </button>
+  </form>
+  <section
+    class="question-success"
+    data-question-success
+    hidden
+    tabindex="-1"
+    aria-labelledby="pytanie-wyslane"
+  >
+    <h2 id="pytanie-wyslane">Pytanie zostało wysłane</h2>
+    <p>
+      Nie dostaniesz osobnej wiadomości. Jeśli pracownik szkoły odpowie i uzna, że odpowiedź może
+      pomóc także innym, pojawi się ona na tej stronie.
+    </p>
+    <p>Jeśli potrzebujesz pomocy teraz, zadzwoń pod 116 111 albo porozmawiaj z kimś w szkole.</p>
+    <button type="button" data-question-again>
+      Zadaj kolejne pytanie
+    </button>
+  </section>
+</section>
