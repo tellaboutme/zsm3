@@ -7,7 +7,13 @@
 ```powershell
 uv run --directory tools --locked zsm3-content-inventory "$env:LOCALAPPDATA\Temp\zsm3-inventory.json" --max-pages 100 --max-depth 2 --delay 1
 uv run --directory tools --locked zsm3-content-inventory out.json --seed https://www.zespolszkolmechanicznych.edu.pl/kontakt
+uv run --directory tools --locked zsm3-content-inventory out.json --max-pages 1 --max-depth 1 --max-page-bytes 5000000
 ```
+
+The old site's pages measured about 3.7 MB of HTML each in November 2026, so with the default
+1 MB cap even the home page ends as `fetch_error:InventoryError`. `--max-page-bytes` raises
+the cap for one run, up to 8 MB. The last command reads only the home page and lists every
+page and document it links to, at the cost of one page request.
 
 The crawl always starts from the home page; each `--seed` adds another page on the same HTTPS
 origin. The command exits with 0 when the file is written, 2 for malformed arguments, and 1
@@ -43,7 +49,8 @@ follow-up checks, not approval.
   percent-encoded once, paths with `.` or `..` segments left after decoding are dropped, and
   `/wp-admin`, `/wp-json` and `/wp-login.php` are excluded.
 - Only extensionless, `.html`, `.htm` and `.php` paths are fetched, and only `text/html`
-  bodies without content encoding are read: at most 1 MB per page and 100 KB for robots.txt,
+  bodies without content encoding are read: at most 1 MB per page by default (1–8 MB with
+  `--max-page-bytes`) and 100 KB for robots.txt,
   15 seconds per request, at least one second between pages, 1–1000 pages, depth 0–5.
 - Page bodies are parsed in memory for `<a href>` links and discarded; no text, attachment or
   photo is stored. A server that labels a binary file as HTML cannot be detected from headers.
