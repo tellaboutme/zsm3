@@ -1,0 +1,43 @@
+---
+import HelpLines from "../../../components/questions/HelpLines.astro";
+import QuestionList from "../../../components/questions/QuestionList.astro";
+import Base from "../../../layouts/Base.astro";
+import { pageCount, pageNumber } from "../../../lib/questions.ts";
+import { notFound } from "../../../server/news.ts";
+import { publishedQuestions } from "../../../server/questions.ts";
+import "../../../styles/request.css";
+import "../../../styles/questions.css";
+
+export const prerender = false;
+
+const page = pageNumber(Astro.params["page"]);
+if (page === undefined) {
+  return notFound();
+}
+const listing = await publishedQuestions(page);
+if (page > pageCount(listing.total)) {
+  return notFound();
+}
+---
+
+<Base
+  title={`Skrzynka #OgarniamŻycie, strona ${String(page)} – ZSM3`}
+  description="Starsze odpowiedzi na anonimowe pytania uczniów ZSM3."
+  breadcrumbs={[
+    { label: "Skrzynka #OgarniamŻycie", href: "/skrzynka" },
+    { label: `Strona ${String(page)}` },
+  ]}
+  noindex
+>
+  <div class="request-page questions-page">
+    <header class="request-intro">
+      <p class="tag">Uczniowie · pytania anonimowe</p>
+      <h1>Odpowiedzi ze Skrzynki</h1>
+      <p>
+        <a href="/skrzynka">Zadaj pytanie i przeczytaj zasady Skrzynki</a>.
+      </p>
+    </header>
+    <QuestionList items={listing.items} total={listing.total} page={page} />
+    <HelpLines />
+  </div>
+</Base>

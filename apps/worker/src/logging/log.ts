@@ -44,6 +44,12 @@ export interface PanelWriteRecoveredEvent {
   readonly errorName: string;
 }
 
+export interface QuestionUnreadableEvent {
+  readonly event: "question_unreadable";
+  readonly part: "question" | "draft";
+  readonly keyId: string;
+}
+
 export type LogEvent =
   | UnhandledErrorEvent
   | TurnstileUnavailableEvent
@@ -52,7 +58,8 @@ export type LogEvent =
   | IndexNowUnavailableEvent
   | ShortLinkFileCleanupEvent
   | HousekeepingFailedEvent
-  | PanelWriteRecoveredEvent;
+  | PanelWriteRecoveredEvent
+  | QuestionUnreadableEvent;
 
 export function logEvent(entry: LogEvent): void {
   console.error(JSON.stringify(entry));

@@ -19,6 +19,7 @@ import type { RandomBytes } from "../../storage/ids.ts";
 import type { NewsRepo } from "../../storage/news-repo.ts";
 import type { PagesRepo } from "../../storage/pages-repo.ts";
 import type { PhotoUploadsRepo } from "../../storage/photo-uploads-repo.ts";
+import type { QuestionsRepo } from "../../storage/questions-repo.ts";
 import type { RedirectsRepo } from "../../storage/redirects-repo.ts";
 import type { RequestsRepo } from "../../storage/requests-repo.ts";
 import type { RevisionsRepo } from "../../storage/revisions-repo.ts";
@@ -52,6 +53,7 @@ export interface PanelRepos {
   readonly bells: BellsRepo;
   readonly datasets: DatasetsRepo;
   readonly requests: RequestsRepo;
+  readonly questions: QuestionsRepo;
   readonly gallery: GalleryRepo;
   readonly photoUploads: PhotoUploadsRepo;
 }

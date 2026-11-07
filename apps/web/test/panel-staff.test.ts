@@ -14,7 +14,14 @@ it("offers every role with a Polish label and its scope", ({ expect }) => {
     "secretariat",
     "editor",
     "gallery_editor",
+    "counsellor",
   ]);
+  expect(STAFF_ROLE_OPTIONS[4]?.label).toBe(
+    "Skrzynka (pedagog, psycholog) — tylko pytania uczniów w Skrzynce #OgarniamŻycie",
+  );
+  expect(STAFF_ROLE_OPTIONS[0]?.label).toBe(
+    "administrator — treści, wnioski, pracownicy i przekierowania (bez pytań ze Skrzynki)",
+  );
   expect(STAFF_ROLE_OPTIONS[2]?.label).toBe(
     "redaktor treści — treści strony: aktualności, strony, terminarz, dokumenty, ogłoszenia, dzwonki",
   );
