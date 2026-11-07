@@ -8,7 +8,7 @@ import type {
 
 import type { StaffInput } from "../../src/storage/staff-repo.ts";
 
-export type StaffRole = "admin" | "secretariat" | "editor" | "gallery_editor";
+export type StaffRole = "admin" | "secretariat" | "editor" | "gallery_editor" | "counsellor";
 
 export function staffMember(email: string, role: StaffRole, active: boolean): StaffInput {
   return { email, role, active };

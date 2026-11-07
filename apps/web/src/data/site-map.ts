@@ -79,6 +79,11 @@ const BASE_MAP: readonly MapNode[] = [
         description: "Sprawdź stan złożonego wniosku o dokument szkolny.",
       },
       {
+        label: "Skrzynka #OgarniamŻycie",
+        href: "/skrzynka",
+        description: "Zadaj anonimowe pytanie zespołowi wyznaczonemu przez szkołę.",
+      },
+      {
         label: "Oferty pracy",
         href: "/uczniowie/oferty-pracy",
         description: "Oferty pracy, staży i praktyk od pracodawców współpracujących ze szkołą.",

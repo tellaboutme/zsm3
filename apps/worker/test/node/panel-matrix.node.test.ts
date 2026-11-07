@@ -11,6 +11,7 @@ import {
   type RoleName,
 } from "./panel-matrix-cases.ts";
 import { seedGalleryMatrix } from "./panel-matrix-gallery.ts";
+import { seedMatrixQuestions } from "./panel-matrix-questions.ts";
 import { ANNOUNCEMENT, announcementIds, requestIds } from "./panel-matrix-site.ts";
 import type { PanelHarness } from "./panel-support.ts";
 import { panelHarness, seedStaff, staffClaims } from "./panel-support.ts";
@@ -40,6 +41,7 @@ describe("panel route role matrix", () => {
     secretariat: "",
     editor: "",
     gallery_editor: "",
+    counsellor: "",
     none: "",
   };
 
@@ -50,7 +52,9 @@ describe("panel route role matrix", () => {
       staffMember("secretariat@zsm3.test", "secretariat", true),
       staffMember("editor@zsm3.test", "editor", true),
       staffMember("gallery_editor@zsm3.test", "gallery_editor", true),
+      staffMember("counsellor@zsm3.test", "counsellor", true),
     ]);
+    await seedMatrixQuestions(harness, [...ROLES, "shared"]);
     const store = { db: harness.env.DB, clock: systemClock, random: cryptoRandom };
     await newsRepo(store).save(NEWS, "draft");
     await pagesRepo(store).save(PAGE, "published");

@@ -6,4 +6,6 @@ interface Env {
   ACCESS_AUDIENCE: string;
   PANEL_ORIGIN: string;
   SHORT_LINK_KEY?: string;
+  SKRZYNKA_ENABLED?: string;
+  TURNSTILE_SITE_KEY?: string;
 }

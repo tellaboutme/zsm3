@@ -20,7 +20,7 @@ export interface RateLimitsRepo {
   prune(cutoff: string, limit: number): Promise<void>;
 }
 
-export type RateLimitPurpose = "submit" | "status" | "withdraw";
+export type RateLimitPurpose = "submit" | "status" | "withdraw" | "question" | "question-attempt";
 
 export async function rateLimitKey(
   salt: string,

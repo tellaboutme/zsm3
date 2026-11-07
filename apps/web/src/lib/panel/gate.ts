@@ -10,6 +10,8 @@ export const GALLERY_ROLES: readonly PanelStaffRole[] = ["admin", "gallery_edito
 
 export const REQUEST_ROLES: readonly PanelStaffRole[] = ["admin", "secretariat"];
 
+export const QUESTION_ROLES: readonly PanelStaffRole[] = ["counsellor"];
+
 const ROLE_LABELS: Readonly<Record<string, string>> = STAFF_ROLE_LABELS;
 
 export function gateDecision(status: number, email: unknown): GateState {

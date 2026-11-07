@@ -79,9 +79,9 @@ export const oSzkole: ContentPage = {
         },
         {
           type: "callout",
-          title: "Kontakt anonimowy",
-          text: "Uczniowie mogą skorzystać z anonimowego kontaktu z pedagogiem, psychologiem oraz dyrekcją szkoły.",
-          link: { label: "Anonimowe zgłoszenie", href: "/skrzynka" },
+          title: "Anonimowe pytania",
+          text: "Uczniowie mogą zadać anonimowe pytanie zespołowi wyznaczonemu przez szkołę. To nie jest kanał pilnej pomocy.",
+          link: { label: "Zadaj pytanie", href: "/skrzynka" },
         },
       ],
     },
