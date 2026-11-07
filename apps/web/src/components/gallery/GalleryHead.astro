@@ -1,0 +1,38 @@
+---
+interface Props {
+  title: string;
+  lead?: string;
+  meta?: string;
+}
+
+const { title, lead, meta } = Astro.props;
+---
+
+<header class="head">
+  <h1>{title}</h1>
+  {lead !== undefined && lead !== "" && <p>{lead}</p>}
+  {meta !== undefined && <p class="meta">{meta}</p>}
+</header>
+
+<style>
+  .head {
+    display: grid;
+    gap: var(--space-3);
+    padding-block: var(--space-7) var(--space-6);
+  }
+
+  h1 {
+    font-size: var(--step-title);
+    font-stretch: var(--stretch-wide);
+    overflow-wrap: break-word;
+  }
+
+  p {
+    max-width: var(--measure);
+    color: var(--ink-2);
+  }
+
+  .meta {
+    font-size: var(--step-n1);
+  }
+</style>

@@ -1,11 +1,11 @@
 import { describe, it } from "vitest";
 
+import { photoCountPhrase } from "../src/lib/gallery.ts";
 import {
   albumHref,
   albumIdFrom,
   albumStatePhrase,
   galleryProblemPhrase,
-  photoCountPhrase,
   photoFailurePhrase,
   schoolYearChoices,
   schoolYearOf,

@@ -66,16 +66,6 @@ export function schoolYearChoices(today: Date): readonly string[] {
   });
 }
 
-export function photoCountPhrase(count: number): string {
-  const tens = count % 100;
-  const ones = count % 10;
-  if (count === 1) {
-    return "1 zdjęcie";
-  }
-  const few = ones >= 2 && ones <= 4 && (tens < 12 || tens > 14);
-  return `${String(count)} ${few ? "zdjęcia" : "zdjęć"}`;
-}
-
 export function albumStatePhrase(publishedAt: string | null): string {
   return publishedAt === null ? "Szkic" : "Opublikowany";
 }

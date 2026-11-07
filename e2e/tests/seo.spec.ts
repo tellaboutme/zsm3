@@ -23,7 +23,9 @@ test("sitemap lists published pages and news but excludes noindex pages", async 
   expect(body).toContain("/kandydaci/zawody/technik-programista</loc>");
   expect(body).toMatch(/\/aktualnosci\/\d{4}\/[^<]+<\/loc><lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/u);
   expect(body).not.toContain("/szukaj</loc>");
-  expect(body).not.toContain("/szkola/galeria</loc>");
+  expect(body).toContain("/szkola/galeria</loc>");
+  expect(body).toContain("/szkola/galeria/2025-2026/przykladowy-album</loc>");
+  expect(body).not.toContain("szkic-albumu");
 });
 
 test("canonical and noindex metadata follow the address", async ({ page }) => {

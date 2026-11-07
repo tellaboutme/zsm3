@@ -5,6 +5,7 @@ interface PageProblems {
 }
 
 const MISSING_DOCUMENT = "Failed to load resource: the server responded with a status of 404";
+const PLAYWRIGHT_EVALUATION = 'file: "debugger eval code"';
 
 export const test = base.extend<PageProblems>({
   problems: async ({ page }, use) => {
@@ -14,7 +15,8 @@ export const test = base.extend<PageProblems>({
       const isProblem = message.type() === "error" || message.type() === "warning";
       const isMissingDocument =
         message.text().startsWith(MISSING_DOCUMENT) && message.location().url === page.url();
-      if (isProblem && !isMissingDocument) {
+      const isFromPlaywright = message.text().includes(PLAYWRIGHT_EVALUATION);
+      if (isProblem && !isMissingDocument && !isFromPlaywright) {
         problems.push(`console ${message.type()}: ${message.text()}`);
       }
     });

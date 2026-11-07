@@ -34,7 +34,6 @@ export function shouldNoindex(url: URL): boolean {
   return (
     url.search !== "" ||
     url.pathname === "/szukaj" ||
-    url.pathname === "/szkola/galeria" ||
     url.pathname === "/skrzynka" ||
     url.pathname.startsWith("/skrzynka/") ||
     /^\/aktualnosci\/(?:strona\/\d+|kategoria\/|\d{4}(?:\/strona\/\d+)?$)/u.test(url.pathname)
