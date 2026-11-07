@@ -24,6 +24,7 @@
     "./navigation": "./src/navigation.ts",
     "./short-links": "./src/short-links.ts",
     "./gallery": "./src/gallery.ts",
+    "./gallery-limits": "./src/gallery-limits.ts",
     "./short-link-expiry": "./src/short-link-expiry.ts"
   },
   "scripts": {

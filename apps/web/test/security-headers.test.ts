@@ -45,6 +45,7 @@ describe("rendered _headers file", () => {
   it("is exactly the expected file", ({ expect }) => {
     const hash = createHash("sha256").update(bootScript).digest("base64");
     const headers = renderHeaders({ scriptHashes: [hash] });
+    const photoPolicy = contentSecurityPolicy({ scriptHashes: [hash], photoWorker: true });
 
     expect(headers).toBe(
       [
@@ -61,8 +62,28 @@ describe("rendered _headers file", () => {
         "/panel/*",
         "  Cache-Control: no-store",
         "",
+        "/panel/galeria/album",
+        "  ! Content-Security-Policy",
+        `  Content-Security-Policy: ${photoPolicy}`,
+        "",
+        "/_astro/photo-worker-*",
+        "  ! Content-Security-Policy",
+        `  Content-Security-Policy: ${photoPolicy}`,
+        "",
       ].join("\n"),
     );
+  });
+
+  it("widens the photo worker policy by exactly three directives", ({ expect }) => {
+    const base = contentSecurityPolicy({ scriptHashes: ["h"] });
+    const photo = contentSecurityPolicy({ scriptHashes: ["h"], photoWorker: true });
+    expect(base).not.toContain("wasm-unsafe-eval");
+    expect(base).not.toContain("worker-src");
+    expect(base).toContain("trusted-types 'none'");
+    expect(photo).toContain("'sha256-h' 'wasm-unsafe-eval';");
+    expect(photo).toContain("worker-src 'self';");
+    expect(photo).toContain("trusted-types zsm3-photo-worker");
+    expect(photo).not.toMatch(/'unsafe-eval'|'unsafe-inline'|blob:/u);
   });
 });
 
