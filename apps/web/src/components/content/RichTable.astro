@@ -8,27 +8,33 @@ interface Props {
 const { caption, header, rows } = Astro.props;
 ---
 
-<table>
-  <caption>{caption}</caption>
-  <thead>
-    <tr>
-      {header.map((cell) => (
-        <th scope="col">{cell}</th>
-      ))}
-    </tr>
-  </thead>
-  <tbody>
-    {rows.map((row) => (
+<div class="scroller" role="region" aria-label={caption} data-scroll-region>
+  <table>
+    <caption>{caption}</caption>
+    <thead>
       <tr>
-        {row.map((cell) => (
-          <td>{cell}</td>
+        {header.map((cell) => (
+          <th scope="col">{cell}</th>
         ))}
       </tr>
-    ))}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          {row.map((cell) => (
+            <td>{cell}</td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
 <style>
+  .scroller {
+    overflow-x: auto;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -46,10 +52,7 @@ const { caption, header, rows } = Astro.props;
     border-bottom: var(--hairline) solid var(--line);
     text-align: left;
     vertical-align: top;
-  }
-
-  td {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 
   th {

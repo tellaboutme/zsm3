@@ -1,6 +1,7 @@
 import { initDialogs } from "./dialogs.ts";
 import { initMegaMenus } from "./mega-menu.ts";
 import { initPreferences } from "./preferences-ui.ts";
+import { initScrollRegions } from "./scroll-regions.ts";
 import { fallbackBells } from "../data/bell-schedule.ts";
 import { DISMISSED_KEY, readDismissed, withDismissed } from "../lib/announcement.ts";
 import { readBellData, todaySchedule } from "../lib/bells.ts";
@@ -78,3 +79,4 @@ initMegaMenus();
 initBanners();
 initCompactHeader();
 initLiveStatus();
+initScrollRegions();
