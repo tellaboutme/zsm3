@@ -24,6 +24,7 @@ import {
   absoluteUrl,
   canonicalUrl,
   jsonLd,
+  metaDescription,
   shouldNoindex,
   SITE_ORIGIN,
   SOCIAL_IMAGE,
@@ -41,6 +42,7 @@ interface Props {
 }
 
 const { title, description, noindex = false, breadcrumbs, structuredData } = Astro.props;
+const summary = metaDescription(description);
 const announcement = Astro.props.announcement ?? Astro.locals.announcement;
 const bells = Astro.locals.bells;
 const canonical = canonicalUrl(Astro.url);
@@ -92,12 +94,12 @@ const schemas = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
+    <meta name="description" content={summary} />
     <link rel="canonical" href={canonical} />
     {(noindex || shouldNoindex(Astro.url)) && <meta name="robots" content="noindex, follow" />}
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={summary} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content="pl_PL" />
     <meta property="og:image" content={socialImage} />
@@ -106,7 +108,7 @@ const schemas = [
     <meta property="og:image:alt" content={SOCIAL_IMAGE.alt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={summary} />
     <meta name="twitter:image" content={socialImage} />
     <meta name="twitter:image:alt" content={SOCIAL_IMAGE.alt} />
     {Astro.url.pathname === "/aktualnosci" && (

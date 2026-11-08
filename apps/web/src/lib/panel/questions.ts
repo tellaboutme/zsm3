@@ -10,7 +10,7 @@ import {
   type QuestionStatus,
 } from "@zsm3/contracts/questions";
 
-import { CONNECTION_PHRASE, CONNECTION_STATUS, problemPhrase } from "./api.ts";
+import { problemPhrase } from "./api.ts";
 import { panelMoment as moment } from "./audit.ts";
 import { QUESTION_ROLES } from "./gate.ts";
 import { longDate } from "../calendar.ts";
@@ -171,10 +171,6 @@ export function listPhrase(count: number, filter: QuestionFilter, more = false):
   return `Pytań na liście: ${String(count)}.`;
 }
 
-export function readPhrase(status: number): string {
-  return status === CONNECTION_STATUS ? CONNECTION_PHRASE : problemPhrase(status);
-}
-
 export function draftPhrase(status: number): string {
   if (status === 200) {
     return "Zapisano szkic. Nic nie zostało opublikowane.";
@@ -182,7 +178,7 @@ export function draftPhrase(status: number): string {
   if (status === 422) {
     return `Sprawdź treść: pytanie od 10 do ${String(QUESTION_MAX_LENGTH)} znaków, odpowiedź do ${String(ANSWER_MAX_LENGTH)} znaków, bez znaków sterujących.`;
   }
-  return readPhrase(status);
+  return problemPhrase(status);
 }
 
 export function decisionPhrase(status: number, action: QuestionDecision): string {
@@ -198,7 +194,7 @@ export function decisionPhrase(status: number, action: QuestionDecision): string
   if (status === 422) {
     return "Tej czynności nie można wykonać w obecnym stanie pytania. Wczytano aktualny stan.";
   }
-  return readPhrase(status);
+  return problemPhrase(status);
 }
 
 export const DISCARD_PHRASE = "Masz niezapisane zmiany w tym pytaniu. Czy na pewno je porzucić?";

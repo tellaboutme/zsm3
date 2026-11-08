@@ -11,6 +11,19 @@ export const SOCIAL_IMAGE = {
   alt: "Zespół Szkół Mechanicznych nr 3 w Krakowie: technikum i szkoła branżowa w Nowej Hucie",
 } as const;
 
+export const META_DESCRIPTION_LIMIT = 160;
+
+export function metaDescription(text: string): string {
+  const plain = text.replace(/\s+/gu, " ").trim();
+  if (plain.length <= META_DESCRIPTION_LIMIT) {
+    return plain;
+  }
+  const cut = plain.slice(0, META_DESCRIPTION_LIMIT - 1);
+  const space = cut.lastIndexOf(" ");
+  const words = space === -1 ? cut : cut.slice(0, space);
+  return `${words.replace(/[\s,;:.–—-]+$/u, "")}…`;
+}
+
 export interface SitemapEntry {
   readonly path: string;
   readonly lastmod?: string;

@@ -12,7 +12,7 @@ import {
   showConfirm,
   type QuestionView,
 } from "./skrzynka-view.ts";
-import { panelSend } from "../../lib/panel/api.ts";
+import { panelSend, problemPhrase } from "../../lib/panel/api.ts";
 import {
   DISCARD_PHRASE,
   UNSAVED_PHRASE,
@@ -22,7 +22,6 @@ import {
   draftPhrase,
   draftSeed,
   questionPath,
-  readPhrase,
   type DecisionSpec,
 } from "../../lib/panel/questions.ts";
 
@@ -209,7 +208,7 @@ export class QuestionDetail {
     if (this.shown.wanted !== id) return false;
     if (result.detail === undefined) {
       this.forget();
-      speak(this.view.feedback, [readPhrase(result.status)]);
+      speak(this.view.feedback, [problemPhrase(result.status)]);
       return false;
     }
     this.render(result.detail);

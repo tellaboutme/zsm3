@@ -1,6 +1,7 @@
 import type { PanelQuestionDetail } from "@zsm3/contracts/questions";
 import { describe, it } from "vitest";
 
+import { problemPhrase } from "../src/lib/panel/api.ts";
 import { panelMoment } from "../src/lib/panel/audit.ts";
 import {
   QUESTION_STATUS_LABELS,
@@ -19,7 +20,6 @@ import {
   questionHead,
   questionPath,
   questionsPath,
-  readPhrase,
 } from "../src/lib/panel/questions.ts";
 
 const ID = "0191e4a0-0000-4000-8000-000000000000";
@@ -175,7 +175,7 @@ describe("feedback", () => {
     expect(decisionPhrase(422, "publish")).toContain("nie kopią oryginału");
     expect(decisionPhrase(422, "withdraw")).toContain("w obecnym stanie");
     expect(decisionPhrase(403, "delete")).toBe("Brak uprawnień do tej czynności.");
-    expect(readPhrase(404)).toBe("Nie znaleziono elementu. Odśwież listę.");
+    expect(problemPhrase(404)).toBe("Nie znaleziono elementu. Odśwież listę.");
     expect(UNSAVED_PHRASE).toContain("Zapisz szkic");
   });
 });
@@ -207,7 +207,7 @@ describe("exact wording", () => {
 
   it("keeps the count when more pages remain and falls back for other errors", ({ expect }) => {
     expect(listPhrase(3, "all", true)).toBe("Pytań na liście: 3.");
-    expect(decisionPhrase(500, "publish")).toBe(readPhrase(500));
+    expect(decisionPhrase(500, "publish")).toBe(problemPhrase(500));
     expect(decisionPhrase(0, "publish")).toBe("Brak połączenia z serwerem. Spróbuj ponownie.");
   });
 });
