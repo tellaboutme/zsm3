@@ -5,13 +5,13 @@ interface Props {
   caption?: string | undefined;
 }
 
-const { shape = "wide", label = "Preview Image", caption } = Astro.props;
+const { shape = "wide", label, caption } = Astro.props;
 ---
 
 <figure class="media">
-  <div class="frame" data-shape={shape}>
+  <div class="frame" data-shape={shape} aria-hidden={label === undefined ? "true" : undefined}>
     <span class="mark" aria-hidden="true"></span>
-    <span class="label">{label}</span>
+    {label !== undefined && <span class="label">{label}</span>}
   </div>
   {caption !== undefined && <figcaption>{caption}</figcaption>}
 </figure>

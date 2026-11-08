@@ -10,7 +10,7 @@
       </button>
     </div>
     <div class="stage" data-lightbox-stage>
-      <img alt="" data-lightbox-image />
+      <img alt="" draggable="false" data-lightbox-image />
     </div>
     <div class="foot">
       <p data-lightbox-caption></p>
@@ -131,8 +131,14 @@
     position: static;
     max-width: none;
     max-height: none;
+    height: auto;
     margin: 0;
     cursor: zoom-out;
+  }
+
+  .stage.dragging img {
+    cursor: grabbing;
+    user-select: none;
   }
 
   .status {

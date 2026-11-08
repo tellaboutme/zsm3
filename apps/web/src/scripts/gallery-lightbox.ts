@@ -1,3 +1,4 @@
+import { bindDragPan, zoomImage } from "./gallery-pan.ts";
 import { keyStep, steppedIndex, swipeStep } from "../lib/gallery.ts";
 
 interface LightboxParts {
@@ -59,8 +60,8 @@ class Lightbox {
   }
 
   #setZoom(zoomed: boolean): void {
-    const { stage, zoom } = this.#parts;
-    stage.classList.toggle("zoomed", zoomed);
+    const { stage, zoom, image } = this.#parts;
+    zoomImage(stage, image, zoomed);
     stage.tabIndex = zoomed ? 0 : -1;
     zoom.setAttribute("aria-pressed", String(zoomed));
     zoom.textContent = zoomed ? "Pomniejsz" : "Powiększ";
@@ -124,11 +125,15 @@ class Lightbox {
     next.addEventListener("click", () => {
       this.#step(1);
     });
-    for (const toggle of [zoom, image]) {
-      toggle.addEventListener("click", () => {
+    const wasDragged = bindDragPan(this.#parts.stage, () => this.#zoomed());
+    zoom.addEventListener("click", () => {
+      this.#setZoom(!this.#zoomed());
+    });
+    image.addEventListener("click", () => {
+      if (!wasDragged()) {
         this.#setZoom(!this.#zoomed());
-      });
-    }
+      }
+    });
     dialog.addEventListener("keydown", (event) => {
       if (!this.#zoomed()) {
         this.#step(keyStep(event.key));
