@@ -10,7 +10,7 @@ import { denyContent, gateView } from "./gate-ui.ts";
 import { wireShell } from "./shell.ts";
 import { QuestionDetail } from "./skrzynka-detail.ts";
 import { questionView } from "./skrzynka-view.ts";
-import { panelRead } from "../../lib/panel/api.ts";
+import { panelRead, problemPhrase } from "../../lib/panel/api.ts";
 import { parse } from "../../lib/panel/models.ts";
 import {
   QUESTION_STATUS_LABELS,
@@ -20,7 +20,6 @@ import {
   questionFilter,
   questionHead,
   questionsPath,
-  readPhrase,
   type QuestionsCursor,
 } from "../../lib/panel/questions.ts";
 
@@ -86,7 +85,7 @@ class QuestionList {
       parts.more.hidden = true;
     }
     if (list === undefined) {
-      speak(parts.status, [readPhrase(response.status)]);
+      speak(parts.status, [problemPhrase(response.status)]);
       return;
     }
     parts.rows.append(...list.items.map((item) => this.row(item)));

@@ -173,10 +173,6 @@ export function transitionPhrase(status: number, to: StaffTargetStatus): string 
   return problemPhrase(status);
 }
 
-export function readPhrase(status: number): string {
-  return status === CONNECTION_STATUS ? CONNECTION_PHRASE : problemPhrase(status);
-}
-
 export function canHandleRequests(role: string): boolean {
   return REQUEST_ROLES.some((allowed) => allowed === role);
 }

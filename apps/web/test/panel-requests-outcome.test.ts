@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { CONNECTION_STATUS } from "../src/lib/panel/api.ts";
-import { STALE_DETAIL_PHRASE, readPhrase, transitionPhrase } from "../src/lib/panel/requests.ts";
+import { CONNECTION_STATUS, problemPhrase } from "../src/lib/panel/api.ts";
+import { STALE_DETAIL_PHRASE, transitionPhrase } from "../src/lib/panel/requests.ts";
 
 describe("transition outcome", () => {
   it("phrases every answer and reloads when the stored state may differ", () => {
@@ -15,7 +15,7 @@ describe("transition outcome", () => {
     expect(STALE_DETAIL_PHRASE).toBe(
       "Nie udało się wczytać aktualnego stanu wniosku. Otwórz go ponownie z listy.",
     );
-    expect(readPhrase(CONNECTION_STATUS)).toBe("Brak połączenia z serwerem. Spróbuj ponownie.");
-    expect(readPhrase(404)).toBe("Nie znaleziono elementu. Odśwież listę.");
+    expect(problemPhrase(CONNECTION_STATUS)).toBe("Brak połączenia z serwerem. Spróbuj ponownie.");
+    expect(problemPhrase(404)).toBe("Nie znaleziono elementu. Odśwież listę.");
   });
 });

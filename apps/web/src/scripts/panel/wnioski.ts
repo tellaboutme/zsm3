@@ -7,14 +7,13 @@ import { denyContent, gateView } from "./gate-ui.ts";
 import { wireShell } from "./shell.ts";
 import { RequestDetail } from "./wnioski-detail.ts";
 import { detailView } from "./wnioski-view.ts";
-import { panelRead } from "../../lib/panel/api.ts";
+import { panelRead, problemPhrase } from "../../lib/panel/api.ts";
 import { parse } from "../../lib/panel/models.ts";
 import {
   REQUEST_STATUS_LABELS,
   canHandleRequests,
   listPhrase,
   nextCursor,
-  readPhrase,
   requestHead,
   requestTitle,
   requestsPath,
@@ -86,7 +85,7 @@ class RequestList {
       parts.more.hidden = true;
     }
     if (list === undefined) {
-      speak(parts.status, [readPhrase(response.status)]);
+      speak(parts.status, [problemPhrase(response.status)]);
       return;
     }
     parts.rows.append(...list.items.map((item) => this.row(item)));

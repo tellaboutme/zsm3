@@ -3,10 +3,9 @@ import type { PanelRequestDetail } from "@zsm3/contracts/requests";
 
 import { button, speak } from "./dom.ts";
 import { clearDetail, fetchDetail, renderFacts, type DetailView } from "./wnioski-view.ts";
-import { panelSend } from "../../lib/panel/api.ts";
+import { panelSend, problemPhrase } from "../../lib/panel/api.ts";
 import {
   STALE_DETAIL_PHRASE,
-  readPhrase,
   requestTitle,
   staffActions,
   transitionPhrase,
@@ -66,7 +65,7 @@ export class RequestDetail {
       return;
     }
     if (result.detail === undefined) {
-      speak(view.feedback, [readPhrase(result.status)]);
+      speak(view.feedback, [problemPhrase(result.status)]);
       return;
     }
     this.render(result.detail);
