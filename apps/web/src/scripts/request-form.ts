@@ -1,3 +1,4 @@
+import "../lib/panel/zod-jitless.ts";
 import {
   requestInputSchema,
   submissionResponseSchema,
@@ -6,14 +7,6 @@ import {
 
 import { requestFieldLabels, requestRefusal } from "./request-field-labels.ts";
 
-declare global {
-  interface Window {
-    turnstile?: {
-      getResponse(container: HTMLElement): string;
-      reset(container: HTMLElement): void;
-    };
-  }
-}
 const form = document.querySelector<HTMLFormElement>("[data-request-form]");
 const challenge = form?.querySelector<HTMLElement>(".cf-turnstile");
 const submit = form?.querySelector<HTMLButtonElement>("[data-submit]");

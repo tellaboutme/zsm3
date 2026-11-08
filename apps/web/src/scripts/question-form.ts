@@ -3,15 +3,6 @@ import { questionInputSchema, type QuestionInput } from "@zsm3/contracts/questio
 
 import { fieldError, lengthHint, questionRefusal } from "../lib/questions.ts";
 
-declare global {
-  interface Window {
-    turnstile?: {
-      getResponse(container: HTMLElement): string;
-      reset(container: HTMLElement): void;
-    };
-  }
-}
-
 interface Parts {
   readonly form: HTMLFormElement;
   readonly challenge: HTMLElement;
