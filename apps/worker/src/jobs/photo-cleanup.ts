@@ -1,5 +1,6 @@
 import { photoKey } from "@zsm3/contracts/gallery";
 
+import { logEvent } from "../logging/log.ts";
 import { auditRepo } from "../storage/audit-repo.ts";
 import type { Store } from "../storage/database.ts";
 import { photoUploadsRepo, type PhotoUploadsRepo } from "../storage/photo-uploads-repo.ts";
@@ -53,4 +54,21 @@ export async function runPhotoCleanup(
   }
   await uploads.removeEmptyAlbums(deleted, PHOTO_CLEANUP_BATCH);
   return claimed.length;
+}
+
+export async function runLoggedPhotoCleanup(
+  bucket: PhotoCleanupBucket,
+  store: Store,
+  now: Date,
+): Promise<number> {
+  try {
+    return await runPhotoCleanup(bucket, store, now);
+  } catch (error) {
+    logEvent({
+      event: "housekeeping_step_failed",
+      step: "photo_cleanup",
+      errorName: error instanceof Error ? error.name : "UnknownError",
+    });
+    throw error;
+  }
 }

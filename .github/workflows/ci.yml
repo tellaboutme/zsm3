@@ -68,18 +68,72 @@ jobs:
       - run: uv run --directory tools --locked ruff format --check
       - run: uv run --directory tools --locked mypy
 
-  mutation:
-    name: Mutation tests
+  mutation-scope:
+    name: Mutation scope
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      packages: ${{ steps.scope.outputs.packages }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: .github/scripts/mutation-scope.sh
+
+  mutation-package:
+    name: Mutation (${{ matrix.package }})
+    needs: mutation-scope
+    if: needs.mutation-scope.outputs.packages != '[]'
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.mutation-scope.outputs.packages) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
       - uses: $/.github/actions/setup
-      - run: pnpm test:mutation
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ matrix.package }}/reports/stryker-incremental.json
+          key: stryker-${{ matrix.package }}-${{ github.sha }}
+          restore-keys: stryker-${{ matrix.package }}-
+      - name: Stryker
+        working-directory: ${{ matrix.package }}
+        env:
+          FULL_RUN: ${{ github.event_name != 'pull_request' }}
+        run: |
+          if [[ "${FULL_RUN}" == "true" ]]; then
+            pnpm exec stryker run --incremental --force
+          else
+            pnpm exec stryker run --incremental
+          fi
+
+  mutation:
+    name: Mutation tests
+    needs: [mutation-scope, mutation-package]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - env:
+          SCOPE: ${{ needs.mutation-scope.result }}
+          RESULT: ${{ needs.mutation-package.result }}
+        run: |
+          echo "scope=${SCOPE} packages=${RESULT}"
+          [[ "${SCOPE}" == "success" ]]
+          [[ "${RESULT}" == "success" || "${RESULT}" == "skipped" ]]
 
   e2e:
     name: End-to-end, accessibility and Lighthouse
@@ -187,6 +241,7 @@ jobs:
           docker run --rm --volume "$PWD:/mnt:ro"
           koalaman/shellcheck@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
           --enable=all /mnt/.github/scripts/osv-scan.sh /mnt/.github/scripts/check-commit-messages.sh
+          /mnt/.github/scripts/mutation-scope.sh
       - name: zizmor
         run: uvx zizmor@1.30.1 --config .github/zizmor.yml .github
       - name: SBOM

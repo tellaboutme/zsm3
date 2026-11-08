@@ -19,7 +19,12 @@ export const LAPSED_RETENTION_MS = 30 * DAY_MS;
 export const QUESTION_PRUNE_BATCH = 100;
 
 export type HousekeepingStep =
-  "rate_limits" | "short_link_failures" | "lapsed_short_links" | "short_link_files" | "questions";
+  | "rate_limits"
+  | "short_link_failures"
+  | "lapsed_short_links"
+  | "short_link_files"
+  | "questions"
+  | "photo_cleanup";
 
 export class HousekeepingError extends Error {
   readonly steps: readonly HousekeepingStep[];
