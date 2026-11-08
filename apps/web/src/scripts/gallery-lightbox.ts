@@ -1,4 +1,4 @@
-import { bindDragPan, zoomImage } from "./gallery-pan.ts";
+import { PhotoZoom } from "./gallery-zoom-view.ts";
 import { keyStep, steppedIndex, swipeStep } from "../lib/gallery.ts";
 
 interface LightboxParts {
@@ -43,28 +43,19 @@ class Lightbox {
   #current = 0;
   #opener: HTMLAnchorElement | undefined;
   #touchStart: number | undefined;
+  readonly #zoom: PhotoZoom;
 
   constructor(parts: LightboxParts, links: readonly HTMLAnchorElement[]) {
     this.#parts = parts;
     this.#links = links;
+    this.#zoom = new PhotoZoom(parts.stage, parts.image, parts.zoom);
   }
 
   bind(): void {
+    this.#zoom.bind();
     this.#bindOpeners();
     this.#bindControls();
     this.#bindSwipe();
-  }
-
-  #zoomed(): boolean {
-    return this.#parts.stage.classList.contains("zoomed");
-  }
-
-  #setZoom(zoomed: boolean): void {
-    const { stage, zoom, image } = this.#parts;
-    zoomImage(stage, image, zoomed);
-    stage.tabIndex = zoomed ? 0 : -1;
-    zoom.setAttribute("aria-pressed", String(zoomed));
-    zoom.textContent = zoomed ? "Pomniejsz" : "Powiększ";
   }
 
   #show(link: HTMLAnchorElement, index: number, announce: boolean): void {
@@ -80,7 +71,7 @@ class Lightbox {
     caption.textContent = alt;
     previous.disabled = index === 0;
     next.disabled = index === this.#links.length - 1;
-    this.#setZoom(false);
+    this.#zoom.reset();
     status.textContent = announce ? `${place}. ${alt}` : "";
   }
 
@@ -111,12 +102,12 @@ class Lightbox {
   }
 
   #bindControls(): void {
-    const { dialog, close, previous, next, zoom, image } = this.#parts;
+    const { dialog, close, previous, next } = this.#parts;
     close.addEventListener("click", () => {
       dialog.close();
     });
     dialog.addEventListener("close", () => {
-      this.#setZoom(false);
+      this.#zoom.reset();
       this.#opener?.focus();
     });
     previous.addEventListener("click", () => {
@@ -125,17 +116,8 @@ class Lightbox {
     next.addEventListener("click", () => {
       this.#step(1);
     });
-    const wasDragged = bindDragPan(this.#parts.stage, () => this.#zoomed());
-    zoom.addEventListener("click", () => {
-      this.#setZoom(!this.#zoomed());
-    });
-    image.addEventListener("click", () => {
-      if (!wasDragged()) {
-        this.#setZoom(!this.#zoomed());
-      }
-    });
     dialog.addEventListener("keydown", (event) => {
-      if (!this.#zoomed()) {
+      if (!this.#zoom.active) {
         this.#step(keyStep(event.key));
       }
     });
@@ -152,7 +134,7 @@ class Lightbox {
     );
     stage.addEventListener("touchend", (event) => {
       const end = event.changedTouches[0]?.clientX;
-      if (this.#touchStart !== undefined && end !== undefined && !this.#zoomed()) {
+      if (this.#touchStart !== undefined && end !== undefined && !this.#zoom.active) {
         this.#step(swipeStep(end - this.#touchStart));
       }
       this.#touchStart = undefined;

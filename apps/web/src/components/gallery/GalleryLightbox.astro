@@ -124,6 +124,7 @@
   }
 
   .stage.zoomed {
+    display: grid;
     overflow: auto;
   }
 
@@ -132,8 +133,12 @@
     max-width: none;
     max-height: none;
     height: auto;
-    margin: 0;
+    margin: auto;
     cursor: zoom-out;
+  }
+
+  .stage.fixed img {
+    cursor: default;
   }
 
   .stage.dragging img {
