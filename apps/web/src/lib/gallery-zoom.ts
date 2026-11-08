@@ -14,7 +14,8 @@ export function zoomedSize(fitted: Size, natural: Size): Size | undefined {
   if (scale < MIN_ZOOM_GAIN) {
     return undefined;
   }
-  return { width: Math.round(fitted.width * scale), height: Math.round(fitted.height * scale) };
+  const width = Math.round(fitted.width * scale);
+  return { width, height: Math.round((width * natural.height) / natural.width) };
 }
 
 export function anchorFraction(pointer: number, start: number, length: number): number {

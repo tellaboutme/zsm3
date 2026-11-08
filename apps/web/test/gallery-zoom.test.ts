@@ -20,13 +20,13 @@ describe("zoomed size", () => {
   it("stops at the natural size instead of enlarging past it", ({ expect }) => {
     expect(zoomedSize({ width: 358, height: 477 }, { width: 500, height: 667 })).toEqual({
       width: 500,
-      height: 666,
+      height: 667,
     });
   });
 
   it("keeps the fitted aspect ratio", ({ expect }) => {
     const zoomed = zoomedSize({ width: 287, height: 764 }, { width: 600, height: 1600 });
-    expect(zoomed).toEqual({ width: 574, height: 1528 });
+    expect(zoomed).toEqual({ width: 574, height: 1531 });
   });
 
   it("refuses a zoom that would not visibly enlarge the photo", ({ expect }) => {

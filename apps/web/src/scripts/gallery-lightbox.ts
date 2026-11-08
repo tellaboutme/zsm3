@@ -48,7 +48,7 @@ class Lightbox {
   constructor(parts: LightboxParts, links: readonly HTMLAnchorElement[]) {
     this.#parts = parts;
     this.#links = links;
-    this.#zoom = new PhotoZoom(parts.stage, parts.image, parts.zoom);
+    this.#zoom = new PhotoZoom(parts.stage, parts.image, parts.zoom, parts.close);
   }
 
   bind(): void {

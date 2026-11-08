@@ -17,12 +17,19 @@ export class PhotoZoom {
   readonly #stage: HTMLElement;
   readonly #image: HTMLImageElement;
   readonly #button: HTMLButtonElement;
+  readonly #fallback: HTMLElement;
   readonly #wasDragged: () => boolean;
 
-  constructor(stage: HTMLElement, image: HTMLImageElement, button: HTMLButtonElement) {
+  constructor(
+    stage: HTMLElement,
+    image: HTMLImageElement,
+    button: HTMLButtonElement,
+    fallback: HTMLElement,
+  ) {
     this.#stage = stage;
     this.#image = image;
     this.#button = button;
+    this.#fallback = fallback;
     this.#wasDragged = bindDragPan(stage, () => this.active);
   }
 
@@ -42,9 +49,9 @@ export class PhotoZoom {
     this.#image.addEventListener("load", () => {
       this.#refresh();
     });
-    new ResizeObserver(() => {
+    window.addEventListener("resize", () => {
       this.#refit();
-    }).observe(this.#stage);
+    });
   }
 
   reset(): void {
@@ -55,6 +62,9 @@ export class PhotoZoom {
   #toggle(point: Point | undefined): void {
     if (this.active) {
       this.reset();
+      return;
+    }
+    if (this.#button.disabled) {
       return;
     }
     const fit = this.#image.getBoundingClientRect();
@@ -121,6 +131,9 @@ export class PhotoZoom {
     const fit = this.#image.getBoundingClientRect();
     const possible =
       zoomed || (this.#image.complete && zoomedSize(fit, this.#natural()) !== undefined);
+    if (!possible && document.activeElement === this.#button) {
+      this.#fallback.focus();
+    }
     this.#button.disabled = !possible;
     this.#button.setAttribute("aria-pressed", String(zoomed));
     this.#button.textContent = zoomed ? "Pomniejsz" : "Powiększ";

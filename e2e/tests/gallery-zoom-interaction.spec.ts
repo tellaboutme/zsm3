@@ -102,3 +102,36 @@ test("moving to another photo resets zoom to the fitted view", async ({ page }) 
     "false",
   );
 });
+
+test("browsing from the zoom button keeps focus inside the dialog", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openPhoto(page, 1600, 1067);
+  await page.getByRole("button", { name: "Powiększ" }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.locator("[data-lightbox-position]")).toHaveText("Zdjęcie 2 z 5");
+  const inside = await page.evaluate(
+    () =>
+      document.querySelector("dialog[data-lightbox]")?.contains(document.activeElement) ?? false,
+  );
+  expect(inside).toBe(true);
+  await page.keyboard.press("ArrowRight");
+  await expect(page.locator("[data-lightbox-position]")).toHaveText("Zdjęcie 3 z 5");
+});
+
+test("an aborted drag does not keep panning on hover", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openPhoto(page, 1600, 1067);
+  await page.getByRole("button", { name: "Powiększ" }).click();
+  const before = await geometry(page);
+  const x = before.stage.left + before.stage.width / 2;
+  const y = before.stage.top + 3;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y - 2);
+  await page.mouse.move(x, before.stage.top - 30);
+  await page.mouse.up();
+  await page.mouse.move(x + 300, y + 100, { steps: 8 });
+  const after = await geometry(page);
+  expect(after.scroll).toEqual(before.scroll);
+  expect(after.zoomed).toBe(true);
+});
