@@ -1,6 +1,7 @@
 import { AxeBuilder } from "@axe-core/playwright";
 
 import { expect, test } from "./fixtures.ts";
+import { pageProblems } from "./panel-requests-fake.ts";
 
 const TOKEN = "a".repeat(43);
 
@@ -18,7 +19,11 @@ test("request form fails closed without approved notices and service configurati
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 
-test("status token remains in the fragment and withdrawal uses JSON POST", async ({ page }) => {
+test("status token remains in the fragment and withdrawal uses JSON POST", async ({
+  page,
+  problems,
+  browserName,
+}) => {
   const calls: string[] = [];
   await page.route("**/api/requests/status", async (route) => {
     calls.push(route.request().url());
@@ -55,6 +60,7 @@ test("status token remains in the fragment and withdrawal uses JSON POST", async
   expect(calls).toHaveLength(3);
   expect(calls.every((url) => !url.includes(TOKEN))).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(pageProblems(problems, browserName)).toEqual([]);
 });
 
 test("invalid fragment does not reach the API", async ({ page }) => {

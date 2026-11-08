@@ -1,3 +1,4 @@
+import "../lib/panel/zod-jitless.ts";
 import { requestStatusLabels } from "@zsm3/contracts/request-labels";
 import {
   documentTypeLabels,
