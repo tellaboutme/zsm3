@@ -55,8 +55,7 @@ async function tableReach(page: Page): Promise<readonly string[]> {
       if (region === null || getComputedStyle(region).overflowX !== "auto") {
         return ["wide table outside a scrolling region"];
       }
-      const focusable = region.tabIndex >= 0 || region.querySelector("a[href], button") !== null;
-      return focusable ? [] : ["scrolling region unreachable by keyboard"];
+      return region.tabIndex >= 0 ? [] : ["scrolling region unreachable by keyboard"];
     }),
   );
 }
@@ -71,7 +70,7 @@ for (const { path, words } of TABLES) {
           await expect(page.locator("main table").getByText(word, { exact: true })).toBeVisible();
         }
         expect(await splitWords(page)).toEqual([]);
-        expect(await tableReach(page)).toEqual([]);
+        await expect.poll(async () => tableReach(page)).toEqual([]);
       });
     }
 
@@ -82,7 +81,7 @@ for (const { path, words } of TABLES) {
         document.documentElement.style.fontSize = "200%";
       });
       expect(await splitWords(page)).toEqual([]);
-      expect(await tableReach(page)).toEqual([]);
+      await expect.poll(async () => tableReach(page)).toEqual([]);
     });
   });
 }
@@ -96,9 +95,7 @@ test("an unbreakable value stays inside the table's scrolling region", async ({ 
     .locator("main table td")
     .first()
     .evaluate((cell) => {
-      cell.replaceChildren(
-        `https://example.org/${"materialy-dla-uczniow-".repeat(6)}regulamin.pdf`,
-      );
+      cell.replaceChildren("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08");
     });
   await expect(region).toHaveAttribute("tabindex", "0");
   expect(await tableReach(page)).toEqual([]);

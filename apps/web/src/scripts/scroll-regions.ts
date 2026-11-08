@@ -1,7 +1,7 @@
 function syncFocus(region: HTMLElement): void {
   if (region.scrollWidth > region.clientWidth + 1) {
     region.setAttribute("tabindex", "0");
-  } else {
+  } else if (document.activeElement !== region) {
     region.removeAttribute("tabindex");
   }
 }
