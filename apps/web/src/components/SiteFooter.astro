@@ -43,7 +43,7 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
       </address>
     </section>
     {footerGroups.map((group) => (
-      <section aria-label={group.title}>
+      <div>
         <h2 class="tag">{group.title}</h2>
         <ul>
           {group.links.map((link) => (
@@ -58,7 +58,7 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
             </li>
           ))}
         </ul>
-      </section>
+      </div>
     ))}
   </div>
   <div class="page legal">
