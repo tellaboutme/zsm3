@@ -69,6 +69,10 @@ addEventListener("message", (event: MessageEvent<PhotoRequest>) => {
   void reply(event.data)
     .catch((): PhotoReply => ({ id, ok: false, failure: "unreadable" }))
     .then((answer) => {
-      postMessage(answer, { transfer: answer.ok ? [answer.small, answer.large] : [] });
+      try {
+        postMessage(answer, { transfer: answer.ok ? [answer.small, answer.large] : [] });
+      } catch {
+        postMessage({ id, ok: false, failure: "unreadable" } satisfies PhotoReply);
+      }
     });
 });

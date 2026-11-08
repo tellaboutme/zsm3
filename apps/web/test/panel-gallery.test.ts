@@ -92,6 +92,9 @@ describe("photo phrases", () => {
     expect(photoFailurePhrase("too-heavy")).toBe(
       "Nie udało się zmieścić zdjęcia w limicie 1.5 MB. Wybierz inny plik.",
     );
+    expect(photoFailurePhrase("unavailable")).toBe(
+      "Ta przeglądarka nie może teraz przygotować zdjęcia. Odśwież stronę albo użyj innej przeglądarki.",
+    );
   });
 
   it("checks the source file size", ({ expect }) => {
@@ -144,6 +147,11 @@ describe("school years", () => {
     expect(years).toHaveLength(15);
     expect(years[0]).toBe("2027/2028");
     expect(years.at(-1)).toBe("2013/2014");
+  });
+
+  it("still offers the oldest archive year when the clock is years behind", ({ expect }) => {
+    expect(schoolYearChoices(new Date("2000-03-01T12:00:00Z"))).toEqual(["2013/2014"]);
+    expect(schoolYearChoices(new Date("2014-03-01T12:00:00Z"))).toEqual(["2013/2014"]);
   });
 });
 

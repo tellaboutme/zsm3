@@ -22,6 +22,9 @@ export const CONNECTION_STATUS = 0;
 export const CONNECTION_PHRASE = "Brak połączenia z serwerem. Spróbuj ponownie.";
 
 export function problemPhrase(status: number): string {
+  if (status === CONNECTION_STATUS) {
+    return CONNECTION_PHRASE;
+  }
   const phrase = PROBLEM_STATUSES[status];
   if (phrase === undefined) {
     return "Nieoczekiwana odpowiedź serwera. Spróbuj ponownie.";

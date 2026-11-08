@@ -39,7 +39,7 @@ function startWorker(): Worker {
 
 function failedToStart(): PhotoPreparation {
   return {
-    done: Promise.resolve({ id: 1, ok: false, failure: "unreadable" }),
+    done: Promise.resolve({ id: 1, ok: false, failure: "unavailable" }),
     cancel: () => undefined,
   };
 }

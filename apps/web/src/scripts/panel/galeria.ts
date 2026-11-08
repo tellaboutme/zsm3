@@ -20,6 +20,7 @@ import {
   schoolYearOf,
 } from "../../lib/panel/gallery.ts";
 import { canManageGallery } from "../../lib/panel/gate.ts";
+import { latestOnly, type Ticket } from "../../lib/panel/latest.ts";
 import { parse } from "../../lib/panel/models.ts";
 import { slugify } from "../../lib/panel/slug.ts";
 
@@ -31,6 +32,7 @@ interface Parts {
   readonly status: HTMLElement;
   readonly form: HTMLFormElement;
   readonly formStatus: HTMLElement;
+  readonly nextRefresh: () => Ticket;
 }
 
 function albumRow(album: PanelAlbum): HTMLElement {
@@ -46,17 +48,14 @@ function albumRow(album: PanelAlbum): HTMLElement {
   });
 }
 
-let latestRefresh = 0;
-
 async function refresh(parts: Parts): Promise<void> {
-  latestRefresh += 1;
-  const current = latestRefresh;
+  const current = parts.nextRefresh();
   parts.rows.replaceChildren();
   speak(parts.status, ["Wczytywanie albumów…"]);
   const year = parts.filter.value;
   const query = year === "" ? "" : `?schoolYear=${encodeURIComponent(year)}`;
   const response = await panelRead(`/api/panel/albums${query}`);
-  if (current !== latestRefresh) {
+  if (!current()) {
     return;
   }
   const list = parse(panelAlbumListSchema, response.data);
@@ -105,6 +104,7 @@ function wire(section: HTMLElement): void {
     status: area(section, "status"),
     form: areaForm(section, "album-form"),
     formStatus: area(section, "album-form-status"),
+    nextRefresh: latestOnly(),
   };
   const today = new Date();
   const years = schoolYearChoices(today);

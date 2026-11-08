@@ -1,6 +1,6 @@
 import type { PanelAlbum } from "@zsm3/contracts/gallery";
 
-import { el, setInputValue } from "./dom.ts";
+import { areaButton, areaForm, el, setInputValue } from "./dom.ts";
 
 export interface AlbumFormFields {
   readonly form: HTMLFormElement;
@@ -29,4 +29,16 @@ export function unsavedAlts(list: HTMLUListElement): ReadonlyMap<string, string>
     }
   }
   return drafts;
+}
+
+export function fillYearChoices(select: HTMLSelectElement, years: readonly string[]): void {
+  for (const year of years) {
+    select.append(el("option", { text: year, attributes: { value: year } }));
+  }
+}
+
+export function removeAlbumControls(section: HTMLElement): void {
+  areaForm(section, "album-form").remove();
+  areaForm(section, "photo-form").remove();
+  areaButton(section, "album-remove").remove();
 }

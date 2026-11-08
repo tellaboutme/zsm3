@@ -1,13 +1,12 @@
 import { schoolYearSchema } from "@zsm3/contracts/gallery";
 import { z } from "zod";
 
-import { CONNECTION_PHRASE, problemPhrase } from "./api.ts";
+import { problemPhrase } from "./api.ts";
 import { MAX_SOURCE_BYTES } from "./photo-sizing.ts";
 import type { PhotoFailure } from "./photo-worker-protocol.ts";
 
 const MB = 1024 * 1024;
 const FIRST_LISTED_START = 2013;
-const CONNECTION_STATUS = 0;
 const SCHOOL_YEAR_START_MONTH = 8;
 const LIMIT_MB = 1.5;
 
@@ -27,6 +26,8 @@ const FAILURE_PHRASES: Readonly<Record<PhotoFailure, string>> = {
   unreadable: "Nie udało się odczytać pliku. Wybierz zdjęcie JPG, PNG lub WebP.",
   "too-small": "Zdjęcie jest za małe. Dłuższy bok musi mieć co najmniej 400 pikseli.",
   "too-heavy": `Nie udało się zmieścić zdjęcia w limicie ${String(LIMIT_MB)} MB. Wybierz inny plik.`,
+  unavailable:
+    "Ta przeglądarka nie może teraz przygotować zdjęcia. Odśwież stronę albo użyj innej przeglądarki.",
 };
 
 const problemTitleSchema = z.looseObject({ title: z.string() });
@@ -40,7 +41,7 @@ export function galleryProblemPhrase(status: number, data: unknown): string {
   if (known !== undefined) {
     return known;
   }
-  return status === CONNECTION_STATUS ? CONNECTION_PHRASE : problemPhrase(status);
+  return problemPhrase(status);
 }
 
 export function photoFailurePhrase(failure: PhotoFailure): string {
@@ -64,7 +65,7 @@ export function schoolYearOf(today: Date): string {
 }
 
 export function schoolYearChoices(today: Date): readonly string[] {
-  const first = Number(schoolYearOf(today).slice(0, 4));
+  const first = Math.max(Number(schoolYearOf(today).slice(0, 4)), FIRST_LISTED_START);
   return [...Array(first - FIRST_LISTED_START + 1).keys()].map((index) => {
     const start = first - index;
     return schoolYearSchema.parse(`${String(start)}/${String(start + 1)}`);
