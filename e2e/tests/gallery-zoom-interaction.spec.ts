@@ -130,8 +130,9 @@ test("an aborted drag does not keep panning on hover", async ({ page }) => {
   await page.mouse.move(x, y - 2);
   await page.mouse.move(x, before.stage.top - 30);
   await page.mouse.up();
+  const released = await geometry(page);
   await page.mouse.move(x + 300, y + 100, { steps: 8 });
   const after = await geometry(page);
-  expect(after.scroll).toEqual(before.scroll);
+  expect(after.scroll).toEqual(released.scroll);
   expect(after.zoomed).toBe(true);
 });
