@@ -18,9 +18,15 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    groups:
+      uv-minor-and-patch:
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directories: [/, /.github/actions/setup]
     schedule:
       interval: weekly
     cooldown:
       default-days: 7
+    groups:
+      actions-minor-and-patch:
+        update-types: [minor, patch]
