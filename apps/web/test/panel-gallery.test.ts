@@ -7,6 +7,9 @@ import {
   albumStatePhrase,
   galleryProblemPhrase,
   photoFailurePhrase,
+  photoRemovedPhrase,
+  removalHidesAlbum,
+  removePhotoQuestion,
   schoolYearChoices,
   schoolYearOf,
   sourceFilePhrase,
@@ -33,7 +36,10 @@ describe("gallery roles", () => {
 describe("galleryProblemPhrase", () => {
   it("explains each named problem", ({ expect }) => {
     for (const [title, phrase] of [
-      ["Album Slug Taken", "W tym roku szkolnym istnieje już album o takim adresie. Zmień adres."],
+      [
+        "Album Slug Taken",
+        "W tym roku szkolnym istnieje już album o takim adresie. Zmień tytuł lub adres.",
+      ],
       [
         "Album Has No Photos",
         "Album bez zdjęć nie może zostać opublikowany. Dodaj co najmniej jedno.",
@@ -64,6 +70,15 @@ describe("galleryProblemPhrase", () => {
     expect(galleryProblemPhrase(403, { title: "Other" })).toBe("Brak uprawnień do tej czynności.");
     expect(galleryProblemPhrase(403, undefined)).toBe("Brak uprawnień do tej czynności.");
   });
+
+  it("reports a lost connection as a connection problem", ({ expect }) => {
+    expect(galleryProblemPhrase(0, undefined)).toBe(
+      "Brak połączenia z serwerem. Spróbuj ponownie.",
+    );
+    expect(galleryProblemPhrase(418, undefined)).toBe(
+      "Nieoczekiwana odpowiedź serwera. Spróbuj ponownie.",
+    );
+  });
 });
 
 describe("photo phrases", () => {
@@ -76,6 +91,9 @@ describe("photo phrases", () => {
     );
     expect(photoFailurePhrase("too-heavy")).toBe(
       "Nie udało się zmieścić zdjęcia w limicie 1.5 MB. Wybierz inny plik.",
+    );
+    expect(photoFailurePhrase("unavailable")).toBe(
+      "Ta przeglądarka nie może teraz przygotować zdjęcia. Odśwież stronę albo użyj innej przeglądarki.",
     );
   });
 
@@ -122,6 +140,42 @@ describe("school years", () => {
     expect(years[0]).toBe("2026/2027");
     expect(years[1]).toBe("2025/2026");
     expect(years.at(-1)).toBe("2013/2014");
+  });
+
+  it("keeps the oldest archive year when a new school year starts", ({ expect }) => {
+    const years = schoolYearChoices(new Date("2027-08-01T12:00:00Z"));
+    expect(years).toHaveLength(15);
+    expect(years[0]).toBe("2027/2028");
+    expect(years.at(-1)).toBe("2013/2014");
+  });
+
+  it("still offers the oldest archive year when the clock is years behind", ({ expect }) => {
+    expect(schoolYearChoices(new Date("2000-03-01T12:00:00Z"))).toEqual(["2013/2014"]);
+    expect(schoolYearChoices(new Date("2014-03-01T12:00:00Z"))).toEqual(["2013/2014"]);
+  });
+});
+
+describe("removing a photo", () => {
+  const PUBLISHED = "2026-11-04T12:00:00.000Z";
+
+  it("hides only a published album losing its last photo", ({ expect }) => {
+    expect(removalHidesAlbum(PUBLISHED, 1)).toBe(true);
+    expect(removalHidesAlbum(PUBLISHED, 2)).toBe(false);
+    expect(removalHidesAlbum(null, 1)).toBe(false);
+  });
+
+  it("warns before the album disappears", ({ expect }) => {
+    expect(removePhotoQuestion("Apel", true)).toBe(
+      "Usunąć to zdjęcie z albumu? To ostatnie zdjęcie, więc album zniknie ze strony do czasu ponownej publikacji.\n\nApel",
+    );
+    expect(removePhotoQuestion("Apel", false)).toBe(
+      "Usunąć to zdjęcie z albumu? Zniknie ze strony od razu.\n\nApel",
+    );
+  });
+
+  it("reports whether the album was hidden", ({ expect }) => {
+    expect(photoRemovedPhrase(true)).toBe("Usunięto zdjęcie. Album bez zdjęć został ukryty.");
+    expect(photoRemovedPhrase(false)).toBe("Usunięto zdjęcie.");
   });
 });
 

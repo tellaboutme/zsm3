@@ -1,6 +1,6 @@
 export const PHOTO_WORKER_POLICY = "zsm3-photo-worker";
 
-export type PhotoFailure = "unreadable" | "too-small" | "too-heavy";
+export type PhotoFailure = "unreadable" | "too-small" | "too-heavy" | "unavailable";
 
 export interface PhotoRequest {
   readonly id: number;

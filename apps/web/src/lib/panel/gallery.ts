@@ -6,12 +6,13 @@ import { MAX_SOURCE_BYTES } from "./photo-sizing.ts";
 import type { PhotoFailure } from "./photo-worker-protocol.ts";
 
 const MB = 1024 * 1024;
-const YEARS_LISTED = 14;
+const FIRST_LISTED_START = 2013;
 const SCHOOL_YEAR_START_MONTH = 8;
 const LIMIT_MB = 1.5;
 
 const PROBLEM_TITLES: Readonly<Record<string, string>> = {
-  "Album Slug Taken": "W tym roku szkolnym istnieje już album o takim adresie. Zmień adres.",
+  "Album Slug Taken":
+    "W tym roku szkolnym istnieje już album o takim adresie. Zmień tytuł lub adres.",
   "Album Has No Photos": "Album bez zdjęć nie może zostać opublikowany. Dodaj co najmniej jedno.",
   "Album Is Full": "Album ma już 1000 zdjęć. Utwórz kolejny album.",
   "Publication Status Unchanged": "Stan publikacji już się zmienił. Odśwież stronę.",
@@ -25,6 +26,8 @@ const FAILURE_PHRASES: Readonly<Record<PhotoFailure, string>> = {
   unreadable: "Nie udało się odczytać pliku. Wybierz zdjęcie JPG, PNG lub WebP.",
   "too-small": "Zdjęcie jest za małe. Dłuższy bok musi mieć co najmniej 400 pikseli.",
   "too-heavy": `Nie udało się zmieścić zdjęcia w limicie ${String(LIMIT_MB)} MB. Wybierz inny plik.`,
+  unavailable:
+    "Ta przeglądarka nie może teraz przygotować zdjęcia. Odśwież stronę albo użyj innej przeglądarki.",
 };
 
 const problemTitleSchema = z.looseObject({ title: z.string() });
@@ -35,7 +38,10 @@ export function galleryProblemPhrase(status: number, data: unknown): string {
   }
   const parsed = problemTitleSchema.safeParse(data);
   const known = parsed.success ? PROBLEM_TITLES[parsed.data.title] : undefined;
-  return known ?? problemPhrase(status);
+  if (known !== undefined) {
+    return known;
+  }
+  return problemPhrase(status);
 }
 
 export function photoFailurePhrase(failure: PhotoFailure): string {
@@ -59,8 +65,8 @@ export function schoolYearOf(today: Date): string {
 }
 
 export function schoolYearChoices(today: Date): readonly string[] {
-  const first = Number(schoolYearOf(today).slice(0, 4));
-  return [...Array(YEARS_LISTED).keys()].map((index) => {
+  const first = Math.max(Number(schoolYearOf(today).slice(0, 4)), FIRST_LISTED_START);
+  return [...Array(first - FIRST_LISTED_START + 1).keys()].map((index) => {
     const start = first - index;
     return schoolYearSchema.parse(`${String(start)}/${String(start + 1)}`);
   });
@@ -68,6 +74,21 @@ export function schoolYearChoices(today: Date): readonly string[] {
 
 export function albumStatePhrase(publishedAt: string | null): string {
   return publishedAt === null ? "Szkic" : "Opublikowany";
+}
+
+export function removalHidesAlbum(publishedAt: string | null, photoCount: number): boolean {
+  return publishedAt !== null && photoCount === 1;
+}
+
+export function removePhotoQuestion(alt: string, hidesAlbum: boolean): string {
+  const effect = hidesAlbum
+    ? "To ostatnie zdjęcie, więc album zniknie ze strony do czasu ponownej publikacji."
+    : "Zniknie ze strony od razu.";
+  return `Usunąć to zdjęcie z albumu? ${effect}\n\n${alt}`;
+}
+
+export function photoRemovedPhrase(hidesAlbum: boolean): string {
+  return hidesAlbum ? "Usunięto zdjęcie. Album bez zdjęć został ukryty." : "Usunięto zdjęcie.";
 }
 
 export function albumHref(id: string): string {

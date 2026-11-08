@@ -66,7 +66,10 @@ async function uploadRoute(fake: FakeGallery, route: Route): Promise<void> {
 async function photoRoute(fake: FakeGallery, route: Route, method: string): Promise<void> {
   if (method === "DELETE") {
     fake.photos.pop();
-    Object.assign(fake.album, { photoCount: fake.photos.length });
+    Object.assign(fake.album, {
+      photoCount: fake.photos.length,
+      publishedAt: fake.photos.length === 0 ? null : fake.album.publishedAt,
+    });
     await route.fulfill({ status: 204 });
     return;
   }

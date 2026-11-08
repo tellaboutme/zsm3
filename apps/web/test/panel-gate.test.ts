@@ -62,6 +62,7 @@ it("phrases problem statuses", ({ expect }) => {
   expect(problemPhrase(413)).toContain("limit 100 MB");
   expect(problemPhrase(422)).toContain("nie przyjął");
   expect(problemPhrase(503)).toBe("Nieoczekiwana odpowiedź serwera. Spróbuj ponownie.");
+  expect(problemPhrase(CONNECTION_STATUS)).toBe(CONNECTION_PHRASE);
   expect(CONNECTION_STATUS).toBe(0);
   expect(CONNECTION_PHRASE).toContain("Brak połączenia");
 });
