@@ -1,61 +1,91 @@
 const DRAG_THRESHOLD = 4;
-const ZOOM_FACTOR = 2;
+const STOP_EVENTS = ["pointerup", "pointercancel", "lostpointercapture", "pointerleave"] as const;
 
 interface Drag {
+  readonly pointer: number;
   readonly x: number;
   readonly y: number;
   readonly left: number;
   readonly top: number;
 }
 
-export function zoomImage(stage: HTMLElement, image: HTMLImageElement, zoomed: boolean): void {
-  const fitted = image.getBoundingClientRect().width;
-  stage.classList.toggle("zoomed", zoomed);
-  if (!zoomed) {
-    image.style.removeProperty("width");
-    return;
-  }
-  const width = Math.round(Math.max(fitted * ZOOM_FACTOR, image.naturalWidth));
-  image.style.setProperty("width", `${String(width)}px`);
-  stage.scrollTo({
-    left: (stage.scrollWidth - stage.clientWidth) / 2,
-    top: (stage.scrollHeight - stage.clientHeight) / 2,
-  });
-}
+class DragPan {
+  readonly #stage: HTMLElement;
+  readonly #isZoomed: () => boolean;
+  #drag: Drag | undefined;
+  #dragged = false;
 
-export function bindDragPan(stage: HTMLElement, isZoomed: () => boolean): () => boolean {
-  let drag: Drag | undefined;
-  let dragged = false;
-  stage.addEventListener("pointerdown", (event) => {
-    if (event.pointerType !== "mouse" || event.button !== 0 || !isZoomed()) {
+  constructor(stage: HTMLElement, isZoomed: () => boolean) {
+    this.#stage = stage;
+    this.#isZoomed = isZoomed;
+  }
+
+  get dragged(): boolean {
+    return this.#dragged;
+  }
+
+  bind(): void {
+    this.#stage.addEventListener("pointerdown", (event) => {
+      this.#start(event);
+    });
+    this.#stage.addEventListener("pointermove", (event) => {
+      this.#move(event);
+    });
+    for (const name of STOP_EVENTS) {
+      this.#stage.addEventListener(name, () => {
+        this.#stop();
+      });
+    }
+  }
+
+  #start(event: PointerEvent): void {
+    this.#dragged = false;
+    if (event.pointerType !== "mouse" || event.button !== 0 || !this.#isZoomed()) {
       return;
     }
-    drag = { x: event.clientX, y: event.clientY, left: stage.scrollLeft, top: stage.scrollTop };
-    dragged = false;
-  });
-  stage.addEventListener("pointermove", (event) => {
-    if (drag === undefined) {
+    const { scrollLeft, scrollTop } = this.#stage;
+    this.#drag = {
+      pointer: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      left: scrollLeft,
+      top: scrollTop,
+    };
+  }
+
+  #move(event: PointerEvent): void {
+    const drag = this.#drag;
+    if (drag?.pointer !== event.pointerId) {
+      return;
+    }
+    if ((event.buttons & 1) === 0) {
+      this.#stop();
       return;
     }
     const dx = event.clientX - drag.x;
     const dy = event.clientY - drag.y;
-    if (Math.abs(dx) + Math.abs(dy) > DRAG_THRESHOLD) {
-      dragged = true;
-      stage.classList.add("dragging");
+    if (!this.#dragged && Math.abs(dx) + Math.abs(dy) > DRAG_THRESHOLD) {
+      this.#dragged = true;
+      this.#stage.classList.add("dragging");
+      this.#stage.setPointerCapture(event.pointerId);
     }
-    stage.scrollTo({ left: drag.left - dx, top: drag.top - dy });
-    event.preventDefault();
-  });
-  const stop = (): void => {
-    drag = undefined;
-    stage.classList.remove("dragging");
-  };
-  stage.addEventListener("pointerup", stop);
-  stage.addEventListener("pointercancel", stop);
-  stage.addEventListener("pointerleave", stop);
-  return () => {
-    const was = dragged;
-    dragged = false;
-    return was;
-  };
+    if (this.#dragged) {
+      this.#stage.scrollTo({ left: drag.left - dx, top: drag.top - dy, behavior: "instant" });
+      event.preventDefault();
+    }
+  }
+
+  #stop(): void {
+    this.#drag = undefined;
+    this.#stage.classList.remove("dragging");
+    setTimeout(() => {
+      this.#dragged = false;
+    }, 0);
+  }
+}
+
+export function bindDragPan(stage: HTMLElement, isZoomed: () => boolean): () => boolean {
+  const pan = new DragPan(stage, isZoomed);
+  pan.bind();
+  return () => pan.dragged;
 }

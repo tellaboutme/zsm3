@@ -48,8 +48,11 @@ async function stageScroll(page: Page): Promise<readonly number[]> {
 
 async function expectDragPans(page: Page): Promise<void> {
   const stage = page.locator("[data-lightbox-stage]");
-  const sizes = await stage.evaluate((element) => [element.scrollWidth, element.clientWidth]);
-  expect(sizes[0]).toBeGreaterThan(sizes[1] ?? 0);
+  const room = await stage.evaluate(
+    (element) =>
+      element.scrollWidth - element.clientWidth + element.scrollHeight - element.clientHeight,
+  );
+  expect(room).toBeGreaterThan(0);
   const box = await stage.boundingBox();
   expect(box).not.toBeNull();
   const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
