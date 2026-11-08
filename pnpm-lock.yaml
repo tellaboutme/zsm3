@@ -356,8 +356,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/contracts
       hono:
-        specifier: 4.13.14
-        version: 4.13.14
+        specifier: 4.13.15
+        version: 4.13.15
       jose:
         specifier: 6.2.14
         version: 6.2.14
@@ -3629,8 +3629,8 @@ packages:
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
 
-  hono@4.13.14:
-    resolution: {integrity: sha512-yhRLQ21U6qa9Hsu2N7Qcbh8tE+WKEcoErjIo56LeSGiGXGp9sA7UpE86Ui9uexb61KakiGwuHMn2QdV7w6i6kQ==}
+  hono@4.13.15:
+    resolution: {integrity: sha512-BTUf5VVhV+eb9owxdzdfQBV6b7Uvh7oDPMMHOmpa9hRe9/fKUI5b3TsGiDro2R3hPl3cPT5FuGmb32H3MqReug==}
     engines: {node: '>=16.9.0'}
 
   hookified@1.15.1:
@@ -8752,7 +8752,7 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.5
 
-  hono@4.13.14: {}
+  hono@4.13.15: {}
 
   hookified@1.15.1: {}
 
