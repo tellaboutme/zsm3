@@ -50,6 +50,7 @@
     font-family: var(--font-body);
     font-size: var(--step-0);
     line-height: var(--leading-body);
+    overflow-wrap: anywhere;
   }
 
   h1,
@@ -140,6 +141,12 @@
     font-size: var(--step-n1);
     letter-spacing: 0.04em;
     text-transform: uppercase;
+  }
+
+  .tag a,
+  a.tag {
+    display: inline-block;
+    padding-block: var(--space-1);
   }
 }
 

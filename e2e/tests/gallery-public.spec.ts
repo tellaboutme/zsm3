@@ -40,6 +40,29 @@ async function overflow(page: Page): Promise<number> {
   );
 }
 
+async function stageScroll(page: Page): Promise<readonly number[]> {
+  return page
+    .locator("[data-lightbox-stage]")
+    .evaluate((stage) => [stage.scrollLeft, stage.scrollTop]);
+}
+
+async function expectDragPans(page: Page): Promise<void> {
+  const stage = page.locator("[data-lightbox-stage]");
+  const sizes = await stage.evaluate((element) => [element.scrollWidth, element.clientWidth]);
+  expect(sizes[0]).toBeGreaterThan(sizes[1] ?? 0);
+  const box = await stage.boundingBox();
+  expect(box).not.toBeNull();
+  const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
+  const y = (box?.y ?? 0) + (box?.height ?? 0) / 2;
+  const before = await stageScroll(page);
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x - 80, y - 40, { steps: 5 });
+  await page.mouse.up();
+  expect(await stageScroll(page)).not.toEqual(before);
+  await expect(page.getByRole("button", { name: "Pomniejsz" })).toBeVisible();
+}
+
 test("visitors walk from years through albums to photos", async ({ page, problems }) => {
   await page.goto("/szkola/galeria");
   await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
@@ -109,6 +132,7 @@ test("the lightbox moves, zooms, announces and returns focus", async ({ page, pr
     "true",
   );
   await expect(dialog.locator("[data-lightbox-stage]")).toHaveAttribute("tabindex", "0");
+  await expectDragPans(page);
   await page.keyboard.press("ArrowRight");
   await expect(place).toHaveText("Zdjęcie 1 z 5");
   await dialog.getByRole("button", { name: "Pomniejsz" }).click();
