@@ -9,7 +9,7 @@ interface Props {
 const { label, facts } = Astro.props;
 ---
 
-<section class="facts" aria-label={label}>
+<div class="facts" role="group" aria-label={label}>
   <dl>
     {facts.map((fact) => (
       <div class="item reveal">
@@ -18,7 +18,7 @@ const { label, facts } = Astro.props;
       </div>
     ))}
   </dl>
-</section>
+</div>
 
 <style>
   dl {
