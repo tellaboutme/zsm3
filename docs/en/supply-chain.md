@@ -46,11 +46,13 @@ None recorded. The previous entry, GHSA-vfj7-8cjw-p6xm (`braces` 3.0.3 through s
 
 ### `overrides`
 
-`qs` 6.16.0, `sharp` 0.35.5, `undici` 7.30.1 (wrangler and miniflare) and 8.12.2 (astro, through unifont), `zod` 4.6.7, `happy-dom` 21.0.4, `fast-uri` 3.1.9 and `minimatch` 11.0.1 (eslint, through `@eslint/config-array`) are raised to fixed versions; Stryker, wrangler, Vitest, Astro and eslint pull these packages in as transitive dependencies. All pinned releases are older than 7 days except the ones excluded above.
+`qs` 6.16.0, `sharp` 0.35.5, `undici` 7.30.1 (wrangler and miniflare) and 8.12.2 (astro, through unifont), `zod` 4.6.7, `happy-dom` 21.0.4, `fast-uri` 3.1.9 `minimatch` 11.0.1 (eslint, through `@eslint/config-array`) and `glob` 14.0.3 (lighthouse, through `@sentry/node` and `@sentry/bundler-plugins` 11.10.0, which asks for `^13.0.6`; fixes GHSA-3g3m-2fjr-6pw4, checked 2026-11-08, remove once `@sentry/node` 11.11.0, which asks for `^14.0.3`, is older than 7 days, after 2026-11-12) are raised to fixed versions; Stryker, wrangler, Vitest, Astro and eslint pull these packages in as transitive dependencies. All pinned releases are older than 7 days except the ones excluded above.
 
 ### Dependabot
 
 `@types/node` major updates are ignored: the types must match the Node.js 24 LTS runtime.
+
+Minor and patch updates arrive as one pull request per ecosystem (`npm-minor-and-patch`, `uv-minor-and-patch`, `actions-minor-and-patch`), so CI runs once for a week's updates instead of once per package. Major updates still come one per pull request.
 
 ### Gitleaks historical test fixtures
 
