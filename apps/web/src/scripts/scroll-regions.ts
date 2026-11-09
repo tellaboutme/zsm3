@@ -9,15 +9,19 @@ function syncFocus(region: HTMLElement): void {
 }
 
 export function initScrollRegions(): void {
+  const regions = [...document.querySelectorAll<HTMLElement>(SELECTOR)];
+  if (regions.length === 0) {
+    return;
+  }
   const observer = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const region = entry.target.closest<HTMLElement>(SELECTOR);
+    const changed = new Set(entries.map((entry) => entry.target.closest<HTMLElement>(SELECTOR)));
+    for (const region of changed) {
       if (region !== null) {
         syncFocus(region);
       }
     }
   });
-  for (const region of document.querySelectorAll<HTMLElement>(SELECTOR)) {
+  for (const region of regions) {
     observer.observe(region);
     for (const child of region.children) {
       observer.observe(child);
