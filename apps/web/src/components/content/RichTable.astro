@@ -1,34 +1,42 @@
 ---
 interface Props {
+  id: string;
   caption: string;
   header: readonly string[];
   rows: readonly (readonly string[])[];
 }
 
-const { caption, header, rows } = Astro.props;
+const { id, caption, header, rows } = Astro.props;
+const captionId = `${id}-podpis`;
 ---
 
-<table>
-  <caption>{caption}</caption>
-  <thead>
-    <tr>
-      {header.map((cell) => (
-        <th scope="col">{cell}</th>
-      ))}
-    </tr>
-  </thead>
-  <tbody>
-    {rows.map((row) => (
+<div class="scroller" role="region" aria-labelledby={captionId} tabindex="0" data-scroll-region>
+  <table>
+    <caption id={captionId}>{caption}</caption>
+    <thead>
       <tr>
-        {row.map((cell) => (
-          <td>{cell}</td>
+        {header.map((cell) => (
+          <th scope="col">{cell}</th>
         ))}
       </tr>
-    ))}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          {row.map((cell) => (
+            <td>{cell}</td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
 <style>
+  .scroller {
+    overflow-x: auto;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -36,6 +44,7 @@ const { caption, header, rows } = Astro.props;
 
   caption {
     padding-bottom: var(--space-3);
+    overflow-wrap: break-word;
     font-weight: 700;
     text-align: left;
   }
@@ -46,10 +55,7 @@ const { caption, header, rows } = Astro.props;
     border-bottom: var(--hairline) solid var(--line);
     text-align: left;
     vertical-align: top;
-  }
-
-  td {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 
   th {

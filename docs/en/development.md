@@ -40,6 +40,7 @@ lefthook runs Prettier, ESLint, Stylelint and ruff on staged files before each c
 
 - No comments in TypeScript, Astro, CSS or Python; `local/no-comments` (ESLint and Stylelint) and `zsm3-no-comments` enforce it.
 - Lint rules cannot be disabled inline (`noInlineConfig`).
+- One configured accessibility exception: `astro/jsx-a11y/no-noninteractive-tabindex` allows `tabindex="0"` on `role="region"` only. A scroll container that holds a wide table must be reachable by keyboard even without JavaScript (WCAG 2.1.1; axe `scrollable-region-focusable`), and Safari does not make scroll containers focusable on its own. Every such region needs an accessible name; `scripts/scroll-regions.ts` removes the tab stop while the content fits.
 - External data is parsed with a Zod schema at the boundary; `as`, `!` and `any` are banned.
 - SQL only through `.prepare(...).bind(...)`; template strings inside `prepare` fail lint.
 - Every new API response goes through the security-header middleware and `problemResponse`, with a header test.

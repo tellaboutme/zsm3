@@ -139,6 +139,12 @@ export default defineConfig(
     files: ["**/*.astro"],
   },
   {
+    files: ["**/*.astro"],
+    rules: {
+      "astro/jsx-a11y/no-noninteractive-tabindex": ["error", { tags: [], roles: ["region"] }],
+    },
+  },
+  {
     files: ["apps/web/src/scripts/panel/photo-worker-client.ts"],
     rules: { "import-x/default": "off" },
   },

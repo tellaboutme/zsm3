@@ -15,7 +15,7 @@ const { document } = Astro.props;
 ---
 
 <div class="rich-text">
-  {document.map((block) => {
+  {document.map((block, index) => {
     switch (block.type) {
       case "paragraph":
         return (
@@ -30,7 +30,14 @@ const { document } = Astro.props;
       case "quote":
         return <RichQuote content={block.content} source={block.source} />;
       case "table":
-        return <RichTable caption={block.caption} header={block.header} rows={block.rows} />;
+        return (
+          <RichTable
+            id={`tabela-${String(index + 1)}`}
+            caption={block.caption}
+            header={block.header}
+            rows={block.rows}
+          />
+        );
       case "video":
         return <VideoFacade id={block.id} title={block.title} />;
     }
