@@ -115,3 +115,37 @@ test("at 200% text on a phone the plaque moves above the text and nothing overfl
     (await top(page, `${live} [data-live=timer]`)) + 1,
   );
 });
+
+const BEFORE_LESSONS = new Date("2026-10-22T01:30:00Z");
+
+for (const width of WIDTHS) {
+  test(`the countdown sits beside the status only when the status keeps one line at ${String(width)} px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of ["/", "/uczniowie/dzwonki"]) {
+      await page.clock.setFixedTime(BEFORE_LESSONS);
+      await page.goto(path);
+      const card = page.locator("main [data-live-status]").first();
+      await expect(card.locator("[data-live=title]")).toHaveText("Przed lekcjami");
+      const layout = await card.evaluate((element) => {
+        const title = element.querySelector("[data-live=title]");
+        const status = element.querySelector(".status");
+        const timer = element.querySelector("[data-live=timer]");
+        if (title === null || status === null || timer === null) {
+          return { beside: false, lines: 0 };
+        }
+        const lineHeight = Number.parseFloat(getComputedStyle(title).lineHeight);
+        return {
+          beside: timer.getBoundingClientRect().top < status.getBoundingClientRect().bottom - 1,
+          lines: Math.round(title.getBoundingClientRect().height / lineHeight),
+        };
+      });
+      expect(layout.lines, path).toBeGreaterThan(0);
+      if (layout.beside) {
+        expect(layout.lines, path).toBe(1);
+      }
+      expect(await pageOverflow(page)).toBe(0);
+    }
+  });
+}

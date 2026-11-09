@@ -64,12 +64,15 @@ const { size = "panel" } = Astro.props;
   }
 
   .main {
-    display: grid;
-    gap: var(--space-3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3) var(--space-5);
   }
 
   .status {
     display: grid;
+    flex: 1 1 auto;
     gap: var(--space-1);
     min-width: 0;
   }
@@ -118,18 +121,6 @@ const { size = "panel" } = Astro.props;
   progress::-moz-progress-bar {
     border-radius: var(--radius);
     background: var(--blue-ink);
-  }
-
-  @container (width >= 24rem) {
-    .main {
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: end;
-      column-gap: var(--space-5);
-    }
-
-    .timer {
-      text-align: end;
-    }
   }
 
   .large {
