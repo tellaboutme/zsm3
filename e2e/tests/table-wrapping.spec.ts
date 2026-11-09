@@ -45,8 +45,8 @@ async function tableReach(page: Page): Promise<readonly string[]> {
   return page.locator("main table").evaluateAll((tables) =>
     tables.flatMap((table) => {
       const region = table.closest<HTMLElement>("[role=region]");
-      const page = document.documentElement;
-      if (page.scrollWidth > page.clientWidth) {
+      const root = document.documentElement;
+      if (root.scrollWidth > root.clientWidth) {
         return ["page scrolls sideways"];
       }
       if (table.getBoundingClientRect().width <= (table.parentElement?.clientWidth ?? 0) + 1) {
@@ -169,4 +169,7 @@ test("a table that fits has no extra tab stop, and focus survives the table fitt
     .toBe(true);
   await expect(region).toBeFocused();
   await expect(region).toHaveAttribute("tabindex", "0");
+  await page.keyboard.press("Tab");
+  await expect(region).not.toBeFocused();
+  await expect(region).not.toHaveAttribute("tabindex");
 });

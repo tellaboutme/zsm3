@@ -73,10 +73,10 @@ function initLiveStatus(): void {
   window.setInterval(tick, 1000);
 }
 
+initScrollRegions();
 initPreferences();
 initDialogs();
 initMegaMenus();
 initBanners();
 initCompactHeader();
 initLiveStatus();
-initScrollRegions();
