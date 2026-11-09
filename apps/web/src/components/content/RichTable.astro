@@ -8,7 +8,7 @@ interface Props {
 const { caption, header, rows } = Astro.props;
 ---
 
-<div class="scroller" role="region" aria-label={caption} data-scroll-region>
+<div class="scroller" role="region" aria-label={caption} tabindex="0" data-scroll-region>
   <table>
     <caption>{caption}</caption>
     <thead>

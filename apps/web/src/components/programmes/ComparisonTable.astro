@@ -19,7 +19,13 @@ const { programmes, professions } = Astro.props;
 
 <details class="compare">
   <summary>Porównaj wszystkie kierunki w tabeli</summary>
-  <div class="scroller" role="region" aria-label="Tabela porównawcza kierunków" data-scroll-region>
+  <div
+    class="scroller"
+    role="region"
+    aria-label="Tabela porównawcza kierunków"
+    tabindex="0"
+    data-scroll-region
+  >
     <table>
       <thead>
         <tr>

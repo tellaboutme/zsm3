@@ -105,3 +105,68 @@ test("an unbreakable value stays inside the table's scrolling region", async ({ 
     .poll(async () => region.evaluate((element) => element.scrollLeft))
     .toBeGreaterThan(0);
 });
+
+async function tabUntil(page: Page, name: string): Promise<boolean> {
+  const region = page.getByRole("region", { name });
+  for (let step = 0; step < 120; step += 1) {
+    await page.keyboard.press("Tab");
+    if (await region.evaluate((element) => element === document.activeElement)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function expectKeyboardScroll(page: Page, name: string): Promise<void> {
+  const region = page.getByRole("region", { name });
+  expect(await tabUntil(page, name)).toBe(true);
+  const outline = await region.evaluate((element) => getComputedStyle(element).outlineStyle);
+  expect(outline).not.toBe("none");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await expect
+    .poll(async () => region.evaluate((element) => element.scrollLeft))
+    .toBeGreaterThan(0);
+}
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("Tab reaches the article table region and arrows scroll it", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(TABLES[0].path);
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = "200%";
+    });
+    await expectKeyboardScroll(page, "Uczestnicy turniejów");
+  });
+
+  test("Tab reaches the comparison table region and arrows scroll it", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.goto(TABLES[1].path);
+    await page.locator("main details:has(table) > summary").press("Enter");
+    await expectKeyboardScroll(page, "Tabela porównawcza kierunków");
+  });
+});
+
+test("a table that fits has no extra tab stop, and focus survives the table fitting again", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto(TABLES[0].path);
+  const region = page.getByRole("region", { name: "Uczestnicy turniejów" });
+  await expect(region).not.toHaveAttribute("tabindex");
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "200%";
+  });
+  await expect(region).toHaveAttribute("tabindex", "0");
+  expect(await tabUntil(page, "Uczestnicy turniejów")).toBe(true);
+  await page.evaluate(() => {
+    document.documentElement.style.removeProperty("font-size");
+  });
+  await expect
+    .poll(async () => region.evaluate((element) => element.scrollWidth <= element.clientWidth))
+    .toBe(true);
+  await expect(region).toBeFocused();
+  await expect(region).toHaveAttribute("tabindex", "0");
+});
