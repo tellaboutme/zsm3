@@ -27,6 +27,7 @@
   --plaque: light-dark(#e3ecf9, #173a7a);
   --plaque-ink: light-dark(#0b3a82, #fff);
   --progress-track: #ffffff40;
+  --progress-edge: transparent;
   --radius-round: 999px;
   --header-height: 4.5rem;
   --header-height-compact: 3.5rem;
@@ -104,6 +105,8 @@
   --section-rule: light-dark(#000, #fff);
   --plaque: light-dark(#002f87, #002f87);
   --plaque-ink: #fff;
+  --progress-track: transparent;
+  --progress-edge: #fff;
 }
 
 :root[data-font="readable"] {
