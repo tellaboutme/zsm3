@@ -17,7 +17,7 @@ import { OVERVIEW_TASKS, SECTION_GROUPS, sectionsIn } from "../../lib/panel/over
     <div class="overview" data-panel="app" hidden>
       <div class="intro">
         <h1>Panel obsługi treści</h1>
-        <p>Każda zmiana trafia na stronę od razu po zapisaniu.</p>
+        <p>Zacznij od spraw, które czekają, albo wybierz sekcję.</p>
       </div>
       <section class="todo" aria-labelledby="do-zrobienia" data-panel="todo" hidden>
         <h2 id="do-zrobienia" class="tag">
@@ -31,6 +31,7 @@ import { OVERVIEW_TASKS, SECTION_GROUPS, sectionsIn } from "../../lib/panel/over
                   …
                 </span>
                 <span class="label">{task.label}</span>
+                <span class="visually-hidden" data-panel="count-note"></span>
               </a>
             </li>
           ))}

@@ -152,6 +152,7 @@ export function wireWnioski(section: HTMLElement): void {
     filter: areaSelect(section, "requests-filter"),
     status: area(section, "status"),
   };
+  parts.filter.value = statusFilter(new URLSearchParams(location.search).get("status") ?? "");
   const holder: { list?: RequestList } = {};
   const detail = new RequestDetail(detailView(section), (changed) => {
     holder.list?.update(changed);

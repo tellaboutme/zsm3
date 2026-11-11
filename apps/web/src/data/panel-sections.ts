@@ -5,7 +5,6 @@ import type { SectionGroupId } from "../lib/panel/overview.ts";
 
 export interface PanelSection {
   readonly href: string;
-  readonly label: string;
   readonly short: string;
   readonly note: string;
   readonly group: SectionGroupId;
@@ -15,7 +14,6 @@ export interface PanelSection {
 export const panelSections: readonly PanelSection[] = [
   {
     href: "/panel/aktualnosci",
-    label: "Aktualności",
     short: "Aktualności",
     note: "Wpisy, szkice i publikacja na stronie",
     group: "content",
@@ -23,7 +21,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/strony",
-    label: "Strony",
     short: "Strony",
     note: "Treść stałych stron serwisu",
     group: "content",
@@ -31,7 +28,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/terminarz",
-    label: "Terminarz",
     short: "Terminarz",
     note: "Wydarzenia, egzaminy i dni wolne",
     group: "content",
@@ -39,7 +35,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/dokumenty",
-    label: "Dokumenty",
     short: "Dokumenty",
     note: "Pliki do pobrania",
     group: "content",
@@ -47,7 +42,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/linki",
-    label: "Krótkie linki do materiałów",
     short: "Linki",
     note: "Krótkie adresy do materiałów dla uczniów",
     group: "content",
@@ -55,7 +49,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/ogloszenia",
-    label: "Ogłoszenia",
     short: "Ogłoszenia",
     note: "Komunikat na górze każdej strony",
     group: "content",
@@ -63,7 +56,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/zestawy",
-    label: "Dane stron (kadra, kontakty, dokumenty, oferty pracy…)",
     short: "Dane stron",
     note: "Kadra, kontakty, dokumenty, oferty pracy",
     group: "content",
@@ -71,7 +63,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/dzwonki",
-    label: "Dzwonki",
     short: "Dzwonki",
     note: "Godziny lekcji i przerw",
     group: "content",
@@ -79,15 +70,13 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/galeria",
-    label: "Galeria",
     short: "Galeria",
     note: "Albumy i zdjęcia",
-    group: "people",
+    group: "content",
     roles: GALLERY_ROLES,
   },
   {
     href: "/panel/wnioski",
-    label: "Wnioski z formularza e-wniosek",
     short: "Wnioski",
     note: "Wnioski złożone przez formularz e-wniosek",
     group: "people",
@@ -95,7 +84,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/skrzynka",
-    label: "Skrzynka #OgarniamŻycie — pytania uczniów",
     short: "Skrzynka",
     note: "Pytania uczniów #OgarniamŻycie",
     group: "people",
@@ -103,7 +91,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/pracownicy",
-    label: "Pracownicy i role",
     short: "Pracownicy",
     note: "Konta pracowników i ich role",
     group: "admin",
@@ -111,7 +98,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/dziennik",
-    label: "Dziennik zmian",
     short: "Dziennik",
     note: "Kto i kiedy zmienił treści",
     group: "admin",
@@ -119,7 +105,6 @@ export const panelSections: readonly PanelSection[] = [
   },
   {
     href: "/panel/przekierowania",
-    label: "Przekierowania",
     short: "Przekierowania",
     note: "Stare adresy prowadzące do nowych stron",
     group: "admin",

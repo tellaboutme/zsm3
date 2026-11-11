@@ -44,7 +44,7 @@ test.describe("panel overview", () => {
     await expect(page.getByRole("heading", { name: "Panel obsługi treści" })).toBeVisible();
     await expect(waiting(page).getByRole("link", { name: "3 Nowe wnioski" })).toHaveAttribute(
       "href",
-      "/panel/wnioski",
+      "/panel/wnioski?status=submitted",
     );
     await expect(waiting(page).getByRole("link", { name: "2 Szkice aktualności" })).toBeVisible();
     await expect(waiting(page).getByRole("link")).toHaveCount(2);
@@ -67,7 +67,11 @@ test.describe("panel overview", () => {
     await page.goto("/panel");
 
     await expect(waiting(page).getByRole("link", { name: "2+ Nowe wnioski" })).toBeVisible();
-    await expect(waiting(page).getByRole("link", { name: "— Szkice aktualności" })).toBeVisible();
+    await expect(
+      waiting(page).getByRole("link", {
+        name: "— Szkice aktualności (nie udało się pobrać liczby)",
+      }),
+    ).toBeVisible();
     await expect(
       page.getByRole("navigation", { name: "Wszystkie sekcje panelu" }).getByRole("heading", {
         name: "Administracja",
@@ -85,13 +89,30 @@ test.describe("panel overview", () => {
 
     await expect(page.locator('[data-panel="app"]')).toBeVisible();
     await expect(
-      waiting(page).getByRole("link", { name: "2 Pytania do odpowiedzi" }),
-    ).toHaveAttribute("href", "/panel/skrzynka");
+      waiting(page).getByRole("link", { name: "2 Nowe pytania w Skrzynce" }),
+    ).toHaveAttribute("href", "/panel/skrzynka?status=received");
     const links = page
       .getByRole("navigation", { name: "Wszystkie sekcje panelu" })
       .getByRole("link");
     await expect(links).toHaveCount(1);
     await expect(links).toHaveAttribute("href", "/panel/skrzynka");
+  });
+
+  test("opens the requests list already filtered by the counter's status", async ({ page }) => {
+    const fake = await fakePanel(
+      page,
+      "secretariat",
+      [fakeRequest(1), fakeRequest(2, { status: "ready" })],
+      50,
+    );
+    await fakeDrafts(page, 0);
+    await page.goto("/panel");
+    await waiting(page).getByRole("link", { name: "1 Nowe wnioski" }).click();
+
+    await expect(page).toHaveURL(/\/panel\/wnioski\?status=submitted$/u);
+    await expect(page.locator('[data-panel="requests-filter"]')).toHaveValue("submitted");
+    await expect(page.locator('[data-panel="request-rows"] li')).toHaveCount(1);
+    expect(fake.listed.at(-1)).toBe("/api/panel/requests?status=submitted");
   });
 
   test("hides the waiting list from the gallery editor", async ({ page }) => {

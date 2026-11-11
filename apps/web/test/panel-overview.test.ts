@@ -12,7 +12,8 @@ import {
 
 describe("panel overview tasks", () => {
   it("shows each role only the counters it can open", ({ expect }) => {
-    const names = (role: string): readonly string[] => tasksFor(role).map((task) => task.task);
+    const names = (role: string): readonly string[] =>
+      tasksFor(panelSections, role).map((task) => task.task);
 
     expect(names("admin")).toEqual(["requests", "drafts"]);
     expect(names("secretariat")).toEqual(["requests", "drafts"]);
@@ -24,10 +25,19 @@ describe("panel overview tasks", () => {
 
   it("asks the API only for the items that wait for staff", ({ expect }) => {
     expect(OVERVIEW_TASKS.map((task) => [task.path, task.href, task.label])).toEqual([
-      ["/api/panel/requests?status=submitted&limit=50", "/panel/wnioski", "Nowe wnioski"],
-      ["/api/panel/questions?status=received", "/panel/skrzynka", "Pytania do odpowiedzi"],
+      ["/api/panel/requests?status=submitted", "/panel/wnioski?status=submitted", "Nowe wnioski"],
+      [
+        "/api/panel/questions?status=received",
+        "/panel/skrzynka?status=received",
+        "Nowe pytania w Skrzynce",
+      ],
       ["/api/panel/news?status=draft&pageSize=1", "/panel/aktualnosci", "Szkice aktualności"],
     ]);
+    expect(
+      OVERVIEW_TASKS.every((task) =>
+        panelSections.some((section) => section.href === task.section),
+      ),
+    ).toBe(true);
   });
 
   it("opens for every role that has at least one section", ({ expect }) => {
@@ -45,6 +55,16 @@ describe("panel overview tasks", () => {
     expect(canOpenOverview([{}], "guest")).toBe(true);
     expect(canOpenOverview([{}], "")).toBe(false);
     expect(canOpenOverview([], "admin")).toBe(false);
+  });
+
+  it("follows the roles of the section a counter links to", ({ expect }) => {
+    const sections = [{ href: "/panel/aktualnosci", roles: ["gallery_editor"] as const }];
+
+    expect(tasksFor(sections, "gallery_editor").map((task) => task.task)).toEqual(["drafts"]);
+    expect(tasksFor(sections, "editor")).toEqual([]);
+    expect(tasksFor([{ href: "/panel/skrzynka" }], "guest").map((task) => task.task)).toEqual([
+      "questions",
+    ]);
   });
 
   it("marks a count that has more on the next page", ({ expect }) => {
@@ -65,6 +85,10 @@ describe("panel overview groups", () => {
     ]);
     expect(grouped).toHaveLength(panelSections.length);
     expect(new Set(grouped)).toEqual(new Set(panelSections));
+    expect(sectionsIn(panelSections, "people").map((section) => section.short)).toEqual([
+      "Wnioski",
+      "Skrzynka",
+    ]);
     expect(sectionsIn(panelSections, "admin").map((section) => section.short)).toEqual([
       "Pracownicy",
       "Dziennik",

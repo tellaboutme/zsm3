@@ -1,43 +1,59 @@
 import type { PanelStaffRole } from "@zsm3/contracts/panel";
 
-import { CONTENT_ROLES, QUESTION_ROLES, REQUEST_ROLES, sectionAllowed } from "./gate.ts";
+import { questionsPath } from "./questions.ts";
+import { requestsPath } from "./requests.ts";
 
 export type OverviewTaskName = "requests" | "questions" | "drafts";
 
 export interface OverviewTask {
   readonly task: OverviewTaskName;
   readonly path: string;
+  readonly section: string;
   readonly href: string;
   readonly label: string;
-  readonly roles: readonly PanelStaffRole[];
 }
 
 export const OVERVIEW_TASKS: readonly OverviewTask[] = [
   {
     task: "requests",
-    path: "/api/panel/requests?status=submitted&limit=50",
-    href: "/panel/wnioski",
+    path: requestsPath("submitted", null),
+    section: "/panel/wnioski",
+    href: "/panel/wnioski?status=submitted",
     label: "Nowe wnioski",
-    roles: REQUEST_ROLES,
   },
   {
     task: "questions",
-    path: "/api/panel/questions?status=received",
-    href: "/panel/skrzynka",
-    label: "Pytania do odpowiedzi",
-    roles: QUESTION_ROLES,
+    path: questionsPath("received", null),
+    section: "/panel/skrzynka",
+    href: "/panel/skrzynka?status=received",
+    label: "Nowe pytania w Skrzynce",
   },
   {
     task: "drafts",
     path: "/api/panel/news?status=draft&pageSize=1",
+    section: "/panel/aktualnosci",
     href: "/panel/aktualnosci",
     label: "Szkice aktualności",
-    roles: CONTENT_ROLES,
   },
 ];
 
-export function tasksFor(role: string): readonly OverviewTask[] {
-  return OVERVIEW_TASKS.filter((task) => task.roles.some((allowed) => allowed === role));
+interface RoleSection {
+  readonly href: string;
+  readonly roles?: readonly PanelStaffRole[];
+}
+
+function opens(section: RoleSection, role: string): boolean {
+  return section.roles === undefined || section.roles.some((allowed) => allowed === role);
+}
+
+export function canOpenOverview(sections: readonly RoleSection[], role: string): boolean {
+  return role.length > 0 && sections.some((section) => opens(section, role));
+}
+
+export function tasksFor(sections: readonly RoleSection[], role: string): readonly OverviewTask[] {
+  return OVERVIEW_TASKS.filter((task) =>
+    sections.some((section) => section.href === task.section && opens(section, role)),
+  );
 }
 
 export function countLabel(count: number, more: boolean): string {
@@ -62,13 +78,4 @@ export function sectionsIn<Section extends { readonly group: SectionGroupId }>(
   group: SectionGroupId,
 ): readonly Section[] {
   return sections.filter((section) => section.group === group);
-}
-
-export function canOpenOverview(
-  sections: readonly { readonly roles?: readonly PanelStaffRole[] }[],
-  role: string,
-): boolean {
-  return (
-    role.length > 0 && sections.some((section) => sectionAllowed(section.roles?.join(" "), role))
-  );
 }

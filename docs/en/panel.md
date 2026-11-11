@@ -39,7 +39,7 @@ The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/
 
 ## Panel home
 
-`/panel` opens for every role that has at least one section (`canOpenOverview`). It starts with **Czeka na Ciebie**: counters for what waits for the signed-in role, each linking to its section. These are new requests for `admin` and `secretariat`, unanswered Skrzynka questions for `counsellor`, and news drafts for the content roles. A counter that fills its first page shows `N+`, and one that cannot be read shows `—`. Below the counters the sections are grouped as Treści strony, Uczniowie i rodzice and Administracja, and a group with no section for the role is hidden. The list schemas are parsed in the page's own script, as for every panel page.
+`/panel` opens for every role that has at least one section (`canOpenOverview`). It starts with **Czeka na Ciebie**: counters for what waits for the signed-in role, each linking to its section already filtered by the same status (`?status=` preselects the filter of `/panel/wnioski` and `/panel/skrzynka`). These are new (`submitted`) requests for `admin` and `secretariat`, new (`received`) Skrzynka questions for `counsellor`, and news drafts for the content roles. A counter is shown only to roles that can open its section. A counter that fills its first page shows `N+`, and one that cannot be read shows `—` with a screen-reader note. Below the counters the sections are grouped as Treści strony, Uczniowie i rodzice and Administracja, and a group with no section for the role is hidden. The list schemas are parsed in the page's own script, as for every panel page.
 
 ## Handling requests
 

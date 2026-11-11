@@ -17,7 +17,7 @@ Panel działa pod adresem `/panel` i jest chroniony przez Cloudflare Access. Wch
 
 ### Strona główna panelu
 
-Po zalogowaniu widzisz najpierw **Czeka na Ciebie**: liczby spraw, które czekają na twoją rolę — nowe wnioski (sekretariat, administrator), pytania w Skrzynce bez odpowiedzi (rola Skrzynki) i szkice aktualności (redaktorzy). Kliknięcie liczby otwiera daną sekcję. „20+” znaczy, że spraw jest co najmniej tyle, a „—”, że liczby nie udało się pobrać; sekcja działa wtedy normalnie. Niżej są wszystkie twoje sekcje w trzech grupach: Treści strony, Uczniowie i rodzice, Administracja.
+Po zalogowaniu widzisz najpierw **Czeka na Ciebie**: liczby spraw, które czekają na twoją rolę — nowe wnioski (sekretariat, administrator), nowe pytania w Skrzynce (rola Skrzynki) i szkice aktualności (redaktorzy). Kliknięcie liczby otwiera sekcję od razu z tym samym filtrem. „20+” znaczy, że spraw jest co najmniej tyle, a „—”, że liczby nie udało się pobrać; sekcja działa wtedy normalnie. Niżej są wszystkie twoje sekcje w trzech grupach: Treści strony, Uczniowie i rodzice, Administracja.
 
 ### Zasady
 

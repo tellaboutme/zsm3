@@ -18,6 +18,7 @@ import {
 } from "../../lib/panel/overview.ts";
 
 const UNKNOWN = "—";
+const UNKNOWN_NOTE = " (nie udało się pobrać liczby)";
 
 function countOf(task: OverviewTaskName, data: unknown): string | undefined {
   switch (task) {
@@ -45,14 +46,12 @@ async function fillTask(item: HTMLElement, task: OverviewTask): Promise<void> {
   const response = await panelRead(task.path);
   const value = response.ok ? countOf(task.task, response.data) : undefined;
   count.textContent = value ?? UNKNOWN;
-  if (value === undefined) {
-    count.title = "Nie udało się pobrać liczby. Otwórz sekcję, aby sprawdzić.";
-  }
+  area(item, "count-note").textContent = value === undefined ? UNKNOWN_NOTE : "";
 }
 
 function showTasks(section: HTMLElement, role: string): void {
   const todo = area(section, "todo");
-  const tasks = tasksFor(role);
+  const tasks = tasksFor(panelSections, role);
   todo.hidden = tasks.length === 0;
   for (const task of tasks) {
     const item = todo.querySelector<HTMLElement>(`[data-task="${task.task}"]`);
