@@ -1,16 +1,18 @@
 ---
 import { richTextSchema } from "@zsm3/contracts/rich-text";
+import { CF_BEACON_TOKEN } from "astro:env/server";
 
 import InPageNav from "../components/content/InPageNav.astro";
 import RichText from "../components/content/RichText.astro";
-import { privacyPolicy } from "../data/legal/privacy.ts";
+import { privacyPolicyFor } from "../data/legal/privacy.ts";
 import Base from "../layouts/Base.astro";
+import { beaconSettings } from "../lib/analytics.ts";
 import { longDate } from "../lib/calendar.ts";
 import { statusLabel } from "../lib/legal.ts";
 
 export const prerender = false;
 
-const document = privacyPolicy;
+const document = privacyPolicyFor(beaconSettings(CF_BEACON_TOKEN) !== undefined);
 const sections = document.sections.map((section) => ({
   ...section,
   document: richTextSchema.parse(section.document),

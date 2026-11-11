@@ -1,6 +1,8 @@
+import { CF_BEACON_TOKEN } from "astro:env/server";
 import { defineMiddleware } from "astro:middleware";
 
 import { fallbackBells } from "./data/bell-schedule.ts";
+import { beaconSettings } from "./lib/analytics.ts";
 import { dayOffAnnouncement } from "./lib/announcement.ts";
 import { daysOffFrom } from "./lib/bells.ts";
 import { isoDay } from "./lib/calendar.ts";
@@ -54,6 +56,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     Object.assign(context.locals, await siteState());
   }
   const response = read ? await next() : methodNotAllowed();
-  headers ??= sitePageHeaders();
+  headers ??= sitePageHeaders(beaconSettings(CF_BEACON_TOKEN) !== undefined);
   return withHeaders(response, [...(await headers), cacheEntry(context.url.pathname)]);
 });

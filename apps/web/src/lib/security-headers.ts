@@ -1,9 +1,11 @@
+import { BEACON_REPORT_ORIGIN, BEACON_SCRIPT_ORIGIN } from "./analytics.ts";
 import { PHOTO_WORKER_POLICY } from "./panel/photo-worker-protocol.ts";
 import { bootScript } from "./preferences.ts";
 
 export interface HeaderOptions {
   readonly scriptHashes: readonly string[];
   readonly photoWorker?: boolean;
+  readonly analytics?: boolean;
 }
 
 export const PHOTO_PAGE = "/panel/galeria/album";
@@ -19,6 +21,7 @@ export async function sha256Base64(text: string): Promise<string> {
 export function contentSecurityPolicy({
   scriptHashes,
   photoWorker = false,
+  analytics = false,
 }: HeaderOptions): string {
   const directives: readonly (readonly string[])[] = [
     ["default-src", "'none'"],
@@ -26,6 +29,7 @@ export function contentSecurityPolicy({
       "script-src",
       "'self'",
       "https://challenges.cloudflare.com",
+      ...(analytics ? [BEACON_SCRIPT_ORIGIN] : []),
       ...scriptHashes.map((hash) => `'sha256-${hash}'`),
       ...(photoWorker ? ["'wasm-unsafe-eval'"] : []),
     ],
@@ -33,7 +37,12 @@ export function contentSecurityPolicy({
     ["style-src", "'self'"],
     ["img-src", "'self'"],
     ["font-src", "'self'"],
-    ["connect-src", "'self'", "https://challenges.cloudflare.com"],
+    [
+      "connect-src",
+      "'self'",
+      "https://challenges.cloudflare.com",
+      ...(analytics ? [BEACON_REPORT_ORIGIN] : []),
+    ],
     ["frame-src", "https://challenges.cloudflare.com"],
     ["manifest-src", "'self'"],
     ["base-uri", "'none'"],
@@ -64,8 +73,8 @@ export function pageHeaders(options: HeaderOptions): readonly HeaderEntry[] {
   return [["Content-Security-Policy", contentSecurityPolicy(options)], ...staticHeaders];
 }
 
-export async function sitePageHeaders(): Promise<readonly HeaderEntry[]> {
-  return pageHeaders({ scriptHashes: [await sha256Base64(bootScript)] });
+export async function sitePageHeaders(analytics = false): Promise<readonly HeaderEntry[]> {
+  return pageHeaders({ scriptHashes: [await sha256Base64(bootScript)], analytics });
 }
 
 export function renderHeaders(options: HeaderOptions): string {

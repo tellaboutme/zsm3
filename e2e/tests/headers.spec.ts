@@ -30,6 +30,17 @@ test.describe("response headers", () => {
     }
   });
 
+  test("pages load no analytics script until a site token is set", async ({ request }) => {
+    for (const path of ["/", "/polityka-prywatnosci"]) {
+      const html = await (await request.get(path)).text();
+
+      expect(html, path).not.toContain("cloudflareinsights");
+    }
+    expect(await (await request.get("/polityka-prywatnosci")).text()).toContain(
+      "nie używa plików cookie, narzędzi analitycznych",
+    );
+  });
+
   test("pages rendered on demand revalidate and accept only reads", async ({ request }) => {
     const page = await request.get("/aktualnosci");
     const missing = await request.get("/aktualnosci/kategoria/nie-ma-takiej");

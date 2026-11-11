@@ -7,7 +7,7 @@ import "@fontsource/atkinson-hyperlegible-next/400.css";
 import "@fontsource/atkinson-hyperlegible-next/700.css";
 import archivo from "@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url";
 import sourceSans from "@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url";
-import { PATTERN_LIBRARY } from "astro:env/server";
+import { CF_BEACON_TOKEN, PATTERN_LIBRARY } from "astro:env/server";
 
 import AccessibilityDialog from "../components/AccessibilityDialog.astro";
 import AnnouncementBanner from "../components/AnnouncementBanner.astro";
@@ -17,6 +17,7 @@ import SiteBackground from "../components/SiteBackground.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import { school } from "../data/site.ts";
+import { BEACON_SCRIPT_URL, beaconSettings } from "../lib/analytics.ts";
 import type { Announcement } from "../lib/announcement.ts";
 import type { Crumb } from "../lib/breadcrumbs.ts";
 import { bootScript } from "../lib/preferences.ts";
@@ -45,6 +46,7 @@ const { title, description, noindex = false, breadcrumbs, structuredData } = Ast
 const summary = metaDescription(description);
 const announcement = Astro.props.announcement ?? Astro.locals.announcement;
 const bells = Astro.locals.bells;
+const beacon = beaconSettings(CF_BEACON_TOKEN);
 const canonical = canonicalUrl(Astro.url);
 const socialImage = absoluteUrl(SITE_ORIGIN, SOCIAL_IMAGE.path);
 const breadcrumbData =
@@ -125,6 +127,16 @@ const schemas = [
     {schemas.map((schema) => (
       <script type="application/ld+json" set:html={jsonLd(schema)} />
     ))}
+    {beacon !== undefined && (
+      <script
+        is:inline
+        defer
+        src={BEACON_SCRIPT_URL}
+        data-cf-beacon={beacon}
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+    )}
     <title>{title}</title>
   </head>
   <body data-bells={bells === undefined ? undefined : JSON.stringify(bells)}>

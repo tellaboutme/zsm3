@@ -39,6 +39,14 @@ describe("content security policy", () => {
       "default-src 'none'; script-src 'self' https://challenges.cloudflare.com 'sha256-AAA=' 'sha256-BBB='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types 'none'",
     );
   });
+
+  it("adds only the Web Analytics script and report origins when analytics is on", ({ expect }) => {
+    const policy = contentSecurityPolicy({ scriptHashes: ["AAA="], analytics: true });
+
+    expect(policy).toBe(
+      "default-src 'none'; script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com 'sha256-AAA='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self' https://challenges.cloudflare.com https://cloudflareinsights.com; frame-src https://challenges.cloudflare.com; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types 'none'",
+    );
+  });
 });
 
 describe("rendered _headers file", () => {
@@ -92,6 +100,9 @@ describe("headers for pages rendered on demand", () => {
     const hash = createHash("sha256").update(bootScript).digest("base64");
 
     expect(await sitePageHeaders()).toEqual(pageHeaders({ scriptHashes: [hash] }));
+    expect(await sitePageHeaders(true)).toEqual(
+      pageHeaders({ scriptHashes: [hash], analytics: true }),
+    );
     expect((await sitePageHeaders()).map(([name, value]) => `${name}: ${value}`)).toEqual([
       `Content-Security-Policy: ${contentSecurityPolicy({ scriptHashes: [hash] })}`,
       ...expectedStaticHeaders,

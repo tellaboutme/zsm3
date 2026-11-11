@@ -1,6 +1,31 @@
-import type { LegalDocument } from "../../lib/legal.ts";
+import type { LegalDocument, LegalSection } from "../../lib/legal.ts";
 
 const text = (value: string): { type: "text"; text: string } => ({ type: "text", text: value });
+
+const PLAIN_BROWSING =
+  "Czytanie stron serwisu nie wymaga podawania żadnych danych. Serwis nie używa plików cookie, narzędzi analitycznych ani skryptów reklamowych i nie śledzi odwiedzających.";
+
+const COUNTED_BROWSING =
+  "Czytanie stron serwisu nie wymaga podawania żadnych danych. Serwis nie używa plików cookie ani skryptów reklamowych i nie śledzi odwiedzających. Liczbę odwiedzin mierzy Cloudflare Web Analytics: skrypt nie zapisuje niczego w przeglądarce, nie tworzy identyfikatora odwiedzającego, a szkoła widzi tylko zbiorcze liczby, na przykład wyświetlenia stron i rodzaje urządzeń.";
+
+const browsingSection = (browsing: string): LegalSection => ({
+  id: "przegladanie",
+  title: "Przeglądanie serwisu",
+  document: [
+    {
+      type: "paragraph",
+      content: [text(browsing)],
+    },
+    {
+      type: "paragraph",
+      content: [
+        text(
+          "Serwis działa na infrastrukturze Cloudflare, z którą szkoła zawarła umowę powierzenia przetwarzania danych. Aby dostarczyć stronę, przeglądarka przekazuje serwerowi adres IP; szkoła nie zapisuje go we własnych dziennikach zdarzeń, a dzienniki techniczne nie zawierają danych osobowych.",
+        ),
+      ],
+    },
+  ],
+});
 
 export const privacyPolicy: LegalDocument = {
   path: "/polityka-prywatnosci",
@@ -37,28 +62,7 @@ export const privacyPolicy: LegalDocument = {
         },
       ],
     },
-    {
-      id: "przegladanie",
-      title: "Przeglądanie serwisu",
-      document: [
-        {
-          type: "paragraph",
-          content: [
-            text(
-              "Czytanie stron serwisu nie wymaga podawania żadnych danych. Serwis nie używa plików cookie, narzędzi analitycznych ani skryptów reklamowych i nie śledzi odwiedzających.",
-            ),
-          ],
-        },
-        {
-          type: "paragraph",
-          content: [
-            text(
-              "Serwis działa na infrastrukturze Cloudflare, z którą szkoła zawarła umowę powierzenia przetwarzania danych. Aby dostarczyć stronę, przeglądarka przekazuje serwerowi adres IP; szkoła nie zapisuje go we własnych dziennikach zdarzeń, a dzienniki techniczne nie zawierają danych osobowych.",
-            ),
-          ],
-        },
-      ],
-    },
+    browsingSection(PLAIN_BROWSING),
     {
       id: "przegladarka",
       title: "Dane zapisywane w Twojej przeglądarce",
@@ -119,3 +123,15 @@ export const privacyPolicy: LegalDocument = {
     },
   ],
 };
+
+export function privacyPolicyFor(analytics: boolean): LegalDocument {
+  if (!analytics) {
+    return privacyPolicy;
+  }
+  return {
+    ...privacyPolicy,
+    sections: privacyPolicy.sections.map((section) =>
+      section.id === "przegladanie" ? browsingSection(COUNTED_BROWSING) : section,
+    ),
+  };
+}
