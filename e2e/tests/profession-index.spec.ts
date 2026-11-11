@@ -20,7 +20,7 @@ function finder(page: Page): ReturnType<Page["locator"]> {
 function field(page: Page, name: string): ReturnType<Page["locator"]> {
   return finder(page)
     .locator("details")
-    .filter({ has: page.locator(".field", { hasText: new RegExp(`^${name}$`, "u") }) });
+    .filter({ has: page.locator(".field").getByText(name, { exact: true }) });
 }
 
 async function clippedHeadings(page: Page): Promise<readonly string[]> {
