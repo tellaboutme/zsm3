@@ -21,6 +21,12 @@ const { size = "panel" } = Astro.props;
       <p class="detail" data-live="detail">
         1. lekcja o 7:30
       </p>
+      <span class="title sizer" aria-hidden="true">
+        Dziś nie ma zajęć
+      </span>
+      <span class="detail sizer" aria-hidden="true">
+        Lekcje w dni nauki od 7:30
+      </span>
     </div>
     <p class="timer" data-live="timer">
       —
@@ -78,6 +84,7 @@ const { size = "panel" } = Astro.props;
   }
 
   .title {
+    grid-area: 1 / 1;
     font-family: var(--font-display);
     font-size: var(--step-2);
     font-stretch: var(--stretch-display);
@@ -86,7 +93,14 @@ const { size = "panel" } = Astro.props;
   }
 
   .detail {
+    grid-area: 2 / 1;
     color: var(--blue-dim);
+  }
+
+  .sizer {
+    block-size: 0;
+    overflow: hidden;
+    visibility: hidden;
   }
 
   .timer {
@@ -94,6 +108,7 @@ const { size = "panel" } = Astro.props;
     font-size: min(var(--step-3), 14cqi);
     font-variant-numeric: tabular-nums;
     line-height: var(--leading-tight);
+    min-inline-size: 7ch;
     white-space: nowrap;
   }
 
