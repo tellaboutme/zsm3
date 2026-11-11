@@ -37,6 +37,10 @@ Local development has no Cloudflare Access, so `pnpm dev:auth` stands in for it:
 
 The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/matrix.ts`, and a test calls every route with every role. Administrators cannot remove their own admin role or disable themselves, so the panel always keeps one administrator. Moderating Skrzynka is described in [skrzynka.md](skrzynka.md).
 
+## Panel home
+
+`/panel` opens for every role that has at least one section (`canOpenOverview`). It starts with **Czeka na Ciebie**: counters for what waits for the signed-in role, each linking to its section. These are new requests for `admin` and `secretariat`, unanswered Skrzynka questions for `counsellor`, and news drafts for the content roles. A counter that fills its first page shows `N+`, and one that cannot be read shows `—`. Below the counters the sections are grouped as Treści strony, Uczniowie i rodzice and Administracja, and a group with no section for the role is hidden. The list schemas are parsed in the page's own script, as for every panel page.
+
 ## Handling requests
 
 `/panel/wnioski` is the staff side of e-wniosek, shown to `admin` and `secretariat` only; the tab is hidden from other roles, and the API answers them 403 regardless. It reads and writes nothing but the staff API from architecture.md §7.4.

@@ -15,6 +15,10 @@ Panel działa pod adresem `/panel` i jest chroniony przez Cloudflare Access. Wch
 3. Jeśli szkoła nie ma kont Microsoft 365 ani Google Workspace, wybierz opcję kodu jednorazowego: podaj szkolny adres e-mail, na który dostaniesz kod, a potem wpisz kod na stronie logowania.
 4. System wyświetli to, co obejmuje twoja rola.
 
+### Strona główna panelu
+
+Po zalogowaniu widzisz najpierw **Czeka na Ciebie**: liczby spraw, które czekają na twoją rolę — nowe wnioski (sekretariat, administrator), pytania w Skrzynce bez odpowiedzi (rola Skrzynki) i szkice aktualności (redaktorzy). Kliknięcie liczby otwiera daną sekcję. „20+” znaczy, że spraw jest co najmniej tyle, a „—”, że liczby nie udało się pobrać; sekcja działa wtedy normalnie. Niżej są wszystkie twoje sekcje w trzech grupach: Treści strony, Uczniowie i rodzice, Administracja.
+
 ### Zasady
 
 - Logujesz się **kontem szkolnym**, nie prywatnym. Adres e-mail musi figurować na liście pracowników prowadzonej przez administratora.
