@@ -1,6 +1,7 @@
 ---
 import { publicFallbackNavigation } from "../data/navigation.ts";
 import { school } from "../data/site.ts";
+import { emailSegments } from "../lib/email-breaks.ts";
 
 const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
 ---
@@ -34,11 +35,11 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
         </a>
         <br />
         <a class="tap-target" href={`mailto:${school.email}`}>
-          {school.email}
+          {emailSegments(school.email).flatMap((part) => [part, <wbr />])}
         </a>
         <br />
         <a class="tap-target" href={`mailto:${school.officeEmail}`}>
-          {school.officeEmail}
+          {emailSegments(school.officeEmail).flatMap((part) => [part, <wbr />])}
         </a>
       </address>
     </section>
@@ -117,7 +118,7 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
 
   address {
     font-style: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 
   ul {
