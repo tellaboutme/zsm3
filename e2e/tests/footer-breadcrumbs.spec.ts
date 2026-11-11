@@ -5,8 +5,8 @@ import { expect, test } from "./fixtures.ts";
 const WIDTHS = [360, 390, 768, 1280, 1440, 1920] as const;
 const ARTICLE = "/aktualnosci/2026/dzien-patrona-szkoly-i-slubowanie-klas-pierwszych";
 
-async function badEmailBreaks(page: Page): Promise<readonly string[]> {
-  return page.locator(".site-footer a[href^='mailto:']").evaluateAll((links) =>
+async function badEmailBreaks(page: Page, scope: string): Promise<readonly string[]> {
+  return page.locator(`${scope} a[href^='mailto:']`).evaluateAll((links) =>
     links.flatMap((link) => {
       const walker = document.createTreeWalker(link, NodeFilter.SHOW_TEXT);
       const characters: { readonly text: string; readonly top: number }[] = [];
@@ -22,57 +22,56 @@ async function badEmailBreaks(page: Page): Promise<readonly string[]> {
           }
         }
       }
+      const at = characters.findIndex((character) => character.text === "@");
       return characters.flatMap((character, index) => {
         const previous = characters[index - 1];
         if (previous === undefined || previous.top === character.top) {
           return [];
         }
-        return previous.text === "@" || character.text === "." ? [] : [link.textContent.trim()];
+        const allowed = index === at + 1 || (at >= 0 && index > at && character.text === ".");
+        return allowed ? [] : [link.textContent.trim()];
       });
     }),
   );
 }
 
-async function linesStartingWithSeparator(page: Page): Promise<number> {
-  return page.locator("nav.crumbs li").evaluateAll((items) => {
-    let previousTop = Number.NEGATIVE_INFINITY;
-    let count = 0;
-    for (const item of items) {
-      const top = Math.round(item.getBoundingClientRect().top);
-      const startsLine = top > previousTop;
-      const before = getComputedStyle(item, "::before").content;
-      if (startsLine && before !== "none" && before !== "normal") {
-        count += 1;
-      }
-      previousTop = top;
-    }
-    return count;
-  });
+async function separatorsOnNewLines(page: Page): Promise<number> {
+  return page.locator("nav.crumbs li:not(:last-child)").evaluateAll(
+    (items) =>
+      items.filter((item) => {
+        const link = item.querySelector("a");
+        return (
+          link !== null &&
+          item.getBoundingClientRect().height > link.getBoundingClientRect().height + 1
+        );
+      }).length,
+  );
 }
 
 for (const width of WIDTHS) {
-  test(`footer e-mail addresses break only at @ or a dot at ${String(width)} px`, async ({
+  test(`e-mail addresses break only after @ or before a domain dot at ${String(width)} px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto("/");
+    await page.goto("/kontakt");
 
     await expect(page.locator(".site-footer a[href^='mailto:']")).toHaveCount(2);
-    expect(await badEmailBreaks(page)).toEqual([]);
+    expect(await badEmailBreaks(page, ".site-footer")).toEqual([]);
+    expect(await badEmailBreaks(page, "main")).toEqual([]);
   });
 }
 
-test("a wrapped breadcrumb line never starts with a separator", async ({ page }) => {
+test("a breadcrumb separator never wraps away from its item", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto(ARTICLE);
   const items = page.locator("nav.crumbs li");
 
   await expect(items).not.toHaveCount(0);
-  expect(await linesStartingWithSeparator(page)).toBe(0);
+  expect(await separatorsOnNewLines(page)).toBe(0);
   const separators = await items.evaluateAll((elements) =>
     elements.map((element) => getComputedStyle(element, "::after").content),
   );
 
   expect(separators.slice(0, -1).every((content) => content === '"/"')).toBe(true);
-  expect(separators.at(-1)).toBe("none");
+  expect(["none", "normal", ""]).toContain(separators.at(-1));
 });

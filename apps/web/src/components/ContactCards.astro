@@ -1,6 +1,8 @@
 ---
 import type { Contacts } from "@zsm3/contracts/datasets";
 
+import EmailText from "./EmailText.astro";
+
 type ContactCard = Contacts["departments"][number];
 
 interface Props {
@@ -26,7 +28,9 @@ const { cards } = Astro.props;
           ))}
           {card.emails.map((email) => (
             <li>
-              <a href={`mailto:${email}`}>{email}</a>
+              <a href={`mailto:${email}`}>
+                <EmailText email={email} />
+              </a>
             </li>
           ))}
         </ul>
