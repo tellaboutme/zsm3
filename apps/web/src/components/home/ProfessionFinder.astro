@@ -17,7 +17,7 @@ const groups = fieldGroups(professions);
   />
   <div class="index">
     {groups.map((group) => (
-      <details name="branza" data-field={group.field}>
+      <details name="branza">
         <summary>
           <span class="head">
             <span class="field">{group.label}</span>
@@ -78,6 +78,7 @@ const groups = fieldGroups(professions);
   }
 
   summary:hover,
+  summary:focus-visible,
   details[open] > summary {
     background: var(--blue);
     color: var(--blue-ink);
@@ -91,7 +92,7 @@ const groups = fieldGroups(professions);
 
   .field {
     font-family: var(--font-display);
-    font-size: min(var(--step-3), 6.2cqi);
+    font-size: max(min(var(--step-3), 6.2cqi), var(--step-1));
     font-stretch: var(--stretch-wide);
     font-weight: 800;
     line-height: var(--leading-tight);
@@ -111,11 +112,12 @@ const groups = fieldGroups(professions);
   }
 
   .count {
-    font-size: min(var(--step-3), 7cqi);
+    font-size: max(min(var(--step-3), 7cqi), var(--step-1));
     line-height: var(--leading-tight);
   }
 
   summary:hover .families,
+  summary:focus-visible .families,
   details[open] .families {
     color: var(--blue-dim);
   }

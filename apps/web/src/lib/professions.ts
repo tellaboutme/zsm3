@@ -42,12 +42,6 @@ export function matchesField(field: string | undefined, filter: FieldFilter): bo
   return filter === "wszystkie" || field === filter;
 }
 
-export function fieldCounts(professions: readonly Profession[]): ReadonlyMap<Field, number> {
-  return new Map(
-    fields.map((field) => [field, professions.filter((item) => item.field === field).length]),
-  );
-}
-
 export function pathLabel({ school, years }: StudyPath): string {
   return `${schoolLabels[school]} · ${String(years)} ${years < 5 ? "lata" : "lat"}`;
 }

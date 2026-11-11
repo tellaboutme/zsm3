@@ -68,8 +68,19 @@
 
   :root[data-motion="reduce"] *,
   :root[data-motion="reduce"] *::before,
-  :root[data-motion="reduce"] *::after {
+  :root[data-motion="reduce"] *::after,
+  :root[data-motion="reduce"] *::details-content {
     transition: none !important;
     animation: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after,
+    *::details-content {
+      transition: none !important;
+      animation: none !important;
+    }
   }
 }

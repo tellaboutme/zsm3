@@ -4,7 +4,6 @@ import { describe, it } from "vitest";
 
 import { upcomingEvents } from "../src/lib/calendar.ts";
 import {
-  fieldCounts,
   fieldGroups,
   fieldLabels,
   fields,
@@ -19,7 +18,9 @@ describe("professions", () => {
   it("lists thirteen distinct professions in five fields", ({ expect }) => {
     expect(professions).toHaveLength(13);
     expect(new Set(professions.map((profession) => profession.slug)).size).toBe(13);
-    expect([...fieldCounts(professions)]).toEqual([
+    expect(
+      fieldGroups(professions).map((group) => [group.field, group.professions.length]),
+    ).toEqual([
       ["informatyka", 2],
       ["mechatronika", 2],
       ["motoryzacja", 5],
