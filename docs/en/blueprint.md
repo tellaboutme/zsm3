@@ -66,15 +66,15 @@ Blue and orange are the school's logo colours. Orange is never used for small te
 | `--duration-2` | 380 ms — fills, image zoom, filters   |
 | `--duration-3` | 750 ms — page-title entrance          |
 
-| Pattern         | Where                                          | Rule                                                                    |
-| --------------- | ---------------------------------------------- | ----------------------------------------------------------------------- |
-| Title rise      | page title lines on load                       | once per page, staggered 80 ms                                          |
-| Reveal          | section heads, cards, list items on scroll     | CSS scroll-driven animation; without support, content is simply visible |
-| Fill            | profession tiles, list rows on hover and focus | blue fills from the bottom                                              |
-| Nudge           | arrows in links and buttons                    | 0.3–0.4 rem to the right                                                |
-| Zoom            | news photos on hover                           | scale 1.06 inside the frame                                             |
-| Page transition | every navigation                               | `@view-transition` cross-fade; the page title morphs                    |
-| Live            | Teraz w szkole timer and progress              | updates every second; the only thing that moves by itself               |
+| Pattern         | Where                                                         | Rule                                                                    |
+| --------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Title rise      | page title lines on load                                      | once per page, staggered 80 ms                                          |
+| Reveal          | section heads, cards, list items on scroll                    | CSS scroll-driven animation; without support, content is simply visible |
+| Fill            | profession tiles and field rows, list rows on hover and focus | blue fills from the bottom                                              |
+| Nudge           | arrows in links and buttons                                   | 0.3–0.4 rem to the right                                                |
+| Zoom            | news photos on hover                                          | scale 1.06 inside the frame                                             |
+| Page transition | every navigation                                              | `@view-transition` cross-fade; the page title morphs                    |
+| Live            | Teraz w szkole timer and progress                             | updates every second; the only thing that moves by itself               |
 
 Nothing auto-rotates, loops or uses parallax. Content never waits for an animation. With `prefers-reduced-motion: reduce` every animation and transition is off.
 
@@ -238,8 +238,9 @@ Each template lists its sections in reading order. "Data" names the content type
 │ SEASONAL: Rekrutacja 2027/2028 — steps, dates, CTA            │
 │ (Feb–Aug; outside: Dzień otwarty or hidden)                   │
 ├───────────────────────────────────────────────────────────────┤
-│ WYBIERZ ZAWÓD  [Wszystkie][Motoryzacja][Lotnictwo]…           │
-│ ┌────┐┌────┐┌────┐┌────┐  13 tiles, blue fill on hover        │
+│ WYBIERZ ZAWÓD                                Wszystkie zawody → │
+│ INFORMATYKA  INF                                     02  +    │
+│ MOTORYZACJA  MOT  (open: 5 professions, codes, paths) 05  −   │
 ├───────────────────────────────────────────────────────────────┤
 │ CO SIĘ DZIEJE W SZKOLE   5 latest news          Wszystkie →   │
 ├───────────────────────────────────────────────────────────────┤
@@ -250,6 +251,8 @@ Each template lists its sections in reading order. "Data" names the content type
 │ Partners and projects strip: Erasmus+, CKZ, LS Airport Services │
 └───────────────────────────────────────────────────────────────┘
 ```
+
+The profession section is a field index ([ADR 0006](adr/0006-home-profession-index.md)): one row per field, opened in place.
 
 Data: featured item (news or curated photo), bell schedule and today's variant, numbers (settings), recruitment season (settings), professions, latest news, upcoming events, audience links, partners.
 
@@ -390,7 +393,7 @@ Each milestone is one or more pull requests, merged only with every check green.
 | --- | ------------------ | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | 1.1 | Foundation         | tokens, fonts, base styles, grid utilities, motion, lint fixes for Astro, `/wzornik` page | tokens documented; Stylelint rejects literals; pattern page passes axe |
 | 1.2 | Frame              | header, mega menu, mobile menu, footer, breadcrumbs, banner, accessibility dialog, theme  | keyboard-only navigation works; dialog traps focus; settings persist   |
-| 1.3 | Home               | hero, live status, numbers, profession tiles and filter, news, timeline, audience panels  | matches §4.1 at 360/768/1280/1920 in both themes; Lighthouse budgets   |
+| 1.3 | Home               | hero, live status, numbers, profession field index, news, timeline, audience panels       | matches §4.1 at 360/768/1280/1920 in both themes; Lighthouse budgets   |
 | 1.4 | Programme family   | professions listing, programme template                                                   | all 15 programmes render from fixtures                                 |
 | 1.5 | News family        | listing, article, rich-text renderer                                                      | rich text allow-list tested; pagination accessible                     |
 | 1.6 | Everyday templates | hubs, content page, documents, bells, calendar, people, meetings, contact                 | each template has a fixture page and e2e test                          |

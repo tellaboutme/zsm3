@@ -6,7 +6,7 @@ How the website looks, reads and behaves. The rules here are binding for every p
 
 ZSM3 is a technical school: cars, aircraft, robots, code. Its students build and repair machines; its partners include an airport ground-handling company. The website should feel like a well-made technical object: precise, legible, honest about materials, and proud of the work done in the workshops. It should not feel like a startup landing page or a template.
 
-Chosen direction: **E "Precyzja"** ([ADR 0002](adr/0002-visual-direction-precyzja.md)) — official but energetic: a white base, the school's blue and orange, very large wide titles, filterable profession tiles and noticeable, purposeful motion. Foundation values (grid, type, colour, motion) and the page-by-page construction plan are in the [blueprint](blueprint.md).
+Chosen direction: **E "Precyzja"** ([ADR 0002](adr/0002-visual-direction-precyzja.md)) — official but energetic: a white base, the school's blue and orange, very large wide titles, a profession index on the home page and filterable profession tiles on the listing ([ADR 0006](adr/0006-home-profession-index.md)), and noticeable, purposeful motion. Foundation values (grid, type, colour, motion) and the page-by-page construction plan are in the [blueprint](blueprint.md).
 
 Directions A–D were prototyped on real content and set aside: A (technical drawing), B (departure board) and C (workshop photography) read as too subdued; D (academic navy and serif) as more formal than energetic.
 
