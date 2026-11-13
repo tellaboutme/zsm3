@@ -12,7 +12,7 @@ test("keeps contact e-mail links on a single line on wide screens", async ({ pag
           const range = document.createRange();
           range.selectNodeContents(link);
           return {
-            lines: range.getClientRects().length,
+            lines: new Set([...range.getClientRects()].map((rect) => Math.round(rect.top))).size,
             height: link.getBoundingClientRect().height,
             lineHeight: Number.parseFloat(getComputedStyle(link).lineHeight),
           };
