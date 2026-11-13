@@ -52,8 +52,8 @@ describe("panel overview tasks", () => {
       false,
       false,
     ]);
-    expect(canOpenOverview([{}], "guest")).toBe(true);
-    expect(canOpenOverview([{}], "")).toBe(false);
+    expect(canOpenOverview([{ href: "/panel/x" }], "guest")).toBe(true);
+    expect(canOpenOverview([{ href: "/panel/x" }], "")).toBe(false);
     expect(canOpenOverview([], "admin")).toBe(false);
   });
 
