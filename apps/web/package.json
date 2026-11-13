@@ -21,7 +21,7 @@
     "@jsquash/webp": "1.5.0",
     "@zsm3/contracts": "workspace:*",
     "@zsm3/worker": "workspace:*",
-    "astro": "7.4.5",
+    "astro": "7.4.7",
     "zod": "catalog:"
   },
   "devDependencies": {
