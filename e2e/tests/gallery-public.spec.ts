@@ -96,15 +96,15 @@ test("the album fits every width in both themes", async ({ page }) => {
   await expectAccessible(page);
 });
 
-test("gallery headings never break inside a word", async ({ page }) => {
-  for (const width of WIDTHS) {
+for (const width of WIDTHS) {
+  test(`gallery headings never break inside a word at ${String(width)} px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     for (const path of ["/szkola/galeria", YEAR_PATH, "/szkola/galeria/2019-2020", ALBUM_PATH]) {
       await page.goto(path);
-      expect(await brokenHeadingWords(page), `${path} ${String(width)}`).toEqual([]);
+      expect(await brokenHeadingWords(page), path).toEqual([]);
     }
-  }
-});
+  });
+}
 
 test("the lightbox moves, zooms, announces and returns focus", async ({ page, problems }) => {
   await page.goto(ALBUM_PATH);
