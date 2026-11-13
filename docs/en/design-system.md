@@ -23,7 +23,7 @@ Every review checks these. Each one is a yes/no question.
 
 **Colour and surface**
 
-5. No gradients on backgrounds or text, no glow, no glassmorphism, no drop shadows used as decoration. Elevation appears only where an element actually floats (menus, dialogs).
+5. No gradients on text or components, no glow, no glassmorphism, no drop shadows used as decoration. The one exception is the shared page background: a static near-white (light) or deep navy (dark) base with at most two very broad, low-contrast blue radial tones — no texture, pattern or motion; high contrast removes the tones. Elevation appears only where an element actually floats (menus, dialogs).
 6. Colour only through tokens; the brand navy and one signal colour carry meaning (action, live state), everything else is neutral.
 7. One small radius, 6 px (`--radius`); only shapes that are round by design, such as the switch toggles, use the full round token (`--radius-round`). Nothing is a pill unless it is a status tag.
 

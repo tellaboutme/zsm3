@@ -1,0 +1,33 @@
+---
+import { longDate } from "../lib/calendar.ts";
+
+interface Props {
+  date: string;
+  endDate?: string | undefined;
+}
+
+const { date, endDate } = Astro.props;
+---
+
+<span class="date-range">
+  <span class="endpoint" data-date-endpoint>
+    <time datetime={date}>{longDate(date)}</time>
+    {endDate !== undefined && " –"}
+  </span>
+  {endDate !== undefined && (
+    <>
+      {" "}
+      <span class="endpoint" data-date-endpoint>
+        <time datetime={endDate}>{longDate(endDate)}</time>
+      </span>
+    </>
+  )}
+</span>
+
+<style>
+  .endpoint {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+</style>

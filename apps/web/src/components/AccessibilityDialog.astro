@@ -25,10 +25,6 @@ const themes = [
   { value: "light", label: "Jasny" },
   { value: "dark", label: "Ciemny" },
 ] as const;
-const backgrounds = [
-  { value: "", label: "Ruchome" },
-  { value: "static", label: "Statyczne" },
-] as const;
 ---
 
 <dialog class="settings" aria-labelledby="ustawienia-tytul" data-settings-dialog>
@@ -62,17 +58,6 @@ const backgrounds = [
           <label class="segment">
             <input type="radio" name="theme" value={theme.value} />
             <span>{theme.label}</span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
-    <fieldset class="segmented">
-      <legend>Tło strony</legend>
-      <div class="segments">
-        {backgrounds.map((option) => (
-          <label class="segment">
-            <input type="radio" name="background" value={option.value} />
-            <span>{option.label}</span>
           </label>
         ))}
       </div>
