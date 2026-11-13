@@ -8,12 +8,6 @@ interface Props {
 const { email } = Astro.props;
 ---
 
-<span class="email">
+<span>
   {emailSegments(email).flatMap((part, index) => (index === 0 ? [part] : [<wbr />, part]))}
 </span>
-
-<style>
-  .email {
-    overflow-wrap: break-word;
-  }
-</style>
