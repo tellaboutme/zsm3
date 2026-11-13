@@ -1,6 +1,7 @@
 ---
 import "../../styles/calendar-filters.css";
 import KeyDates from "../../components/calendar/KeyDates.astro";
+import DateRange from "../../components/DateRange.astro";
 import RadioFilters from "../../components/RadioFilters.astro";
 import { calendarPdf } from "../../data/calendar/index.ts";
 import Base from "../../layouts/Base.astro";
@@ -9,7 +10,6 @@ import {
   eventKindLabels,
   eventKinds,
   isoDay,
-  longDate,
   schoolYearName,
 } from "../../lib/calendar.ts";
 import { schoolYearSchemas } from "../../lib/seo.ts";
@@ -82,13 +82,7 @@ const groups = [
             {group.events.map((event) => (
               <li class="event" data-audience={event.audience} data-kind={event.kind}>
                 <p class="when">
-                  <time datetime={event.date}>{longDate(event.date)}</time>
-                  {event.endDate !== undefined && (
-                    <>
-                      {" – "}
-                      <time datetime={event.endDate}>{longDate(event.endDate)}</time>
-                    </>
-                  )}
+                  <DateRange date={event.date} endDate={event.endDate} />
                 </p>
                 <div>
                   <p class="what">{event.title}</p>

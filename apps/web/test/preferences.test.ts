@@ -48,6 +48,7 @@ describe("preference model", () => {
       theme: "neon",
       contrast: "high",
       motion: ["reduce"],
+      background: "static",
       unknown: "on",
     });
 

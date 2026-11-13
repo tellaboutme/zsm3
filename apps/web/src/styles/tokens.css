@@ -21,11 +21,13 @@
   --danger-surface: light-dark(#b42318, #ff8a80);
   --danger-ink: light-dark(#fff, #0b1220);
   --shadow-float: 0 1.25rem 2.5rem light-dark(#0b122029, #0009);
-  --wash-blue: light-dark(#3b8ad92e, #1d4fa840);
-  --wash-orange: light-dark(#3b8ad912, #ff8a3d2b);
-  --wash-hatch: light-dark(#0b12200d, #eef2f80f);
-  --wash-bleed: -20vmax;
-  --wash-size: 70vmax;
+  --tone-a: light-dark(#e6effb, #12305e);
+  --tone-b: light-dark(#eef4fc, #0e2448);
+  --section-rule: light-dark(#13306a, #e7edf6cc);
+  --plaque: light-dark(#e3ecf9, #173a7a);
+  --plaque-ink: light-dark(#0b3a82, #fff);
+  --progress-track: #ffffff40;
+  --progress-edge: transparent;
   --radius-round: 999px;
   --header-height: 4.5rem;
   --header-height-compact: 3.5rem;
@@ -98,6 +100,13 @@
   --blue: light-dark(#002f87, #002f87);
   --focus: light-dark(#000, #ffe066);
   --highlight: light-dark(#ffe066, #002f87);
+  --tone-a: transparent;
+  --tone-b: transparent;
+  --section-rule: light-dark(#000, #fff);
+  --plaque: light-dark(#002f87, #002f87);
+  --plaque-ink: #fff;
+  --progress-track: transparent;
+  --progress-edge: #fff;
 }
 
 :root[data-font="readable"] {

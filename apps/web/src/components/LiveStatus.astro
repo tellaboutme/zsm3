@@ -9,19 +9,29 @@ const { size = "panel" } = Astro.props;
 <section class:list={["live", size]} data-live-status aria-label="Teraz w szkole">
   <div class="top">
     <p class="tag">Teraz w szkole</p>
-    <a class="tag" href="/uczniowie/dzwonki">
+    <a class="tag bells" href="/uczniowie/dzwonki">
       Dzwonki
     </a>
   </div>
-  <p class="title" data-live="title">
-    Dzwonki
-  </p>
-  <p class="detail" data-live="detail">
-    1. lekcja o 7:30
-  </p>
-  <p class="timer" data-live="timer">
-    —
-  </p>
+  <div class="main">
+    <div class="status">
+      <p class="title" data-live="title">
+        Dzwonki
+      </p>
+      <p class="detail" data-live="detail">
+        1. lekcja o 7:30
+      </p>
+      <span class="title sizer" aria-hidden="true">
+        Dziś nie ma zajęć
+      </span>
+      <span class="detail sizer" aria-hidden="true">
+        Lekcje w dni nauki od 7:30
+      </span>
+    </div>
+    <p class="timer" data-live="timer">
+      —
+    </p>
+  </div>
   <progress max="1" value="0" aria-label="Postęp bieżącej lekcji"></progress>
 </section>
 
@@ -29,7 +39,7 @@ const { size = "panel" } = Astro.props;
   .live {
     display: grid;
     container-type: inline-size;
-    gap: var(--space-2);
+    gap: var(--space-4);
     padding: var(--space-5);
     border-radius: var(--radius);
     background: var(--blue);
@@ -40,15 +50,41 @@ const { size = "panel" } = Astro.props;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: var(--space-3);
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
     color: var(--blue-dim);
   }
 
-  .top a {
+  .bells {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--space-6);
     color: var(--blue-ink);
+    font-weight: 700;
+    text-decoration-thickness: var(--hairline);
+    text-underline-offset: 0.25em;
+  }
+
+  .live :focus-visible {
+    outline-color: var(--blue-ink);
+  }
+
+  .main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3) var(--space-5);
+  }
+
+  .status {
+    display: grid;
+    flex: 1 1 auto;
+    gap: var(--space-1);
+    min-width: 0;
   }
 
   .title {
+    grid-area: 1 / 1;
     font-family: var(--font-display);
     font-size: var(--step-2);
     font-stretch: var(--stretch-display);
@@ -56,37 +92,50 @@ const { size = "panel" } = Astro.props;
     line-height: var(--leading-tight);
   }
 
+  .detail {
+    grid-area: 2 / 1;
+    color: var(--blue-dim);
+  }
+
+  .sizer {
+    block-size: 0;
+    overflow: hidden;
+    visibility: hidden;
+  }
+
   .timer {
     font-family: var(--font-mono);
     font-size: min(var(--step-3), 14cqi);
     font-variant-numeric: tabular-nums;
     line-height: var(--leading-tight);
+    min-inline-size: 7ch;
+    white-space: nowrap;
   }
 
   progress {
     width: 100%;
     min-width: 0;
     height: var(--space-2);
-    border: 0;
+    border: var(--hairline) solid var(--progress-edge);
     border-radius: var(--radius);
     appearance: none;
-    background: var(--blue-2);
-    accent-color: var(--orange);
+    background: var(--progress-track);
+    accent-color: var(--blue-ink);
   }
 
   progress::-webkit-progress-bar {
     border-radius: var(--radius);
-    background: var(--blue-2);
+    background: var(--progress-track);
   }
 
   progress::-webkit-progress-value {
     border-radius: var(--radius);
-    background: var(--orange);
+    background: var(--blue-ink);
   }
 
   progress::-moz-progress-bar {
     border-radius: var(--radius);
-    background: var(--orange);
+    background: var(--blue-ink);
   }
 
   .large {
