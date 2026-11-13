@@ -26,6 +26,8 @@ saveExact: true
 blockExoticSubdeps: true
 
 overrides:
+  "@emnapi/core": 1.11.3
+  "@emnapi/runtime": 1.11.3
   qs@<6.16.1: 6.16.1
   sharp@<0.35.5: 0.35.5
   undici@<7.30.1: 7.30.1
