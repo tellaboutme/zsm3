@@ -1,6 +1,8 @@
 ---
 import SectionHead from "./SectionHead.astro";
-import { isoDay, longDate, upcomingEvents } from "../../lib/calendar.ts";
+import { isoDay, upcomingEvents } from "../../lib/calendar.ts";
+import { datePlaque } from "../../lib/date-plaque.ts";
+import DateRange from "../DateRange.astro";
 
 const VISIBLE = 5;
 const schoolYearEvents = Astro.locals.events ?? [];
@@ -16,27 +18,30 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
     link={{ label: "Cały terminarz", href: "/szkola/terminarz" }}
   />
   <ol class="events" data-upcoming={VISIBLE}>
-    {events.map((event) => (
-      <li
-        class="event"
-        data-event
-        data-date={event.date}
-        data-end-date={event.endDate}
-        hidden={!shown.has(event)}
-      >
-        <p class="when">
-          <time datetime={event.date}>{longDate(event.date)}</time>
-          {event.endDate !== undefined && (
-            <>
-              {" – "}
-              <time datetime={event.endDate}>{longDate(event.endDate)}</time>
-            </>
-          )}
-        </p>
-        <p class="what">{event.title}</p>
-        <p class="tag who">{event.audience}</p>
-      </li>
-    ))}
+    {events.map((event) => {
+      const plaque = datePlaque(event.date, event.endDate);
+      return (
+        <li
+          class="event"
+          data-event
+          data-date={event.date}
+          data-end-date={event.endDate}
+          hidden={!shown.has(event)}
+        >
+          <span class:list={["plaque", { range: plaque.range }]} aria-hidden="true">
+            <span class="day">{plaque.day}</span>
+            <span class="month">{plaque.month}</span>
+          </span>
+          <div class="body">
+            <p class="when">
+              <DateRange date={event.date} endDate={event.endDate} />
+            </p>
+            <p class="what">{event.title}</p>
+            <p class="tag who">{event.audience}</p>
+          </div>
+        </li>
+      );
+    })}
   </ol>
   <p class="empty" data-no-events hidden={shown.size > 0}>
     Nie ma zaplanowanych wydarzeń. Sprawdź terminarz roku szkolnego.
@@ -55,38 +60,62 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
     grid-template-columns: minmax(0, 1fr);
     margin: 0;
     padding: 0;
+    container-type: inline-size;
     list-style: none;
   }
 
   .event {
-    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-1) var(--space-5);
-    padding: var(--space-4) 0 var(--space-4) var(--space-6);
-    border-left: var(--rule) solid var(--line);
+    grid-template-columns: 4rem minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+    padding-block: var(--space-4);
   }
 
-  .event::before {
-    position: absolute;
-    top: var(--space-5);
-    left: calc(-1 * var(--space-2) - var(--rule) / 2);
-    width: var(--space-4);
-    height: var(--space-4);
-    border: var(--rule) solid var(--orange);
-    border-radius: 50%;
-    background: var(--bg);
-    content: "";
+  .event:not([hidden]) ~ .event:not([hidden]) {
+    border-top: var(--hairline) solid var(--line);
   }
 
-  .event:first-child::before {
-    background: var(--orange);
+  .plaque {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    min-height: 4rem;
+    padding: var(--space-2) var(--space-1);
+    border-radius: var(--radius);
+    background: var(--plaque);
+    color: var(--plaque-ink);
+    font-family: var(--font-mono);
+    line-height: var(--leading-tight);
+    text-align: center;
+  }
+
+  .day {
+    font-size: var(--step-1);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  .range .day {
+    font-size: var(--step-n1);
+  }
+
+  .month {
+    font-size: var(--step-n1);
+    text-transform: uppercase;
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
   }
 
   .when {
+    color: var(--ink-2);
     font-family: var(--font-mono);
+    font-size: var(--step-n1);
     font-weight: 600;
-    overflow-wrap: anywhere;
   }
 
   .what {
@@ -95,17 +124,43 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
     font-stretch: var(--stretch-display);
     font-weight: 800;
     line-height: var(--leading-snug);
-    overflow-wrap: anywhere;
   }
 
   .who {
     color: var(--ink-2);
   }
 
-  @media (width >= 56rem) {
+  @container (width < 18rem) {
     .event {
-      grid-template-columns: 16rem minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-2);
+    }
+
+    .plaque {
+      display: flex;
+      gap: var(--space-2);
+      justify-self: start;
       align-items: baseline;
+      min-height: 0;
+      padding: var(--space-1) var(--space-2);
+    }
+  }
+
+  @container (width >= 40rem) {
+    .body {
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: var(--space-5);
+    }
+
+    .when,
+    .what {
+      grid-column: 1;
+    }
+
+    .who {
+      grid-row: 1;
+      grid-column: 2;
+      text-align: end;
     }
   }
 </style>
