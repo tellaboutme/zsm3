@@ -17,25 +17,16 @@ function finder(page: Page): ReturnType<Page["locator"]> {
   return page.getByRole("region", { name: "Wybierz zawód" });
 }
 
-function field(page: Page, name: string): ReturnType<Page["locator"]> {
+async function clippedNames(page: Page): Promise<readonly string[]> {
   return finder(page)
-    .locator("details")
-    .filter({ has: page.locator(".field").getByText(name, { exact: true }) });
-}
-
-async function clippedHeadings(page: Page): Promise<readonly string[]> {
-  return finder(page)
-    .locator(".field, .name")
+    .locator("h3, .name")
     .evaluateAll((elements) =>
       elements
-        .filter((element) => element.getClientRects().length > 0)
         .filter((element) => {
           const range = document.createRange();
           range.selectNodeContents(element);
-          const limit = element.classList.contains("field")
-            ? element.closest("summary")?.querySelector(".count")?.getBoundingClientRect().left
-            : element.closest("a")?.getBoundingClientRect().right;
-          return limit === undefined || range.getBoundingClientRect().right > limit;
+          const box = (element.closest("a") ?? element.parentElement)?.getBoundingClientRect();
+          return box === undefined || range.getBoundingClientRect().right > box.right + 0.5;
         })
         .map((element) => element.textContent.trim()),
     );
@@ -46,57 +37,40 @@ test.describe("profession index on the home page", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
   });
 
-  test("lists every field closed, with the number of professions", async ({ page }) => {
+  test("lists every field with all of its professions visible", async ({ page }) => {
     await page.goto("/");
-    const fields = finder(page).locator("details");
 
-    await expect(fields).toHaveCount(FIELDS.length);
+    await expect(finder(page).getByRole("heading", { level: 3 })).toHaveText(
+      FIELDS.map(([name]) => name),
+    );
     for (const [name, count] of FIELDS) {
-      const item = field(page, name);
-      await expect(item).not.toHaveAttribute("open");
-      await expect(item.locator("summary")).toContainText(`zawody: ${String(count)}`);
-      await expect(item.locator("a")).toHaveCount(count);
+      const group = finder(page).getByRole("region", { name, exact: true });
+      await expect(group.getByRole("link").filter({ visible: true })).toHaveCount(count);
     }
   });
 
-  test("opens one field at a time and links each profession", async ({ page }) => {
+  test("links each profession with its codes and study paths", async ({ page }) => {
     await page.goto("/");
-    await field(page, "Lotnictwo").locator("summary").click();
-    const aviation = field(page, "Lotnictwo");
+    const aviation = finder(page).getByRole("region", { name: "Lotnictwo", exact: true });
+    const avionics = aviation.getByRole("link", { name: /^Technik awionik/u });
 
-    await expect(aviation).toHaveAttribute("open");
-    await expect(aviation.getByRole("link", { name: /^Technik awionik/u })).toHaveAttribute(
-      "href",
-      "/kandydaci/zawody/technik-awionik",
-    );
-    await expect(aviation.getByText("TLO.01")).toBeVisible();
-
-    await field(page, "Motoryzacja").locator("summary").click();
-
-    await expect(field(page, "Motoryzacja")).toHaveAttribute("open");
-    await expect(aviation).not.toHaveAttribute("open");
-    await expect(
-      field(page, "Motoryzacja").getByRole("link").filter({ visible: true }),
-    ).toHaveCount(5);
+    await expect(avionics).toHaveAttribute("href", "/kandydaci/zawody/technik-awionik");
+    await expect(avionics.getByText("TLO.01")).toBeVisible();
+    await expect(avionics.getByText("Technikum · 5 lat")).toBeVisible();
   });
 
-  test("opens a field from the keyboard", async ({ page }) => {
+  test("reaches every profession from the keyboard", async ({ page }) => {
     await page.goto("/");
-    const summary = field(page, "Informatyka").locator("summary");
-    await summary.focus();
-    await page.keyboard.press("Enter");
-
-    await expect(field(page, "Informatyka")).toHaveAttribute("open");
+    await finder(page).getByRole("link", { name: "Wszystkie zawody" }).focus();
     await page.keyboard.press("Tab");
 
     await expect(page.getByRole("link", { name: /^Technik informatyk/u })).toBeFocused();
   });
 
-  test("has no accessibility violations with a field open", async ({ page }) => {
+  test("has no accessibility violations", async ({ page }) => {
     for (const colorScheme of ["light", "dark"] as const) {
       await page.emulateMedia({ colorScheme, reducedMotion: "reduce" });
       await page.goto("/");
-      await field(page, "Motoryzacja").locator("summary").click();
       const results = await new AxeBuilder({ page })
         .include("section[aria-labelledby=zawody]")
         .withTags(WCAG_TAGS)
@@ -112,24 +86,8 @@ test.describe("profession index on the home page", () => {
     }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
-      for (const [name] of FIELDS) {
-        await field(page, name).locator("summary").click();
 
-        expect(await clippedHeadings(page), name).toEqual([]);
-      }
+      expect(await clippedNames(page)).toEqual([]);
     });
   }
-});
-
-test.describe("profession index without JavaScript", () => {
-  test.use({ javaScriptEnabled: false });
-
-  test("still opens a field and shows its professions", async ({ page }) => {
-    await page.goto("/");
-    await field(page, "Porty i terminale").locator("summary").click();
-
-    await expect(
-      page.getByRole("link", { name: /^Technik eksploatacji portów i terminali/u }),
-    ).toBeVisible();
-  });
 });

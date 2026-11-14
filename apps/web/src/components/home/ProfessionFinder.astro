@@ -17,26 +17,14 @@ const groups = fieldGroups(professions);
   />
   <div class="index">
     {groups.map((group) => (
-      <details name="branza">
-        <summary>
-          <span class="head">
-            <span class="field">{group.label}</span>
-            <span class="families" aria-hidden="true">
-              {group.families.join(" ")}
-            </span>
-          </span>
-          <span class="count">
-            <span class="visually-hidden">, zawody: {group.professions.length}</span>
-            <span aria-hidden="true">{String(group.professions.length).padStart(2, "0")}</span>
-          </span>
-          <span class="sign" aria-hidden="true"></span>
-        </summary>
-        <ul class="list">
+      <section class="group" aria-labelledby={`branza-${group.field}`}>
+        <h3 id={`branza-${group.field}`}>{group.label}</h3>
+        <ul>
           {group.professions.map((profession) => (
             <ProfessionIndexRow profession={profession} />
           ))}
         </ul>
-      </details>
+      </section>
     ))}
   </div>
 </section>
@@ -50,121 +38,43 @@ const groups = fieldGroups(professions);
   }
 
   .index {
-    container-type: inline-size;
+    container: finder / inline-size;
     border-top: var(--rule) solid var(--section-rule);
   }
 
-  details {
+  .group {
+    display: grid;
+    gap: var(--space-2) var(--space-5);
+    padding-block: var(--space-4);
     border-bottom: var(--hairline) solid var(--line);
-    interpolate-size: allow-keywords;
   }
 
-  summary {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: var(--space-4);
-    align-items: center;
-    min-height: var(--target);
-    padding: var(--space-4) var(--space-3);
-    list-style: none;
-    cursor: pointer;
-    transition:
-      background-color var(--duration-2) var(--ease),
-      color var(--duration-2) var(--ease);
-  }
-
-  summary::-webkit-details-marker {
-    display: none;
-  }
-
-  summary:hover,
-  summary:focus-visible,
-  details[open] > summary {
-    background: var(--blue);
-    color: var(--blue-ink);
-  }
-
-  .head {
-    display: grid;
-    gap: var(--space-1);
-    min-width: 0;
-  }
-
-  .field {
+  h3 {
+    color: var(--link);
     font-family: var(--font-display);
-    font-size: min(var(--step-3), 6.2cqi);
-    font-stretch: var(--stretch-wide);
+    font-size: var(--step-2);
+    font-stretch: var(--stretch-display);
     font-weight: 800;
     line-height: var(--leading-tight);
-    text-transform: uppercase;
     overflow-wrap: break-word;
   }
 
-  .families,
-  .count {
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .families {
-    color: var(--ink-2);
-    font-size: var(--step-n1);
-  }
-
-  .count {
-    font-size: min(var(--step-3), 7cqi);
-    line-height: var(--leading-tight);
-  }
-
-  summary:hover .families,
-  summary:focus-visible .families,
-  details[open] .families {
-    color: var(--blue-dim);
-  }
-
-  .sign {
-    position: relative;
-    inline-size: var(--space-5);
-    block-size: var(--space-5);
-  }
-
-  .sign::before,
-  .sign::after {
-    position: absolute;
-    inset: calc(50% - var(--hairline)) 0 auto;
-    block-size: var(--ring);
-    background: currentcolor;
-    content: "";
-    transition: transform var(--duration-2) var(--ease);
-  }
-
-  .sign::after {
-    transform: rotate(90deg);
-  }
-
-  details[open] .sign::after {
-    transform: rotate(0deg);
-  }
-
-  details::details-content {
-    block-size: 0;
-    overflow: clip;
-    transition:
-      block-size var(--duration-2) var(--ease),
-      content-visibility var(--duration-2) allow-discrete;
-  }
-
-  details[open]::details-content {
-    block-size: auto;
-  }
-
-  .list {
+  ul {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
     margin: 0;
-    padding: 0 0 var(--space-5);
-    background: var(--blue);
-    color: var(--blue-ink);
+    padding: 0;
     list-style: none;
+  }
+
+  @container finder (width >= 48rem) {
+    .group {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+      align-items: start;
+      padding-block: var(--space-5);
+    }
+
+    h3 {
+      padding-block-start: var(--space-3);
+    }
   }
 </style>

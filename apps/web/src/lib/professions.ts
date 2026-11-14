@@ -49,15 +49,7 @@ export function pathLabel({ school, years }: StudyPath): string {
 export interface FieldGroup {
   readonly field: Field;
   readonly label: string;
-  readonly families: readonly string[];
   readonly professions: readonly Profession[];
-}
-
-function families(professions: readonly Profession[]): readonly string[] {
-  const codes = professions.flatMap((profession) =>
-    profession.qualifications.map((qualification) => qualification.code.replace(/\..*$/u, "")),
-  );
-  return [...new Set(codes)];
 }
 
 export function fieldGroups(professions: readonly Profession[]): readonly FieldGroup[] {
@@ -67,7 +59,6 @@ export function fieldGroups(professions: readonly Profession[]): readonly FieldG
       return {
         field,
         label: fieldLabels[field],
-        families: families(members),
         professions: members,
       };
     })

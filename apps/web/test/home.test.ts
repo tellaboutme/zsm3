@@ -61,41 +61,29 @@ describe("professions", () => {
     expect(matchesField("logistyka", "lotnictwo")).toBe(false);
   });
 
-  it("groups professions under their field with the qualification families", ({ expect }) => {
+  it("groups professions under their field in field order", ({ expect }) => {
     const groups = fieldGroups(professions);
 
-    expect(groups.map(({ field, label, families }) => [field, label, families])).toEqual([
-      ["informatyka", "Informatyka", ["INF"]],
-      ["mechatronika", "Mechatronika i robotyka", ["ELM"]],
-      ["motoryzacja", "Motoryzacja", ["MOT"]],
-      ["lotnictwo", "Lotnictwo", ["TLO"]],
-      ["logistyka", "Porty i terminale", ["SPL"]],
+    expect(groups.map(({ field, label }) => [field, label])).toEqual([
+      ["informatyka", "Informatyka"],
+      ["mechatronika", "Mechatronika i robotyka"],
+      ["motoryzacja", "Motoryzacja"],
+      ["lotnictwo", "Lotnictwo"],
+      ["logistyka", "Porty i terminale"],
     ]);
     expect(groups[2]?.professions.map((profession) => profession.slug)).toEqual(
       professions.filter((profession) => profession.field === "motoryzacja").map((p) => p.slug),
     );
   });
 
-  it("leaves out fields without professions and keeps mixed families in order", ({ expect }) => {
+  it("leaves out fields without professions", ({ expect }) => {
     const [first, second] = professions;
     if (first === undefined || second === undefined) {
       throw new Error("seed has professions");
     }
-    const mixed = {
-      ...second,
-      qualifications: [
-        { code: "MOT.02", name: "Mechatronika samochodowa" },
-        { code: "INF.04", name: "Programowanie aplikacji" },
-      ],
-    };
 
-    expect(fieldGroups([first, mixed])).toEqual([
-      {
-        field: "informatyka",
-        label: "Informatyka",
-        families: ["INF", "MOT"],
-        professions: [first, mixed],
-      },
+    expect(fieldGroups([first, second])).toEqual([
+      { field: "informatyka", label: "Informatyka", professions: [first, second] },
     ]);
     expect(fieldGroups([])).toEqual([]);
   });

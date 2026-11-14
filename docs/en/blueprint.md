@@ -66,15 +66,15 @@ Blue and orange are the school's logo colours. Orange is never used for small te
 | `--duration-2` | 380 ms — fills, image zoom, filters   |
 | `--duration-3` | 750 ms — page-title entrance          |
 
-| Pattern         | Where                                                         | Rule                                                                    |
-| --------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Title rise      | page title lines on load                                      | once per page, staggered 80 ms                                          |
-| Reveal          | section heads, cards, list items on scroll                    | CSS scroll-driven animation; without support, content is simply visible |
-| Fill            | profession tiles and field rows, list rows on hover and focus | blue fills from the bottom                                              |
-| Nudge           | arrows in links and buttons                                   | 0.3–0.4 rem to the right                                                |
-| Zoom            | news photos on hover                                          | scale 1.06 inside the frame                                             |
-| Page transition | every navigation                                              | `@view-transition` cross-fade; the page title morphs                    |
-| Live            | Teraz w szkole timer and progress                             | updates every second; the only thing that moves by itself               |
+| Pattern         | Where                                                                                              | Rule                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Title rise      | page title lines on load                                                                           | once per page, staggered 80 ms                                          |
+| Reveal          | section heads, cards, list items on scroll                                                         | CSS scroll-driven animation; without support, content is simply visible |
+| Fill            | profession tiles and field rows, list rows on hover and focus                                      | blue fills from the bottom                                              |
+| Nudge           | arrows in links and buttons                                                                        | 0.3–0.4 rem to the right                                                |
+| Zoom            | news photos on hover                                                                               | scale 1.06 inside the frame                                             |
+| Page transition | every navigation                                                                                   | `@view-transition` cross-fade; the page title morphs                    |
+| Live            | Teraz w szkole timer and progress; outside lessons the title says so and names the next school day | updates every second; the only thing that moves by itself               |
 
 Nothing auto-rotates, loops or uses parallax. Content never waits for an animation. With `prefers-reduced-motion: reduce` every animation and transition is off.
 
@@ -239,8 +239,9 @@ Each template lists its sections in reading order. "Data" names the content type
 │ (Feb–Aug; outside: Dzień otwarty or hidden)                   │
 ├───────────────────────────────────────────────────────────────┤
 │ WYBIERZ ZAWÓD                                Wszystkie zawody → │
-│ INFORMATYKA  INF                                     02  +    │
-│ MOTORYZACJA  MOT  (open: 5 professions, codes, paths) 05  −   │
+│ Informatyka       Technik informatyk →   INF.02 INF.03  T·5   │
+│                   Technik programista →  INF.03 INF.04  T·5   │
+│ Motoryzacja       5 professions, codes, paths (always open)   │
 ├───────────────────────────────────────────────────────────────┤
 │ CO SIĘ DZIEJE W SZKOLE   5 latest news          Wszystkie →   │
 ├───────────────────────────────────────────────────────────────┤
@@ -252,7 +253,7 @@ Each template lists its sections in reading order. "Data" names the content type
 └───────────────────────────────────────────────────────────────┘
 ```
 
-The profession section is a field index ([ADR 0006](adr/0006-home-profession-index.md)): one row per field, opened in place.
+The profession section is a field index ([ADR 0006](adr/0006-home-profession-index.md), [ADR 0007](adr/0007-home-profession-index-open.md)): one group per field with all its professions visible.
 
 Data: featured item (news or curated photo), bell schedule and today's variant, numbers (settings), recruitment season (settings), professions, latest news, upcoming events, audience links, partners.
 
