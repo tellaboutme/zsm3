@@ -7,7 +7,6 @@ export const preferenceOptions = {
   underline: ["on"],
   grayscale: ["on"],
   motion: ["reduce"],
-  background: ["static"],
   theme: ["light", "dark"],
 } as const satisfies Readonly<Record<string, readonly string[]>>;
 
@@ -22,7 +21,6 @@ export const preferenceNames: readonly PreferenceName[] = [
   "underline",
   "grayscale",
   "motion",
-  "background",
   "theme",
 ];
 

@@ -4,8 +4,8 @@
 `https://www.zespolszkolmechanicznych.edu.pl`. It supports the stage-2 redirect review in
 [development.md](development.md); it does not import anything.
 
-```powershell
-uv run --directory tools --locked zsm3-content-inventory "$env:LOCALAPPDATA\Temp\zsm3-inventory.json" --max-pages 100 --max-depth 2 --delay 1
+```bash
+uv run --directory tools --locked zsm3-content-inventory /tmp/zsm3-inventory.json --max-pages 100 --max-depth 2 --delay 1
 uv run --directory tools --locked zsm3-content-inventory out.json --seed https://www.zespolszkolmechanicznych.edu.pl/kontakt
 uv run --directory tools --locked zsm3-content-inventory out.json --max-pages 1 --max-depth 1 --max-page-bytes 5000000
 ```

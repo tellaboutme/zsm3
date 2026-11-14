@@ -146,6 +146,7 @@ export function wireSkrzynka(section: HTMLElement): void {
     filter: areaSelect(section, "questions-filter"),
     status: area(section, "status"),
   };
+  parts.filter.value = questionFilter(new URLSearchParams(location.search).get("status") ?? "");
   const holder: { list?: QuestionList } = {};
   const detail = new QuestionDetail(questionView(section), (changed) => {
     holder.list?.update(changed);

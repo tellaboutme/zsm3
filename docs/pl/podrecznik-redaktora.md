@@ -15,6 +15,10 @@ Panel działa pod adresem `/panel` i jest chroniony przez Cloudflare Access. Wch
 3. Jeśli szkoła nie ma kont Microsoft 365 ani Google Workspace, wybierz opcję kodu jednorazowego: podaj szkolny adres e-mail, na który dostaniesz kod, a potem wpisz kod na stronie logowania.
 4. System wyświetli to, co obejmuje twoja rola.
 
+### Strona główna panelu
+
+Po zalogowaniu widzisz najpierw **Czeka na Ciebie**: liczby spraw, które czekają na twoją rolę — nowe wnioski (sekretariat, administrator), nowe pytania w Skrzynce (rola Skrzynki) i szkice aktualności (redaktorzy). Kliknięcie liczby otwiera sekcję od razu z tym samym filtrem. „20+” znaczy, że spraw jest co najmniej tyle, a „—”, że liczby nie udało się pobrać; sekcja działa wtedy normalnie. Niżej są wszystkie twoje sekcje w trzech grupach: Treści strony, Uczniowie i rodzice, Administracja.
+
 ### Zasady
 
 - Logujesz się **kontem szkolnym**, nie prywatnym. Adres e-mail musi figurować na liście pracowników prowadzonej przez administratora.
@@ -24,14 +28,15 @@ Panel działa pod adresem `/panel` i jest chroniony przez Cloudflare Access. Wch
 
 ## 2. Role pracowników
 
-Rolę ma każdy pracownik wpisany do listy w panelu. Panel zna cztery role:
+Rolę ma każdy pracownik wpisany do listy w panelu. Panel zna pięć ról:
 
-| Rola             | Co możesz robić                                                                                                                                 |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| administrator    | Wszystko w panelu, a dodatkowo prowadzi listę pracowników i ich role (**Pracownicy i role**) oraz przekierowania starych adresów.               |
-| sekretariat      | Redaguje treści strony i obsługuje wnioski e-wniosek (rozdział 15).                                                                             |
-| redaktor treści  | Redaguje treści strony: aktualności, strony, terminarz, dokumenty, ogłoszenia i dzwonki. To rola nauczycieli i pracowników prowadzących stronę. |
-| redaktor galerii | Prowadzi galerię: tworzy albumy, dodaje zdjęcia, publikuje je (etap 5). To rola nauczycieli odpowiedzialnych za fotoreportaż.                   |
+| Rola                          | Co możesz robić                                                                                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| administrator                 | Wszystko w panelu, a dodatkowo prowadzi listę pracowników i ich role (**Pracownicy i role**) oraz przekierowania starych adresów.               |
+| sekretariat                   | Redaguje treści strony i obsługuje wnioski e-wniosek (rozdział 15).                                                                             |
+| redaktor treści               | Redaguje treści strony: aktualności, strony, terminarz, dokumenty, ogłoszenia i dzwonki. To rola nauczycieli i pracowników prowadzących stronę. |
+| redaktor galerii              | Prowadzi galerię: tworzy albumy, dodaje zdjęcia, publikuje je (etap 5). To rola nauczycieli odpowiedzialnych za fotoreportaż.                   |
+| Skrzynka (pedagog, psycholog) | Widzi tylko pytania uczniów w Skrzynce #OgarniamŻycie i odpowiada na nie ([przewodnik Skrzynki](skrzynka.md)). Nie redaguje treści strony.      |
 
 ### Pracownicy i role (administrator)
 
@@ -394,12 +399,7 @@ Po utworzeniu link pojawia się z przyciskiem **Kopiuj link**. Na liście widzis
 
 ## Co jeszcze powstanie
 
-Ten podręcznik na razie opisuje etap 3. W kolejnych etapach dojdzie reszta panelu (zgodnie z [architekturą](architektura.md), rozdział 14):
-
-- **Etap 6 — narzędzia społeczności**: Skrzynka #OgarniamŻycie moderowana w panelu, statystyki bez plików cookie (krótkie linki opisuje rozdział 16).
-- **Etap 7 — uruchomienie**: szkolenie pracowników, przegląd PDF, rejestracja w wyszukiwarkach i przełączenie DNS.
-
-Rozdziały tego podręcznika zostaną uaktualnione, gdy te części zaczną działać.
+Panel ma już wszystkie części z [architektury](architektura.md) (rozdział 14), łącznie ze Skrzynką #OgarniamŻycie ([przewodnik](skrzynka.md)) i krótkimi linkami (rozdział 16). Statystyki odwiedzin strona pokaże w panelu Cloudflare szkoły, bez skryptów i plików cookie, więc w tym panelu ich nie ma. Zostaje **etap 7 — uruchomienie**: szkolenie pracowników, przegląd PDF, rejestracja w wyszukiwarkach i przełączenie DNS.
 
 ## Lokalna praca przy budowie panelu
 
