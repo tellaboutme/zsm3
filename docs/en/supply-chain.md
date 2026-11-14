@@ -19,13 +19,7 @@ An exception to the policy is allowed only with an entry below: what, why, when 
 
 ### `minimumReleaseAgeExclude`
 
-| Package                                 | Reason                                                                                                                                                                                                                                                     | Checked    | Review                                                  |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------- |
-| `vitest` and `@vitest/*` 4.1.12         | fixes advisories in `@vitest/mocker` (code injection through mocks, Windows path traversal); released 6 days before install; every package published through GitHub OIDC with provenance                                                                   | 2026-10-21 | remove after 2026-10-22, once the release is 7 days old |
-| `fast-uri@3.1.9`                        | fixes four advisories (GHSA-w74x-v6f9-j3xg and GHSA-wjr9-j795-jxcr, moderate; GHSA-xhq7-xmqj-769h and GHSA-333x-w4r6-6crp, low); released 5 days before install; published through GitHub OIDC with provenance                                             | 2026-10-24 | remove after 2026-10-26, once the release is 7 days old |
-| `happy-dom@21.0.4`                      | fixes GHSA-834v-8h66-3h79 (high severity host code execution through an unsanitized import alias after an incomplete first fix); released 4 days before install; published through GitHub OIDC with provenance                                             | 2026-10-24 | remove after 2026-10-27, once the release is 7 days old |
-| `minimatch@11.0.1`                      | fixes GHSA-g3hv-75wg-m249 (denial of service through globparts amplification); the only release that carries the fix, published 3 days before install; `@eslint/config-array` (eslint) asks for `^10.2.4`, so the fix arrives through an `overrides` entry | 2026-10-31 | remove after 2026-11-03, once the release is 7 days old |
-| `@isaacs/nonrecursive-glob-match@1.0.1` | new dependency of `minimatch` 11.0.1, the release that fixes GHSA-g3hv-75wg-m249; published 4 days before install                                                                                                                                          | 2026-10-31 | remove after 2026-11-03, once the release is 7 days old |
+None. The earlier exclusions (vitest 4.1.12, `fast-uri` 3.1.9, `happy-dom` 21.0.4, `minimatch` 11.0.1, `@isaacs/nonrecursive-glob-match` 1.0.1) were removed on 2026-11-13, once each release was older than 7 days.
 
 ### `trustPolicyExclude`
 
@@ -40,13 +34,17 @@ The same policy picked older versions in two places:
 - `lefthook` 2.2.1 instead of 2.2.2, which was published by hand without OIDC;
 - `@cloudflare/vitest-pool-workers` 0.22.0 instead of 0.23.0, which has no provenance. The Worker's `compatibility_date` is therefore `2026-08-15`, the newest date its workerd supports.
 
+### Deprecated releases waiting for the release age
+
+`tldts-core` 7.4.20 (lighthouse, through `tldts-icann`, end-to-end tests only) was marked deprecated by its author as a partial release; the replacement 7.4.22 and later were all published on or after 2026-11-11. It carries no advisory. Checked: 2026-11-13. Review: 2026-11-18, when 7.4.22 is 7 days old: update it then.
+
 ### Vulnerabilities without a fix
 
 None recorded. The previous entry, GHSA-vfj7-8cjw-p6xm (`braces` 3.0.3 through stylelint), was withdrawn by the advisory database on 2026-10-23 as not practically exploitable, so the ignore in `auditConfig.ignoreGhsas` and `osv-scanner.toml` was removed with it.
 
 ### `overrides`
 
-`qs` 6.16.0, `sharp` 0.35.5, `undici` 7.30.1 (wrangler and miniflare) and 8.12.2 (astro, through unifont), `zod` 4.6.7, `happy-dom` 21.0.4, `fast-uri` 3.1.9 `minimatch` 11.0.1 (eslint, through `@eslint/config-array`) and `glob` 14.0.3 (lighthouse, through `@sentry/node` and `@sentry/bundler-plugins` 11.10.0, which asks for `^13.0.6`; fixes GHSA-3g3m-2fjr-6pw4, checked 2026-11-08, remove once `@sentry/node` 11.11.0, which asks for `^14.0.3`, is older than 7 days, after 2026-11-12) are raised to fixed versions; Stryker, wrangler, Vitest, Astro and eslint pull these packages in as transitive dependencies. All pinned releases are older than 7 days except the ones excluded above.
+`qs` 6.16.0, `sharp` 0.35.5, `undici` 7.30.1 (wrangler and miniflare) and 8.12.2 (astro, through unifont), `zod` 4.6.7, `happy-dom` 21.0.4, `fast-uri` 3.1.9 and `minimatch` 11.0.1 (eslint, through `@eslint/config-array`) are raised to fixed versions; Stryker, wrangler, Vitest, Astro and eslint pull these packages in as transitive dependencies. The `glob` 14.0.3 override was removed on 2026-11-13: `@sentry/node` 11.11.0 (lighthouse) asks for `^14.0.3` itself, so GHSA-3g3m-2fjr-6pw4 stays fixed without it. All pinned releases are older than 7 days.
 
 `@emnapi/core` and `@emnapi/runtime` are held at 1.11.3: the 2026-11-11 dependency group pulled in the prerelease 2.0.0-beta.2 through optional WASM bindings, pnpm then picked that prerelease as the peer of `@astrojs/check`'s language server, and `astro check` could no longer load (`bridge.setLastError is not a function`). Checked: 2026-11-13. Review: when `@emnapi` 2.0.0 is released and older than 7 days.
 
