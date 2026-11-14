@@ -1,19 +1,11 @@
 ---
+import ProfessionIndexRow from "./ProfessionIndexRow.astro";
 import SectionHead from "./SectionHead.astro";
-import { fieldCounts, fieldLabels, fields, pathLabel } from "../../lib/professions.ts";
+import { fieldGroups } from "../../lib/professions.ts";
 import { programmeData } from "../../server/datasets.ts";
-import ProfessionTile from "../ProfessionTile.astro";
 
 const { professions } = await programmeData();
-const counts = fieldCounts(professions);
-const options = [
-  { value: "wszystkie", label: "Wszystkie", count: professions.length },
-  ...fields.map((field) => ({
-    value: field,
-    label: fieldLabels[field],
-    count: counts.get(field) ?? 0,
-  })),
-];
+const groups = fieldGroups(professions);
 ---
 
 <section class="finder" aria-labelledby="zawody">
@@ -23,28 +15,30 @@ const options = [
     title="Wybierz zawód"
     link={{ label: "Wszystkie zawody", href: "/kandydaci/zawody" }}
   />
-  <div class="filter" role="group" aria-label="Branża" data-field-filter hidden>
-    {options.map((option, index) => (
-      <button type="button" data-field={option.value} aria-pressed={index === 0 ? "true" : "false"}>
-        {option.label}
-        <span class="count">{option.count}</span>
-      </button>
+  <div class="index">
+    {groups.map((group) => (
+      <details name="branza">
+        <summary>
+          <span class="head">
+            <span class="field">{group.label}</span>
+            <span class="families" aria-hidden="true">
+              {group.families.join(" ")}
+            </span>
+          </span>
+          <span class="count">
+            <span class="visually-hidden">, zawody: {group.professions.length}</span>
+            <span aria-hidden="true">{String(group.professions.length).padStart(2, "0")}</span>
+          </span>
+          <span class="sign" aria-hidden="true"></span>
+        </summary>
+        <ul class="list">
+          {group.professions.map((profession) => (
+            <ProfessionIndexRow profession={profession} />
+          ))}
+        </ul>
+      </details>
     ))}
   </div>
-  <p class="visually-hidden" role="status" data-filter-status></p>
-  <ul class="tiles">
-    {professions.map((profession, index) => (
-      <ProfessionTile
-        href={`/kandydaci/zawody/${profession.slug}`}
-        number={index + 1}
-        name={profession.name}
-        field={profession.field}
-        topics={profession.topics}
-        qualifications={profession.qualifications}
-        paths={profession.paths.map(pathLabel)}
-      />
-    ))}
-  </ul>
 </section>
 
 <style>
@@ -55,51 +49,122 @@ const options = [
     min-width: 0;
   }
 
-  .filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+  .index {
+    container-type: inline-size;
+    border-top: var(--rule) solid var(--section-rule);
   }
 
-  .filter button {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+  details {
+    border-bottom: var(--hairline) solid var(--line);
+    interpolate-size: allow-keywords;
+  }
+
+  summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: var(--space-4);
     align-items: center;
     min-height: var(--target);
-    min-width: 0;
-    padding: var(--space-2) var(--space-4);
-    border: var(--hairline) solid var(--line);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--ink);
-    font-weight: 700;
-    overflow-wrap: anywhere;
+    padding: var(--space-4) var(--space-3);
+    list-style: none;
     cursor: pointer;
+    transition:
+      background-color var(--duration-2) var(--ease),
+      color var(--duration-2) var(--ease);
   }
 
-  .filter button:hover {
-    border-color: var(--ink);
+  summary::-webkit-details-marker {
+    display: none;
   }
 
-  .filter button[aria-pressed="true"] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--bg);
+  summary:hover,
+  summary:focus-visible,
+  details[open] > summary {
+    background: var(--blue);
+    color: var(--blue-ink);
   }
 
+  .head {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .field {
+    font-family: var(--font-display);
+    font-size: min(var(--step-3), 6.2cqi);
+    font-stretch: var(--stretch-wide);
+    font-weight: 800;
+    line-height: var(--leading-tight);
+    text-transform: uppercase;
+    overflow-wrap: break-word;
+  }
+
+  .families,
   .count {
     font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .families {
+    color: var(--ink-2);
     font-size: var(--step-n1);
   }
 
-  .tiles {
+  .count {
+    font-size: min(var(--step-3), 7cqi);
+    line-height: var(--leading-tight);
+  }
+
+  summary:hover .families,
+  summary:focus-visible .families,
+  details[open] .families {
+    color: var(--blue-dim);
+  }
+
+  .sign {
+    position: relative;
+    inline-size: var(--space-5);
+    block-size: var(--space-5);
+  }
+
+  .sign::before,
+  .sign::after {
+    position: absolute;
+    inset: calc(50% - var(--hairline)) 0 auto;
+    block-size: var(--ring);
+    background: currentcolor;
+    content: "";
+    transition: transform var(--duration-2) var(--ease);
+  }
+
+  .sign::after {
+    transform: rotate(90deg);
+  }
+
+  details[open] .sign::after {
+    transform: rotate(0deg);
+  }
+
+  details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size var(--duration-2) var(--ease),
+      content-visibility var(--duration-2) allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
+
+  .list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
-    gap: var(--space-4);
-    min-width: 0;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
     margin: 0;
-    padding: 0;
+    padding: 0 0 var(--space-5);
+    background: var(--blue);
+    color: var(--blue-ink);
     list-style: none;
   }
 </style>
