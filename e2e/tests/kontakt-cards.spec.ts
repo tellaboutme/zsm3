@@ -17,7 +17,7 @@ test("keeps contact e-mail links on a single line on wide screens", async ({ pag
             .map((rect) => rect.top)
             .toSorted((a, b) => a - b);
           const lines = tops.filter(
-            (top, index) => index === 0 || top - tops[index - 1] > lineHeight / 2,
+            (top, index) => index === 0 || top - (tops[index - 1] ?? top) > lineHeight / 2,
           ).length;
           return {
             lines,
