@@ -114,7 +114,7 @@ function waiting(status: Waiting): LiveView {
   };
 }
 
-export function describeStatus(status: LiveStatus): LiveView {
+export function describeStatus(status: LiveStatus, upcoming: () => string): LiveView {
   switch (status.kind) {
     case "lesson": {
       const { lesson } = status;
@@ -130,18 +130,11 @@ export function describeStatus(status: LiveStatus): LiveView {
     case "before":
       return waiting(status);
     case "after":
-      return {
-        state: status.kind,
-        title: "Po lekcjach",
-        detail: `Ostatni dzwonek o ${clockTime(status.last.end)}`,
-        timer: "—",
-        progress: 1,
-      };
     case "day-off":
       return {
         state: status.kind,
-        title: "Dziś nie ma zajęć",
-        detail: "Lekcje w dni nauki od 7:30",
+        title: "Teraz nie ma lekcji",
+        detail: upcoming(),
         timer: "—",
         progress: 0,
       };
