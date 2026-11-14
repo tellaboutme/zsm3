@@ -239,8 +239,9 @@ Each template lists its sections in reading order. "Data" names the content type
 │ (Feb–Aug; outside: Dzień otwarty or hidden)                   │
 ├───────────────────────────────────────────────────────────────┤
 │ WYBIERZ ZAWÓD                                Wszystkie zawody → │
-│ INFORMATYKA  INF                                     02  +    │
-│ MOTORYZACJA  MOT  (open: 5 professions, codes, paths) 05  −   │
+│ Informatyka       Technik informatyk →   INF.02 INF.03  T·5   │
+│                   Technik programista →  INF.03 INF.04  T·5   │
+│ Motoryzacja       5 professions, codes, paths (always open)   │
 ├───────────────────────────────────────────────────────────────┤
 │ CO SIĘ DZIEJE W SZKOLE   5 latest news          Wszystkie →   │
 ├───────────────────────────────────────────────────────────────┤
@@ -252,7 +253,7 @@ Each template lists its sections in reading order. "Data" names the content type
 └───────────────────────────────────────────────────────────────┘
 ```
 
-The profession section is a field index ([ADR 0006](adr/0006-home-profession-index.md)): one row per field, opened in place.
+The profession section is a field index ([ADR 0006](adr/0006-home-profession-index.md), [ADR 0007](adr/0007-home-profession-index-open.md)): one group per field with all its professions visible.
 
 Data: featured item (news or curated photo), bell schedule and today's variant, numbers (settings), recruitment season (settings), professions, latest news, upcoming events, audience links, partners.
 

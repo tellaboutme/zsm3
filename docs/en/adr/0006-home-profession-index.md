@@ -1,6 +1,6 @@
 # ADR 0006: The home page lists professions as a field index
 
-- Status: accepted
+- Status: accepted; points 1 and 2 amended by [ADR 0007](0007-home-profession-index-open.md)
 - Date: 2026-11-11
 - Amends: [ADR 0002](0002-visual-direction-precyzja.md), "professions presented as filterable tiles by field", for the home page
 

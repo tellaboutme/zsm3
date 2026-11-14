@@ -12,53 +12,86 @@ const { profession } = Astro.props;
 <li>
   <a href={`/kandydaci/zawody/${profession.slug}`}>
     <span class="name">{profession.name}</span>
-    <QualificationCodes qualifications={profession.qualifications} />
-    <span class="paths">
-      {profession.paths.map((path) => (
-        <span>{pathLabel(path)}</span>
-      ))}
+    <span class="meta">
+      <QualificationCodes qualifications={profession.qualifications} />
+      <span class="paths">
+        {profession.paths.map((path) => (
+          <span>{pathLabel(path)}</span>
+        ))}
+      </span>
     </span>
   </a>
 </li>
 
 <style>
+  li + li {
+    border-top: var(--hairline) solid var(--line);
+  }
+
   a {
     display: grid;
-    gap: var(--space-2);
-    block-size: 100%;
-    padding: var(--space-4) var(--space-3);
-    border-top: var(--hairline) solid var(--blue-dim);
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-3);
+    border-radius: var(--radius);
     color: inherit;
     text-decoration: none;
-    transition: background-color var(--duration-1) var(--ease);
+    transition:
+      background-color var(--duration-2) var(--ease),
+      color var(--duration-2) var(--ease);
   }
 
   a:hover {
-    background: var(--blue-2);
-  }
-
-  a:focus-visible {
-    outline-color: var(--blue-ink);
-    outline-offset: calc(-1 * var(--rule));
+    background: var(--blue);
+    color: var(--blue-ink);
   }
 
   .name {
     font-family: var(--font-display);
-    font-size: var(--step-1);
+    font-size: var(--step-0);
     font-stretch: var(--stretch-display);
     font-weight: 800;
     line-height: var(--leading-snug);
+    overflow-wrap: break-word;
   }
 
   .name::after {
     content: "\a0→" / "";
   }
 
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    align-items: center;
+  }
+
   .paths {
     display: grid;
-    color: var(--blue-dim);
+    color: var(--ink-2);
     font-family: var(--font-mono);
     font-size: var(--step-n1);
     font-variant-numeric: tabular-nums;
+  }
+
+  a:hover .paths {
+    color: var(--blue-dim);
+  }
+
+  @container finder (width >= 48rem) {
+    .name {
+      font-size: var(--step-1);
+    }
+  }
+
+  @container finder (width >= 64rem) {
+    a {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .meta {
+      justify-content: flex-end;
+    }
   }
 </style>
