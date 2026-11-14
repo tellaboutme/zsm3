@@ -24,6 +24,8 @@ export class AccessConfigError extends Error {
 
 const DEFAULT_JWKS_PATH = "/cdn-cgi/access/certs";
 
+export const ACCESS_JWT_ALGORITHMS: readonly string[] = ["RS256", "ES256"];
+
 const jwksByDomain = new Map<string, AccessJwks>();
 
 const LOOPBACK_HOSTS: ReadonlySet<string> = new Set(["127.0.0.1", "localhost", "[::1]"]);
@@ -58,6 +60,7 @@ export function createAccessVerifier(options: AccessVerifierOptions): AccessVeri
       audience: options.audience,
       issuer: options.issuer,
       currentDate: options.now(),
+      algorithms: [...ACCESS_JWT_ALGORITHMS],
     });
     return accessClaimsSchema.parse(payload);
   };
