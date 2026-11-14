@@ -1,4 +1,5 @@
 ---
+import PageHead from "../../../components/PageHead.astro";
 import "../../../styles/programme-filters.css";
 import ProfessionTile from "../../../components/ProfessionTile.astro";
 import ComparisonTable from "../../../components/programmes/ComparisonTable.astro";
@@ -19,19 +20,10 @@ const { professions, programmes } = await programmeData();
   breadcrumbs={[{ label: "Kandydaci", href: "/kandydaci" }, { label: "Zawody" }]}
 >
   <div class="programme-listing">
-    <header class="intro">
-      <p class="tag">Oferta · technikum i szkoła branżowa</p>
-      <h1>
-        <span class="rise">
-          <span>Zawody i kierunki</span>
-        </span>
-      </h1>
-      <p class="prose">
-        Technikum trwa 5 lat i kończy się maturą oraz tytułem technika. Branżowa szkoła I stopnia
-        trwa 3 lata i daje zawód, a branżowa szkoła II stopnia w 2 lata prowadzi od zawodu do tytułu
-        technika.
-      </p>
-    </header>
+    <PageHead
+      title="Zawody i kierunki"
+      lead="Technikum trwa 5 lat i kończy się maturą oraz tytułem technika. Branżowa szkoła I stopnia trwa 3 lata i daje zawód, a branżowa szkoła II stopnia w 2 lata prowadzi od zawodu do tytułu technika."
+    />
     <ProgrammeFilters />
     <p class="visually-hidden" role="status" data-filter-status></p>
     <ul class="tiles">
@@ -75,21 +67,6 @@ const { professions, programmes } = await programmeData();
     padding-block: var(--space-7);
   }
 
-  .intro {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .intro .tag {
-    color: var(--ink-2);
-  }
-
-  h1 {
-    font-size: var(--step-title);
-    font-stretch: var(--stretch-wide);
-    hyphens: auto;
-  }
-
   .tiles {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
@@ -115,7 +92,7 @@ const { professions, programmes } = await programmeData();
     border-radius: var(--radius);
     background: var(--orange-surface);
     color: var(--orange-ink);
-    font-weight: 800;
+    font-weight: 700;
     text-decoration: none;
   }
 </style>

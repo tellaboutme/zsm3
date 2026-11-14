@@ -1,4 +1,5 @@
 ---
+import PageHead from "../PageHead.astro";
 import NewsCard from "./NewsCard.astro";
 import Pagination from "./Pagination.astro";
 import type { Listing } from "../../lib/news-listing.ts";
@@ -21,16 +22,13 @@ const unfiltered = category === undefined && year === undefined;
 ---
 
 <div class="listing">
-  <header class="intro">
-    <p class="tag">
-      Aktualności · {page > 1 ? `strona ${String(page)} z ${String(current.pages)}` : "ZSM3"}
-    </p>
-    <h1>
-      <span class="rise">
-        <span>{heading}</span>
-      </span>
-    </h1>
-  </header>
+  <PageHead title={heading}>
+    {page > 1 && (
+      <Fragment slot="meta">
+        Strona {page} z {current.pages}
+      </Fragment>
+    )}
+  </PageHead>
   <div class="filters">
     <nav aria-label="Kategorie">
       <p class="tag">Kategoria</p>
@@ -84,19 +82,8 @@ const unfiltered = category === undefined && year === undefined;
     padding-block: var(--space-7);
   }
 
-  .intro {
-    display: grid;
-    gap: var(--space-4);
-  }
-
   .tag {
     color: var(--ink-2);
-  }
-
-  h1 {
-    font-size: var(--step-title);
-    font-stretch: var(--stretch-wide);
-    hyphens: auto;
   }
 
   .filters {

@@ -4,10 +4,6 @@
   padding-block: var(--space-8) var(--space-6);
 }
 
-.pattern-library .head h1 {
-  font-size: var(--step-4);
-}
-
 .pattern-library .block {
   display: grid;
   gap: var(--space-5);
@@ -145,7 +141,7 @@
 .pattern-library .specimen {
   font-family: var(--font-display);
   font-stretch: var(--stretch-display);
-  font-weight: 800;
+  font-weight: var(--weight-heading);
   line-height: var(--leading-snug);
   overflow-wrap: anywhere;
 }

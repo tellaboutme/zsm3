@@ -1,5 +1,6 @@
 ---
 import Callout from "../../components/content/Callout.astro";
+import PageHead from "../../components/PageHead.astro";
 import PersonRow from "../../components/people/PersonRow.astro";
 import Base from "../../layouts/Base.astro";
 import { staffDirectory } from "../../server/datasets.ts";
@@ -15,18 +16,12 @@ const staffGroups = await staffDirectory();
   breadcrumbs={[{ label: "Szkoła", href: "/szkola" }, { label: "Kadra" }]}
 >
   <div class="staff">
-    <header class="intro">
-      <p class="tag">Szkoła · rok szkolny 2026/2027</p>
-      <h1>
-        <span class="rise">
-          <span>Kadra</span>
-        </span>
-      </h1>
-      <p class="lead">
-        Nauczyciele przedmiotów zawodowych i ogólnokształcących, specjaliści wspierający uczniów
-        oraz dyrekcja szkoły.
-      </p>
-    </header>
+    <PageHead
+      title="Kadra"
+      lead="Nauczyciele przedmiotów zawodowych i ogólnokształcących, specjaliści wspierający uczniów oraz dyrekcja szkoły."
+    >
+      <Fragment slot="meta">Rok szkolny 2026/2027</Fragment>
+    </PageHead>
     {staffGroups.map((group) => (
       <section class="group" aria-labelledby={group.id}>
         <h2 id={group.id}>{group.title}</h2>
@@ -64,30 +59,17 @@ const staffGroups = await staffDirectory();
     padding-block: var(--space-7);
   }
 
-  .intro,
   .group {
     display: grid;
     gap: var(--space-3);
   }
 
-  .tag,
   .summary {
     color: var(--ink-2);
   }
 
-  h1 {
-    font-size: var(--step-title);
-    font-stretch: var(--stretch-wide);
-  }
-
   h2 {
     font-size: var(--step-2);
-  }
-
-  .lead {
-    max-width: var(--measure);
-    font-size: var(--step-1);
-    line-height: var(--leading-snug);
   }
 
   .people,

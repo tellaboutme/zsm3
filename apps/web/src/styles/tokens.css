@@ -1,10 +1,13 @@
 :root {
   color-scheme: light dark;
-  --bg: light-dark(#fff, #0a0f19);
-  --gray: light-dark(#f1f3f6, #121a28);
+  --page: light-dark(#f6f7f9, #0b111c);
+  --surface: light-dark(#fff, #111a29);
+  --bg: var(--surface);
+  --gray: light-dark(#f1f3f6, #18233a);
   --ink: light-dark(#0b1220, #eef2f8);
   --ink-2: light-dark(#48546a, #b0bccf);
-  --line: light-dark(#dfe3ea, #23304a);
+  --line: light-dark(#dde2ea, #243149);
+  --line-strong: light-dark(#7d8799, #6b7a94);
   --blue: light-dark(#0b4fb3, #1d4fa8);
   --blue-2: light-dark(#083b87, #143b80);
   --blue-ink: #fff;
@@ -21,11 +24,6 @@
   --danger-surface: light-dark(#b42318, #ff8a80);
   --danger-ink: light-dark(#fff, #0b1220);
   --shadow-float: 0 1.25rem 2.5rem light-dark(#0b122029, #0009);
-  --tone-a: light-dark(#e6effb, #12305e);
-  --tone-b: light-dark(#eef4fc, #0e2448);
-  --section-rule: light-dark(#13306a, #e7edf6cc);
-  --plaque: light-dark(#e3ecf9, #173a7a);
-  --plaque-ink: light-dark(#0b3a82, #fff);
   --progress-track: #ffffff40;
   --progress-edge: transparent;
   --radius-round: 999px;
@@ -35,17 +33,17 @@
   --font-body: "Source Sans 3 Variable", "Segoe UI", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --font-readable: "Atkinson Hyperlegible Next", system-ui, sans-serif;
-  --stretch-display: 112%;
+  --stretch-display: 100%;
   --stretch-wide: 125%;
   --step-n1: 0.875rem;
-  --step-0: 1.125rem;
-  --step-1: 1.375rem;
-  --step-2: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
-  --step-3: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
-  --step-4: clamp(2.5rem, 1.2rem + 5.6vw, 7rem);
-  --step-title: max(min(var(--step-4), 10cqi), var(--step-2));
-  --leading-tight: 0.98;
-  --leading-snug: 1.15;
+  --step-0: 1.0625rem;
+  --step-1: 1.25rem;
+  --step-2: clamp(1.125rem, 1rem + 0.45vw, 1.375rem);
+  --step-3: clamp(1.5rem, 1.2rem + 0.9vw, 2rem);
+  --step-4: clamp(2rem, 1.45rem + 1.6vw, 3rem);
+  --weight-heading: 700;
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
   --leading-body: 1.55;
   --descender-room: 0.06em;
   --space-1: 0.25rem;
@@ -54,22 +52,22 @@
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
-  --space-7: 3.5rem;
-  --space-8: 6rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
   --page-max: 86rem;
   --measure: 60ch;
-  --radius: 6px;
+  --radius: 8px;
   --hairline: 1px;
   --rule: 3px;
   --ring: 2px;
   --target: 2.75rem;
   --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
   --duration-1: 160ms;
-  --duration-2: 380ms;
-  --duration-3: 750ms;
+  --duration-2: 200ms;
+  --duration-3: 300ms;
+  --shift: 0.5rem;
   --z-header: 10;
   --z-menu: 20;
-  --z-background: -1;
   --z-dialog: 100;
   --z-skip: 1000;
 }
@@ -91,20 +89,17 @@
 }
 
 :root[data-contrast="high"] {
-  --bg: light-dark(#fff, #000);
+  --page: light-dark(#fff, #000);
+  --surface: light-dark(#fff, #000);
   --gray: light-dark(#fff, #000);
   --ink: light-dark(#000, #fff);
   --ink-2: light-dark(#000, #fff);
   --line: light-dark(#000, #fff);
+  --line-strong: light-dark(#000, #fff);
   --link: light-dark(#002f87, #ffe066);
   --blue: light-dark(#002f87, #002f87);
   --focus: light-dark(#000, #ffe066);
   --highlight: light-dark(#ffe066, #002f87);
-  --tone-a: transparent;
-  --tone-b: transparent;
-  --section-rule: light-dark(#000, #fff);
-  --plaque: light-dark(#002f87, #002f87);
-  --plaque-ink: #fff;
   --progress-track: transparent;
   --progress-edge: #fff;
 }

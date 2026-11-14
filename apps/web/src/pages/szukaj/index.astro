@@ -1,4 +1,5 @@
 ---
+import PageHead from "../../components/PageHead.astro";
 import SearchBox from "../../components/SearchBox.astro";
 import SearchResults from "../../components/SearchResults.astro";
 import Base from "../../layouts/Base.astro";
@@ -12,14 +13,9 @@ export const prerender = false;
   breadcrumbs={[{ label: "Szukaj" }]}
 >
   <div class="search-page">
-    <header class="intro">
-      <h1>
-        <span class="rise">
-          <span>Szukaj</span>
-        </span>
-      </h1>
+    <PageHead title="Szukaj">
       <SearchBox id="szukaj-strona" label="Wpisz słowo, np. dzwonki, legitymacja, informatyk" />
-    </header>
+    </PageHead>
     <SearchResults syncAddress />
     <noscript>
       <p class="note">
@@ -37,17 +33,6 @@ export const prerender = false;
     gap: var(--space-6);
     max-width: 52rem;
     padding-block: var(--space-7);
-  }
-
-  .intro {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-5);
-  }
-
-  h1 {
-    font-size: var(--step-title);
-    font-stretch: var(--stretch-wide);
   }
 
   .note {

@@ -1,9 +1,0 @@
-.site-background {
-  position: fixed;
-  z-index: var(--z-background);
-  inset: 0;
-  background:
-    radial-gradient(120vmax 80vmax at 8% -10%, var(--tone-a), transparent 70%),
-    radial-gradient(110vmax 75vmax at 100% 110%, var(--tone-b), transparent 70%), var(--bg);
-  pointer-events: none;
-}

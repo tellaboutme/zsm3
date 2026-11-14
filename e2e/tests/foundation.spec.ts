@@ -91,18 +91,18 @@ test.describe("foundation", () => {
 });
 
 test.describe("motion", () => {
-  test("animates the page title by default", async ({ page }) => {
+  test("fades the page head in by default", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto("/wzornik");
 
-    expect(await computed(page, ".rise > span", "animation-name")).toBe("rise-in");
+    expect(await computed(page, ".page-head", "animation-name")).toBe("fade-up");
   });
 
   test("stops all motion when the system asks for less", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/wzornik");
 
-    expect(await computed(page, ".rise > span", "animation-name")).toBe("none");
+    expect(await computed(page, ".page-head", "animation-name")).toBe("none");
   });
 
   test("stops all motion when the setting asks for less", async ({ page }) => {
@@ -110,6 +110,6 @@ test.describe("motion", () => {
     await page.goto("/wzornik");
     await setRootAttribute(page, "data-motion", "reduce");
 
-    expect(await computed(page, ".rise > span", "animation-name")).toBe("none");
+    expect(await computed(page, ".page-head", "animation-name")).toBe("none");
   });
 });

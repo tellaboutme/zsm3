@@ -10,7 +10,7 @@ const groups = [
 ---
 
 <section class="social" aria-labelledby="w-sieci">
-  <SectionHead id="w-sieci" kicker="Szkoła w sieci" title="Gdzie jeszcze nas znajdziesz" />
+  <SectionHead id="w-sieci" title="Gdzie jeszcze nas znajdziesz" />
   <div class="groups">
     {groups.map((group) => (
       <div class="group">
@@ -91,7 +91,7 @@ const groups = [
     font-family: var(--font-display);
     font-size: var(--step-1);
     font-stretch: var(--stretch-display);
-    font-weight: 800;
+    font-weight: var(--weight-heading);
   }
 
   .handle {

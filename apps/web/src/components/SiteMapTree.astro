@@ -55,12 +55,12 @@ const { nodes, depth = 0 } = Astro.props;
   .root > li {
     align-content: start;
     padding-top: var(--space-3);
-    border-top: var(--rule) solid var(--section-rule);
+    border-top: var(--hairline) solid var(--line);
   }
 
   .root > li > a {
     font-family: var(--font-display);
     font-size: var(--step-1);
-    font-weight: 800;
+    font-weight: var(--weight-heading);
   }
 </style>

@@ -20,16 +20,8 @@ const { featured } = Astro.props;
       {school.street}, {school.city}
     </p>
   </div>
-  <h1 id="tytul">
-    <span class="rise">
-      <span>Zespół Szkół</span>
-    </span>
-    <span class="rise">
-      <span>Mechanicznych nr&nbsp;3</span>
-    </span>
-    <span class="rise">
-      <span>w Krakowie</span>
-    </span>
+  <h1 id="tytul" class="appear">
+    Zespół Szkół Mechanicznych nr&nbsp;3 w&nbsp;Krakowie
   </h1>
   <div class:list={["grid", { "grid-empty": featured === undefined }]}>
     {featured !== undefined && (
@@ -80,13 +72,6 @@ const { featured } = Astro.props;
     color: var(--ink-2);
   }
 
-  h1 {
-    font-size: max(min(var(--step-4), 8.5cqi), var(--step-2));
-    hyphens: auto;
-    font-stretch: var(--stretch-wide);
-    text-transform: uppercase;
-  }
-
   .grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -98,7 +83,7 @@ const { featured } = Astro.props;
     gap: var(--space-3);
     align-content: start;
     padding-top: var(--space-5);
-    border-top: var(--rule) solid var(--section-rule);
+    border-top: var(--hairline) solid var(--line);
     color: var(--ink);
     text-decoration: none;
   }
@@ -121,7 +106,7 @@ const { featured } = Astro.props;
     font-family: var(--font-display);
     font-size: var(--step-2);
     font-stretch: var(--stretch-display);
-    font-weight: 800;
+    font-weight: var(--weight-heading);
     line-height: var(--leading-snug);
     overflow-wrap: anywhere;
     hyphens: auto;

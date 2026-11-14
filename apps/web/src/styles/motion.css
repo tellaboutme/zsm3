@@ -1,17 +1,7 @@
-@keyframes rise-in {
-  from {
-    transform: translateY(105%);
-  }
-
-  to {
-    transform: none;
-  }
-}
-
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(1.5rem);
+    transform: translateY(var(--shift));
   }
 
   to {
@@ -21,31 +11,13 @@
 }
 
 @layer motion {
-  .rise {
-    display: block;
-    overflow: hidden;
-    padding-bottom: var(--descender-room);
-  }
-
-  .rise > span {
-    display: block;
-  }
-
   @media (prefers-reduced-motion: no-preference) {
     @view-transition {
       navigation: auto;
     }
 
-    :root:not([data-motion="reduce"]) .rise > span {
-      animation: rise-in var(--duration-3) var(--ease) both;
-    }
-
-    :root:not([data-motion="reduce"]) .rise:nth-child(2) > span {
-      animation-delay: 80ms;
-    }
-
-    :root:not([data-motion="reduce"]) .rise:nth-child(3) > span {
-      animation-delay: 160ms;
+    :root:not([data-motion="reduce"]) .appear {
+      animation: fade-up var(--duration-3) var(--ease) both;
     }
 
     :root:not([data-motion="reduce"]) .nudge > [aria-hidden="true"] {
@@ -54,7 +26,7 @@
     }
 
     :root:not([data-motion="reduce"]) .nudge:hover > [aria-hidden="true"] {
-      transform: translateX(0.35rem);
+      transform: translateX(var(--space-1));
     }
 
     @supports (animation-timeline: view()) {

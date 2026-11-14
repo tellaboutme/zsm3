@@ -1,6 +1,7 @@
 ---
 import BellTable from "../../components/bells/BellTable.astro";
 import LiveStatus from "../../components/LiveStatus.astro";
+import PageHead from "../../components/PageHead.astro";
 import { fallbackBells } from "../../data/bell-schedule.ts";
 import Base from "../../layouts/Base.astro";
 import { REGULAR_LABEL, todaySchedule } from "../../lib/bells.ts";
@@ -20,17 +21,10 @@ const todayLabel = todaySchedule(bells, buildDay).label;
   breadcrumbs={[{ label: "Uczniowie", href: "/uczniowie" }, { label: "Dzwonki" }]}
 >
   <div class="bells-page">
-    <header class="intro">
-      <p class="tag">Uczniowie · plan dnia</p>
-      <h1>
-        <span class="rise">
-          <span>Dzwonki</span>
-        </span>
-      </h1>
-      <p class="lead">
-        Lekcje trwają 45 minut. Odliczanie poniżej uwzględnia dni ze skróconymi lekcjami.
-      </p>
-    </header>
+    <PageHead
+      title="Dzwonki"
+      lead="Lekcje trwają 45 minut. Odliczanie poniżej uwzględnia dni ze skróconymi lekcjami."
+    />
     <div class="now">
       <LiveStatus size="large" />
       <p class="today">
@@ -76,26 +70,6 @@ const todayLabel = todaySchedule(bells, buildDay).label;
     gap: var(--space-7);
     max-width: 52rem;
     padding-block: var(--space-7);
-  }
-
-  .intro {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .tag {
-    color: var(--ink-2);
-  }
-
-  h1 {
-    font-size: var(--step-title);
-    font-stretch: var(--stretch-wide);
-  }
-
-  .lead {
-    max-width: var(--measure);
-    font-size: var(--step-1);
-    line-height: var(--leading-snug);
   }
 
   .now {

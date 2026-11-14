@@ -11,7 +11,6 @@ const groups = fieldGroups(professions);
 <section class="finder" aria-labelledby="zawody">
   <SectionHead
     id="zawody"
-    kicker="Dla kandydatów"
     title="Wybierz zawód"
     link={{ label: "Wszystkie zawody", href: "/kandydaci/zawody" }}
   />
@@ -39,7 +38,7 @@ const groups = fieldGroups(professions);
 
   .index {
     container: finder / inline-size;
-    border-top: var(--rule) solid var(--section-rule);
+    border-top: var(--hairline) solid var(--line);
   }
 
   .group {
@@ -52,11 +51,6 @@ const groups = fieldGroups(professions);
 
   h3 {
     color: var(--link);
-    font-family: var(--font-display);
-    font-size: var(--step-2);
-    font-stretch: var(--stretch-display);
-    font-weight: 800;
-    line-height: var(--leading-tight);
     overflow-wrap: break-word;
   }
 

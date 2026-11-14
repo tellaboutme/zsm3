@@ -1,6 +1,7 @@
 ---
 import RichText from "../../../components/content/RichText.astro";
 import NewsCard from "../../../components/news/NewsCard.astro";
+import PageHead from "../../../components/PageHead.astro";
 import Base from "../../../layouts/Base.astro";
 import { longDate } from "../../../lib/calendar.ts";
 import { loadArticle } from "../../../lib/news-listing.ts";
@@ -36,19 +37,12 @@ const { newer, older } = article.neighbours;
   ]}
 >
   <article class="article">
-    <header class="head">
-      <p class="tag meta">
+    <PageHead title={item.title} lead={item.lead}>
+      <Fragment slot="meta">
         <a href={categoryHref(category)}>{category.name}</a>
-        <span aria-hidden="true">·</span>
         <time datetime={item.date}>{longDate(item.date)}</time>
-      </p>
-      <h1>
-        <span class="rise">
-          <span>{item.title}</span>
-        </span>
-      </h1>
-      <p class="lead">{item.lead}</p>
-    </header>
+      </Fragment>
+    </PageHead>
     <RichText document={item.body} />
     <footer class="tools">
       <button type="button" class="copy" data-copy-link hidden>
@@ -95,29 +89,6 @@ const { newer, older } = article.neighbours;
     gap: var(--space-6);
     max-width: calc(var(--measure) + var(--space-8));
     padding-block: var(--space-7);
-  }
-
-  .head {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    color: var(--ink-2);
-  }
-
-  h1 {
-    font-size: var(--step-3);
-    hyphens: auto;
-  }
-
-  .lead {
-    max-width: var(--measure);
-    font-size: var(--step-1);
-    line-height: var(--leading-snug);
   }
 
   .copy {
