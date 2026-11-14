@@ -29,21 +29,6 @@
   overflow-wrap: anywhere;
 }
 
-.panel-nav {
-  display: grid;
-  gap: var(--space-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.panel-nav a {
-  display: block;
-  min-height: var(--target);
-  padding: var(--space-3) 0;
-  border-block-end: var(--hairline) solid var(--line);
-}
-
 .panel-tabs {
   width: min(100% - 2 * var(--space-5), var(--page-max));
   margin-inline: auto;

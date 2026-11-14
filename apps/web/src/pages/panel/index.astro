@@ -1,6 +1,7 @@
 ---
 import { panelSections } from "../../data/panel-sections.ts";
 import Panel from "../../layouts/panel.astro";
+import { OVERVIEW_TASKS, SECTION_GROUPS, sectionsIn } from "../../lib/panel/overview.ts";
 ---
 
 <Panel title="Panel — ZSM3">
@@ -13,21 +14,48 @@ import Panel from "../../layouts/panel.astro";
         Ponów próbę
       </button>
     </div>
-    <div data-panel="app" hidden>
-      <h1>Panel obsługi treści</h1>
-      <p>Z tego miejsca redagujesz treści szkoły. Widzisz sekcje dostępne dla twojej roli.</p>
-      <nav aria-label="Wszystkie sekcje panelu" data-panel="sections">
-        <ul class="panel-nav">
-          {panelSections.map((section) => (
-            <li>
-              <a href={section.href} data-roles={section.roles?.join(" ")}>
-                {section.label}
+    <div class="overview" data-panel="app" hidden>
+      <div class="intro">
+        <h1>Panel obsługi treści</h1>
+        <p>Zacznij od spraw, które czekają, albo wybierz sekcję.</p>
+      </div>
+      <section class="todo" aria-labelledby="do-zrobienia" data-panel="todo" hidden>
+        <h2 id="do-zrobienia" class="tag">
+          Czeka na Ciebie
+        </h2>
+        <ul>
+          {OVERVIEW_TASKS.map((task) => (
+            <li data-task={task.task} hidden>
+              <a class="todo-link" href={task.href}>
+                <span class="count" data-panel="count">
+                  …
+                </span>
+                <span class="label">{task.label}</span>
+                <span class="visually-hidden" data-panel="count-note"></span>
               </a>
             </li>
           ))}
         </ul>
+      </section>
+      <nav aria-label="Wszystkie sekcje panelu" data-panel="sections">
+        {SECTION_GROUPS.map((group) => (
+          <section class="group" aria-labelledby={`grupa-${group.id}`} data-group={group.id}>
+            <h2 id={`grupa-${group.id}`} class="tag">
+              {group.title}
+            </h2>
+            <ul class="tiles">
+              {sectionsIn(panelSections, group.id).map((section) => (
+                <li>
+                  <a class="tile" href={section.href} data-roles={section.roles?.join(" ")}>
+                    <span class="name">{section.short}</span>
+                    <span class="note">{section.note}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
       </nav>
-      <p class="panel-meta">Każda zmiana trafia na stronę od razu po zapisaniu.</p>
     </div>
   </div>
 </Panel>
@@ -35,3 +63,123 @@ import Panel from "../../layouts/panel.astro";
 <script>
   import "../../scripts/panel/index.ts";
 </script>
+
+<style>
+  .overview {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .intro p {
+    color: var(--ink-2);
+  }
+
+  .tag {
+    margin-bottom: var(--space-3);
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  ul {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .todo ul {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  }
+
+  .todo-link {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius);
+    background: var(--blue);
+    color: var(--blue-ink);
+    text-decoration: none;
+    transition: background-color var(--duration-1) var(--ease);
+  }
+
+  .todo-link:hover {
+    background: var(--blue-2);
+  }
+
+  .todo-link:focus-visible {
+    outline-offset: var(--ring);
+  }
+
+  .count {
+    font-family: var(--font-mono);
+    font-size: var(--step-3);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--leading-tight);
+  }
+
+  .label {
+    color: var(--blue-dim);
+    font-weight: 700;
+  }
+
+  nav {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .group:not(:has(li)) {
+    display: none;
+  }
+
+  .tiles {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  }
+
+  .tile {
+    display: grid;
+    gap: var(--space-1);
+    block-size: 100%;
+    min-height: var(--target);
+    padding: var(--space-4);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      background-color var(--duration-2) var(--ease),
+      border-color var(--duration-2) var(--ease),
+      color var(--duration-2) var(--ease);
+  }
+
+  .tile:hover {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: var(--blue-ink);
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-stretch: var(--stretch-display);
+    font-weight: 800;
+    line-height: var(--leading-snug);
+  }
+
+  .note {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+
+  .tile:hover .note {
+    color: var(--blue-dim);
+  }
+</style>
