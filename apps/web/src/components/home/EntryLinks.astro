@@ -1,0 +1,52 @@
+---
+import type { NavLink } from "../../lib/navigation.ts";
+import Icon from "../Icon.astro";
+
+interface Props {
+  links: readonly NavLink[];
+}
+
+const { links } = Astro.props;
+---
+
+<ul class="links">
+  {links.map((link) => (
+    <li>
+      <a class="nudge" href={link.href} rel={link.external === true ? "noopener" : undefined}>
+        {link.label}
+        {link.external === true ? (
+          <>
+            <Icon name="external" />
+            <span class="visually-hidden">(otwiera serwis zewnętrzny)</span>
+          </>
+        ) : (
+          <span aria-hidden="true">→</span>
+        )}
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--target);
+    border-bottom: var(--hairline) solid var(--line);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--link);
+  }
+</style>

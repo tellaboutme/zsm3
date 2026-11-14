@@ -8,6 +8,7 @@ interface Props {
 }
 
 const { items } = Astro.props;
+const [first, ...rest] = items;
 ---
 
 <section class="news" aria-labelledby="aktualnosci">
@@ -17,7 +18,12 @@ const { items } = Astro.props;
     link={{ label: "Wszystkie aktualności", href: "/aktualnosci" }}
   />
   <ul class="cards">
-    {items.map((item) => (
+    {first !== undefined && (
+      <li class="first reveal">
+        <NewsCard item={first} variant="lead" />
+      </li>
+    )}
+    {rest.map((item) => (
       <li class="reveal">
         <NewsCard item={item} />
       </li>
@@ -33,10 +39,26 @@ const { items } = Astro.props;
 
   .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-    gap: var(--space-5);
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  @media (width >= 40rem) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .first {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 </style>

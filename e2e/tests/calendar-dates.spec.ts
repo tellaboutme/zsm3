@@ -107,7 +107,7 @@ test("at 200% text on a phone the plaque moves above the text and nothing overfl
   });
   const event = "[data-event]:not([hidden])";
   expect(await bottom(page, `${event} .plaque`)).toBeLessThanOrEqual(
-    (await top(page, `${event} .when`)) + 1,
+    (await top(page, `${event} .what`)) + 1,
   );
   expect(await pageOverflow(page)).toBe(0);
   const live = "main [data-live-status]";

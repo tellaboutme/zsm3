@@ -32,11 +32,12 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
             <span class="month">{plaque.month}</span>
           </span>
           <div class="body">
-            <p class="when">
+            <p class="when visually-hidden">
               <DateRange date={event.date} endDate={event.endDate} />
             </p>
-            <p class="what">{event.title}</p>
-            <p class="tag who">{event.audience}</p>
+            <p class="what">
+              {event.title} <span class="who">{event.audience}</span>
+            </p>
           </div>
         </li>
       );
@@ -111,23 +112,24 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
     min-width: 0;
   }
 
-  .when {
-    color: var(--ink-2);
-    font-family: var(--font-mono);
-    font-size: var(--step-n1);
-    font-weight: 600;
-  }
-
   .what {
     font-family: var(--font-display);
-    font-size: var(--step-1);
-    font-stretch: var(--stretch-display);
+    font-size: var(--step-2);
     font-weight: var(--weight-heading);
     line-height: var(--leading-snug);
   }
 
   .who {
+    display: inline-block;
+    margin-left: var(--space-2);
+    padding: 0 var(--space-2);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
     color: var(--ink-2);
+    font-family: var(--font-body);
+    font-size: var(--step-n1);
+    font-weight: 600;
+    vertical-align: middle;
   }
 
   @container (width < 18rem) {
@@ -143,24 +145,6 @@ const shown = new Set(upcomingEvents(schoolYearEvents, isoDay(new Date()), VISIB
       align-items: baseline;
       min-height: 0;
       padding: var(--space-1) var(--space-2);
-    }
-  }
-
-  @container (width >= 40rem) {
-    .body {
-      grid-template-columns: minmax(0, 1fr) auto;
-      column-gap: var(--space-5);
-    }
-
-    .when,
-    .what {
-      grid-column: 1;
-    }
-
-    .who {
-      grid-row: 1;
-      grid-column: 2;
-      text-align: end;
     }
   }
 </style>
