@@ -32,11 +32,6 @@ import Panel from "../../../layouts/panel.astro";
           </label>
           <button type="submit">Pokaż wyniki</button>
         </form>
-        <section class="panel-history" data-panel="history" hidden>
-          <h2>Historia zmian</h2>
-          <p class="panel-note" data-panel="history-status" role="status" aria-live="polite"></p>
-          <ul data-panel="history-rows"></ul>
-        </section>
         <p class="panel-note" data-panel="status" role="status" aria-live="polite"></p>
         <ul data-panel="items"></ul>
         <nav class="panel-pager" aria-label="Strony listy aktualności" data-panel="pager"></nav>
@@ -107,6 +102,11 @@ import Panel from "../../../layouts/panel.astro";
             </button>
           </div>
         </form>
+        <section class="panel-history" data-panel="history" hidden>
+          <h2>Historia zmian</h2>
+          <p class="panel-note" data-panel="history-status" role="status" aria-live="polite"></p>
+          <ul data-panel="history-rows"></ul>
+        </section>
       </section>
     </div>
   </div>
