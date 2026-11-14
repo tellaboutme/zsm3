@@ -11,6 +11,8 @@ import {
   warsawClock,
 } from "../src/lib/live-status.ts";
 
+const upcoming = (): string => "Następne lekcje jutro o 7:30";
+
 const weekday = (time: string): { secondsOfDay: number; isWeekday: true } => ({
   secondsOfDay: secondsOf(time),
   isWeekday: true,
@@ -118,7 +120,7 @@ describe("formatting", () => {
     }
 
     expect(
-      describeStatus({ kind: "lesson", lesson: first, secondsLeft: 90, progress: 0.5 }),
+      describeStatus({ kind: "lesson", lesson: first, secondsLeft: 90, progress: 0.5 }, upcoming),
     ).toEqual({
       state: "lesson",
       title: "1. lekcja",
@@ -126,29 +128,30 @@ describe("formatting", () => {
       timer: "01:30",
       progress: 0.5,
     });
-    expect(describeStatus({ kind: "break", next: second, secondsLeft: 60 })).toMatchObject({
+    expect(
+      describeStatus({ kind: "break", next: second, secondsLeft: 60 }, upcoming),
+    ).toMatchObject({
       title: "Przerwa",
       detail: "2. lekcja o 8:20",
       timer: "01:00",
     });
-    expect(describeStatus({ kind: "before", next: first, secondsLeft: 60 })).toMatchObject({
+    expect(
+      describeStatus({ kind: "before", next: first, secondsLeft: 60 }, upcoming),
+    ).toMatchObject({
       title: "Przed lekcjami",
       detail: "1. lekcja o 7:30",
       progress: 0,
     });
-    expect(describeStatus({ kind: "after", last: first })).toEqual({
-      state: "after",
-      title: "Po lekcjach",
-      detail: "Ostatni dzwonek o 8:15",
-      timer: "—",
-      progress: 1,
-    });
-    expect(describeStatus({ kind: "day-off" })).toEqual({
-      state: "day-off",
-      title: "Dziś nie ma zajęć",
-      detail: "Lekcje w dni nauki od 7:30",
+    const idle = {
+      title: "Teraz nie ma lekcji",
+      detail: "Następne lekcje jutro o 7:30",
       timer: "—",
       progress: 0,
+    };
+    expect(describeStatus({ kind: "after", last: first }, upcoming)).toEqual({
+      state: "after",
+      ...idle,
     });
+    expect(describeStatus({ kind: "day-off" }, upcoming)).toEqual({ state: "day-off", ...idle });
   });
 });

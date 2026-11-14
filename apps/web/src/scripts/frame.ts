@@ -7,6 +7,7 @@ import { DISMISSED_KEY, readDismissed, withDismissed } from "../lib/announcement
 import { readBellData, todaySchedule } from "../lib/bells.ts";
 import { isoDay } from "../lib/calendar.ts";
 import { describeStatus, liveStatus, warsawClock } from "../lib/live-status.ts";
+import { nextLessons, nextLessonsText } from "../lib/next-lessons.ts";
 
 function initBanners(): void {
   const dismissed = ((): ReadonlySet<string> => {
@@ -49,8 +50,11 @@ function initLiveStatus(): void {
   const bells = readBellData(document.body.dataset["bells"]) ?? fallbackBells;
   const tick = (): void => {
     const now = new Date();
-    const today = todaySchedule(bells, isoDay(now));
-    const view = describeStatus(liveStatus(today.lessons, warsawClock(now)));
+    const day = isoDay(now);
+    const today = todaySchedule(bells, day);
+    const view = describeStatus(liveStatus(today.lessons, warsawClock(now)), () =>
+      nextLessonsText(nextLessons(bells, day), day),
+    );
     for (const root of roots) {
       root.dataset["state"] = view.state;
       for (const [field, text] of [
