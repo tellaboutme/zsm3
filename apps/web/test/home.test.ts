@@ -4,7 +4,7 @@ import { describe, it } from "vitest";
 
 import { upcomingEvents } from "../src/lib/calendar.ts";
 import {
-  fieldCounts,
+  fieldGroups,
   fieldLabels,
   fields,
   isFieldFilter,
@@ -18,7 +18,9 @@ describe("professions", () => {
   it("lists thirteen distinct professions in five fields", ({ expect }) => {
     expect(professions).toHaveLength(13);
     expect(new Set(professions.map((profession) => profession.slug)).size).toBe(13);
-    expect([...fieldCounts(professions)]).toEqual([
+    expect(
+      fieldGroups(professions).map((group) => [group.field, group.professions.length]),
+    ).toEqual([
       ["informatyka", 2],
       ["mechatronika", 2],
       ["motoryzacja", 5],
@@ -57,6 +59,45 @@ describe("professions", () => {
     expect(matchesField(undefined, "wszystkie")).toBe(true);
     expect(matchesField("lotnictwo", "lotnictwo")).toBe(true);
     expect(matchesField("logistyka", "lotnictwo")).toBe(false);
+  });
+
+  it("groups professions under their field with the qualification families", ({ expect }) => {
+    const groups = fieldGroups(professions);
+
+    expect(groups.map(({ field, label, families }) => [field, label, families])).toEqual([
+      ["informatyka", "Informatyka", ["INF"]],
+      ["mechatronika", "Mechatronika i robotyka", ["ELM"]],
+      ["motoryzacja", "Motoryzacja", ["MOT"]],
+      ["lotnictwo", "Lotnictwo", ["TLO"]],
+      ["logistyka", "Porty i terminale", ["SPL"]],
+    ]);
+    expect(groups[2]?.professions.map((profession) => profession.slug)).toEqual(
+      professions.filter((profession) => profession.field === "motoryzacja").map((p) => p.slug),
+    );
+  });
+
+  it("leaves out fields without professions and keeps mixed families in order", ({ expect }) => {
+    const [first, second] = professions;
+    if (first === undefined || second === undefined) {
+      throw new Error("seed has professions");
+    }
+    const mixed = {
+      ...second,
+      qualifications: [
+        { code: "MOT.02", name: "Mechatronika samochodowa" },
+        { code: "INF.04", name: "Programowanie aplikacji" },
+      ],
+    };
+
+    expect(fieldGroups([first, mixed])).toEqual([
+      {
+        field: "informatyka",
+        label: "Informatyka",
+        families: ["INF", "MOT"],
+        professions: [first, mixed],
+      },
+    ]);
+    expect(fieldGroups([])).toEqual([]);
   });
 
   it("describes study paths in Polish", ({ expect }) => {

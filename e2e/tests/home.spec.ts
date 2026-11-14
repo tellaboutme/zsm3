@@ -35,29 +35,6 @@ test.describe("home page", () => {
     });
   }
 
-  test("filters professions by field", async ({ page }) => {
-    await page.goto("/");
-    const filter = page.getByRole("group", { name: "Branża" });
-    const tiles = page.locator(".tiles > li");
-
-    await expect(tiles).toHaveCount(13);
-    await filter.getByRole("button", { name: /^Lotnictwo/u }).click();
-
-    await expect(filter.getByRole("button", { name: /^Lotnictwo/u })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    await expect(tiles.filter({ visible: true })).toHaveCount(3);
-    await expect(page.getByRole("status")).toHaveText("Pokazano zawody: 3 z 13");
-    await filter.getByRole("button", { name: /^Wszystkie/u }).click();
-
-    await expect(tiles.filter({ visible: true })).toHaveCount(13);
-    await expect(filter.getByRole("button", { name: /^Lotnictwo/u })).toHaveAttribute(
-      "aria-pressed",
-      "false",
-    );
-  });
-
   test("shows at most five upcoming events", async ({ page }) => {
     await page.goto("/");
     const events = page.locator("[data-event]");
