@@ -24,8 +24,6 @@
   --danger-surface: light-dark(#b42318, #ff8a80);
   --danger-ink: light-dark(#fff, #0b1220);
   --shadow-float: 0 1.25rem 2.5rem light-dark(#0b122029, #0009);
-  --progress-track: #ffffff40;
-  --progress-edge: transparent;
   --radius-round: 999px;
   --header-height: 4.5rem;
   --header-height-compact: 3.5rem;
@@ -100,8 +98,6 @@
   --blue: light-dark(#002f87, #002f87);
   --focus: light-dark(#000, #ffe066);
   --highlight: light-dark(#ffe066, #002f87);
-  --progress-track: transparent;
-  --progress-edge: #fff;
 }
 
 :root[data-font="readable"] {

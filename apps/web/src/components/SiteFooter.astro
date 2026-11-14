@@ -26,7 +26,7 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
       </address>
     </section>
     <section aria-labelledby="stopka-kontakt">
-      <h2 id="stopka-kontakt" class="tag">
+      <h2 id="stopka-kontakt" class="label">
         Sekretariat
       </h2>
       <address>
@@ -45,7 +45,7 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
     </section>
     {footerGroups.map((group) => (
       <div>
-        <h2 class="tag">{group.title}</h2>
+        <h2 class="label">{group.title}</h2>
         <ul>
           {group.links.map((link) => (
             <li>
@@ -70,7 +70,6 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
 <style>
   .site-footer {
     padding-block: var(--space-7) var(--space-5);
-    border-top: calc(2 * var(--rule)) solid var(--orange);
     background: var(--blue-2);
     color: var(--blue-ink);
   }
@@ -107,13 +106,13 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
     line-height: var(--leading-snug);
   }
 
-  .tag {
+  .label {
     margin-bottom: var(--space-3);
     color: var(--blue-dim);
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: var(--step-n1);
-    font-stretch: 100%;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: 0;
   }
 
   address {
@@ -129,12 +128,18 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
 
   a {
     color: var(--blue-ink);
+    text-decoration: none;
   }
 
   li > a {
     display: flex;
     align-items: center;
     padding-block: 0;
+  }
+
+  a:hover,
+  a:focus-visible {
+    text-decoration: underline;
   }
 
   .legal {

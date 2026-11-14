@@ -1,16 +1,8 @@
----
-interface Props {
-  size?: "panel" | "large";
-}
-
-const { size = "panel" } = Astro.props;
----
-
-<section class:list={["live", size]} data-live-status aria-label="Teraz w szkole">
+<section class="live" data-live-status aria-label="Teraz w szkole">
   <div class="top">
-    <p class="tag">Teraz w szkole</p>
-    <a class="tag bells" href="/uczniowie/dzwonki">
-      Dzwonki
+    <p class="label">Teraz w szkole</p>
+    <a class="bells nudge" href="/uczniowie/dzwonki">
+      Dzwonki <span aria-hidden="true">→</span>
     </a>
   </div>
   <div class="main">
@@ -37,43 +29,44 @@ const { size = "panel" } = Astro.props;
 
 <style>
   .live {
+    position: relative;
     display: grid;
-    container-type: inline-size;
-    gap: var(--space-4);
-    padding: var(--space-5);
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    border: var(--hairline) solid var(--line);
+    border-left: var(--rule) solid var(--blue);
     border-radius: var(--radius);
-    background: var(--blue);
-    color: var(--blue-ink);
+    background: var(--surface);
+    color: var(--ink);
   }
 
   .top {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: center;
-    gap: var(--space-2) var(--space-3);
-    color: var(--blue-dim);
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .label {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
   }
 
   .bells {
     display: inline-flex;
+    gap: var(--space-1);
     align-items: center;
     min-height: var(--space-6);
-    color: var(--blue-ink);
+    font-size: var(--step-n1);
     font-weight: 700;
-    text-decoration-thickness: var(--hairline);
-    text-underline-offset: 0.25em;
-  }
-
-  .live :focus-visible {
-    outline-color: var(--blue-ink);
   }
 
   .main {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
-    gap: var(--space-3) var(--space-5);
+    gap: var(--space-2) var(--space-5);
   }
 
   .status {
@@ -87,14 +80,14 @@ const { size = "panel" } = Astro.props;
     grid-area: 1 / 1;
     font-family: var(--font-display);
     font-size: var(--step-2);
-    font-stretch: var(--stretch-display);
     font-weight: var(--weight-heading);
-    line-height: var(--leading-tight);
+    line-height: var(--leading-snug);
   }
 
   .detail {
     grid-area: 2 / 1;
-    color: var(--blue-dim);
+    color: var(--ink-2);
+    font-size: var(--step-0);
   }
 
   .sizer {
@@ -104,8 +97,9 @@ const { size = "panel" } = Astro.props;
   }
 
   .timer {
+    color: var(--link);
     font-family: var(--font-mono);
-    font-size: min(var(--step-3), 14cqi);
+    font-size: var(--step-3);
     font-variant-numeric: tabular-nums;
     line-height: var(--leading-tight);
     min-inline-size: 7ch;
@@ -113,45 +107,36 @@ const { size = "panel" } = Astro.props;
   }
 
   progress {
-    width: 100%;
-    min-width: 0;
-    height: var(--space-2);
-    border: var(--hairline) solid var(--progress-edge);
+    position: absolute;
+    right: var(--space-5);
+    bottom: var(--space-3);
+    left: var(--space-5);
+    width: auto;
+    height: var(--space-1);
+    border: 0;
     border-radius: var(--radius);
     appearance: none;
-    background: var(--progress-track);
-    accent-color: var(--blue-ink);
+    background: var(--line);
+    accent-color: var(--blue);
   }
 
   progress::-webkit-progress-bar {
     border-radius: var(--radius);
-    background: var(--progress-track);
+    background: var(--line);
   }
 
   progress::-webkit-progress-value {
     border-radius: var(--radius);
-    background: var(--blue-ink);
+    background: var(--blue);
   }
 
   progress::-moz-progress-bar {
     border-radius: var(--radius);
-    background: var(--blue-ink);
+    background: var(--blue);
   }
 
   [data-state="after"] :is(.timer, progress),
   [data-state="day-off"] :is(.timer, progress) {
     visibility: hidden;
-  }
-
-  .large {
-    padding: var(--space-6);
-  }
-
-  .large .title {
-    font-size: var(--step-3);
-  }
-
-  .large .timer {
-    font-size: min(var(--step-4), 18cqi);
   }
 </style>

@@ -37,7 +37,7 @@ const { currentSection } = Astro.props;
               </a>
               {section.groups.map((group) => (
                 <section>
-                  <h3 class="tag">{group.title}</h3>
+                  <h3>{group.title}</h3>
                   <ul>
                     {group.links.map((link) => (
                       <li>
@@ -74,15 +74,18 @@ const { currentSection } = Astro.props;
       <ThemeIcon />
       <span data-theme-label>Motyw: systemowy</span>
     </button>
-    <ul class="utility">
-      {utilityLinks.map((link) => (
-        <li>
-          <a href={link.href} rel={link.external === true ? "external" : undefined}>
-            {link.label}
-          </a>
-        </li>
-      ))}
-    </ul>
+    <section class="utility" aria-labelledby="menu-skroty">
+      <h3 id="menu-skroty">Na skróty</h3>
+      <ul>
+        {utilityLinks.map((link) => (
+          <li>
+            <a href={link.href} rel={link.external === true ? "external" : undefined}>
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
   </div>
 </dialog>
 
@@ -111,10 +114,6 @@ const { currentSection } = Astro.props;
     margin-bottom: var(--space-4);
   }
 
-  .head h2 {
-    font-size: var(--step-2);
-  }
-
   .close,
   .action {
     display: inline-flex;
@@ -133,7 +132,7 @@ const { currentSection } = Astro.props;
 
   .close:hover,
   .action:hover {
-    background: var(--gray);
+    background: var(--page);
   }
 
   ul {
@@ -142,7 +141,8 @@ const { currentSection } = Astro.props;
     list-style: none;
   }
 
-  .sections > li {
+  .sections > li,
+  .utility li {
     border-bottom: var(--hairline) solid var(--line);
   }
 
@@ -154,8 +154,7 @@ const { currentSection } = Astro.props;
     min-height: calc(var(--target) + var(--space-2));
     color: var(--ink);
     font-family: var(--font-display);
-    font-size: var(--step-1);
-    font-stretch: var(--stretch-display);
+    font-size: var(--step-2);
     font-weight: var(--weight-heading);
     text-decoration: none;
     cursor: pointer;
@@ -178,17 +177,16 @@ const { currentSection } = Astro.props;
     font-weight: 700;
   }
 
-  details section {
+  details section,
+  .utility {
     margin-bottom: var(--space-4);
   }
 
   h3 {
     margin-bottom: var(--space-1);
     color: var(--ink-2);
-    font-family: var(--font-mono);
     font-size: var(--step-n1);
-    font-stretch: 100%;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   details li a,

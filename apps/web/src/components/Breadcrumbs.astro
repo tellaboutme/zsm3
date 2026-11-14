@@ -49,7 +49,15 @@ const { items } = Astro.props;
   }
 
   a {
+    color: var(--ink-2);
     text-align: center;
+    text-decoration: none;
+  }
+
+  a:hover,
+  a:focus-visible {
+    color: var(--link);
+    text-decoration: underline;
   }
 
   li:not(:last-child)::after {
