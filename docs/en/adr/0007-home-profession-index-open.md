@@ -1,6 +1,6 @@
 # ADR 0007: The home profession index is always open
 
-- Status: accepted
+- Status: accepted; sizes follow [ADR 0008](0008-calm-official-direction.md)
 - Date: 2026-11-14
 - Amends: [ADR 0006](0006-home-profession-index.md), points 1 and 2
 

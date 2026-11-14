@@ -1,6 +1,6 @@
 # Website blueprint
 
-The complete construction plan of the public website: every page, its address, its sections in order, the components it is built from, and the order of construction. It turns the [site plan](site-plan.md) into buildable units in the chosen visual direction (E, see [ADR 0002](adr/0002-visual-direction-precyzja.md) and the [design system](design-system.md)).
+The complete construction plan of the public website: every page, its address, its sections in order, the components it is built from, and the order of construction. It turns the [site plan](site-plan.md) into buildable units in the chosen visual direction (E in its calm official form, see [ADR 0002](adr/0002-visual-direction-precyzja.md), [ADR 0008](adr/0008-calm-official-direction.md) and the [design system](design-system.md)).
 
 The plan is layered like a building:
 
@@ -35,25 +35,27 @@ home, hubs, listings     programme, article, documents    forms, legal pages
 
 ### 1.2 Typography
 
-| Role    | Face                               | Use                                                  |
-| ------- | ---------------------------------- | ---------------------------------------------------- |
-| Display | Archivo, width 112–125, weight 800 | page titles, section titles, numbers, codes          |
-| Body    | Source Sans 3, weights 400/600/700 | running text, navigation, forms                      |
-| Mono    | IBM Plex Mono 400/500              | tags, dates, times, document and qualification codes |
+| Role    | Face                               | Use                                                                            |
+| ------- | ---------------------------------- | ------------------------------------------------------------------------------ |
+| Display | Archivo, width 100, weight 700     | page titles, section titles; width 125 only for the wordmark and large figures |
+| Body    | Source Sans 3, weights 400/600/700 | running text, navigation, forms, labels                                        |
+| Mono    | IBM Plex Mono 400/500              | dates, times, document and qualification codes only                            |
 
-Scale `--step-n1` … `--step-4`, fluid with `clamp()`. Page titles use `--step-title`, which also scales with the width of `<main>` (a size container), so long Polish words such as „dokumentów” never break mid-word on phones or with large text. Self-hosted WOFF2, Latin and Latin Extended subsets only, two files preloaded (Archivo, Source Sans 3).
+Scale `--step-n1` (14 px), `--step-0` (17 px body), `--step-1` (20 px lead), `--step-2` (h3, 18–22 px), `--step-3` (h2, 24–32 px), `--step-4` (h1, 32–48 px), fluid with `clamp()`. Headings are sentence case, weight 700 (`--weight-heading`), leading 1.1. Every page head is the `PageHead` component: breadcrumbs, h1, lead (`--step-1`, `--ink-2`, ≤ 60 ch), an optional meta line for data such as the school year or a count, and actions. Self-hosted WOFF2, Latin and Latin Extended subsets only, two files preloaded (Archivo, Source Sans 3).
 
 ### 1.3 Colour
 
-| Token               | Light                 | Dark                  | Use                                                              |
-| ------------------- | --------------------- | --------------------- | ---------------------------------------------------------------- |
-| `--bg`              | `#ffffff`             | `#0a0f19`             | page                                                             |
-| `--gray`            | `#f1f3f6`             | `#121a28`             | tiles, strips, asides                                            |
-| `--ink` / `--ink-2` | `#0b1220` / `#48546a` | `#eef2f8` / `#b0bccf` | text, secondary text                                             |
-| `--blue`            | `#0b4fb3`             | `#1d4fa8`             | brand surfaces with white text (live status, exams, hover fills) |
-| `--link`            | `#0b4fb3`             | `#8fb8f7`             | links and blue text on the page background                       |
-| `--orange`          | `#f26b1d`             | `#ff8a3d`             | primary action (Rekrutacja), live progress, focus                |
-| `--line`            | `#dfe3ea`             | `#23304a`             | rules and borders                                                |
+| Token               | Light                 | Dark                  | Use                                                       |
+| ------------------- | --------------------- | --------------------- | --------------------------------------------------------- |
+| `--page`            | `#f6f7f9`             | `#0b111c`             | page background                                           |
+| `--surface`         | `#ffffff`             | `#111a29`             | cards, panels, fields (1 px `--line` border, 8 px radius) |
+| `--gray`            | `#f1f3f6`             | `#18233a`             | quiet fills inside a surface (tags, hover of tools)       |
+| `--ink` / `--ink-2` | `#0b1220` / `#48546a` | `#eef2f8` / `#b0bccf` | text, secondary text                                      |
+| `--blue`            | `#0b4fb3`             | `#1d4fa8`             | the footer, hover fills, status bars, badges              |
+| `--link`            | `#0b4fb3`             | `#8fb8f7`             | links and blue text on the page background                |
+| `--orange`          | `#f26b1d`             | `#ff8a3d`             | the one primary action of a screen (Rekrutacja), focus    |
+| `--line`            | `#dde2ea`             | `#243149`             | rules and card borders                                    |
+| `--line-strong`     | `#7d8799`             | `#6b7a94`             | field borders (≥ 3:1 against `--surface`)                 |
 
 Blue and orange are the school's logo colours. Orange is never used for small text on a light background (contrast 2.7:1); text uses `--link` or `--ink`.
 
@@ -63,18 +65,19 @@ Blue and orange are the school's logo colours. Orange is never used for small te
 | -------------- | ------------------------------------- |
 | `--ease`       | `cubic-bezier(0.22, 0.8, 0.24, 1)`    |
 | `--duration-1` | 160 ms — hover, focus, small feedback |
-| `--duration-2` | 380 ms — fills, image zoom, filters   |
-| `--duration-3` | 750 ms — page-title entrance          |
+| `--duration-2` | 200 ms — fills, borders, filters      |
+| `--duration-3` | 300 ms — block entrance               |
+| `--shift`      | 0.5 rem — entrance offset             |
 
-| Pattern         | Where                                                                                              | Rule                                                                    |
-| --------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Title rise      | page title lines on load                                                                           | once per page, staggered 80 ms                                          |
-| Reveal          | section heads, cards, list items on scroll                                                         | CSS scroll-driven animation; without support, content is simply visible |
-| Fill            | profession tiles and field rows, list rows on hover and focus                                      | blue fills from the bottom                                              |
-| Nudge           | arrows in links and buttons                                                                        | 0.3–0.4 rem to the right                                                |
-| Zoom            | news photos on hover                                                                               | scale 1.06 inside the frame                                             |
-| Page transition | every navigation                                                                                   | `@view-transition` cross-fade; the page title morphs                    |
-| Live            | Teraz w szkole timer and progress; outside lessons the title says so and names the next school day | updates every second; the only thing that moves by itself               |
+| Pattern         | Where                                                                                                                                    | Rule                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Appear          | the page head on load                                                                                                                    | once per page: fade and `--shift` up in `--duration-3`                  |
+| Reveal          | section heads, cards, list items on scroll                                                                                               | CSS scroll-driven animation; without support, content is simply visible |
+| Fill            | profession tiles and field rows, list rows on hover and focus                                                                            | blue fills from the bottom                                              |
+| Nudge           | arrows in links and buttons                                                                                                              | 0.3–0.4 rem to the right                                                |
+| Zoom            | news photos on hover                                                                                                                     | scale 1.06 inside the frame                                             |
+| Page transition | every navigation                                                                                                                         | `@view-transition` cross-fade                                           |
+| Live            | Teraz w szkole: a compact card with a blue bar, timer and thin progress; outside lessons the title says so and names the next school day | updates every second; the only thing that moves by itself               |
 
 Nothing auto-rotates, loops or uses parallax. Content never waits for an animation. With `prefers-reduced-motion: reduce` every animation and transition is off.
 
@@ -220,50 +223,46 @@ Each template lists its sections in reading order. "Data" names the content type
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│ kicker: Technikum · Szkoła branżowa      os. Szkolne 37       │
-│ ZESPÓŁ SZKÓŁ                                                  │
-│ MECHANICZNYCH nr 3                       (title rise)         │
-│ ┌─────────────────────────────┐ ┌──────────────────────────┐  │
-│ │ featured photo + caption    │ │ TERAZ W SZKOLE  5:58:14  │  │
-│ │ (links to its story)        │ │ ▓▓▓▓▓░░░                 │  │
-│ │                             │ ├──────────────────────────┤  │
-│ │                             │ │ Dzwonki               →  │  │
-│ └─────────────────────────────┘ │ Wzory dokumentów      →  │  │
-│                                 │ Wywiadówki            →  │  │
-│                                 │ Kontakt               →  │  │
-│                                 └──────────────────────────┘  │
+│ Zespół Szkół Mechanicznych nr 3      │ Technikum · Branżowa    │
+│ w Krakowie                (h1 48 px) │ os. Szkolne 37, N. Huta │
+├────────────────────┬────────────────────┬─────────────────────┤
+│ Dla kandydata      │ Dla ucznia         │ Dla rodzica         │
+│ ┌────────────────┐ │ ┃Teraz w szkole  ↗ │ ┌─────────────────┐ │
+│ │13 zawodów      │ │ ┃3. lekcja  12:41  │ │18 listopada     │ │
+│ │w 5 branżach  → │ │ ┃▓▓▓▓░░░           │ │Zebrania …     → │ │
+│ └────────────────┘ │                    │ └─────────────────┘ │
+│ Rekrutacja →       │ Plan lekcji ↗      │ Wywiadówki →        │
+│ Dzień otwarty →    │ E-wniosek →        │ Dziennik Librus ↗   │
+├────────────────────┴────────────────────┴─────────────────────┤
+│ Co się dzieje w szkole                 Wszystkie aktualności → │
+│ ┌ lead story: date · category, title, 3–4 lines ───────────┐  │
+│ ┌ card ┐ ┌ card ┐ ┌ card ┐   text cards, no photo frames      │
 ├───────────────────────────────────────────────────────────────┤
 │ 13 zawodów │ 5 branż │ 5 lat │ Erasmus+          (numbers)    │
 ├───────────────────────────────────────────────────────────────┤
-│ SEASONAL: Rekrutacja 2027/2028 — steps, dates, CTA            │
-│ (Feb–Aug; outside: Dzień otwarty or hidden)                   │
-├───────────────────────────────────────────────────────────────┤
-│ WYBIERZ ZAWÓD                                Wszystkie zawody → │
+│ Wybierz zawód                               Wszystkie zawody → │
 │ Informatyka       Technik informatyk →   INF.02 INF.03  T·5   │
-│                   Technik programista →  INF.03 INF.04  T·5   │
 │ Motoryzacja       5 professions, codes, paths (always open)   │
 ├───────────────────────────────────────────────────────────────┤
-│ CO SIĘ DZIEJE W SZKOLE   5 latest news          Wszystkie →   │
+│ Co przed nami   date plaque + title + audience  Terminarz →   │
 ├───────────────────────────────────────────────────────────────┤
-│ CO PRZED NAMI   timeline of the next 5 events  Terminarz →    │
-├───────────────────────────────────────────────────────────────┤
-│ DLA KANDYDATA │ DLA UCZNIA │ DLA RODZICA   (4 links each)     │
-├───────────────────────────────────────────────────────────────┤
-│ Partners and projects strip: Erasmus+, CKZ, LS Airport Services │
+│ Partnerzy i szkoła w sieci: partners │ profiles │ official   │
 └───────────────────────────────────────────────────────────────┘
 ```
 
+The three entries are equal cards in a row from 64 rem and stacked on a phone; the links under each card come from the former audience panels, so no separate "Dla kandydata / ucznia / rodzica" block remains. Section heads are a hairline, an h2 and a link; sections are at most `--space-7` apart. Without photos every block is complete: a news item without a photo is a text card, never an empty frame.
+
 The profession section is a field index ([ADR 0006](adr/0006-home-profession-index.md), [ADR 0007](adr/0007-home-profession-index-open.md)): one group per field with all its professions visible.
 
-Data: featured item (news or curated photo), bell schedule and today's variant, numbers (settings), recruitment season (settings), professions, latest news, upcoming events, audience links, partners.
+Data: bell schedule and today's variant, the professions and fields, the next event for parents, latest news, numbers, upcoming events, audience links, partners and the school's profiles.
 
-The seasonal recruitment block is built in stage 2, when the panel provides the recruitment dates; the static stage 1 home never shows invented dates. Upcoming events are rendered at build time and re-filtered in the browser against today's date in `Europe/Warsaw`, so the timeline never shows past events between deployments.
+The candidate entry shows the recruitment season once the panel provides its dates (stage 2); until then it shows the professions and fields, never invented dates. Upcoming events are rendered at build time and re-filtered in the browser against today's date in `Europe/Warsaw`, so the timeline never shows past events between deployments.
 
 ### 4.2 Hub `/kandydaci`, `/uczniowie`, `/rodzice`, `/szkola`
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│ SECTION TITLE (title rise) + one-sentence intro               │
+│ SECTION TITLE + one-sentence intro      featured module (card) │
 │ primary action (e.g. Rekrutacja / E-wniosek / Wywiadówki)     │
 ├───────────────────────────────────────────────────────────────┤
 │ live/featured module (Kandydaci: recruitment status;          │
@@ -286,7 +285,7 @@ Title, intro, field filter (radio group, works without JavaScript), school-type 
 ┌───────────────────────────────────────────────────────────────┐
 │ breadcrumbs   INFORMATYKA · TECHNIKUM MECHANICZNE NR 17       │
 │ TECHNIK                                                       │
-│ PROGRAMISTA                                (title rise)       │
+│ PROGRAMISTA                                                   │
 │ 5 lat nauki │ 2 egzaminy │ 7 technologii │ Erasmus+           │
 ├──────────────────────────────────────────┬────────────────────┤
 │ workshop photo or gallery (3)            │ W SKRÓCIE (sticky) │
@@ -313,7 +312,7 @@ Article (narrow layout with wide media):
 
 ```
 breadcrumbs · category · date
-TITLE (title rise)
+TITLE
 lead paragraph
 cover photo (caption, credit)
 rich text body: paragraphs, headings, lists, quotes, tables, video facade
@@ -331,7 +330,7 @@ Breadcrumbs, title, intro, optional in-page navigation (for pages with four or m
 | Template      | URL                           | Sections                                                                                                                            |
 | ------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Documents     | `/uczniowie/wzory-dokumentow` | steps (download, fill in, hand in), signer filter, groups of document rows (code, title, who, PDF size and date), e-wniosek callout |
-| Bell schedule | `/uczniowie/dzwonki`          | live status (large), today's variant, full table with breaks, variant switch for upcoming shortened days                            |
+| Bell schedule | `/uczniowie/dzwonki`          | live status, today's variant, full table with breaks, variant switch for upcoming shortened days                                    |
 | Calendar      | `/szkola/terminarz`           | year overview (key dates), filters (audience, type), month groups, `.ics` export, PDF version                                       |
 | People        | `/szkola/kadra` and similar   | groups (leadership, subjects), person rows (name, role, subjects), contact through the secretariat                                  |
 | Meetings      | `/rodzice/wywiadowki`         | next meeting, table by class (room, teacher), contact note                                                                          |
@@ -364,8 +363,8 @@ Every component lives in `apps/web/src/components/`, takes typed props from `pac
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shell      | SkipLink, AnnouncementBanner (info, important, urgent), Header (default, compact), MegaMenu, MobileMenu, Breadcrumbs, Footer                                                              |
 | Settings   | AccessibilityDialog, ThemeSwitch                                                                                                                                                          |
-| Heroes     | PageTitle (with title rise), HomeHero, HubHero, ProgrammeHero, ArticleHeader                                                                                                              |
-| Live       | LiveStatus (panel, compact, large), BellTable                                                                                                                                             |
+| Heroes     | PageHead, HomeHero, HubHero, ProgrammeHero, ArticleHeader                                                                                                                                 |
+| Live       | LiveStatus (one compact card), BellTable                                                                                                                                                  |
 | Wayfinding | QuickLinks, TaskGroups, AudiencePanels, InPageNav, SiblingNav, Pagination                                                                                                                 |
 | Data       | NumbersStrip, ProfessionTile, FieldFilter, ComparisonTable, NewsCard (lead, standard, compact), EventTimeline, EventList, DocumentRow, SignerFilter, PersonRow, ContactCard, MeetingTable |
 | Content    | RichText, Figure (caption, credit), PhotoStrip, Gallery, Lightbox, VideoFacade, MapFacade, Callout, FAQ, Table, Timeline, CallToAction                                                    |

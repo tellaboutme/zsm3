@@ -1,6 +1,6 @@
 # ADR 0002: Visual direction "Precyzja"
 
-- Status: accepted
+- Status: accepted, amended by [ADR 0008](0008-calm-official-direction.md)
 - Date: 2026-10-22
 
 ## Context

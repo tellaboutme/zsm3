@@ -43,7 +43,7 @@ The full route-by-role table is `PANEL_MATRIX` in `apps/worker/src/routes/panel/
 
 ## Handling requests
 
-`/panel/wnioski` is the staff side of e-wniosek, shown to `admin` and `secretariat` only; the tab is hidden from other roles, and the API answers them 403 regardless. It reads and writes nothing but the staff API from architecture.md §7.4.
+`/panel/wnioski` is the staff side of e-wniosek, shown to `admin` and `secretariat` only; the menu item is hidden from other roles, and the API answers them 403 regardless. It reads and writes nothing but the staff API from architecture.md §7.4.
 
 - **List.** Summaries only — type, dates, id and status, never personal data — newest first, with a status filter. **Pokaż starsze** follows the composite cursor: it sends the previous page's `nextBefore` and `nextBeforeId` back as `before` and `beforeId`, so requests created in the same millisecond are neither skipped nor repeated.
 - **Detail.** Personal data appears only here. An erased record (`piiErasedAt` set) says when it was erased; a record whose fields come back `null` without an erasure date could not be decrypted, and the panel says so instead of showing empty fields.
