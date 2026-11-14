@@ -11,10 +11,18 @@ test("keeps contact e-mail links on a single line on wide screens", async ({ pag
         links.map((link) => {
           const range = document.createRange();
           range.selectNodeContents(link);
+          const lineHeight = Number.parseFloat(getComputedStyle(link).lineHeight);
+          const tops = [...range.getClientRects()]
+            .filter((rect) => rect.width > 0 && rect.height > 0)
+            .map((rect) => rect.top)
+            .toSorted((a, b) => a - b);
+          const lines = tops.filter(
+            (top, index) => index === 0 || top - (tops[index - 1] ?? top) > lineHeight / 2,
+          ).length;
           return {
-            lines: range.getClientRects().length,
+            lines,
             height: link.getBoundingClientRect().height,
-            lineHeight: Number.parseFloat(getComputedStyle(link).lineHeight),
+            lineHeight,
           };
         }),
       );

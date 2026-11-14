@@ -1,4 +1,5 @@
 ---
+import EmailText from "./EmailText.astro";
 import { publicFallbackNavigation } from "../data/navigation.ts";
 import { school } from "../data/site.ts";
 
@@ -34,11 +35,11 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
         </a>
         <br />
         <a class="tap-target" href={`mailto:${school.email}`}>
-          {school.email}
+          <EmailText email={school.email} />
         </a>
         <br />
         <a class="tap-target" href={`mailto:${school.officeEmail}`}>
-          {school.officeEmail}
+          <EmailText email={school.officeEmail} />
         </a>
       </address>
     </section>
