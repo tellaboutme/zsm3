@@ -88,7 +88,7 @@ Skip link, landmarks (`header`, `nav`, `main`, `aside`, `footer`), one `h1` per 
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ ANNOUNCEMENT BANNER (only when active, dismissible per session) │
+│ ANNOUNCEMENT BANNER (when active; hidden per session, not urgent)│
 ├─────────────────────────────────────────────────────────────────┤
 │ HEADER (sticky)                                                 │
 │ ZSM3 │ Zespół Szkół…   Kandydaci Uczniowie Rodzice Szkoła       │
@@ -149,7 +149,7 @@ A dialog (`<dialog>`, focus trapped, Escape closes) with switches: larger text (
 
 ### 2.6 Announcement banner
 
-One active banner at a time, managed in the panel: severity (information, important, urgent), text, optional link, start and end. Urgent banners cannot be dismissed. Day-off notices from the calendar use the same banner.
+One active banner at a time, managed in the panel: severity (information, important, urgent), text, optional link, start and end. Information and important banners can be hidden for the session; urgent banners cannot be dismissed. There is no announcement dialog ([ADR 0005](adr/0005-announcements-are-banners.md)). Day-off notices from the calendar use the same banner.
 
 ## 3. Floor plan (sitemap and URLs)
 
@@ -168,8 +168,6 @@ Polish, lowercase, hyphenated slugs; no dates in page URLs except news; every ol
 ├─ /uczniowie                             Hub: students
 │  ├─ /uczniowie/dzwonki                  Bell schedule (full, live, variants)
 │  ├─ /uczniowie/wzory-dokumentow         Documents
-│  ├─ /uczniowie/e-wniosek                Request form
-│  │  └─ /uczniowie/e-wniosek/status      Request status (token in fragment)
 │  ├─ /uczniowie/materialy                Materials
 │  ├─ /uczniowie/podreczniki              Textbooks
 │  ├─ /uczniowie/plany-nauczania          Curricula
@@ -202,6 +200,8 @@ Polish, lowercase, hyphenated slugs; no dates in page URLs except news; every ol
 ├─ /aktualnosci                           News listing (category, year)
 │  └─ /aktualnosci/{year}/{slug}          Article
 ├─ /kontakt                               Contact
+├─ /e-wniosek                             Request form (linked from Uczniowie)
+│  └─ /e-wniosek/status                   Request status (token in fragment)
 ├─ /skrzynka                              Anonymous Q&A (#OgarniamŻycie)
 ├─ /szukaj                                Search
 ├─ /mapa-strony                           Sitemap
@@ -348,7 +348,7 @@ Stage 1 notes for the everyday templates:
 Stage 1 notes for the utility pages:
 
 - `/mapa-strony` renders the tree from `data/site-map.ts`; an end-to-end crawl from the home page fails the build when a reachable page is missing from the map. `sitemap.xml` needs absolute URLs and ships in stage 2 with the production domain.
-- `/szukaj` searches a static index (`/szukaj/indeks.json`, built from the site map, programmes, news, forms and calendar) in the browser: Polish letters folded, simple suffix stemming, all words required, title matches ranked first, results grouped by type and rendered without `innerHTML`. Stage 2 swaps the index for the D1 FTS5 endpoint behind the same page.
+- `/szukaj` searches a static index (`/szukaj/indeks.json`, built from the site map, programmes, news, forms and calendar) in the browser: Polish letters folded, simple suffix stemming, all words required, title matches ranked first, results grouped by type and rendered without `innerHTML`. Stage 2 added the D1 FTS5 endpoint `/szukaj/wyniki.json` behind the same page (architecture.md §6, Rendering).
 - Public copy is written for the finished site: no mention of the previous website, of migration, of drafts or of content "added later". An element without its content (a photo, a page) is not rendered instead of showing a placeholder.
 - `/polityka-prywatnosci` uses the legal layout (metadata, in-page navigation) and describes exactly what the public site does. The school's data protection officer approves the text before launch (stage 7); the page itself never shows draft wording.
 
@@ -372,15 +372,15 @@ States for every interactive component: default, hover, focus-visible, active, d
 
 ## 6. Utilities
 
-| Utility     | How it works                                                                                                                         |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Live status | bell schedule and today's variant rendered into the page; the browser computes the state in `Europe/Warsaw` every second             |
-| Search      | D1 FTS5 index of pages, news, documents and programmes; diacritics folded; results grouped by type                                   |
-| Feeds       | RSS for news; `.ics` for the calendar                                                                                                |
-| Forms       | progressive enhancement: native validation, then server validation with the same Zod schema                                          |
-| Images      | responsive `srcset` (400, 800, 1600), AVIF and WebP, explicit dimensions, lazy below the fold                                        |
-| Redirects   | table of old URLs → new URLs checked by the Worker before rendering                                                                  |
-| SEO         | titles, descriptions, canonical URLs, Open Graph with real photos, `sitemap.xml`, structured data (`School`, `NewsArticle`, `Event`) |
+| Utility     | How it works                                                                                                                      |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Live status | bell schedule and today's variant rendered into the page; the browser computes the state in `Europe/Warsaw` every second          |
+| Search      | D1 FTS5 index of pages and news, merged with static entries for programmes and events; diacritics folded; results grouped by type |
+| Feeds       | RSS for news; `.ics` for the calendar                                                                                             |
+| Forms       | progressive enhancement: native validation, then server validation with the same Zod schema                                       |
+| Images      | gallery photos as WebP in 400 and 1600 px, explicit dimensions, lazy below the fold                                               |
+| Redirects   | table of old URLs → new URLs checked by the Worker before rendering                                                               |
+| SEO         | titles, descriptions, canonical URLs, Open Graph, `sitemap.xml`, structured data (`HighSchool`, `NewsArticle`, `Event`, `Course`) |
 
 ## 7. Build order (stage 1)
 

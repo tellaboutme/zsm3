@@ -63,24 +63,24 @@ Inventory of the current site and where each feature lives in the new one.
 
 ### 4.1 Global
 
-| Current feature                                                                              | New site                                                                                                                  | Stage |
-| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----- |
-| Main menu (180 links)                                                                        | audience navigation, full sitemap page, managed in the panel                                                              | 2     |
-| WordPress search                                                                             | full-text search over pages, news and documents (D1 FTS5), Polish diacritics folded                                       | 2     |
-| Accessibility widget (Pojo: text size, contrast, greyscale, underlined links, readable font) | built-in accessibility settings with the same options, remembered per browser                                             | 1     |
-| Light theme only                                                                             | light and dark theme following the system, with a switch                                                                  | 1     |
-| Cookie banner (WPConsent)                                                                    | not needed: no non-essential cookies or trackers (Prawo komunikacji elektronicznej art. 399)                              | 1     |
-| Google Analytics (Universal Analytics, shut down by Google in 2023, collects nothing)        | Cloudflare Web Analytics: cookieless, aggregated, no consent needed                                                       | 6     |
-| Live visitor counter and admin blocking (zsm3-live-visitors)                                 | visitor statistics in Cloudflare Web Analytics; blocking through Cloudflare WAF rules                                     | 6     |
-| Country blocking (IP2Location)                                                               | Cloudflare WAF custom rule                                                                                                | 7     |
-| Pop-up announcements (zsm3-popup-manager)                                                    | announcement banner managed in the panel: start and end date, severity, optional link; a dialog only for critical notices | 3     |
-| Day-off notice (zsm3-dayoff)                                                                 | day-off entries in the calendar drive the live status and the home banner                                                 | 3     |
-| RSS feed                                                                                     | RSS feed for news                                                                                                         | 2     |
-| Facebook page plugin                                                                         | Facebook link plus a click-to-load preview; nothing loads from Facebook before the click                                  | 1     |
-| YouTube embeds                                                                               | click-to-load facade on `youtube-nocookie.com`                                                                            | 1     |
-| Google Maps embed                                                                            | first-party address panel linking to the school's Google Maps listing; no Google requests before clicking                 | 1     |
-| Partner and link banners (Kraków, BIP, LS Airport Services, virtual tour)                    | partners section and footer links, managed in the panel                                                                   | 3     |
-| All current URLs                                                                             | 301 redirects from every crawled URL, managed in the panel                                                                | 2     |
+| Current feature                                                                              | New site                                                                                                                                                                   | Stage |
+| -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| Main menu (180 links)                                                                        | audience navigation, full sitemap page, managed in the panel                                                                                                               | 2     |
+| WordPress search                                                                             | full-text search over pages, news and documents (D1 FTS5), Polish diacritics folded                                                                                        | 2     |
+| Accessibility widget (Pojo: text size, contrast, greyscale, underlined links, readable font) | built-in accessibility settings with the same options, remembered per browser                                                                                              | 1     |
+| Light theme only                                                                             | light and dark theme following the system, with a switch                                                                                                                   | 1     |
+| Cookie banner (WPConsent)                                                                    | not needed: no non-essential cookies or trackers (Prawo komunikacji elektronicznej art. 399)                                                                               | 1     |
+| Google Analytics (Universal Analytics, shut down by Google in 2023, collects nothing)        | Cloudflare server-side zone analytics: no script, no cookie ([ADR 0004](adr/0004-no-analytics-script.md))                                                                  | 7     |
+| Live visitor counter and admin blocking (zsm3-live-visitors)                                 | traffic in the Cloudflare dashboard; blocking through Cloudflare WAF rules                                                                                                 | 7     |
+| Country blocking (IP2Location)                                                               | Cloudflare WAF custom rule                                                                                                                                                 | 7     |
+| Pop-up announcements (zsm3-popup-manager)                                                    | announcement banner managed in the panel: start and end date, severity, optional link; urgent banners cannot be hidden ([ADR 0005](adr/0005-announcements-are-banners.md)) | 3     |
+| Day-off notice (zsm3-dayoff)                                                                 | day-off entries in the calendar drive the live status and the home banner                                                                                                  | 3     |
+| RSS feed                                                                                     | RSS feed for news                                                                                                                                                          | 2     |
+| Facebook page plugin                                                                         | Facebook link plus a click-to-load preview; nothing loads from Facebook before the click                                                                                   | 1     |
+| YouTube embeds                                                                               | click-to-load facade on `youtube-nocookie.com`                                                                                                                             | 1     |
+| Google Maps embed                                                                            | first-party address panel linking to the school's Google Maps listing; no Google requests before clicking                                                                  | 1     |
+| Partner and link banners (Kraków, BIP, LS Airport Services, virtual tour)                    | partners section and footer links, managed in the panel                                                                                                                    | 3     |
+| All current URLs                                                                             | 301 redirects from every crawled URL, managed in the panel                                                                                                                 | 2     |
 
 ### 4.2 Home page
 
@@ -159,7 +159,7 @@ The school is found through searches such as "technikum lotnicze Kraków", "tech
 | Structured data | JSON-LD: `HighSchool` with address, phone and geo; `BreadcrumbList`; `NewsArticle`; `Event` for open days and key dates; `FAQPage` on programme pages; `Course` per programme | 2     |
 | Social previews | Open Graph and Twitter cards; a generated preview image per article and programme in the site's visual style                                                                  | 2     |
 | Old addresses   | 301 redirects for every crawled WordPress URL so links and rankings carry over; the old sitemap is kept until search engines pick up the new one                              | 2     |
-| Performance     | Core Web Vitals in the Lighthouse budgets (LCP < 2.5 s, CLS < 0.1, INP < 200 ms on mobile); static shell, no third-party scripts                                              | 1     |
+| Performance     | Lighthouse budgets in CI (Performance ≥ 95, CLS ≤ 0.02), within the Core Web Vitals thresholds (LCP < 2.5 s, INP < 200 ms); static shell, no third-party scripts              | 1     |
 | Content         | programme pages that answer what candidates search for (exams, qualifications, partners, workshops, career paths); internal links between news, programmes and recruitment    | 3     |
 | Images          | alt text required in the panel; WebP in two sizes with `width` and `height`; descriptive file names                                                                           | 5     |
 | Local presence  | Google Business Profile and Bing Places kept consistent with the contact page (name, address, phone, hours)                                                                   | 7     |
@@ -169,6 +169,8 @@ The school is found through searches such as "technikum lotnicze Kraków", "tech
 
 ## 8. Stages
 
+Stages 1–6 are implemented in code; see the status in [architecture.md](architecture.md) §14.
+
 | #   | Stage                 | Outcome                                                                                                                                                         |
 | --- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0   | Foundation            | done                                                                                                                                                            |
@@ -177,7 +179,7 @@ The school is found through searches such as "technikum lotnicze Kraków", "tech
 | 3   | Panel and CMS         | Access, roles, editors for every content type, revisions, audit log, editor's guide                                                                             |
 | 4   | E-wniosek             | document requests as specified in the architecture                                                                                                              |
 | 5   | Gallery               | uploads, public gallery, archive import                                                                                                                         |
-| 6   | Community tools       | short links, Skrzynka, cookieless analytics                                                                                                                     |
+| 6   | Community tools       | short links, Skrzynka                                                                                                                                           |
 | 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF accessibility review, terms, full security review, DNS cutover with redirects, search engine registration, staff training |
 
 ## 9. Open questions for the school

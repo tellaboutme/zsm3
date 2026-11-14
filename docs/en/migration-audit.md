@@ -7,9 +7,9 @@ contacts the old site. It supports the stage-2 redirect review in
 [development.md](development.md) together with the
 [content inventory](content-inventory.md).
 
-```powershell
-uv run --directory tools --locked zsm3-migration-audit --inventory "$env:LOCALAPPDATA\Temp\zsm3-inventory.json" --out-dir "$env:LOCALAPPDATA\Temp\zsm3-audit"
-uv run --directory tools --locked zsm3-migration-audit --urls old-urls.txt --probe http://127.0.0.1:8787 --sitemap sitemap.xml --cms-paths cms-paths.txt --out-dir "$env:LOCALAPPDATA\Temp\zsm3-audit" --overwrite
+```bash
+uv run --directory tools --locked zsm3-migration-audit --inventory /tmp/zsm3-inventory.json --out-dir /tmp/zsm3-audit
+uv run --directory tools --locked zsm3-migration-audit --urls old-urls.txt --probe http://127.0.0.1:8787 --sitemap sitemap.xml --cms-paths cms-paths.txt --out-dir /tmp/zsm3-audit --overwrite
 ```
 
 ## Inputs
