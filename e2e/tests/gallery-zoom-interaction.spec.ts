@@ -136,3 +136,22 @@ test("an aborted drag does not keep panning on hover", async ({ page }) => {
   expect(after.scroll).toEqual(released.scroll);
   expect(after.zoomed).toBe(true);
 });
+
+test("a phone in landscape gives the photo most of the height and keeps the controls on screen", async ({
+  page,
+  problems,
+}) => {
+  await page.setViewportSize({ width: 844, height: 390 });
+  await openPhoto(page, 1200, 1600);
+  await page.getByRole("button", { name: "Powiększ" }).click();
+  const zoomed = await geometry(page);
+  expect(zoomed.stage.height).toBeGreaterThanOrEqual(0.7 * 390);
+  for (const name of ["Pomniejsz", "Zamknij", "Poprzednie", "Następne"]) {
+    await expect(page.getByRole("button", { name })).toBeInViewport({ ratio: 1 });
+  }
+  await page.getByRole("button", { name: "Pomniejsz" }).click();
+  const fit = await geometry(page);
+  expect(fit.stage.height).toBeGreaterThanOrEqual(0.7 * 390);
+  expect(fit.image.height).toBeLessThanOrEqual(fit.stage.height + 1);
+  expect(problems).toEqual([]);
+});
