@@ -107,9 +107,9 @@ Run the narrowest gate that covers the change; run `pnpm check` only before a pu
 
 - Branch from an up-to-date `main`: `feat/…`, `fix/…`, `docs/…`, `ci/…`.
 - Logic gets tests first.
-- Local gates before a PR: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`,
-  `pnpm test:mutation`, and the e2e suite after `pnpm build` (locally the Chromium headless
-  shell, WebKit and mobile projects; Firefox runs in CI).
+- Before a commit, run only fast checks for what changed (lefthook checks staged files; one
+  unit test file or one spec to try a fix). The full gates — lint, typecheck, test,
+  mutation, e2e, Lighthouse and visual baselines — run in CI on the pull request.
 - Commit with Conventional Commits (lefthook pre-commit, commitlint on the message), push,
   and open the pull request with `gh pr create`.
 - Run a code review over the diff before asking for the merge (`/code-review`, or
@@ -120,16 +120,14 @@ Run the narrowest gate that covers the change; run `pnpm check` only before a pu
 - Dependabot pull requests: merge when green and consistent with the policy, otherwise close
   with a reason.
 
-## Windows workstation
+## Workstation
 
-- Node and pnpm live at `C:\Program Files\nodejs` and `%APPDATA%\npm`; add both to `PATH` in
-  Git Bash.
-- Python runs with `python -I`; files written by Python on Windows get CRLF unless written in
-  binary mode — the repository is LF only.
-- Playwright's Firefox and full Chromium builds do not start locally on this machine; run the
-  Chromium headless shell, WebKit and mobile projects.
-- Docker-based scanners need Windows paths (`pwd -W`) and `MSYS_NO_PATHCONV=1`.
-- Work usually happens in a git worktree of this repository, so branch, local D1 state and
+- Node 24 and pnpm 12.13 are required (`engineStrict`); pin them per checkout when the system
+  Node is newer, and give a full ESLint run `NODE_OPTIONS=--max-old-space-size=6144`.
+- Heavy runs (full lint, mutation, e2e, builds, a local server) stay in CI; take failures and
+  visual baselines from the run's artifacts. Details: `docs/en/development.md`.
+- Python runs with `python -I`; the repository is LF only.
+- Work may happen in a git worktree of this repository, so branch, local D1 state and
   `node_modules` differ per directory; never reach into another worktree.
 
 ## Finding code without reading the repository

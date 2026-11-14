@@ -134,16 +134,11 @@ findings; a pull request that only has green CI has not been reviewed.
 | 10109 | Modern Web Application         | Informational: it notes that a page renders content with JavaScript and suggests the AJAX spider. The search page renders results in the browser by design; the other pages are static.                                                                           |
 | 10202 | Absence of Anti-CSRF Tokens    | The form on the status page carries no hidden token by design: requests are sent, rejected or withdrawn with a single-use code supplied inside the JSON body, the browser holds no cookie, and without a same-origin `Origin` header the worker rejects the call. |
 
-## Known local limitation (Windows 11 build 26200)
+## Local runs and CI
 
-Playwright's Firefox and full Chromium builds fail to start on this Windows build (side-by-side configuration error). Chromium headless shell and WebKit work, so locally run:
+CI is where the gates run. Locally, run only what a change needs before the commit: lefthook already checks the staged files, and a single unit test file or one Playwright spec is enough to try a fix. The full lint, typecheck, test, mutation and end-to-end runs, Lighthouse and the visual baselines run on every pull request.
 
-```bash
-pnpm build
-```
-
-```bash
-pnpm --filter @zsm3/e2e exec playwright test --project chromium --project webkit --project mobile
-```
-
-CI on Linux runs all four projects.
+- Node.js must be 24 (`engineStrict`); when the system Node is newer, pin 24 and pnpm 12.13 for the checkout with a version manager.
+- A full `pnpm lint:ts` needs more than the default heap: `NODE_OPTIONS=--max-old-space-size=6144`.
+- Visual baselines are rendered on CI Linux. Refresh them from the `playwright-report` artifact of a failed run after looking at every diff, and never from a local run, because fonts render differently on other systems.
+- Playwright's WebKit build needs Ubuntu libraries. On other Linux distributions run Chromium locally and leave WebKit, Firefox and mobile to CI.

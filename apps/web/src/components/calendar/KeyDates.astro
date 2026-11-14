@@ -1,5 +1,6 @@
 ---
-import { longDate, type SchoolEvent } from "../../lib/calendar.ts";
+import type { SchoolEvent } from "../../lib/calendar.ts";
+import DateRange from "../DateRange.astro";
 
 interface Props {
   events: readonly SchoolEvent[];
@@ -14,8 +15,7 @@ const { events } = Astro.props;
     {events.map((event) => (
       <li>
         <p class="when">
-          {longDate(event.date)}
-          {event.endDate !== undefined && ` – ${longDate(event.endDate)}`}
+          <DateRange date={event.date} endDate={event.endDate} />
         </p>
         <p class="what">{event.title}</p>
       </li>
@@ -35,7 +35,7 @@ const { events } = Astro.props;
 
   ol {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
     gap: var(--space-4);
     margin: 0;
     padding: 0;
@@ -52,6 +52,7 @@ const { events } = Astro.props;
 
   .when {
     font-family: var(--font-mono);
+    font-size: var(--step-n1);
     font-weight: 600;
   }
 
