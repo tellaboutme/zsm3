@@ -22,10 +22,10 @@ const { size = "panel" } = Astro.props;
         1. lekcja o 7:30
       </p>
       <span class="title sizer" aria-hidden="true">
-        Dziś nie ma zajęć
+        Teraz nie ma lekcji
       </span>
       <span class="detail sizer" aria-hidden="true">
-        Lekcje w dni nauki od 7:30
+        Następne lekcje w poniedziałek 30 października o 10:45
       </span>
     </div>
     <p class="timer" data-live="timer">
@@ -136,6 +136,11 @@ const { size = "panel" } = Astro.props;
   progress::-moz-progress-bar {
     border-radius: var(--radius);
     background: var(--blue-ink);
+  }
+
+  [data-state="after"] :is(.timer, progress),
+  [data-state="day-off"] :is(.timer, progress) {
+    visibility: hidden;
   }
 
   .large {
