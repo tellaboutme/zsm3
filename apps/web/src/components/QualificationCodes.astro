@@ -1,0 +1,35 @@
+---
+import type { Qualification } from "../lib/professions.ts";
+
+interface Props {
+  qualifications: readonly Qualification[];
+}
+
+const { qualifications } = Astro.props;
+---
+
+<span class="codes">
+  {qualifications.map((qualification) => (
+    <abbr class="code" title={qualification.name}>
+      {qualification.code}
+    </abbr>
+  ))}
+</span>
+
+<style>
+  .codes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .code {
+    padding: var(--space-1) var(--space-2);
+    border: var(--hairline) solid currentcolor;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-variant-numeric: tabular-nums;
+    text-decoration: none;
+  }
+</style>
