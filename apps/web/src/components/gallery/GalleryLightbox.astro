@@ -146,6 +146,44 @@
     user-select: none;
   }
 
+  @media (height < 30rem) and (orientation: landscape) {
+    .frame {
+      grid-template:
+        "stage bar" auto
+        "stage foot" minmax(0, 1fr)
+        / minmax(0, 1fr) minmax(11rem, 16rem);
+    }
+
+    .bar {
+      grid-area: bar;
+      padding-block-end: 0;
+    }
+
+    .stage {
+      grid-area: stage;
+    }
+
+    .foot {
+      flex-flow: column nowrap;
+      grid-area: foot;
+      align-items: stretch;
+      justify-content: flex-end;
+      overflow-y: auto;
+    }
+
+    .foot p {
+      flex: 0 1 auto;
+    }
+
+    .steps {
+      flex-wrap: wrap;
+    }
+
+    .steps button {
+      flex: 1 1 auto;
+    }
+  }
+
   .status {
     position: absolute;
     width: 1px;
