@@ -1,4 +1,4 @@
-import { CompactSign, createLocalJWKSet, exportJWK, generateKeyPair } from "jose";
+import { CompactSign, createLocalJWKSet, errors, exportJWK, generateKeyPair } from "jose";
 import { describe, it } from "vitest";
 
 import type { AccessClock, AccessJwks } from "../../src/security/access-jwt.ts";
@@ -30,12 +30,12 @@ function without(claims: object, key: string): Record<string, unknown> {
   return Object.fromEntries(Object.entries(claims).filter(([name]) => name !== key));
 }
 
-async function fixture(claims: Record<string, unknown>): Promise<Fixture> {
-  const { publicKey, privateKey } = await generateKeyPair("ES256", { extractable: true });
-  const key = { ...(await exportJWK(publicKey)), kid: "k1", alg: "ES256" };
+async function fixture(claims: Record<string, unknown>, alg = "ES256"): Promise<Fixture> {
+  const { publicKey, privateKey } = await generateKeyPair(alg, { extractable: true });
+  const key = { ...(await exportJWK(publicKey)), kid: "k1", alg };
   const jwks: AccessJwks = createLocalJWKSet({ keys: [key] });
   const token = await new CompactSign(new TextEncoder().encode(JSON.stringify(claims)))
-    .setProtectedHeader({ alg: "ES256", kid: "k1" })
+    .setProtectedHeader({ alg, kid: "k1" })
     .sign(privateKey);
   return { jwks, token };
 }
@@ -49,6 +49,22 @@ describe("access verifier", () => {
     const signed = await fixture(VALID_CLAIMS);
 
     expect(await verifier(signed)(signed.token)).toEqual(VALID_CLAIMS);
+  });
+
+  it("accepts the RS256 tokens Cloudflare Access issues", async ({ expect }) => {
+    const signed = await fixture(VALID_CLAIMS, "RS256");
+
+    expect(await verifier(signed)(signed.token)).toEqual(VALID_CLAIMS);
+  });
+
+  it("rejects a validly signed token with an algorithm outside the allow list", async ({
+    expect,
+  }) => {
+    for (const alg of ["ES384", "PS256", "EdDSA"]) {
+      const signed = await fixture(VALID_CLAIMS, alg);
+
+      await expect(verifier(signed)(signed.token)).rejects.toThrow(errors.JOSEAlgNotAllowed);
+    }
   });
 
   it("rejects a token for another audience", async ({ expect }) => {
