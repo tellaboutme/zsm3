@@ -1,6 +1,6 @@
 # ZSM3 — System architecture (v1)
 
-Status: **approved draft, stage 0 implemented.** Later stages start once the school answers the open questions in section 15. Polish version: [../pl/architektura.md](../pl/architektura.md).
+Status: **approved; stages 0–6 are implemented in code** (§14). Closing them needs the preview demo, and stage 7 needs the school's answers in section 15 and [decyzje-szkoly.md](../pl/decyzje-szkoly.md). Polish version: [../pl/architektura.md](../pl/architektura.md).
 
 ## 1. Goals and scope
 
@@ -23,22 +23,22 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
 
 ## 2. Legal requirements → design decisions
 
-| Act                                        | Requirement                                                        | Decision                                                                                                                                                                                           |
-| ------------------------------------------ | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GDPR art. 5, 25                            | data minimisation, privacy by design                               | only the fields needed to issue the document; no PESEL, no photos, no IP addresses; field-level encryption (§8.3)                                                                                  |
-| GDPR art. 6                                | lawful basis                                                       | art. 6(1)(c)/(e) (the school's public task), **not consent**; confirmed by the school's data protection officer (IOD)                                                                              |
-| GDPR art. 13                               | information notice                                                 | notice text from the IOD below the form with a link to the full version; an "I have read it" checkbox, which is not consent                                                                        |
-| GDPR art. 17, 21                           | erasure                                                            | the applicant withdraws a request themselves (§7.3); automatic deletion after the retention period (§8.4)                                                                                          |
-| GDPR art. 28                               | data processing agreements                                         | the Cloudflare and Brevo accounts **belong to the school**, which accepts their DPAs; a developer with access to production data signs a _umowa powierzenia_ with the school                       |
-| GDPR art. 30, 32, 33                       | records of processing, security, breaches                          | processing description for the school's register (`docs/RODO.md`), measures from §8, a 72-hour incident procedure (§12.3)                                                                          |
-| GDPR art. 44+                              | transfers outside the EEA                                          | D1 and R2 in the `eu` jurisdiction; Cloudflare and Brevo under DPA/SCC; Brevo is a French company                                                                                                  |
-| Ustawa o dostępności cyfrowej (2019)       | WCAG 2.1 AA, accessibility statement                               | zero axe violations on every page in CI; `/deklaracja-dostepnosci` page in the official format, linked from the footer                                                                             |
-| Ustawa o zapewnianiu dostępności (2019)    | information about the school in machine-readable text, PJM and ETR | `/dostepnosc` page with an easy-to-read text and a Polish Sign Language video, both provided by the school                                                                                         |
-| Prawo komunikacji elektronicznej, art. 399 | cookies and browser storage                                        | strictly necessary only: theme choice in `localStorage` (requested by the user), the Access session cookie for staff; no analytics or trackers, so no consent banner                               |
-| UŚUDE art. 8                               | terms of an electronic service                                     | `/e-wniosek/regulamin` page, text approved by the school                                                                                                                                           |
-| Copyright act art. 81                      | images of people                                                   | every gallery upload confirms that a permission or agreed legal basis exists and is written to the audit log, which does not itself prove consent; photos can be removed within minutes on request |
-| KRI regulation (2024)                      | security and accessibility of public-sector systems                | sections 8, 10 and 12 of this document and the audit log                                                                                                                                           |
-| Ustawa o dostępie do informacji publicznej | BIP                                                                | the website does not replace the BIP; links to the BIP in the header and footer                                                                                                                    |
+| Act                                        | Requirement                                                        | Decision                                                                                                                                                                                                                                                                                      |
+| ------------------------------------------ | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GDPR art. 5, 25                            | data minimisation, privacy by design                               | only the fields needed to issue the document; no PESEL, no photos, no IP addresses; field-level encryption (§8.3)                                                                                                                                                                             |
+| GDPR art. 6                                | lawful basis                                                       | art. 6(1)(c)/(e) (the school's public task), **not consent**; to be confirmed by the school's data protection officer (IOD) before launch (§15)                                                                                                                                               |
+| GDPR art. 13                               | information notice                                                 | notice text from the IOD below the form with a link to the full version; an "I have read it" checkbox, which is not consent                                                                                                                                                                   |
+| GDPR art. 17, 21                           | erasure                                                            | the applicant withdraws a request themselves (§7.3); automatic deletion after the retention period (§8.4)                                                                                                                                                                                     |
+| GDPR art. 28                               | data processing agreements                                         | the Cloudflare and Brevo accounts **belong to the school**, which accepts their DPAs; a developer with access to production data signs a _umowa powierzenia_ with the school                                                                                                                  |
+| GDPR art. 30, 32, 33                       | records of processing, security, breaches                          | processing description for the school's register (`docs/RODO.md`, written in stage 7), measures from §8, a 72-hour incident procedure (§12.3)                                                                                                                                                 |
+| GDPR art. 44+                              | transfers outside the EEA                                          | D1 and R2 in the `eu` jurisdiction; Cloudflare and Brevo under DPA/SCC; Brevo is a French company                                                                                                                                                                                             |
+| Ustawa o dostępności cyfrowej (2019)       | WCAG 2.1 AA, accessibility statement                               | zero axe violations on every page in CI; `/deklaracja-dostepnosci` page in the official format, linked from the footer                                                                                                                                                                        |
+| Ustawa o zapewnianiu dostępności (2019)    | information about the school in machine-readable text, PJM and ETR | `/dostepnosc` page with an easy-to-read text and a Polish Sign Language video, both provided by the school                                                                                                                                                                                    |
+| Prawo komunikacji elektronicznej, art. 399 | cookies and browser storage                                        | strictly necessary only: theme choice in `localStorage` (requested by the user), the Access session cookie for staff; no analytics script or trackers, so no consent banner; traffic is counted only by Cloudflare's server-side zone analytics ([ADR 0004](adr/0004-no-analytics-script.md)) |
+| UŚUDE art. 8                               | terms of an electronic service                                     | `/e-wniosek/regulamin` page, text approved by the school                                                                                                                                                                                                                                      |
+| Copyright act art. 81                      | images of people                                                   | every gallery upload confirms that a permission or agreed legal basis exists and is written to the audit log, which does not itself prove consent; photos can be removed within minutes on request                                                                                            |
+| KRI regulation (2024)                      | security and accessibility of public-sector systems                | sections 8, 10 and 12 of this document and the audit log                                                                                                                                                                                                                                      |
+| Ustawa o dostępie do informacji publicznej | BIP                                                                | the website does not replace the BIP; links to the BIP in the header and footer                                                                                                                                                                                                               |
 
 ## 3. Overview
 
@@ -47,7 +47,7 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
  Visitor ───HTTPS───►   │  WAF (free managed rules) → Worker "zsm3"                       │
                         │     ├─ Static assets: HTML, CSS, JS, fonts, images              │
                         │     ├─ /api/requests/*   public request API (Turnstile, limits) │
-                        │     ├─ /api/gallery/*    gallery reads (edge cache)             │
+                        │     ├─ /api/gallery/*    gallery reads (browser cache 60 s)     │
                         │     ├─ /media/*          photos from R2 (published, no store)  │
  Staff ─────Access──►   │     ├─ /panel/*          static panel pages                     │
  (SSO / one-time code)  │     └─ /api/panel/*      panel API (Access JWT, roles, Origin)  │
@@ -59,24 +59,24 @@ Status: **approved draft, stage 0 implemented.** Later stages start once the sch
                                                                   └──► Brevo (EU) e-mail
 ```
 
-One Worker on one origin: no CORS, one deployment, one header policy. Cloudflare serves built assets without running any code; the Worker renders content pages from D1 (cached at the edge) and handles `/api/*`, `/media/*` and `/panel*`.
+One Worker on one origin: no CORS, one deployment, one header policy. Cloudflare serves built assets without running any code; the Worker renders content pages from D1 on every request, without an edge cache ([ADR 0003](adr/0003-no-edge-cache-for-pages.md)), and handles `/api/*`, `/media/*` and `/panel*`.
 
 ## 4. Stack
 
-| Layer             | Choice                               | Why                                                                                                                                                                              |
-| ----------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime           | Cloudflare Workers + Static Assets   | free, serverless, one origin                                                                                                                                                     |
-| Server language   | TypeScript 6.0 (strict)              | native language of Workers; typescript-eslint does not support 7.x yet; Python Workers are still limited in packages and cold starts                                             |
-| HTTP              | Hono                                 | small, well-tested router for Workers; middleware for secure headers, body limits and CSRF                                                                                       |
-| Validation        | Zod 4                                | one set of schemas for the form and the API (`packages/contracts`)                                                                                                               |
-| Database          | D1 (SQLite), SQL migrations          | free; prepared statements with `bind` only                                                                                                                                       |
-| Files             | R2                                   | 10 GB free, free egress                                                                                                                                                          |
-| JWT               | `jose`                               | verifies Access JWTs against JWKS                                                                                                                                                |
-| E-mail            | Brevo behind an `EmailSender` port   | EU provider, 300 e-mails a day free; one adapter to swap the provider                                                                                                            |
-| Front end         | Astro 7 (hybrid), TypeScript         | design shell built ahead of time, content pages rendered on demand and cached; JavaScript only where needed; `astro check`; no inline scripts or styles, so the CSP stays strict |
-| Image compression | jSquash (WebP, WASM) in a Web Worker | identical output in every browser; Safari cannot encode WebP through canvas                                                                                                      |
-| Tooling           | Python 3.13 (`tools/`, uv)           | maintenance scripts: gallery archive import, repository checks                                                                                                                   |
-| Node.js           | Node 24 LTS, pnpm 12                 | `minimumReleaseAge` of 7 days, `trustPolicy: no-downgrade`, `allowBuilds`, `blockExoticSubdeps`                                                                                  |
+| Layer             | Choice                               | Why                                                                                                                                                                               |
+| ----------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime           | Cloudflare Workers + Static Assets   | free, serverless, one origin                                                                                                                                                      |
+| Server language   | TypeScript 6.0 (strict)              | native language of Workers; typescript-eslint does not support 7.x yet; Python Workers are still limited in packages and cold starts                                              |
+| HTTP              | Hono                                 | small, well-tested router for Workers; middleware for secure headers, body limits and CSRF                                                                                        |
+| Validation        | Zod 4                                | one set of schemas for the form and the API (`packages/contracts`)                                                                                                                |
+| Database          | D1 (SQLite), SQL migrations          | free; prepared statements with `bind` only                                                                                                                                        |
+| Files             | R2                                   | 10 GB free, free egress                                                                                                                                                           |
+| JWT               | `jose`                               | verifies Access JWTs against JWKS                                                                                                                                                 |
+| E-mail            | Brevo behind an `EmailSender` port   | EU provider, 300 e-mails a day free; one adapter to swap the provider                                                                                                             |
+| Front end         | Astro 7 (hybrid), TypeScript         | design shell built ahead of time, content pages rendered on demand per request; JavaScript only where needed; `astro check`; no inline scripts or styles, so the CSP stays strict |
+| Image compression | jSquash (WebP, WASM) in a Web Worker | identical output in every browser; Safari cannot encode WebP through canvas                                                                                                       |
+| Tooling           | Python 3.13 (`tools/`, uv)           | maintenance scripts: gallery archive import, repository checks                                                                                                                    |
+| Node.js           | Node 24 LTS, pnpm 12                 | `minimumReleaseAge` of 7 days, `trustPolicy: no-downgrade`, `allowBuilds`, `blockExoticSubdeps`                                                                                   |
 
 ## 5. Repository layout
 
@@ -87,36 +87,34 @@ zsm3/
 │  │  ├─ src/
 │  │  │  ├─ index.ts              entry point: fetch, queue, scheduled
 │  │  │  ├─ app.ts                Hono application and middleware order
-│  │  │  ├─ env.ts                binding and secret types, configuration parsed at start-up
+│  │  │  ├─ env.ts, app-env.ts    binding and secret types, configuration parsed at start-up
 │  │  │  ├─ http/                 problem+json (RFC 9457), headers, request id
 │  │  │  ├─ security/             access-jwt, turnstile, rate-limit, origin, pii-crypto, tokens
-│  │  │  ├─ domain/               request-lifecycle (state machine), request-types, retention-policy
-│  │  │  ├─ storage/              requests-repo, gallery-repo, staff-repo, audit-repo
-│  │  │  ├─ media/                webp-inspector, media-keys
-│  │  │  ├─ routes/               public-requests, gallery, media, panel/{requests,gallery,staff}
-│  │  │  ├─ mail/                 email-sender, brevo-sender, templates, queue-consumer
-│  │  │  └─ jobs/                 retention
-│  │  ├─ migrations/              0001_content.sql, …
+│  │  │  ├─ domain/               pure rules: request lifecycle, retention, public changes
+│  │  │  ├─ storage/              repositories over D1 and R2
+│  │  │  ├─ media/                WebP inspector, media keys
+│  │  │  ├─ routes/               gallery, media, requests, questions, short-links, health, panel/
+│  │  │  ├─ requests/, questions/, short-links/   feature modules
+│  │  │  ├─ mail/, jobs/, logging/, services/
+│  │  ├─ migrations/              numbered D1 migrations
 │  │  ├─ seed/                    sample content for local runs and end-to-end tests
-│  │  ├─ test/                    unit, integration (workerd), security
-│  │  └─ wrangler.jsonc           test Worker only
+│  │  └─ test/                    unit, integration (workerd), security
 │  └─ web/
 │     ├─ worker/index.ts          deployed entry: /api/* to Hono, everything else to Astro
 │     ├─ wrangler.jsonc           deployment configuration
 │     ├─ src/middleware.ts        security headers for pages rendered on demand
 │     ├─ src/server/              D1 access for pages rendered on demand
 │     ├─ src/pages/               Astro pages, including /panel
-│     ├─ src/layouts/             page layouts
-│     ├─ src/scripts/             TS: site/*, panel/*, upload-worker.ts
-│     ├─ src/styles/              tokens.css, global.css
-│     ├─ src/content/             site content (news, programmes, timetable)
+│     ├─ src/layouts/, components/, data/, lib/, pattern-library/
+│     ├─ src/scripts/             browser modules: site modules at the top level, panel/
+│     ├─ src/styles/              tokens.css, global.css and layers
 │     └─ public/                  fonts, images, robots.txt, _headers, .well-known/security.txt
 ├─ packages/
 │  ├─ contracts/                  Zod schemas, DTO types, document types, statuses
 │  └─ lint-rules/                 ESLint and Stylelint rules of this repository
-├─ tools/                         Python package zsm3_tools: no_comments, import_gallery
-├─ e2e/                           Playwright, axe and Lighthouse budgets
-├─ docs/                          en/, pl/, RODO.md, RUNBOOK.md, ADR/
+├─ tools/                         Python package zsm3_tools: no-comments, repository rules, redirect import, content inventory, migration audit, gallery archive
+├─ e2e/                           Playwright, axe and Lighthouse budgets, visual baselines
+├─ docs/                          INDEX.md, en/ (with adr/), pl/, RUNBOOK.md
 └─ .github/                       workflows, composite setup action, Dependabot, zizmor
 ```
 
@@ -156,7 +154,7 @@ photo_uploads
   INDEX (started_at), partial INDEX (claimed_at, sha256)
 
 staff
-  email PK (lower case), role (admin | secretariat | editor | gallery_editor), active, created_at, updated_at
+  email PK (lower case), role (admin | secretariat | editor | gallery_editor | counsellor), active, created_at, updated_at
 
 audit_log
   id, at, actor_email, action, entity, entity_id, details_json (no applicant personal data)
@@ -303,7 +301,7 @@ Migrations follow expand/contract: the new code works with the old schema and vi
 - `GET /api/gallery/years`, `/api/gallery/years/:year/albums`, `/api/gallery/albums/:id` return published albums only, cached for 60 seconds (`public, max-age=60`) with no `stale-while-revalidate`.
 - `GET /media/g/<sha256>-(s|l).webp` checks `photos` in D1 on every request (album published, photo not deleted), then streams the object from R2 with `Content-Type: image/webp`, `nosniff`, `Cache-Control: no-store` and `Cross-Origin-Resource-Policy: same-origin`.
 - Photos are not cached by the Worker, the Cache API or the browser. A school can withdraw permission to publish a student's photo, and a stored copy cannot be recalled, so deleting a photo or album, or unpublishing an album, ends delivery at the next request. The album pages and the JSON above can still list it for up to 60 seconds in a browser, but its files already answer 404. Caching photos is a later optimisation that needs agreed requirements first.
-- **Archive import** by `tools/import_gallery.py`: downloads from the current site (at most 4 parallel connections), Pillow (EXIF rotation, metadata removal, WebP 400/1600), upload to R2 over the S3 API, SQL for D1. The script is idempotent and resumes where it stopped. No real archive is imported or published until the school has named who is responsible for it.
+- **Archive import:** `zsm3-gallery-archive` ([gallery-archive.md](gallery-archive.md)) prepares a local copy of the old archive as a dry run: WebP 400/1600 without metadata, a permission file, a manifest and a report. It never uploads; the import step is built once the school has named who is responsible for the archive and supplied the permissions.
 
 ### 7.7 Opening a short link
 
@@ -364,7 +362,7 @@ The gallery upload page in the panel is the only exception to the site-wide CSP,
 - A short link's password is stored as HMAC-SHA256 of `base64url(salt):password` under the `SHORT_LINK_KEY` Worker secret, with 16 random salt bytes per row. A slow KDF would be the usual choice, but 200k PBKDF2 iterations cost far more than the 10 ms of CPU a request gets on the Workers free plan; keying the digest with a secret that never reaches D1 protects a stolen database instead, which is what these passwords are worth. Link codes come from `crypto.getRandomValues` and 32 divides 256, so the alphabet is drawn without bias.
 - The panel decrypts personal data only for the request or list page being viewed; searching by surname happens in the browser on the loaded page.
 
-### 8.4 Retention (defaults, approved by the IOD)
+### 8.4 Retention (defaults, to be approved by the IOD)
 
 | Data                                           | Retention                                              |
 | ---------------------------------------------- | ------------------------------------------------------ |
@@ -423,7 +421,6 @@ A daily Cron job enforces retention and records every run in `audit_log`. That j
 | Python     | ruff (`select = ["ALL"]`), mypy `--strict` | only rules that conflict with the no-comments policy (`D`) or the formatter are off                                                                    |
 | Workflows  | actionlint, zizmor, ShellCheck             | zizmor requires every action to be pinned by hash                                                                                                      |
 | Secrets    | gitleaks                                   | full history in CI                                                                                                                                     |
-| HTML, SQL  | html-validate, sqlfluff                    | added together with the first panel pages and migrations (stage 1)                                                                                     |
 
 ### 11.3 Tests
 
@@ -485,26 +482,26 @@ The Worker parses its configuration with a schema at start-up; without a require
 | Access                   | 50 users                                                     | secretariat and teachers     |
 | Turnstile, free WAF, DNS | free                                                         |                              |
 | Brevo                    | 300 e-mails a day                                            | a few a day                  |
-| GitHub Actions           | unlimited for public repositories                            | ~15 minutes per pull request |
+| GitHub Actions           | unlimited for public repositories                            | ~60 minutes per pull request |
 
 Total: **0 PLN per month**. The school already owns its domain. If load grows, Workers Paid costs USD 5 a month.
 
 ## 14. Stages
 
-| #   | Stage                 | Outcome                                                                                                                        |
-| --- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| 0   | Foundation            | **done:** repository, monorepo, tooling and CI with every check, Worker and Astro skeletons                                    |
-| 1   | Design system         | visual direction chosen with the school, tokens, typography, components, templates, accessibility settings, live status        |
-| 2   | Content platform      | D1 content model, import of the current site, hybrid rendering, search, RSS, redirects, technical SEO                          |
-| 3   | Panel and CMS         | Access, JWT verification, roles, editors for every content type, revisions, audit log, editor's guide                          |
-| 4   | E-wniosek             | migrations, request API, form, status, withdrawal, e-mail queue, retention                                                     |
-| 5   | Gallery               | upload in the panel, public gallery, media serving, archive import                                                             |
-| 6   | Community tools       | short links, Skrzynka #OgarniamŻycie, cookieless analytics                                                                     |
-| 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF review, terms, full ZAP scan, ASVS L2, DNS cutover, search engine registration, training |
+| #   | Stage                 | Outcome                                                                                                                                |
+| --- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | Foundation            | **done:** repository, monorepo, tooling and CI with every check, Worker and Astro skeletons                                            |
+| 1   | Design system         | visual direction chosen with the school, tokens, typography, components, templates, accessibility settings, live status                |
+| 2   | Content platform      | D1 content model, import of the current site, hybrid rendering, search, RSS, redirects, technical SEO                                  |
+| 3   | Panel and CMS         | Access, JWT verification, roles, editors for every content type, revisions, audit log, editor's guide                                  |
+| 4   | E-wniosek             | migrations, request API, form, status, withdrawal, e-mail queue, retention                                                             |
+| 5   | Gallery               | upload in the panel, public gallery, media serving, archive import                                                                     |
+| 6   | Community tools       | short links, Skrzynka #OgarniamŻycie; traffic from server-side zone analytics, no script ([ADR 0004](adr/0004-no-analytics-script.md)) |
+| 7   | Compliance and launch | accessibility statement, ETR/PJM, PDF review, terms, full ZAP scan, ASVS L2, DNS cutover, search engine registration, training         |
 
 Details per stage: [site-plan.md](site-plan.md).
 
-A stage is closed only with a green pipeline and a demo on preview.
+Stages 1–6 are implemented in code with a green pipeline; the gallery archive import exists only as a dry run (§7.6). A stage is closed only with a green pipeline and a demo on preview, and the preview needs the school's Cloudflare account (§15), so no stage after 0 is formally closed yet.
 
 ## 15. Open questions
 

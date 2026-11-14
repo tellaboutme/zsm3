@@ -6,10 +6,10 @@ WebP variants the gallery API accepts, applies an explicit permission file and w
 manifest and a report. It has no upload or D1 command, never opens a network connection and
 never modifies the source files.
 
-```powershell
-uv run --directory tools --locked zsm3-gallery-archive dry-run --source D:\archiwum --out "$env:LOCALAPPDATA\Temp\zsm3-gallery" --permissions D:\zgody\permissions.json
-uv run --directory tools --locked zsm3-gallery-archive dry-run --source D:\archiwum --out "$env:LOCALAPPDATA\Temp\zsm3-gallery" --resume
-uv run --directory tools --locked zsm3-gallery-archive validate --manifest "$env:LOCALAPPDATA\Temp\zsm3-gallery\manifest.json" --variants "$env:LOCALAPPDATA\Temp\zsm3-gallery\variants"
+```bash
+uv run --directory tools --locked zsm3-gallery-archive dry-run --source ~/archiwum --out /tmp/zsm3-gallery --permissions ~/zgody/permissions.json
+uv run --directory tools --locked zsm3-gallery-archive dry-run --source ~/archiwum --out /tmp/zsm3-gallery --resume
+uv run --directory tools --locked zsm3-gallery-archive validate --manifest /tmp/zsm3-gallery/manifest.json --variants /tmp/zsm3-gallery/variants
 ```
 
 ## Stages

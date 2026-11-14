@@ -24,14 +24,15 @@ Panel działa pod adresem `/panel` i jest chroniony przez Cloudflare Access. Wch
 
 ## 2. Role pracowników
 
-Rolę ma każdy pracownik wpisany do listy w panelu. Panel zna cztery role:
+Rolę ma każdy pracownik wpisany do listy w panelu. Panel zna pięć ról:
 
-| Rola             | Co możesz robić                                                                                                                                 |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| administrator    | Wszystko w panelu, a dodatkowo prowadzi listę pracowników i ich role (**Pracownicy i role**) oraz przekierowania starych adresów.               |
-| sekretariat      | Redaguje treści strony i obsługuje wnioski e-wniosek (rozdział 15).                                                                             |
-| redaktor treści  | Redaguje treści strony: aktualności, strony, terminarz, dokumenty, ogłoszenia i dzwonki. To rola nauczycieli i pracowników prowadzących stronę. |
-| redaktor galerii | Prowadzi galerię: tworzy albumy, dodaje zdjęcia, publikuje je (etap 5). To rola nauczycieli odpowiedzialnych za fotoreportaż.                   |
+| Rola                          | Co możesz robić                                                                                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| administrator                 | Wszystko w panelu, a dodatkowo prowadzi listę pracowników i ich role (**Pracownicy i role**) oraz przekierowania starych adresów.               |
+| sekretariat                   | Redaguje treści strony i obsługuje wnioski e-wniosek (rozdział 15).                                                                             |
+| redaktor treści               | Redaguje treści strony: aktualności, strony, terminarz, dokumenty, ogłoszenia i dzwonki. To rola nauczycieli i pracowników prowadzących stronę. |
+| redaktor galerii              | Prowadzi galerię: tworzy albumy, dodaje zdjęcia, publikuje je (etap 5). To rola nauczycieli odpowiedzialnych za fotoreportaż.                   |
+| Skrzynka (pedagog, psycholog) | Widzi tylko pytania uczniów w Skrzynce #OgarniamŻycie i odpowiada na nie ([przewodnik Skrzynki](skrzynka.md)). Nie redaguje treści strony.      |
 
 ### Pracownicy i role (administrator)
 
@@ -394,12 +395,7 @@ Po utworzeniu link pojawia się z przyciskiem **Kopiuj link**. Na liście widzis
 
 ## Co jeszcze powstanie
 
-Ten podręcznik na razie opisuje etap 3. W kolejnych etapach dojdzie reszta panelu (zgodnie z [architekturą](architektura.md), rozdział 14):
-
-- **Etap 6 — narzędzia społeczności**: Skrzynka #OgarniamŻycie moderowana w panelu, statystyki bez plików cookie (krótkie linki opisuje rozdział 16).
-- **Etap 7 — uruchomienie**: szkolenie pracowników, przegląd PDF, rejestracja w wyszukiwarkach i przełączenie DNS.
-
-Rozdziały tego podręcznika zostaną uaktualnione, gdy te części zaczną działać.
+Panel ma już wszystkie części z [architektury](architektura.md) (rozdział 14), łącznie ze Skrzynką #OgarniamŻycie ([przewodnik](skrzynka.md)) i krótkimi linkami (rozdział 16). Statystyki odwiedzin strona pokaże w panelu Cloudflare szkoły, bez skryptów i plików cookie, więc w tym panelu ich nie ma. Zostaje **etap 7 — uruchomienie**: szkolenie pracowników, przegląd PDF, rejestracja w wyszukiwarkach i przełączenie DNS.
 
 ## Lokalna praca przy budowie panelu
 

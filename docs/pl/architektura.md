@@ -1,6 +1,6 @@
 # ZSM3 — Architektura systemu (v1)
 
-Status: **zatwierdzony projekt, etap 0 zrealizowany.** Kolejne etapy ruszają po odpowiedzi szkoły na pytania z rozdziału 15. Wersja angielska: [../en/architecture.md](../en/architecture.md).
+Status: **zatwierdzony projekt; etapy 0–6 są zrealizowane w kodzie** (§14). Ich formalne zamknięcie wymaga pokazu na wersji podglądowej, a etap 7 — odpowiedzi szkoły na pytania z rozdziału 15 i z [listy decyzji](decyzje-szkoly.md). Wersja angielska: [../en/architecture.md](../en/architecture.md).
 
 ## 1. Cele i zakres
 
@@ -23,22 +23,22 @@ Status: **zatwierdzony projekt, etap 0 zrealizowany.** Kolejne etapy ruszają po
 
 ## 2. Wymogi prawne → rozwiązania
 
-| Akt                                        | Wymóg                                                                  | Rozwiązanie                                                                                                                                                                          |
-| ------------------------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| RODO art. 5, 25                            | minimalizacja danych, privacy by design                                | tylko pola niezbędne do wydania dokumentu; bez PESEL, bez zdjęć, bez adresów IP; szyfrowanie pól (§8.3)                                                                              |
-| RODO art. 6                                | podstawa prawna                                                        | art. 6 ust. 1 lit. c/e (zadanie publiczne szkoły), **nie zgoda**; ostatecznie zatwierdza Inspektor Ochrony Danych (IOD)                                                              |
-| RODO art. 13                               | klauzula informacyjna                                                  | tekst od IOD pod formularzem z linkiem do pełnej wersji; pole „Zapoznałem(-am) się”, które nie jest zgodą                                                                            |
-| RODO art. 17, 21                           | usuwanie danych                                                        | wnioskodawca sam wycofuje wniosek (§7.3); automatyczne usuwanie po upływie okresu przechowywania (§8.4)                                                                              |
-| RODO art. 28                               | umowy powierzenia                                                      | konta Cloudflare i Brevo **należą do szkoły**, która akceptuje ich umowy DPA; programista z dostępem do danych produkcyjnych podpisuje ze szkołą umowę powierzenia                   |
-| RODO art. 30, 32, 33                       | rejestr czynności, bezpieczeństwo, naruszenia                          | opis przetwarzania do rejestru szkoły (`docs/RODO.md`), środki z §8, procedura zgłoszenia naruszenia w 72 godziny (§12.3)                                                            |
-| RODO art. 44+                              | przekazywanie poza EOG                                                 | D1 i R2 w jurysdykcji `eu`; Cloudflare i Brevo na podstawie DPA/SCC; Brevo to firma francuska                                                                                        |
-| Ustawa o dostępności cyfrowej (2019)       | WCAG 2.1 AA, deklaracja dostępności                                    | zero błędów axe na każdej stronie w CI; strona `/deklaracja-dostepnosci` według urzędowego wzoru, link w stopce                                                                      |
-| Ustawa o zapewnianiu dostępności (2019)    | informacja o działalności w tekście odczytywalnym maszynowo, PJM i ETR | strona `/dostepnosc` z tekstem łatwym do czytania i nagraniem w polskim języku migowym, materiały dostarcza szkoła                                                                   |
-| Prawo komunikacji elektronicznej, art. 399 | pliki cookie i pamięć przeglądarki                                     | tylko niezbędne: wybór motywu w `localStorage` (funkcja, o którą prosi użytkownik), sesyjne cookie Access dla pracowników; brak analityki i śledzenia, więc baner nie jest potrzebny |
-| UŚUDE art. 8                               | regulamin usługi elektronicznej                                        | strona `/e-wniosek/regulamin`, treść zatwierdza szkoła                                                                                                                               |
-| Prawo autorskie art. 81                    | wizerunek                                                              | przy każdym dodaniu zdjęć potwierdzenie posiadania zgód, zapis w dzienniku zdarzeń; usunięcie zdjęcia na żądanie w kilka minut                                                       |
-| Rozporządzenie KRI (2024)                  | bezpieczeństwo i dostępność systemów podmiotów publicznych             | rozdziały 8, 10 i 12 tego dokumentu oraz dziennik zdarzeń                                                                                                                            |
-| Ustawa o dostępie do informacji publicznej | BIP                                                                    | strona nie zastępuje BIP; link do BIP w nagłówku i stopce                                                                                                                            |
+| Akt                                        | Wymóg                                                                  | Rozwiązanie                                                                                                                                                                                                                                                             |
+| ------------------------------------------ | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RODO art. 5, 25                            | minimalizacja danych, privacy by design                                | tylko pola niezbędne do wydania dokumentu; bez PESEL, bez zdjęć, bez adresów IP; szyfrowanie pól (§8.3)                                                                                                                                                                 |
+| RODO art. 6                                | podstawa prawna                                                        | art. 6 ust. 1 lit. c/e (zadanie publiczne szkoły), **nie zgoda**; ostatecznie zatwierdza Inspektor Ochrony Danych (IOD)                                                                                                                                                 |
+| RODO art. 13                               | klauzula informacyjna                                                  | tekst od IOD pod formularzem z linkiem do pełnej wersji; pole „Zapoznałem(-am) się”, które nie jest zgodą                                                                                                                                                               |
+| RODO art. 17, 21                           | usuwanie danych                                                        | wnioskodawca sam wycofuje wniosek (§7.3); automatyczne usuwanie po upływie okresu przechowywania (§8.4)                                                                                                                                                                 |
+| RODO art. 28                               | umowy powierzenia                                                      | konta Cloudflare i Brevo **należą do szkoły**, która akceptuje ich umowy DPA; programista z dostępem do danych produkcyjnych podpisuje ze szkołą umowę powierzenia                                                                                                      |
+| RODO art. 30, 32, 33                       | rejestr czynności, bezpieczeństwo, naruszenia                          | opis przetwarzania do rejestru szkoły (`docs/RODO.md`, powstaje w etapie 7), środki z §8, procedura zgłoszenia naruszenia w 72 godziny (§12.3)                                                                                                                          |
+| RODO art. 44+                              | przekazywanie poza EOG                                                 | D1 i R2 w jurysdykcji `eu`; Cloudflare i Brevo na podstawie DPA/SCC; Brevo to firma francuska                                                                                                                                                                           |
+| Ustawa o dostępności cyfrowej (2019)       | WCAG 2.1 AA, deklaracja dostępności                                    | zero błędów axe na każdej stronie w CI; strona `/deklaracja-dostepnosci` według urzędowego wzoru, link w stopce                                                                                                                                                         |
+| Ustawa o zapewnianiu dostępności (2019)    | informacja o działalności w tekście odczytywalnym maszynowo, PJM i ETR | strona `/dostepnosc` z tekstem łatwym do czytania i nagraniem w polskim języku migowym, materiały dostarcza szkoła                                                                                                                                                      |
+| Prawo komunikacji elektronicznej, art. 399 | pliki cookie i pamięć przeglądarki                                     | tylko niezbędne: wybór motywu w `localStorage` (funkcja, o którą prosi użytkownik), sesyjne cookie Access dla pracowników; brak skryptów analitycznych i śledzenia, więc baner nie jest potrzebny; ruch liczą tylko statystyki Cloudflare po stronie serwera (ADR 0004) |
+| UŚUDE art. 8                               | regulamin usługi elektronicznej                                        | strona `/e-wniosek/regulamin`, treść zatwierdza szkoła                                                                                                                                                                                                                  |
+| Prawo autorskie art. 81                    | wizerunek                                                              | przy każdym dodaniu zdjęć potwierdzenie posiadania zgód, zapis w dzienniku zdarzeń; usunięcie zdjęcia na żądanie w kilka minut                                                                                                                                          |
+| Rozporządzenie KRI (2024)                  | bezpieczeństwo i dostępność systemów podmiotów publicznych             | rozdziały 8, 10 i 12 tego dokumentu oraz dziennik zdarzeń                                                                                                                                                                                                               |
+| Ustawa o dostępie do informacji publicznej | BIP                                                                    | strona nie zastępuje BIP; link do BIP w nagłówku i stopce                                                                                                                                                                                                               |
 
 ## 3. Schemat ogólny
 
@@ -47,8 +47,8 @@ Status: **zatwierdzony projekt, etap 0 zrealizowany.** Kolejne etapy ruszają po
  Odwiedzający ──HTTPS──► │  WAF (bezpłatne reguły) → Worker „zsm3”                          │
                          │     ├─ Pliki statyczne: HTML, CSS, JS, czcionki, obrazy          │
                          │     ├─ /api/requests/*   publiczne API wniosków (Turnstile, limity) │
-                         │     ├─ /api/gallery/*    odczyt galerii (cache na brzegu sieci)  │
-                         │     ├─ /media/*          zdjęcia z R2 (cache, niezmienne)        │
+                         │     ├─ /api/gallery/*    odczyt galerii (cache przeglądarki 60 s)│
+                         │     ├─ /media/*          pliki z R2 (zdjęcia bez cache)          │
  Pracownicy ──Access──►  │     ├─ /panel/*          statyczne strony panelu                 │
  (SSO / kod jednorazowy) │     └─ /api/panel/*      API panelu (JWT Access, role, Origin)   │
                          │  D1 (eu)  — wnioski, galeria, pracownicy, dziennik zdarzeń       │
@@ -95,7 +95,7 @@ zsm3/
 │  └─ lint-rules/                 własne reguły ESLint i Stylelint
 ├─ tools/                         pakiet Python zsm3_tools
 ├─ e2e/                           Playwright, axe i budżety Lighthouse
-├─ docs/                          en/, pl/, RODO.md, RUNBOOK.md
+├─ docs/                          INDEX.md, en/ (z adr/), pl/, RUNBOOK.md
 └─ .github/                       workflowy CI, Dependabot, zizmor
 ```
 
@@ -110,7 +110,7 @@ Czas zapisywany jest w UTC (ISO 8601) i wyświetlany w strefie `Europe/Warsaw`. 
 | `requests`        | wnioski: typ, status, **zaszyfrowane** dane osobowe (imię, nazwisko, klasa lub rok ukończenia, e-mail, uwaga), skrót tokenu statusu, daty; dane osobowe są usuwane po terminie |
 | `albums`          | albumy: rok szkolny, tytuł, opis, okładka, data publikacji                                                                                                                     |
 | `photos`          | zdjęcia: album, kolejność, wymiary, tekst alternatywny, klucze plików w R2, skrót SHA-256                                                                                      |
-| `staff`           | pracownicy: e-mail, rola (`admin`, `secretariat`, `editor`, `gallery_editor`), aktywność                                                                                       |
+| `staff`           | pracownicy: e-mail, rola (`admin`, `secretariat`, `editor`, `gallery_editor`, `counsellor`), aktywność                                                                         |
 | `audit_log`       | dziennik zdarzeń: kto, co i kiedy zmienił, bez danych osobowych wnioskodawców                                                                                                  |
 | `outbox_failures` | wiadomości e-mail, których nie udało się wysłać                                                                                                                                |
 
@@ -166,7 +166,7 @@ Wnioskodawca może wycofać wniosek przez ten sam link. Dane osobowe są usuwane
 
 - Publicznie widoczne są tylko opublikowane albumy; odpowiedzi API są buforowane przez 60 sekund.
 - Każde żądanie zdjęcia sprawdza w D1, czy album jest opublikowany, a zdjęcia mają `Cache-Control: no-store`. Usunięcie zdjęcia lub cofnięcie publikacji działa od następnego żądania.
-- **Import archiwum** wykonuje skrypt `tools/import_gallery.py`: pobiera zdjęcia z obecnej strony, obraca je według EXIF, usuwa metadane, zapisuje w WebP i wysyła do R2. Skrypt można bezpiecznie przerwać i wznowić.
+- **Archiwum galerii:** narzędzie `zsm3-gallery-archive` (opis w [gallery-archive.md](../en/gallery-archive.md)) przygotowuje lokalną kopię starego archiwum na próbę: WebP 400/1600 bez metadanych, plik zgód, manifest i raport. Niczego nie wysyła; właściwy import powstanie, gdy szkoła wskaże osobę odpowiedzialną za archiwum i dostarczy zgody.
 
 ## 8. Bezpieczeństwo
 
@@ -283,7 +283,7 @@ Razem: **0 zł miesięcznie**. Szkoła ma już własną domenę. Przy dużym wzr
 | 3   | Panel i CMS             | logowanie, role, edycja wszystkich rodzajów treści, historia zmian, dziennik zdarzeń, podręcznik redaktora                                              |
 | 4   | E-wniosek               | baza, API wniosków, formularz, status, wycofanie, e-maile, automatyczne usuwanie danych                                                                 |
 | 5   | Galeria                 | dodawanie zdjęć w panelu, publiczna galeria, import archiwum                                                                                            |
-| 6   | Narzędzia społeczności  | krótkie linki, Skrzynka #OgarniamŻycie, statystyki bez plików cookie                                                                                    |
+| 6   | Narzędzia społeczności  | krótkie linki, Skrzynka #OgarniamŻycie; ruch widoczny w statystykach Cloudflare po stronie serwera, bez skryptu (ADR 0004)                              |
 | 7   | Zgodność i uruchomienie | deklaracja dostępności, ETR/PJM, przegląd PDF, regulamin, pełny skan bezpieczeństwa, ASVS L2, przeniesienie DNS, rejestracja w Google i Bing, szkolenie |
 
 Szczegóły etapów (w języku angielskim): [site-plan.md](../en/site-plan.md).
