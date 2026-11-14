@@ -94,7 +94,11 @@ test.describe("staff requests list", () => {
   test("tells the secretariat when there are no requests yet", async ({ page }) => {
     await fakePanel(page, "secretariat", []);
     await page.goto("/panel/wnioski");
-    await expect(page.locator(status)).toHaveText("Nie ma jeszcze żadnych wniosków.");
+    const list = page.getByRole("region", { name: "Lista wniosków" });
+    await expect(list.locator(status)).toHaveText("Nie ma jeszcze żadnych wniosków.");
+    const heading = await list.getByRole("heading", { name: "Lista wniosków" }).boundingBox();
+    const note = await list.locator(status).boundingBox();
+    expect(note?.y ?? 0).toBeGreaterThan(heading?.y ?? Number.POSITIVE_INFINITY);
     await expect(page.getByRole("link", { name: "Wnioski" })).toBeVisible();
   });
 
