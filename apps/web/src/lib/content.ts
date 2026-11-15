@@ -28,3 +28,16 @@ export function sectionTitleFor(
   const section = sections.find((candidate) => path.startsWith(`${candidate.href}/`));
   return section === undefined ? undefined : { label: section.label, href: section.href };
 }
+
+export interface TimelineLabel {
+  text: string;
+  data: boolean;
+}
+
+export function timelineLabel(item: TimelineItem): TimelineLabel | undefined {
+  const text = item.label.trim();
+  if (text === "" || item.title.toLowerCase().startsWith(text.toLowerCase())) {
+    return undefined;
+  }
+  return { text, data: /\d/u.test(text) };
+}

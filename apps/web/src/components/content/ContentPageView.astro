@@ -20,6 +20,7 @@ interface Props {
 
 const { page } = Astro.props;
 const parent = sectionTitleFor(sections, page.path);
+const withNav = needsInPageNav(page);
 const cardLayout = page.path === "/szkola/biblioteka" || page.path === "/uczniowie/kola-i-kluby";
 ---
 
@@ -32,28 +33,35 @@ const cardLayout = page.path === "/szkola/biblioteka" || page.path === "/uczniow
     <PageHead title={page.title} lead={page.intro}>
       {page.kicker !== "" && <Fragment slot="meta">{page.kicker}</Fragment>}
     </PageHead>
-    {needsInPageNav(page) && (
-      <div class="page-nav">
-        <InPageNav sections={page.sections} />
+    <div class:list={["body", { "with-nav": withNav }]}>
+      {withNav && (
+        <div class="aside">
+          <InPageNav sections={page.sections} />
+        </div>
+      )}
+      <div class="sections">
+        {page.sections.map((section) => (
+          <section class="section" id={section.id} aria-labelledby={`${section.id}-tytul`}>
+            <h2 id={`${section.id}-tytul`}>{section.title}</h2>
+            <ContentBlocks blocks={section.blocks} />
+          </section>
+        ))}
       </div>
-    )}
-    {page.sections.map((section) => (
-      <section class="section" id={section.id} aria-labelledby={`${section.id}-tytul`}>
-        <h2 id={`${section.id}-tytul`}>{section.title}</h2>
-        <ContentBlocks blocks={section.blocks} />
-      </section>
-    ))}
-    <div class="page-nav">
-      <SiblingNav title="Zobacz też" links={siblingLinks(sections, page.path)} />
     </div>
+    <SiblingNav title="Zobacz też" links={siblingLinks(sections, page.path)} />
   </div>
 </Base>
 
 <style>
-  .content-page {
+  .content-page,
+  .body,
+  .sections {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-7);
+  }
+
+  .content-page {
     padding-block: var(--space-7);
   }
 
@@ -67,14 +75,9 @@ const cardLayout = page.path === "/szkola/biblioteka" || page.path === "/uczniow
     font-size: var(--step-3);
   }
 
-  .card-layout {
+  .card-layout .sections {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-4);
-  }
-
-  .card-layout .intro,
-  .card-layout .page-nav {
-    grid-column: 1 / -1;
   }
 
   .card-layout .section {
@@ -83,8 +86,8 @@ const cardLayout = page.path === "/szkola/biblioteka" || page.path === "/uczniow
     gap: var(--space-4);
     padding: var(--space-5);
     border: var(--hairline) solid var(--line);
-    border-top: var(--rule) solid var(--blue);
-    background: var(--gray);
+    border-radius: var(--radius);
+    background: var(--surface);
   }
 
   .card-layout .section h2 {
@@ -96,13 +99,28 @@ const cardLayout = page.path === "/szkola/biblioteka" || page.path === "/uczniow
     grid-column: 1 / -1;
   }
 
-  .card-layout .section:first-of-type {
-    background: var(--bg);
+  @media (width <= 48rem) {
+    .card-layout .sections {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
-  @media (width <= 48rem) {
-    .card-layout {
-      grid-template-columns: minmax(0, 1fr);
+  @media (width >= 64rem) {
+    .with-nav {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      align-items: start;
+    }
+
+    .with-nav .aside {
+      position: sticky;
+      top: calc(var(--header-height-compact) + var(--space-5));
+      grid-row: 1;
+      grid-column: 2;
+    }
+
+    .with-nav .sections {
+      grid-row: 1;
+      grid-column: 1;
     }
   }
 </style>
