@@ -2,6 +2,7 @@
 import "../../styles/document-filters.css";
 import Callout from "../../components/content/Callout.astro";
 import DocumentRow from "../../components/documents/DocumentRow.astro";
+import PageHead from "../../components/PageHead.astro";
 import RadioFilters from "../../components/RadioFilters.astro";
 import { documentSteps } from "../../data/documents.ts";
 import Base from "../../layouts/Base.astro";
@@ -31,13 +32,8 @@ const groups = [
   breadcrumbs={[{ label: "Uczniowie", href: "/uczniowie" }, { label: "Wzory dokumentów" }]}
 >
   <div class="documents">
-    <header class="intro">
-      <p class="tag">Uczniowie · {documentCount(documentGroups)} formularzy PDF</p>
-      <h1>
-        <span class="rise">
-          <span>Wzory dokumentów</span>
-        </span>
-      </h1>
+    <PageHead title="Wzory dokumentów">
+      <Fragment slot="meta">{documentCount(documentGroups)} formularzy PDF</Fragment>
       <ol class="steps">
         {documentSteps.map((step, index) => (
           <li>
@@ -46,7 +42,7 @@ const groups = [
           </li>
         ))}
       </ol>
-    </header>
+    </PageHead>
     <RadioFilters groups={groups} hook="documents" />
     <p class="visually-hidden" role="status" data-filter-status></p>
     {documentGroups.map((group) => (
@@ -81,20 +77,8 @@ const groups = [
     padding-block: var(--space-7);
   }
 
-  .intro {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .tag,
   .summary {
     color: var(--ink-2);
-  }
-
-  h1 {
-    font-size: var(--step-title);
-    font-stretch: var(--stretch-wide);
-    hyphens: auto;
   }
 
   .steps {

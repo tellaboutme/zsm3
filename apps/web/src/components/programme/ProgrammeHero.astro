@@ -2,6 +2,7 @@
 import { fieldLabels, type Profession } from "../../lib/professions.ts";
 import { programmeFacts, schoolNames, type Programme } from "../../lib/programmes.ts";
 import FactStrip from "../FactStrip.astro";
+import PageHead from "../PageHead.astro";
 
 interface Props {
   programme: Programme;
@@ -9,26 +10,14 @@ interface Props {
 }
 
 const { programme, profession } = Astro.props;
-const [first = "", ...rest] = profession.name.split(" ");
 ---
 
-<header class="hero">
-  <p class="tag">
+<PageHead class="hero" title={profession.name} lead={programme.lead}>
+  <Fragment slot="meta">
     {fieldLabels[profession.field]} · {schoolNames[programme.school]}
-  </p>
-  <h1>
-    <span class="rise">
-      <span>{first}</span>
-    </span>
-    {rest.length > 0 && (
-      <span class="rise">
-        <span>{rest.join(" ")}</span>
-      </span>
-    )}
-  </h1>
-  <p class="lead">{programme.lead}</p>
+  </Fragment>
   <FactStrip label="Kierunek w liczbach" facts={programmeFacts(programme, profession)} />
-</header>
+</PageHead>
 
 <style>
   .hero {
@@ -36,22 +25,5 @@ const [first = "", ...rest] = profession.name.split(" ");
     gap: var(--space-5);
     padding-top: var(--space-7);
     container-type: inline-size;
-  }
-
-  .tag {
-    color: var(--ink-2);
-  }
-
-  h1 {
-    font-size: max(min(var(--step-4), 6.5cqi), var(--step-2));
-    font-stretch: var(--stretch-wide);
-    hyphens: auto;
-    text-transform: uppercase;
-  }
-
-  .lead {
-    max-width: var(--measure);
-    font-size: var(--step-1);
-    line-height: var(--leading-snug);
   }
 </style>

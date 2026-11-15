@@ -78,7 +78,7 @@ test.describe("foundation", () => {
     await page.emulateMedia({ colorScheme: "light" });
     await setRootAttribute(page, "data-theme", "dark");
 
-    expect(await computed(page, "body", "background-color")).toBe("rgb(10, 15, 25)");
+    expect(await computed(page, "body", "background-color")).toBe("rgb(11, 17, 28)");
   });
 
   test("underlines links and greys out the page on request", async ({ page }) => {
@@ -91,18 +91,18 @@ test.describe("foundation", () => {
 });
 
 test.describe("motion", () => {
-  test("animates the page title by default", async ({ page }) => {
+  test("moves the page head in by default", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto("/wzornik");
 
-    expect(await computed(page, ".rise > span", "animation-name")).toBe("rise-in");
+    expect(await computed(page, ".page-head", "animation-name")).toBe("shift-up");
   });
 
   test("stops all motion when the system asks for less", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/wzornik");
 
-    expect(await computed(page, ".rise > span", "animation-name")).toBe("none");
+    expect(await computed(page, ".page-head", "animation-name")).toBe("none");
   });
 
   test("stops all motion when the setting asks for less", async ({ page }) => {
@@ -110,6 +110,6 @@ test.describe("motion", () => {
     await page.goto("/wzornik");
     await setRootAttribute(page, "data-motion", "reduce");
 
-    expect(await computed(page, ".rise > span", "animation-name")).toBe("none");
+    expect(await computed(page, ".page-head", "animation-name")).toBe("none");
   });
 });

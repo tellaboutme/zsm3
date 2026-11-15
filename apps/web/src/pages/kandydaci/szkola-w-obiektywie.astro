@@ -1,6 +1,7 @@
 ---
 import Icon from "../../components/Icon.astro";
 import MediaPlaceholder from "../../components/MediaPlaceholder.astro";
+import PageHead from "../../components/PageHead.astro";
 import { externalServices } from "../../data/site.ts";
 import Base from "../../layouts/Base.astro";
 
@@ -25,17 +26,10 @@ export const prerender = false;
   breadcrumbs={[{ label: "Kandydaci", href: "/kandydaci" }, { label: "Szkoła w obiektywie" }]}
 >
   <div class="lens">
-    <header class="intro">
-      <p class="tag">Kandydaci · jak wygląda szkoła</p>
-      <h1>
-        <span class="rise">
-          <span>Szkoła w obiektywie</span>
-        </span>
-      </h1>
-      <p class="lead">
-        Zanim złożysz podanie, zobacz, gdzie będziesz się uczyć: warsztaty, pracownie zawodowe i
-        budynek szkoły. Zdjęcia przygotowujemy do publikacji.
-      </p>
+    <PageHead
+      title="Szkoła w obiektywie"
+      lead="Zanim złożysz podanie, zobacz, gdzie będziesz się uczyć: warsztaty, pracownie zawodowe i budynek szkoły. Zdjęcia przygotowujemy do publikacji."
+    >
       <p class="tour">
         <a href={externalServices.virtualTour} rel="noopener">
           Wirtualny spacer po szkole
@@ -44,7 +38,7 @@ export const prerender = false;
           </span>
         </a>
       </p>
-    </header>
+    </PageHead>
     <section aria-labelledby="ujecia">
       <h2 id="ujecia">Co zobaczysz</h2>
       <ul class="grid">
@@ -65,26 +59,6 @@ export const prerender = false;
     display: grid;
     gap: var(--space-7);
     padding-block: var(--space-7);
-  }
-
-  .intro {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .tag {
-    color: var(--ink-2);
-  }
-
-  h1 {
-    font-size: var(--step-title);
-    font-stretch: var(--stretch-wide);
-  }
-
-  .lead {
-    max-width: var(--measure);
-    font-size: var(--step-1);
-    line-height: var(--leading-snug);
   }
 
   .tour a {

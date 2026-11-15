@@ -1,4 +1,5 @@
 ---
+import PageHead from "../../components/PageHead.astro";
 import Base from "../../layouts/Base.astro";
 import { isoDay, longDate } from "../../lib/calendar.ts";
 import { fileSize } from "../../lib/documents.ts";
@@ -20,18 +21,10 @@ function offerKey(offer: JobOffer): string {
   breadcrumbs={[{ label: "Uczniowie", href: "/uczniowie" }, { label: "Oferty pracy" }]}
 >
   <div class="offers">
-    <header class="intro">
-      <p class="tag">Uczniowie · praca, staże i praktyki</p>
-      <h1>
-        <span class="rise">
-          <span>Oferty pracy</span>
-        </span>
-      </h1>
-      <p class="lead">
-        Oferty od pracodawców, którzy szukają uczniów i absolwentów szkoły. Oferta znika z listy po
-        terminie ważności i trafia do archiwum.
-      </p>
-    </header>
+    <PageHead
+      title="Oferty pracy"
+      lead="Oferty od pracodawców, którzy szukają uczniów i absolwentów szkoły. Oferta znika z listy po terminie ważności i trafia do archiwum."
+    />
     <section aria-labelledby="aktualne">
       <h2 id="aktualne">Aktualne oferty</h2>
       {board.current.length === 0 ? (
@@ -80,11 +73,6 @@ function offerKey(offer: JobOffer): string {
     gap: var(--space-7);
     max-width: 52rem;
     padding-block: var(--space-7);
-  }
-
-  .intro {
-    display: grid;
-    gap: var(--space-3);
   }
 
   .list {

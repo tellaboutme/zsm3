@@ -131,6 +131,12 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
     color: var(--blue-ink);
   }
 
+  li > a {
+    display: flex;
+    align-items: center;
+    padding-block: 0;
+  }
+
   .legal {
     margin-top: var(--space-6);
     padding-top: var(--space-4);

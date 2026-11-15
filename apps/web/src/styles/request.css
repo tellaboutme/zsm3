@@ -14,10 +14,6 @@
   gap: var(--space-3);
 }
 
-.request-intro h1 {
-  font-size: var(--step-title);
-}
-
 .request-page h2 {
   font-size: var(--step-2);
 }

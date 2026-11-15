@@ -1,0 +1,44 @@
+---
+interface Props {
+  title: string;
+  lead?: string | undefined;
+  class?: string | undefined;
+}
+
+const { title, lead, class: className } = Astro.props;
+const hasMeta = Astro.slots.has("meta");
+---
+
+<header class:list={["page-head", "appear", className]}>
+  <h1>{title}</h1>
+  {lead !== undefined && lead !== "" && <p class="lead">{lead}</p>}
+  {hasMeta && (
+    <p class="meta">
+      <slot name="meta" />
+    </p>
+  )}
+  <slot />
+</header>
+
+<style>
+  .page-head {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+  }
+
+  .lead {
+    max-width: var(--measure);
+    color: var(--ink-2);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+</style>

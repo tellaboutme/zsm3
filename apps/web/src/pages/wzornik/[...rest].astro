@@ -2,6 +2,7 @@
 import { PATTERN_LIBRARY } from "astro:env/server";
 
 import RichText from "../../components/content/RichText.astro";
+import PageHead from "../../components/PageHead.astro";
 import Base from "../../layouts/Base.astro";
 import { richTextSample } from "../../pattern-library/rich-text-sample.ts";
 import "../../pattern-library/wzornik.css";
@@ -51,21 +52,11 @@ const sample = "Zażółć gęślą jaźń ŹŻĆŃĄŚŁĘÓ 0123456789";
   }}
 >
   <div class="pattern-library">
-    <header class="head">
-      <p class="tag">Wzornik komponentów</p>
-      <h1>
-        <span class="rise">
-          <span>Fundament</span>
-        </span>
-        <span class="rise">
-          <span>systemu wizualnego</span>
-        </span>
-      </h1>
-      <p class="prose">
-        Tokeny, typografia, odstępy, ruch i układy, na których opiera się każda strona. Ta strona
-        istnieje tylko w wersji podglądowej.
-      </p>
-    </header>
+    <PageHead
+      class="head"
+      title="Fundament systemu wizualnego"
+      lead="Tokeny, typografia, odstępy, ruch i układy, na których opiera się każda strona. Ta strona istnieje tylko w wersji podglądowej."
+    />
 
     <section class="block" aria-labelledby="kolory">
       <h2 id="kolory" class="reveal">

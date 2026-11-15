@@ -2,6 +2,7 @@
 import ContactCards from "../components/ContactCards.astro";
 import EmailText from "../components/EmailText.astro";
 import Icon from "../components/Icon.astro";
+import PageHead from "../components/PageHead.astro";
 import { school } from "../data/site.ts";
 import Base from "../layouts/Base.astro";
 import { contacts } from "../server/datasets.ts";
@@ -17,13 +18,10 @@ const { departments, management } = await contacts();
   breadcrumbs={[{ label: "Kontakt" }]}
 >
   <div class="contact">
-    <header class="intro">
-      <p class="tag">Kontakt · os. Szkolne 37</p>
-      <h1>
-        <span class="rise">
-          <span>Kontakt</span>
-        </span>
-      </h1>
+    <PageHead class="intro" title="Kontakt">
+      <Fragment slot="meta">
+        {school.street}, {school.city}
+      </Fragment>
       <div class="main">
         <a class="phone" href={`tel:${school.phone}`}>
           {school.phoneLabel}
@@ -32,7 +30,7 @@ const { departments, management } = await contacts();
           <EmailText email={school.email} />
         </a>
       </div>
-    </header>
+    </PageHead>
     <section aria-labelledby="dzialy">
       <h2 id="dzialy">Sekretariaty i działy</h2>
       <ContactCards cards={departments} />
@@ -77,14 +75,8 @@ const { departments, management } = await contacts();
     gap: var(--space-4);
   }
 
-  .tag,
   .note {
     color: var(--ink-2);
-  }
-
-  h1 {
-    font-size: var(--step-title);
-    font-stretch: var(--stretch-wide);
   }
 
   h2 {
@@ -104,7 +96,7 @@ const { departments, management } = await contacts();
   .phone {
     font-family: var(--font-display);
     font-size: var(--step-3);
-    font-weight: 800;
+    font-weight: var(--weight-heading);
     text-decoration: none;
   }
 

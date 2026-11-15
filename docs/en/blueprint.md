@@ -69,15 +69,15 @@ Blue and orange are the school's logo colours. Orange is never used for small te
 | `--duration-3` | 300 ms — block entrance               |
 | `--shift`      | 0.5 rem — entrance offset             |
 
-| Pattern         | Where                                                                                                                                    | Rule                                                                    |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Appear          | the page head on load                                                                                                                    | once per page: fade and `--shift` up in `--duration-3`                  |
-| Reveal          | section heads, cards, list items on scroll                                                                                               | CSS scroll-driven animation; without support, content is simply visible |
-| Fill            | profession tiles and field rows, list rows on hover and focus                                                                            | blue fills from the bottom                                              |
-| Nudge           | arrows in links and buttons                                                                                                              | 0.3–0.4 rem to the right                                                |
-| Zoom            | news photos on hover                                                                                                                     | scale 1.06 inside the frame                                             |
-| Page transition | every navigation                                                                                                                         | `@view-transition` cross-fade                                           |
-| Live            | Teraz w szkole: a compact card with a blue bar, timer and thin progress; outside lessons the title says so and names the next school day | updates every second; the only thing that moves by itself               |
+| Pattern         | Where                                                                                                                                    | Rule                                                             |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Appear          | the page head on load                                                                                                                    | once per page: `--shift` up in `--duration-3`, opacity unchanged |
+| Reveal          | cards and list items                                                                                                                     | the same shift as Appear, once on load; never tied to scrolling  |
+| Fill            | profession tiles and field rows, list rows on hover and focus                                                                            | blue fills from the bottom                                       |
+| Nudge           | arrows in links and buttons                                                                                                              | 0.3–0.4 rem to the right                                         |
+| Zoom            | news photos on hover                                                                                                                     | scale 1.06 inside the frame                                      |
+| Page transition | every navigation                                                                                                                         | `@view-transition` cross-fade                                    |
+| Live            | Teraz w szkole: a compact card with a blue bar, timer and thin progress; outside lessons the title says so and names the next school day | updates every second; the only thing that moves by itself        |
 
 Nothing auto-rotates, loops or uses parallax. Content never waits for an animation. With `prefers-reduced-motion: reduce` every animation and transition is off.
 

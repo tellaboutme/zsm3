@@ -1,4 +1,5 @@
 ---
+import PageHead from "../../components/PageHead.astro";
 import Base from "../../layouts/Base.astro";
 import { isoDay, longDate } from "../../lib/calendar.ts";
 import { meetings as meetingData } from "../../server/datasets.ts";
@@ -19,15 +20,10 @@ const next = meetings.find((event) => event.date >= today);
   breadcrumbs={[{ label: "Rodzice", href: "/rodzice" }, { label: "Wywiadówki" }]}
 >
   <div class="meetings">
-    <header class="intro">
-      <p class="tag">Rodzice · zebrania</p>
-      <h1>
-        <span class="rise">
-          <span>Wywiadówki</span>
-        </span>
-      </h1>
-      <p class="lead">Terminy zebrań z rodzicami i sale, w których spotykają się klasy.</p>
-    </header>
+    <PageHead
+      title="Wywiadówki"
+      lead="Terminy zebrań z rodzicami i sale, w których spotykają się klasy."
+    />
     <section class="next" aria-labelledby="najblizsze" data-dated>
       <h2 id="najblizsze" class="tag">
         Najbliższe zebranie
@@ -94,7 +90,6 @@ const next = meetings.find((event) => event.date >= today);
     padding-block: var(--space-7);
   }
 
-  .intro,
   section {
     display: grid;
     gap: var(--space-4);
@@ -106,18 +101,8 @@ const next = meetings.find((event) => event.date >= today);
     color: var(--ink-2);
   }
 
-  h1 {
-    font-size: var(--step-title);
-    font-stretch: var(--stretch-wide);
-  }
-
   h2 {
     font-size: var(--step-3);
-  }
-
-  .lead {
-    max-width: var(--measure);
-    font-size: var(--step-1);
   }
 
   .next {
@@ -139,7 +124,7 @@ const next = meetings.find((event) => event.date >= today);
   .big {
     font-family: var(--font-display);
     font-size: var(--step-3);
-    font-weight: 800;
+    font-weight: var(--weight-heading);
     line-height: var(--leading-tight);
   }
 
@@ -193,7 +178,7 @@ const next = meetings.find((event) => event.date >= today);
 
   caption {
     padding-bottom: var(--space-2);
-    font-weight: 800;
+    font-weight: 700;
     text-align: left;
   }
 
