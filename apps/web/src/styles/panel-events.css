@@ -1,0 +1,105 @@
+[data-panel-page="events"] .panel-row {
+  position: sticky;
+  top: 0;
+  padding-block: var(--space-3);
+  border-block-end: var(--hairline) solid var(--line);
+  background: var(--page);
+}
+
+[data-panel-page="events"] .panel-row > button.panel-save {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: var(--blue-ink);
+  font-weight: 700;
+}
+
+[data-panel="event-rows"] {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-event {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+[data-panel="event-rows"] .panel-event legend {
+  grid-column: 1 / -1;
+  margin-block-end: 0;
+  color: var(--ink-2);
+  font-family: var(--font-body);
+  font-size: var(--step-n1);
+  font-weight: 600;
+}
+
+.panel-event label:has(> [type="checkbox"]) {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  align-self: end;
+  min-height: var(--target);
+}
+
+.panel-event label > [type="checkbox"] {
+  width: var(--space-4);
+  height: var(--space-4);
+  margin: 0;
+  accent-color: var(--blue);
+}
+
+.panel-event > .panel-remove-event {
+  place-self: end;
+}
+
+@media (width >= 48rem) {
+  .panel-event {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-flow: row dense;
+  }
+
+  .panel-event > label {
+    grid-column: span 2;
+  }
+
+  .panel-event > label:has([data-part="title"]) {
+    grid-column: span 6;
+  }
+
+  .panel-event > label:has([data-part="note"]) {
+    grid-column: span 4;
+  }
+
+  .panel-event > .panel-remove-event {
+    grid-column: span 2;
+  }
+}
+
+@media (width >= 80rem) {
+  .panel-event {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .panel-event > label:has([data-part="title"]) {
+    grid-column: span 6;
+  }
+
+  .panel-event > label:has([data-part="audience"]) {
+    grid-column: span 2;
+  }
+
+  .panel-event > label:has([data-part="kind"]) {
+    grid-column: span 3;
+  }
+
+  .panel-event > label:has([data-part="note"]) {
+    grid-column: span 5;
+  }
+
+  .panel-event > label:has([data-part="key"]) {
+    grid-column: span 2;
+  }
+}
