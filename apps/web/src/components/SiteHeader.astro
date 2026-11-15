@@ -18,7 +18,7 @@ const current = sectionFor(sections, Astro.props.path)?.id;
 <header class="site-header" data-site-header>
   <div class="page bar">
     <a class="wordmark" href="/">
-      <img class="mark" src="/logo-zsm3.png" alt="" width="112" height="112" />
+      <img class="mark" src="/logo-zsm3.png" alt="" width="48" height="48" />
       <span class="name">
         Zespół Szkół
         <br />
@@ -103,14 +103,12 @@ const current = sectionFor(sections, Astro.props.path)?.id;
     flex: none;
     width: var(--space-7);
     height: var(--space-7);
-    transition:
-      width var(--duration-1) var(--ease),
-      height var(--duration-1) var(--ease);
+    transform-origin: left center;
+    transition: transform var(--duration-1) var(--ease);
   }
 
   .site-header[data-compact="on"] .mark {
-    width: var(--target);
-    height: var(--target);
+    transform: scale(0.8);
   }
 
   .name {

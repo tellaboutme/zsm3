@@ -9,7 +9,7 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
 <footer class="site-footer">
   <div class="page inner">
     <section class="identity" aria-labelledby="stopka-szkola">
-      <img class="mark" src="/logo-zsm3.png" alt="" width="112" height="112" loading="lazy" />
+      <img class="mark" src="/logo-zsm3.png" alt="" width="64" height="64" loading="lazy" />
       <h2 id="stopka-szkola">
         {school.name} im.&nbsp;{school.patron}
       </h2>
@@ -112,6 +112,8 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
   }
 
   ul {
+    display: grid;
+    gap: var(--space-1);
     margin: 0;
     padding: 0;
     list-style: none;
