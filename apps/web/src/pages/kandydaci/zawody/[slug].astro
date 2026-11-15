@@ -168,11 +168,11 @@ const practice = [
   }
 
   .chips li {
-    padding: var(--space-2) var(--space-4);
-    border: var(--hairline) solid var(--ink);
+    padding: var(--space-1) var(--space-3);
+    border: var(--hairline) solid var(--line);
     border-radius: var(--radius);
-    font-family: var(--font-mono);
-    font-weight: 600;
+    background: var(--surface);
+    font-size: var(--step-n1);
   }
 
   .practice {
@@ -186,7 +186,7 @@ const practice = [
     padding: var(--space-4) 0;
     border-bottom: var(--hairline) solid var(--line);
     font-size: var(--step-1);
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .siblings {
@@ -201,5 +201,11 @@ const practice = [
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  @media (width >= 80rem) {
+    .tiles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 </style>
