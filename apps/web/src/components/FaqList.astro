@@ -1,4 +1,5 @@
 ---
+import Icon from "./Icon.astro";
 import type { Question } from "../lib/programmes.ts";
 
 interface Props {
@@ -11,22 +12,52 @@ const { questions } = Astro.props;
 <div class="faq">
   {questions.map((item) => (
     <details>
-      <summary>{item.question}</summary>
+      <summary>
+        <span class="question">{item.question}</span>
+        <span class="chevron">
+          <Icon name="chevron" />
+        </span>
+      </summary>
       <p>{item.answer}</p>
     </details>
   ))}
 </div>
 
 <style>
+  .faq {
+    border-top: var(--hairline) solid var(--line);
+  }
+
   details {
     border-bottom: var(--hairline) solid var(--line);
   }
 
   summary {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    justify-content: space-between;
     min-height: var(--target);
     padding-block: var(--space-4);
-    font-weight: 700;
+    font-size: var(--step-1);
+    font-weight: 600;
+    list-style: none;
     cursor: pointer;
+  }
+
+  summary:hover .question {
+    color: var(--link);
+  }
+
+  .chevron {
+    display: inline-flex;
+    flex: none;
+    color: var(--ink-2);
+    transition: transform var(--duration-1) var(--ease);
+  }
+
+  details[open] .chevron {
+    transform: rotate(180deg);
   }
 
   p {

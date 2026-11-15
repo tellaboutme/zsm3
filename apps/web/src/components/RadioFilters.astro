@@ -52,6 +52,8 @@ const { groups, hook } = Astro.props;
     margin-bottom: var(--space-2);
     padding: 0;
     color: var(--ink-2);
+    font-size: var(--step-n1);
+    font-weight: 600;
   }
 
   .options {
@@ -76,12 +78,13 @@ const { groups, hook } = Astro.props;
     display: inline-flex;
     align-items: center;
     min-height: var(--target);
-    padding: var(--space-2) var(--space-4);
-    border: var(--hairline) solid var(--line);
+    padding: var(--space-1) var(--space-3);
+    border: var(--hairline) solid var(--line-strong);
     border-radius: var(--radius);
-    background: var(--bg);
+    background: var(--surface);
     color: var(--ink);
-    font-weight: 700;
+    font-size: var(--step-n1);
+    font-weight: 600;
   }
 
   label:hover span {
@@ -91,7 +94,7 @@ const { groups, hook } = Astro.props;
   input:checked + span {
     border-color: var(--ink);
     background: var(--ink);
-    color: var(--bg);
+    color: var(--surface);
   }
 
   input:focus-visible + span {
