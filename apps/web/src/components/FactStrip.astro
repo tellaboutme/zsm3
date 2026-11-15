@@ -24,11 +24,12 @@ const { label, facts } = Astro.props;
   .facts {
     justify-self: stretch;
     width: 100%;
+    container: facts / inline-size;
   }
 
   dl {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    grid-template-columns: minmax(0, 1fr);
     margin: 0;
     border-block: var(--hairline) solid var(--line);
   }
@@ -61,7 +62,26 @@ const { label, facts } = Astro.props;
     font-size: var(--step-n1);
   }
 
-  @media (width >= 56rem) {
+  @container facts (30rem <= width < 56rem) {
+    dl {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .item:nth-child(even) {
+      border-left: var(--hairline) solid var(--line);
+    }
+
+    .item:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @container facts (width >= 56rem) {
+    dl {
+      grid-auto-columns: minmax(0, 1fr);
+      grid-auto-flow: column;
+    }
+
     .item {
       border-bottom: 0;
     }

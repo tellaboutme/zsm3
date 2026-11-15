@@ -56,6 +56,12 @@ const [first, ...rest] = items;
     }
   }
 
+  @media (40rem <= width < 64rem) {
+    .cards > :last-child:nth-child(even) {
+      grid-column: 1 / -1;
+    }
+  }
+
   @media (width >= 64rem) {
     .cards {
       grid-template-columns: repeat(3, minmax(0, 1fr));

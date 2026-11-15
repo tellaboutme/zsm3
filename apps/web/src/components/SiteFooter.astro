@@ -74,8 +74,33 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
 
   .inner {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-6);
+  }
+
+  @media (width >= 40rem) {
+    .inner {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .inner > * {
+      grid-column: span 2;
+    }
+
+    .inner > section {
+      grid-column: span 3;
+    }
+  }
+
+  @media (width >= 80rem) {
+    .inner {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr) repeat(3, minmax(0, 1fr));
+    }
+
+    .inner > *,
+    .inner > section {
+      grid-column: auto;
+    }
   }
 
   .identity {
@@ -113,7 +138,7 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
 
   ul {
     display: grid;
-    gap: var(--space-1);
+    gap: 0;
     margin: 0;
     padding: 0;
     list-style: none;
