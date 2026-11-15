@@ -54,6 +54,10 @@ body:has(.panel-shell) {
   color: var(--ink);
 }
 
+.panel-nav:not(:popover-open) {
+  display: none;
+}
+
 .panel-nav:popover-open {
   position: fixed;
   inset: 0 auto 0 0;
