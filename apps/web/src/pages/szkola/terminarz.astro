@@ -126,15 +126,16 @@ const groups = [
     align-items: center;
     min-height: var(--target);
     padding: var(--space-2) var(--space-4);
-    border: var(--hairline) solid var(--ink);
+    border: var(--hairline) solid var(--line-strong);
     border-radius: var(--radius);
+    background: var(--surface);
     color: var(--ink);
     font-weight: 700;
     text-decoration: none;
   }
 
   .export:hover {
-    background: var(--gray);
+    border-color: var(--ink);
   }
 
   section {
@@ -178,8 +179,9 @@ const groups = [
 
   .empty {
     padding: var(--space-5);
+    border: var(--hairline) solid var(--line);
     border-radius: var(--radius);
-    background: var(--gray);
+    background: var(--surface);
   }
 
   @media (width >= 56rem) {

@@ -9,11 +9,13 @@ interface Props {
     | "theme-dark"
     | "menu"
     | "close"
-    | "external";
+    | "external"
+    | "alert";
 }
 
 const paths = {
   chevron: ["M6 9l6 6 6-6"],
+  alert: ["M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z", "M12 8v5", "M12 16v0.01"],
   search: ["M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z", "M16 16l5 5"],
   settings: ["M4 7h10", "M18 7h2", "M4 17h4", "M12 17h8", "M16 4v6", "M10 14v6"],
   "theme-system": ["M3 4h18v12H3z", "M8 20h8", "M12 16v4"],

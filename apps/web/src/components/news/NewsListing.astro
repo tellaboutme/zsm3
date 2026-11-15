@@ -84,6 +84,8 @@ const unfiltered = category === undefined && year === undefined;
 
   .tag {
     color: var(--ink-2);
+    font-size: var(--step-n1);
+    font-weight: 600;
   }
 
   .filters {
@@ -113,11 +115,14 @@ const unfiltered = category === undefined && year === undefined;
     display: inline-flex;
     align-items: center;
     min-height: var(--target);
-    padding: var(--space-2) var(--space-4);
-    border: var(--hairline) solid var(--line);
+    padding: var(--space-1) var(--space-3);
+    border: var(--hairline) solid var(--line-strong);
     border-radius: var(--radius);
+    background: var(--surface);
     color: var(--ink);
-    font-weight: 700;
+    font-size: var(--step-n1);
+    font-weight: 600;
+    white-space: nowrap;
     text-decoration: none;
   }
 
@@ -128,12 +133,21 @@ const unfiltered = category === undefined && year === undefined;
   .filters a[aria-current="page"] {
     border-color: var(--ink);
     background: var(--ink);
-    color: var(--bg);
+    color: var(--surface);
   }
 
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
     gap: var(--space-6) var(--space-5);
+  }
+
+  @media (width < 48rem) {
+    .filters ul {
+      flex-wrap: nowrap;
+      padding-bottom: var(--space-2);
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+    }
   }
 </style>

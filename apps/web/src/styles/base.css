@@ -150,10 +150,8 @@
   }
 
   .tag {
-    font-family: var(--font-mono);
     font-size: var(--step-n1);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    font-weight: 600;
   }
 
   .tag a,
