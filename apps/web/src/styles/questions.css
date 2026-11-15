@@ -48,8 +48,10 @@
 
 .question-success {
   padding: var(--space-5);
-  border-left: var(--rule) solid var(--blue);
-  background: var(--gray);
+  border: var(--hairline) solid var(--line);
+  border-left: var(--rule) solid var(--success);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .question-answer blockquote {

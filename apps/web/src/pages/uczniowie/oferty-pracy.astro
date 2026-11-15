@@ -48,7 +48,7 @@ function offerKey(offer: JobOffer): string {
       )}
     </section>
     {board.archive.length > 0 && (
-      <details class="archive">
+      <details class="archive disclosure">
         <summary>Archiwum ofert ({board.archive.length})</summary>
         <ul class="list">
           {board.archive.map((offer) => (
@@ -101,7 +101,6 @@ function offerKey(offer: JobOffer): string {
   }
 
   .archive summary {
-    cursor: pointer;
-    font-weight: 700;
+    padding-block: var(--space-2);
   }
 </style>

@@ -17,7 +17,7 @@ interface Props {
 const { programmes, professions } = Astro.props;
 ---
 
-<details class="compare">
+<details class="compare disclosure">
   <summary>Porównaj wszystkie kierunki w tabeli</summary>
   <div
     class="scroller"
@@ -62,10 +62,7 @@ const { programmes, professions } = Astro.props;
   }
 
   summary {
-    min-height: var(--target);
     padding-block: var(--space-4);
-    font-weight: 700;
-    cursor: pointer;
   }
 
   .scroller {
@@ -90,10 +87,8 @@ const { programmes, professions } = Astro.props;
 
   thead th {
     color: var(--ink-2);
-    font-family: var(--font-mono);
     font-size: var(--step-n1);
-    font-weight: 400;
-    text-transform: uppercase;
+    font-weight: 600;
   }
 
   tbody th {

@@ -108,17 +108,15 @@ const next = meetings.find((event) => event.date >= today);
   .next {
     max-width: 40rem;
     padding: var(--space-5);
+    border: var(--hairline) solid var(--line);
+    border-left: var(--rule) solid var(--blue);
     border-radius: var(--radius);
-    background: var(--blue);
-    color: var(--blue-ink);
+    background: var(--surface);
+    color: var(--ink);
   }
 
   .next .tag {
-    color: var(--blue-dim);
-    font-family: var(--font-mono);
-    font-size: var(--step-n1);
-    font-weight: 400;
-    text-transform: uppercase;
+    color: var(--ink-2);
   }
 
   .big {
@@ -139,7 +137,7 @@ const next = meetings.find((event) => event.date >= today);
   }
 
   .dates .past {
-    color: var(--blue-dim);
+    color: var(--ink-2);
     text-decoration: line-through;
   }
 
@@ -191,9 +189,7 @@ const next = meetings.find((event) => event.date >= today);
 
   thead th {
     color: var(--ink-2);
-    font-family: var(--font-mono);
     font-size: var(--step-n1);
-    font-weight: 400;
-    text-transform: uppercase;
+    font-weight: 600;
   }
 </style>
