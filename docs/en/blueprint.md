@@ -35,11 +35,11 @@ home, hubs, listings     programme, article, documents    forms, legal pages
 
 ### 1.2 Typography
 
-| Role    | Face                               | Use                                                                            |
-| ------- | ---------------------------------- | ------------------------------------------------------------------------------ |
-| Display | Archivo, width 100, weight 700     | page titles, section titles; width 125 only for the wordmark and large figures |
-| Body    | Source Sans 3, weights 400/600/700 | running text, navigation, forms, labels                                        |
-| Mono    | IBM Plex Mono 400/500              | dates, times, document and qualification codes only                            |
+| Role    | Face                               | Use                                                           |
+| ------- | ---------------------------------- | ------------------------------------------------------------- |
+| Display | Archivo, width 100, weight 700     | page titles, section titles; width 125 only for large figures |
+| Body    | Source Sans 3, weights 400/600/700 | running text, navigation, forms, labels                       |
+| Mono    | IBM Plex Mono 400/500              | dates, times, document and qualification codes only           |
 
 Scale `--step-n1` (14 px), `--step-0` (17 px body), `--step-1` (20 px lead), `--step-2` (h3, 18–22 px), `--step-3` (h2, 24–32 px), `--step-4` (h1, 32–48 px), fluid with `clamp()`. Headings are sentence case, weight 700 (`--weight-heading`), leading 1.1. Every page head is the `PageHead` component: breadcrumbs, h1, lead (`--step-1`, `--ink-2`, ≤ 60 ch), an optional meta line for data such as the school year or a count, and actions. Self-hosted WOFF2, Latin and Latin Extended subsets only, two files preloaded (Archivo, Source Sans 3).
 
@@ -108,10 +108,10 @@ Skip link, landmarks (`header`, `nav`, `main`, `aside`, `footer`), one `h1` per 
 ### 2.2 Header
 
 - Header breakpoints are container queries on the header, so they follow the text-size setting (`rem` scales with it): desktop navigation from `80rem`, the school name from `48rem` and hidden between `80rem` and `92rem` where the navigation needs the room, search, settings and theme from `40rem`. Nothing may scroll sideways at 360 px with 150% text.
-- Left: wordmark `ZSM3` (orange 3) and the full name in two lines; links to home.
+- Left: the school logo (`/logo-zsm3.png`, decorative, empty alt) and the full name in two lines; links to home. The logo shrinks with the compact header.
 - Centre: six audience sections. Desktop (≥ 80 rem): each opens a **mega menu** on click (not on hover), closes on Escape, outside click or focus leaving it.
 - Right: search, accessibility settings, theme, and the orange **Rekrutacja** button.
-- Mobile: wordmark, Rekrutacja, and a menu button opening a full-height panel with the six sections as disclosures, then utility links (Librus, BIP, E-wniosek, Skrzynka).
+- Mobile: logo, Rekrutacja, and a menu button opening a full-height panel with the six sections as disclosures, then utility links (Librus, BIP, E-wniosek, Skrzynka).
 - The header shrinks (smaller padding) after 80 px of scroll; no hide-on-scroll.
 
 ### 2.3 Mega menu
@@ -135,7 +135,7 @@ Three titled columns per section plus one live or featured item (Teraz w szkole 
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│ ZSM3 wordmark, full name, patron                              │
+│ School logo, full name, patron                                │
 │ Adres + map link │ Sekretariaty (phones, e-mails, hours)      │
 │ Na skróty: Librus, BIP, E-wniosek, Skrzynka, Mapa strony      │
 │ Dokumenty: Statut, Standardy ochrony małoletnich, RODO,       │

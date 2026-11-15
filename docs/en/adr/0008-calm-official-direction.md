@@ -13,7 +13,7 @@ The project owner asked for a calm, official look that still feels fresh: medium
 ## Decision
 
 1. **Type scale.** Headings are h1 48 px, h2 32 px, h3 22 px on a wide screen, and about a third smaller on a phone (32, 24, 18). Every page title uses `--step-4`; `--step-title`, which scaled titles with the width of `<main>`, is removed.
-2. **Archivo at normal width, weight 700**, sentence case. The wide width (125%) is kept only for the wordmark and for large figures (numbers strip, the contact phone). No heading is set in capitals except abbreviations (ZSM3, BIP, RODO).
+2. **Archivo at normal width, weight 700**, sentence case. The wide width (125%) is kept only for large figures (numbers strip, the contact phone). No heading is set in capitals except abbreviations (ZSM3, BIP, RODO).
 3. **Monospace only for data**: dates, times, qualification and document codes, file sizes. Decorative monospaced kickers over sections and page titles are removed; a kicker that carried data moves into a meta line under the lead.
 4. **Surfaces.** The page background is a slightly grey `--page`; cards, panels and fields are `--surface` with a 1 px `--line` border, radius 8 px (`--radius`), and no shadow. Shadows stay only on floating elements (menus, dialogs). The background has no radial tones; this also removes the visible edge of the tones on long pages.
 5. **Blue fill only for the footer and hover states** (a profession row or tile, a list row). Everywhere else blue is a detail: a status bar, a code, a link, a badge. **Orange only for the primary action** of a screen (Rekrutacja, a form's submit button) and for the focus ring.

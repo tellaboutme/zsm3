@@ -18,9 +18,7 @@ const current = sectionFor(sections, Astro.props.path)?.id;
 <header class="site-header" data-site-header>
   <div class="page bar">
     <a class="wordmark" href="/">
-      <span class="mark" aria-hidden="true">
-        ZSM<span>3</span>
-      </span>
+      <img class="mark" src="/logo-zsm3.png" alt="" width="48" height="48" />
       <span class="name">
         Zespół Szkół
         <br />
@@ -102,15 +100,15 @@ const current = sectionFor(sections, Astro.props.path)?.id;
   }
 
   .mark {
-    font-family: var(--font-display);
-    font-size: var(--step-3);
-    font-stretch: var(--stretch-wide);
-    font-weight: 900;
-    letter-spacing: -0.03em;
+    flex: none;
+    width: var(--space-7);
+    height: var(--space-7);
+    transform-origin: left center;
+    transition: transform var(--duration-1) var(--ease);
   }
 
-  .mark span {
-    color: var(--orange);
+  .site-header[data-compact="on"] .mark {
+    transform: scale(0.8);
   }
 
   .name {

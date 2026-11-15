@@ -9,9 +9,7 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
 <footer class="site-footer">
   <div class="page inner">
     <section class="identity" aria-labelledby="stopka-szkola">
-      <p class="mark" aria-hidden="true">
-        ZSM<span>3</span>
-      </p>
+      <img class="mark" src="/logo-zsm3.png" alt="" width="64" height="64" loading="lazy" />
       <h2 id="stopka-szkola">
         {school.name} im.&nbsp;{school.patron}
       </h2>
@@ -87,15 +85,8 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
   }
 
   .mark {
-    font-family: var(--font-display);
-    font-size: var(--step-3);
-    font-stretch: var(--stretch-wide);
-    font-weight: 900;
-    line-height: var(--leading-tight);
-  }
-
-  .mark span {
-    color: var(--orange);
+    width: var(--space-8);
+    height: var(--space-8);
   }
 
   .identity h2 {
@@ -121,6 +112,8 @@ const { footerGroups } = Astro.locals.navigation ?? publicFallbackNavigation;
   }
 
   ul {
+    display: grid;
+    gap: var(--space-1);
     margin: 0;
     padding: 0;
     list-style: none;
