@@ -81,6 +81,12 @@
   overflow-wrap: anywhere;
 }
 
+.panel-page :is(ul, ol)[data-panel]:not(.panel-hints) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 [data-panel="items"],
 [data-panel="staff-rows"] {
   margin: 0;
