@@ -1,5 +1,6 @@
 import { expect, test } from "./fixtures.ts";
 import { AT, fakePanel, fakeRequest, pageProblems } from "./panel-requests-fake.ts";
+import { panelSections } from "./panel-shell-support.ts";
 
 const rows = '[data-panel="request-rows"] > li';
 const status = '[data-panel="status"]';
@@ -99,7 +100,7 @@ test.describe("staff requests list", () => {
     const heading = await list.getByRole("heading", { name: "Lista wniosków" }).boundingBox();
     const note = await list.locator(status).boundingBox();
     expect(note?.y ?? 0).toBeGreaterThan(heading?.y ?? Number.POSITIVE_INFINITY);
-    await expect(page.getByRole("link", { name: "Wnioski" })).toBeVisible();
+    await expect((await panelSections(page)).getByRole("link", { name: "Wnioski" })).toBeVisible();
   });
 
   test("keeps editors out and hides the section from them", async ({ page }) => {

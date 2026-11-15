@@ -1,75 +1,3 @@
-.panel-header {
-  display: flex;
-  gap: var(--space-3) var(--space-4);
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  width: min(100% - 2 * var(--space-5), var(--page-max));
-  margin-inline: auto;
-  padding-block: var(--space-3);
-  border-block-end: var(--hairline) solid var(--line);
-}
-
-.panel-home {
-  font-family: var(--font-display);
-  font-stretch: var(--stretch-display);
-  font-weight: var(--weight-heading);
-}
-
-.panel-account {
-  display: flex;
-  gap: var(--space-3);
-  align-items: baseline;
-  flex-wrap: wrap;
-}
-
-.panel-user {
-  color: var(--ink-2);
-  font-size: var(--step-n1);
-  overflow-wrap: anywhere;
-}
-
-.panel-tabs {
-  width: min(100% - 2 * var(--space-5), var(--page-max));
-  margin-inline: auto;
-  border-block-end: var(--hairline) solid var(--line);
-}
-
-.panel-tabs ul {
-  display: flex;
-  gap: var(--space-1);
-  overflow-x: auto;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.panel-tabs a {
-  display: block;
-  padding: var(--space-2) var(--space-3);
-  border-block-end: var(--rule) solid transparent;
-  color: var(--ink-2);
-  font-size: var(--step-n1);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.panel-tabs a:hover {
-  color: var(--ink);
-}
-
-.panel-tabs a[aria-current="page"] {
-  border-block-end-color: var(--orange);
-  color: var(--ink);
-  font-weight: 700;
-}
-
-.panel-main {
-  display: grid;
-  gap: var(--space-5);
-  padding-block: var(--space-5);
-}
-
 .panel-page,
 .panel-columns {
   display: grid;
@@ -82,7 +10,14 @@
 }
 
 .panel-page > h1 {
-  font-size: var(--step-2);
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: var(--weight-heading);
+}
+
+.panel-page > h1 + p {
+  max-width: var(--measure);
+  color: var(--ink-2);
 }
 
 .panel-gate {
@@ -90,9 +25,9 @@
   gap: var(--space-3);
   max-width: var(--measure);
   padding: var(--space-5);
-  border: var(--rule) solid var(--orange);
+  border: var(--hairline) solid var(--line);
   border-radius: var(--radius);
-  background: var(--gray);
+  background: var(--surface);
 }
 
 .panel-note:empty {
@@ -146,40 +81,60 @@
 }
 
 .panel-item:hover {
-  background: var(--gray);
+  background: var(--page);
 }
 
 .panel-block {
   display: grid;
-  gap: var(--space-1);
-  padding: var(--space-3);
+  gap: var(--space-2);
+  padding: var(--space-4);
   border: var(--hairline) solid var(--line);
   border-radius: var(--radius);
-  background: var(--gray);
+  background: var(--surface);
 }
 
 .panel-fold {
   border: var(--hairline) solid var(--line);
   border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .panel-fold > summary {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
   min-height: var(--target);
-  padding: var(--space-3);
-  color: var(--ink-2);
-  font-size: var(--step-n1);
+  padding: var(--space-3) var(--space-4);
+  color: var(--ink);
+  font-weight: 600;
+  list-style: none;
   cursor: pointer;
+}
+
+.panel-fold > summary::after {
+  flex: none;
+  width: var(--space-2);
+  height: var(--space-2);
+  border-block-end: var(--rule) solid var(--ink-2);
+  border-inline-end: var(--rule) solid var(--ink-2);
+  content: "";
+  transform: rotate(45deg);
+  transition: transform var(--duration-1) var(--ease);
+}
+
+.panel-fold[open] > summary::after {
+  transform: rotate(225deg);
 }
 
 .panel-fold[open] > summary {
   border-block-end: var(--hairline) solid var(--line);
-  color: var(--ink);
 }
 
 .panel-fold-body {
   display: grid;
   gap: var(--space-3);
-  padding: var(--space-3);
+  padding: var(--space-4);
 }
 
 .panel-fold[open] > .panel-fold-body {
@@ -189,7 +144,6 @@
 @keyframes panel-fold-in {
   from {
     transform: translateY(-0.25rem);
-    opacity: 0;
   }
 }
 
@@ -201,17 +155,25 @@
 .panel-form fieldset,
 .panel-event {
   display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3);
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-5);
   border: var(--hairline) solid var(--line);
   border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .panel-form legend,
 .panel-event legend {
-  padding-inline: var(--space-2);
-  color: var(--ink-2);
-  font-size: var(--step-n1);
+  float: inline-start;
+  width: 100%;
+  margin-block-end: var(--space-1);
+  padding: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: var(--weight-heading);
 }
 
 .panel-form label,
@@ -221,6 +183,7 @@
   gap: var(--space-1);
   min-width: 0;
   font-size: var(--step-n1);
+  font-weight: 600;
 }
 
 .panel-form input:not([type="checkbox"]),
@@ -233,12 +196,14 @@
   width: 100%;
   min-width: 0;
   max-width: 100%;
+  min-height: var(--target);
   padding: var(--space-2) var(--space-3);
-  border: var(--hairline) solid var(--line);
+  border: var(--hairline) solid var(--line-strong);
   border-radius: var(--radius);
-  background: var(--bg);
+  background: var(--surface);
   color: var(--ink);
   font-size: var(--step-0);
+  font-weight: 400;
 }
 
 .panel-form textarea {
@@ -258,11 +223,13 @@
 .panel-remove-event,
 .panel-pager > button {
   min-height: var(--target);
-  padding: var(--space-1) var(--space-3);
-  border: var(--hairline) solid var(--line);
+  padding: var(--space-1) var(--space-4);
+  border: var(--hairline) solid var(--line-strong);
   border-radius: var(--radius);
-  background: var(--gray);
+  background: var(--surface);
   color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .panel-row > button,
@@ -307,12 +274,34 @@
 }
 
 .panel-pager > button[aria-current="page"] {
-  border: var(--rule) solid var(--orange);
-  background: var(--highlight);
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--surface);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .panel-fold[open] > .panel-fold-body {
     animation: none;
   }
+}
+
+button.panel-danger,
+button.panel-remove,
+button.panel-remove-section,
+button.panel-remove-event,
+button.panel-redirect-delete {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.panel-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-2);
+  border: var(--hairline) solid currentcolor;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: var(--step-n1);
+  font-weight: 600;
 }

@@ -95,7 +95,7 @@ Built in this order, each with its states (default, hover, focus, active, disabl
 6. Listing with filters and pagination, search box and results
 7. Forms: field, select, checkbox, radio, file, error summary, success state
 8. Gallery grid and lightbox
-9. Staff panel: a shell with a grouped side menu on wide screens (Treści strony, Uczniowie i rodzice, Administracja, by role) and a Menu button on narrow ones; a page head with one primary action; buttons (primary, secondary, danger, quiet), field and select (label above, hint below, 44 px, `--line-strong` border), field group card, disclosure with a chevron, list row (mono date, title, status badge, actions), status badge, empty state with a next step, and notices. The panel uses the site's tokens and type; no system-styled control remains.
+9. Staff panel: a shell with a grouped side menu on wide screens (Treści strony, Uczniowie i rodzice, Administracja, by role) and a Menu button on narrow ones; a page head with one primary action; buttons (primary, secondary, danger, quiet), field and select (label above, hint below, 44 px, `--line-strong` border), field group card, disclosure with a chevron, list row (mono date, title, status badge, actions), status badge, empty state with a next step, and notices. The panel uses the site's tokens and type; no system-styled control remains. The primary panel button is a blue fill, because it is a control rather than decoration; status badges are outlined in the status colour on `--surface`.
 
 ## 6. Responsive and quality checks
 

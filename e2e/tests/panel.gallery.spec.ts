@@ -5,6 +5,7 @@ import { expect, test } from "./fixtures.ts";
 import { ALBUM_ID, fakeGallery, fakePhoto, plainJpeg, rotatedJpeg } from "./panel-gallery-fake.ts";
 import { recordSentForms, sentFile } from "./panel-gallery-forms.ts";
 import { pageProblems } from "./panel-requests-fake.ts";
+import { panelSections } from "./panel-shell-support.ts";
 import { variantsFit } from "../../apps/worker/src/media/photo-variants.ts";
 import { inspectWebp } from "../../apps/worker/src/media/webp-inspector.ts";
 
@@ -23,7 +24,7 @@ test.describe("gallery panel", () => {
   test("shows the section to gallery_editor and hides content sections", async ({ page }) => {
     await fakeGallery(page, "gallery_editor");
     await page.goto("/panel/galeria");
-    const tabs = page.getByRole("navigation", { name: "Sekcje panelu" });
+    const tabs = await panelSections(page);
     await expect(tabs.getByRole("link", { name: "Galeria" })).toBeVisible();
     await expect(tabs.getByRole("link", { name: "Aktualności" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Dzień Patrona" })).toBeVisible();

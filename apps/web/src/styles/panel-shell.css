@@ -1,0 +1,189 @@
+body:has(.panel-shell) {
+  background: var(--page);
+}
+
+.panel-side {
+  display: grid;
+  align-content: start;
+  border-block-end: var(--hairline) solid var(--line);
+  background: var(--surface);
+}
+
+.panel-header {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-5);
+}
+
+.panel-home {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: var(--target);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: var(--weight-heading);
+  text-decoration: none;
+}
+
+.panel-home img {
+  width: var(--space-6);
+  height: var(--space-6);
+}
+
+.panel-menu-open,
+.panel-menu-close {
+  min-height: var(--target);
+  padding: var(--space-2) var(--space-4);
+  border: var(--hairline) solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.panel-nav {
+  display: grid;
+  align-content: start;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 0;
+  color: var(--ink);
+}
+
+.panel-nav:popover-open {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: min(20rem, 100%);
+  height: 100dvh;
+  margin: 0;
+  overflow-y: auto;
+  border-inline-end: var(--hairline) solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+}
+
+.panel-nav::backdrop {
+  background: var(--ink);
+  opacity: 0.5;
+}
+
+.panel-menu-close {
+  justify-self: start;
+}
+
+.panel-nav-group {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.panel-nav-group:not(:has(li)) {
+  display: none;
+}
+
+.panel-nav-title {
+  color: var(--ink-2);
+  font-size: var(--step-n1);
+  font-weight: 600;
+}
+
+.panel-nav-group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-nav-group a {
+  display: flex;
+  align-items: center;
+  min-height: var(--target);
+  padding-inline: var(--space-3);
+  border-inline-start: var(--rule) solid transparent;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.panel-nav-group a:hover {
+  background: var(--page);
+  color: var(--link);
+}
+
+.panel-nav-group a[aria-current="page"] {
+  border-inline-start-color: var(--orange);
+  background: var(--page);
+  font-weight: 700;
+}
+
+.panel-account {
+  display: grid;
+  gap: var(--space-1);
+  padding-block-start: var(--space-4);
+  border-block-start: var(--hairline) solid var(--line);
+}
+
+.panel-user {
+  color: var(--ink-2);
+  font-size: var(--step-n1);
+  overflow-wrap: anywhere;
+}
+
+.panel-site,
+.panel-logout {
+  display: flex;
+  align-items: center;
+  min-height: var(--target);
+}
+
+.panel-main {
+  display: grid;
+  align-content: start;
+  gap: var(--space-5);
+  width: min(100% - 2 * var(--space-5), var(--page-max));
+  margin-inline: auto;
+  padding-block: var(--space-5) var(--space-7);
+}
+
+@media (width >= 64rem) {
+  .panel-shell {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    min-height: 100dvh;
+  }
+
+  .panel-side {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    overflow-y: auto;
+    border-block-end: 0;
+    border-inline-end: var(--hairline) solid var(--line);
+  }
+
+  .panel-menu-open,
+  .panel-menu-close {
+    display: none;
+  }
+
+  .panel-nav:not(:popover-open),
+  .panel-nav:popover-open {
+    position: static;
+    display: grid;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding-block-start: var(--space-2);
+    overflow: visible;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .panel-main {
+    width: min(100% - 2 * var(--space-6), var(--page-max));
+    padding-block-start: var(--space-6);
+  }
+}

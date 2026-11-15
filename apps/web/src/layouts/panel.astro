@@ -1,12 +1,17 @@
 ---
+import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource-variable/source-sans-3/wght.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
 import sourceSans from "@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url";
 
 import { panelSections } from "../data/panel-sections.ts";
+import { SECTION_GROUPS, sectionsIn } from "../lib/panel/overview.ts";
 import { bootScript } from "../lib/preferences.ts";
 
 import "../styles/global.css";
 import "../styles/panel.css";
+import "../styles/panel-shell.css";
 
 interface Props {
   title: string;
@@ -32,37 +37,60 @@ const here = Astro.url.pathname.replace(/\/$/u, "");
     <a class="skip-link" href="#panel-tresc">
       Przejdź do treści
     </a>
-    <header class="panel-header">
-      <a class="panel-home" href="/panel">
-        Panel ZSM3
-      </a>
-      <div class="panel-account">
-        <p class="panel-user" data-panel="panel-user"></p>
-        <a class="panel-site" href="/">
-          Strona szkoły
-        </a>
-        <a class="panel-logout" data-panel="panel-logout" href="/cdn-cgi/access/logout" hidden>
-          Wyloguj
-        </a>
-      </div>
-    </header>
-    <nav class="panel-tabs" aria-label="Sekcje panelu" data-panel="tabs">
-      <ul>
-        {panelSections.map((section) => (
-          <li>
-            <a
-              href={section.href}
-              aria-current={here === section.href ? "page" : undefined}
-              data-roles={section.roles?.join(" ")}
-            >
-              {section.short}
+    <div class="panel-shell">
+      <div class="panel-side">
+        <header class="panel-header">
+          <a class="panel-home" href="/panel">
+            <img src="/logo-zsm3.png" alt="" width="112" height="112" />
+            Panel ZSM3
+          </a>
+          <button type="button" class="panel-menu-open" popovertarget="panel-nav">
+            Menu
+          </button>
+        </header>
+        <nav id="panel-nav" class="panel-nav" aria-label="Sekcje panelu" data-panel="tabs" popover>
+          <button
+            type="button"
+            class="panel-menu-close"
+            popovertarget="panel-nav"
+            popovertargetaction="hide"
+          >
+            Zamknij menu
+          </button>
+          {SECTION_GROUPS.map((group) => (
+            <div class="panel-nav-group">
+              <p class="panel-nav-title" id={`panel-grupa-${group.id}`}>
+                {group.title}
+              </p>
+              <ul aria-labelledby={`panel-grupa-${group.id}`}>
+                {sectionsIn(panelSections, group.id).map((section) => (
+                  <li>
+                    <a
+                      href={section.href}
+                      aria-current={here === section.href ? "page" : undefined}
+                      data-roles={section.roles?.join(" ")}
+                    >
+                      {section.short}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <div class="panel-account">
+            <p class="panel-user" data-panel="panel-user"></p>
+            <a class="panel-site" href="/">
+              Strona szkoły <span aria-hidden="true">↗</span>
             </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-    <main id="panel-tresc" class="page panel-main">
-      <slot />
-    </main>
+            <a class="panel-logout" data-panel="panel-logout" href="/cdn-cgi/access/logout" hidden>
+              Wyloguj
+            </a>
+          </div>
+        </nav>
+      </div>
+      <main id="panel-tresc" class="panel-main">
+        <slot />
+      </main>
+    </div>
   </body>
 </html>

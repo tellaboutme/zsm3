@@ -10,12 +10,11 @@
 }
 
 .panel-status[data-status="received"] {
-  border: var(--rule) solid var(--orange);
-  background: var(--highlight);
+  color: var(--link);
 }
 
 .panel-status[data-status="published"] {
-  border-color: var(--blue);
+  color: var(--success);
 }
 
 .panel-question-original {

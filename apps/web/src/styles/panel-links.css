@@ -92,7 +92,7 @@
 }
 
 .panel-status[data-status="active"] {
-  border-color: var(--blue);
+  color: var(--success);
 }
 
 .panel-status[data-status="revoked"],
