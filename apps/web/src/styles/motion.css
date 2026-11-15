@@ -16,7 +16,8 @@
       navigation: auto;
     }
 
-    :root:not([data-motion="reduce"]) .appear {
+    :root:not([data-motion="reduce"]) .appear,
+    :root:not([data-motion="reduce"]) .reveal {
       animation: fade-up var(--duration-3) var(--ease) both;
     }
 
@@ -27,14 +28,6 @@
 
     :root:not([data-motion="reduce"]) .nudge:hover > [aria-hidden="true"] {
       transform: translateX(var(--space-1));
-    }
-
-    @supports (animation-timeline: view()) {
-      :root:not([data-motion="reduce"]) .reveal {
-        animation: fade-up linear both;
-        animation-timeline: view();
-        animation-range: entry 5% cover 25%;
-      }
     }
   }
 

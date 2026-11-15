@@ -1,5 +1,5 @@
 import { chromium } from "@playwright/test";
-import lighthouse from "lighthouse";
+import lighthouse, { type Result } from "lighthouse";
 import desktopConfig from "lighthouse/core/config/desktop-config.js";
 
 import { expect, test } from "./fixtures.ts";
@@ -9,6 +9,13 @@ const PAGES = [
   { path: "/szkola/galeria/2025-2026/przykladowy-album", port: 9224 },
 ] as const;
 const MAX_LAYOUT_SHIFT = 0.02;
+
+function failingAudits(report: Result | undefined, category: string): string {
+  return (report?.categories[category]?.auditRefs ?? [])
+    .filter((ref) => ref.weight > 0 && (report?.audits[ref.id]?.score ?? 1) < 1)
+    .map((ref) => ref.id)
+    .join(", ");
+}
 
 const minimumScores = {
   performance: 0.95,
@@ -37,7 +44,10 @@ test.describe("lighthouse budgets", () => {
 
         expect(report?.runtimeError).toBeUndefined();
         for (const [category, minimum] of Object.entries(minimumScores)) {
-          expect(report?.categories[category]?.score, category).toBeGreaterThanOrEqual(minimum);
+          expect(
+            report?.categories[category]?.score,
+            `${category}: ${failingAudits(report, category)}`,
+          ).toBeGreaterThanOrEqual(minimum);
         }
         expect(report?.audits["cumulative-layout-shift"]?.numericValue).toBeLessThanOrEqual(
           MAX_LAYOUT_SHIFT,

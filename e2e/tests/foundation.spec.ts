@@ -78,7 +78,7 @@ test.describe("foundation", () => {
     await page.emulateMedia({ colorScheme: "light" });
     await setRootAttribute(page, "data-theme", "dark");
 
-    expect(await computed(page, "body", "background-color")).toBe("rgb(10, 15, 25)");
+    expect(await computed(page, "body", "background-color")).toBe("rgb(11, 17, 28)");
   });
 
   test("underlines links and greys out the page on request", async ({ page }) => {

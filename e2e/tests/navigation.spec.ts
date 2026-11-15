@@ -147,6 +147,11 @@ test.describe("page frame", () => {
     const heading = page.getByRole("heading", { level: 1 });
     const offset = async (): Promise<number> =>
       heading.evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
+    await heading.evaluate(async (element) => {
+      await Promise.all(
+        element.parentElement?.getAnimations().map(async (motion) => motion.finished) ?? [],
+      );
+    });
     const before = await offset();
 
     await page.mouse.wheel(0, 120);
