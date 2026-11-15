@@ -45,13 +45,12 @@ async function verifyHome(page: Page, url: string, count: number): Promise<void>
   expect(response?.status()).toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.getByRole("region", { name: "Teraz w szkole" })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Na skróty" }).getByRole("link")).toHaveCount(
-    4,
-  );
-  await expect(page.locator(".hero .featured")).toHaveCount(count === 0 ? 0 : 1);
-  await expect(page.locator(".news .cards > li")).toHaveCount(Math.max(0, count - 1));
-  await expect(page.locator(".news")).toHaveCount(count > 1 ? 1 : 0);
-  await expect(page.locator(".grid-empty")).toHaveCount(count === 0 ? 1 : 0);
+  await expect(page.locator(".hero .entry .links")).toHaveCount(3);
+  await expect(page.locator(".hero .entry .links a")).not.toHaveCount(0);
+  await expect(page.locator(".hero .entry")).toHaveCount(3);
+  await expect(page.locator(".news .cards > li")).toHaveCount(count);
+  await expect(page.locator(".news .card.lead")).toHaveCount(count === 0 ? 0 : 1);
+  await expect(page.locator(".news")).toHaveCount(count > 0 ? 1 : 0);
   if (count === 0) {
     await verifyEmptyHome(page);
     expect(errors).toEqual([]);
@@ -77,7 +76,7 @@ async function verifyEmptyHome(page: Page): Promise<void> {
     const live = document.querySelector(".live")?.getBoundingClientRect();
     const link = document.querySelector(".live .top a")?.getBoundingClientRect();
     const progress = document.querySelector(".live progress")?.getBoundingClientRect();
-    const socialLinks = [...document.querySelectorAll(".social li a")];
+    const socialLinks = [...document.querySelectorAll(".social a.link")];
     return (
       live !== undefined &&
       link !== undefined &&
@@ -104,12 +103,10 @@ async function verifyEmptyHome(page: Page): Promise<void> {
     ).toBe(0);
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
     await expect(page.getByRole("region", { name: "Teraz w szkole" })).toBeVisible();
-    if (width >= 896) {
-      const columns = await page
-        .locator(".hero .grid")
-        .evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" "));
-      expect(columns).toHaveLength(1);
-    }
+    const columns = await page
+      .locator(".hero .entries")
+      .evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" "));
+    expect(columns).toHaveLength(width >= 1024 ? 3 : 1);
   }
   await page.setViewportSize({ width: 1280, height: 800 });
   for (const colorScheme of ["light", "dark"] as const) {

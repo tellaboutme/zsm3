@@ -11,15 +11,22 @@ test.describe("home page", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
   });
 
-  test("keeps the featured story beside the live status and quick links", async ({ page }) => {
+  test("opens with the school and three entries for candidates, students and parents", async ({
+    page,
+  }) => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-    await expect(page.locator(".hero .featured")).toHaveCount(1);
-    await expect(page.getByRole("region", { name: "Teraz w szkole" })).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Na skróty" }).getByRole("link")).toHaveCount(
-      4,
-    );
+    const hero = page.locator(".hero");
+    await expect(hero.getByRole("heading", { level: 3 })).toHaveText([
+      "Dla kandydata",
+      "Dla ucznia",
+      "Dla rodzica",
+    ]);
+    await expect(hero.getByRole("region", { name: "Teraz w szkole" })).toBeVisible();
+    await expect(hero.locator('a.card[href="/kandydaci/zawody"]')).toContainText("zawodów");
+    await expect(hero.locator('a.card[href="/szkola/terminarz"]')).toBeVisible();
+    await expect(page.locator(".media")).toHaveCount(0);
   });
 
   for (const colorScheme of ["light", "dark"] as const) {

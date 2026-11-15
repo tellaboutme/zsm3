@@ -1,8 +1,13 @@
 ---
 import SectionHead from "./SectionHead.astro";
 import { officialSites, socialProfiles } from "../../data/site.ts";
+import { isVisibleHref } from "../../lib/navigation.ts";
+import { partners as loadPartners } from "../../server/datasets.ts";
+import { pagesReader } from "../../server/pages.ts";
 import Icon from "../Icon.astro";
 
+const [partners, paths] = await Promise.all([loadPartners(), pagesReader().publishedPaths()]);
+const publishedPaths = new Set(paths);
 const groups = [
   { id: "profile", title: "Profile szkoły", items: socialProfiles },
   { id: "serwisy", title: "Serwisy urzędowe", items: officialSites },
@@ -10,17 +15,34 @@ const groups = [
 ---
 
 <section class="social" aria-labelledby="w-sieci">
-  <SectionHead id="w-sieci" title="Gdzie jeszcze nas znajdziesz" />
+  <SectionHead id="w-sieci" title="Partnerzy i szkoła w sieci" />
   <div class="groups">
+    <div class="group">
+      <h3 id="partnerzy">Partnerzy i projekty</h3>
+      <ul aria-labelledby="partnerzy">
+        {partners.map((partner) => (
+          <li class="row">
+            {partner.href !== undefined && isVisibleHref(partner.href, publishedPaths) ? (
+              <a class="name" href={partner.href}>
+                {partner.name}
+              </a>
+            ) : (
+              <span class="name">{partner.name}</span>
+            )}
+            <span class="note">{partner.role}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
     {groups.map((group) => (
       <div class="group">
         <h3 id={group.id}>{group.title}</h3>
         <ul aria-labelledby={group.id}>
           {group.items.map((item) => (
-            <li class="reveal">
-              <a href={item.href} rel="noopener">
+            <li>
+              <a class="row link" href={item.href} rel="noopener">
                 <span class="name">{item.name}</span>
-                <span class="handle">{item.handle}</span>
+                <span class="note">{item.handle}</span>
                 <span class="go" aria-hidden="true">
                   <Icon name="external" />
                 </span>
@@ -41,65 +63,58 @@ const groups = [
 
   .groups {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
     gap: var(--space-5);
   }
 
   .group {
     display: grid;
     align-content: start;
-    gap: var(--space-3);
+    gap: var(--space-2);
     min-width: 0;
   }
 
   h3 {
     color: var(--ink-2);
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: var(--step-n1);
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    letter-spacing: 0;
   }
 
   ul {
-    display: grid;
-    gap: 0;
     margin: 0;
     padding: 0;
-    border-block-start: var(--hairline) solid var(--line);
+    border-top: var(--hairline) solid var(--line);
     list-style: none;
   }
 
-  a {
+  .row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--space-1) var(--space-4);
+    gap: 0 var(--space-4);
     align-items: center;
     min-height: var(--target);
-    padding: var(--space-3) var(--space-2);
-    border-block-end: var(--hairline) solid var(--line);
+    padding-block: var(--space-2);
+    border-bottom: var(--hairline) solid var(--line);
+  }
+
+  .link {
     color: var(--ink);
     text-decoration: none;
-    transition:
-      background var(--duration-1) var(--ease),
-      color var(--duration-1) var(--ease);
   }
 
   .name {
     min-width: 0;
     overflow-wrap: anywhere;
-    font-family: var(--font-display);
-    font-size: var(--step-1);
-    font-stretch: var(--stretch-display);
-    font-weight: var(--weight-heading);
+    font-weight: 600;
   }
 
-  .handle {
+  .note {
     grid-column: 1;
     min-width: 0;
     overflow-wrap: anywhere;
     color: var(--ink-2);
-    font-family: var(--font-mono);
     font-size: var(--step-n1);
   }
 
@@ -110,16 +125,8 @@ const groups = [
     color: var(--ink-2);
   }
 
-  a:hover,
-  a:focus-visible {
-    background: var(--blue);
-    color: var(--blue-ink);
-  }
-
-  a:hover .handle,
-  a:focus-visible .handle,
-  a:hover .go,
-  a:focus-visible .go {
-    color: var(--blue-dim);
+  .link:hover .name,
+  a.name:hover {
+    color: var(--link);
   }
 </style>
