@@ -37,18 +37,23 @@ const { newer, older } = article.neighbours;
   ]}
 >
   <article class="article">
-    <PageHead title={item.title} lead={item.lead}>
+    <PageHead class="head headline" title={item.title} lead={item.lead}>
       <Fragment slot="meta">
         <a href={categoryHref(category)}>{category.name}</a>
         <time datetime={item.date}>{longDate(item.date)}</time>
       </Fragment>
     </PageHead>
-    <RichText document={item.body} />
+    <div class="text">
+      <RichText document={item.body} />
+    </div>
     <footer class="tools">
       <button type="button" class="copy" data-copy-link hidden>
         Kopiuj link do artykułu
       </button>
       <p class="visually-hidden" role="status" data-copy-status></p>
+      <a class="back nudge" href="/aktualnosci">
+        <span aria-hidden="true">←</span> Wróć do listy
+      </a>
     </footer>
   </article>
   <nav class="neighbours" aria-label="Sąsiednie artykuły">
@@ -86,24 +91,39 @@ const { newer, older } = article.neighbours;
 <style>
   .article {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-6);
-    max-width: calc(var(--measure) + var(--space-8));
     padding-block: var(--space-7);
+  }
+
+  .text {
+    max-width: var(--measure);
+  }
+
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    align-items: center;
+  }
+
+  .back {
+    font-weight: 700;
   }
 
   .copy {
     min-height: var(--target);
     padding: var(--space-2) var(--space-4);
-    border: var(--hairline) solid var(--ink);
+    border: var(--hairline) solid var(--line-strong);
     border-radius: var(--radius);
-    background: var(--bg);
+    background: var(--surface);
     color: var(--ink);
     font-weight: 700;
     cursor: pointer;
   }
 
   .copy:hover {
-    background: var(--gray);
+    border-color: var(--ink);
   }
 
   .neighbours {
@@ -146,10 +166,34 @@ const { newer, older } = article.neighbours;
 
   .related ul {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
     gap: var(--space-5);
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  @media (width >= 64rem) {
+    .article {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      column-gap: var(--space-7);
+    }
+
+    .head,
+    .text {
+      grid-column: 1;
+    }
+
+    .tools {
+      position: sticky;
+      top: calc(var(--header-height-compact) + var(--space-5));
+      flex-direction: column;
+      grid-row: 1 / span 2;
+      grid-column: 2;
+      align-items: start;
+      align-self: start;
+      padding-top: var(--space-5);
+      border-top: var(--hairline) solid var(--line);
+    }
   }
 </style>

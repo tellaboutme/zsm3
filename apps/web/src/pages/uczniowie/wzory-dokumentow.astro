@@ -83,24 +83,27 @@ const groups = [
 
   .steps {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-    gap: var(--space-3);
+    justify-self: stretch;
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+    gap: var(--space-3) var(--space-5);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
   .steps li {
-    display: grid;
-    gap: var(--space-1);
-    padding: var(--space-3) var(--space-4);
-    border-top: var(--rule) solid var(--orange);
-    background: var(--gray);
-    font-weight: 700;
+    display: flex;
+    gap: var(--space-2);
+    align-items: baseline;
+    padding-top: var(--space-2);
+    border-top: var(--hairline) solid var(--line);
+    font-weight: 600;
   }
 
   .number {
-    color: var(--ink-2);
+    flex: none;
+    color: var(--link);
     font-family: var(--font-mono);
     font-weight: 600;
   }

@@ -1,5 +1,6 @@
 ---
 import type { SchoolEvent } from "../../lib/calendar.ts";
+import { datePlaque } from "../../lib/date-plaque.ts";
 import DateRange from "../DateRange.astro";
 
 interface Props {
@@ -12,14 +13,23 @@ const { events } = Astro.props;
 <section class="key-dates" aria-labelledby="najwazniejsze">
   <h2 id="najwazniejsze">Najważniejsze daty</h2>
   <ol>
-    {events.map((event) => (
-      <li>
-        <p class="when">
-          <DateRange date={event.date} endDate={event.endDate} />
-        </p>
-        <p class="what">{event.title}</p>
-      </li>
-    ))}
+    {events.map((event) => {
+      const plaque = datePlaque(event.date, event.endDate);
+      return (
+        <li>
+          <span class:list={["plaque", { range: plaque.range }]} aria-hidden="true">
+            <span class="day">{plaque.day}</span>
+            <span class="month">{plaque.month}</span>
+          </span>
+          <div class="body">
+            <p class="when visually-hidden">
+              <DateRange date={event.date} endDate={event.endDate} />
+            </p>
+            <p class="what">{event.title}</p>
+          </div>
+        </li>
+      );
+    })}
   </ol>
 </section>
 
@@ -35,8 +45,8 @@ const { events } = Astro.props;
 
   ol {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
-    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 var(--space-5);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -44,19 +54,61 @@ const { events } = Astro.props;
 
   li {
     display: grid;
-    gap: var(--space-2);
-    padding: var(--space-4);
-    border-top: var(--rule) solid var(--orange);
-    background: var(--gray);
+    grid-template-columns: 4rem minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: center;
+    padding-block: var(--space-3);
+    border-top: var(--hairline) solid var(--line);
   }
 
-  .when {
+  .plaque {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    min-height: 4rem;
+    padding: var(--space-2) var(--space-1);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--link);
     font-family: var(--font-mono);
+    line-height: var(--leading-tight);
+    text-align: center;
+  }
+
+  .day {
+    font-size: var(--step-1);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  .range .day {
     font-size: var(--step-n1);
-    font-weight: 600;
+  }
+
+  .month {
+    font-size: var(--step-n1);
+    text-transform: uppercase;
+  }
+
+  .body {
+    min-width: 0;
   }
 
   .what {
     font-weight: 700;
+    line-height: var(--leading-snug);
+  }
+
+  @media (width >= 40rem) {
+    ol {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 64rem) {
+    ol {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 </style>

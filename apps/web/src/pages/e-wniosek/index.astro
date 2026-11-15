@@ -7,6 +7,7 @@ import {
   TURNSTILE_SITE_KEY,
 } from "astro:env/server";
 
+import RequestUnavailable from "../../components/requests/RequestUnavailable.astro";
 import Base from "../../layouts/Base.astro";
 import "../../styles/request.css";
 
@@ -29,7 +30,6 @@ const available =
 >
   <div class="request-page">
     <header class="request-intro">
-      <p class="tag">Uczniowie · dokumenty</p>
       <h1>E-wniosek</h1>
       <p>
         {available
@@ -39,13 +39,7 @@ const available =
       </p>
     </header>
     {!available ? (
-      <section class="request-notice" aria-labelledby="request-unavailable">
-        <h2 id="request-unavailable">Wnioski online są niedostępne</h2>
-        <p>
-          Nie wpisuj tutaj swoich danych. Aby uzyskać dokument, skontaktuj się z{" "}
-          <a href="/kontakt">sekretariatem szkoły</a>.
-        </p>
-      </section>
+      <RequestUnavailable />
     ) : (
       <section aria-labelledby="request-heading">
         <h2 id="request-heading">Dane do wniosku</h2>
