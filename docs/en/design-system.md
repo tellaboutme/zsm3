@@ -74,12 +74,12 @@ Contrast: body text at least 7:1 (AAA) in both themes, large text and UI element
 
 Fonts are self-hosted WOFF2, subset to Latin and Latin Extended; Archivo and Source Sans 3 are preloaded.
 
-| Role                  | Face                            | Note                                                                       |
-| --------------------- | ------------------------------- | -------------------------------------------------------------------------- |
-| Display               | Archivo (width 100, weight 700) | titles in sentence case; width 125 only for the wordmark and large figures |
-| Body                  | Source Sans 3                   | text, navigation, forms, labels                                            |
-| Mono                  | IBM Plex Mono                   | data only: dates, times, qualification and document codes, file sizes      |
-| Readable font setting | Atkinson Hyperlegible Next      | replaces the body face when chosen in the accessibility settings           |
+| Role                  | Face                            | Note                                                                  |
+| --------------------- | ------------------------------- | --------------------------------------------------------------------- |
+| Display               | Archivo (width 100, weight 700) | titles in sentence case; width 125 only for large figures             |
+| Body                  | Source Sans 3                   | text, navigation, forms, labels                                       |
+| Mono                  | IBM Plex Mono                   | data only: dates, times, qualification and document codes, file sizes |
+| Readable font setting | Atkinson Hyperlegible Next      | replaces the body face when chosen in the accessibility settings      |
 
 All faces render the Polish test string correctly. Decorative monospaced kickers over sections and page titles are not used; a page head is breadcrumbs, title, lead, an optional meta line and actions (`PageHead`), and a section head is a hairline, an h2 and an optional "Wszystkie … →" link.
 
