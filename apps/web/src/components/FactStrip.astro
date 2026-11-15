@@ -21,6 +21,11 @@ const { label, facts } = Astro.props;
 </div>
 
 <style>
+  .facts {
+    justify-self: stretch;
+    width: 100%;
+  }
+
   dl {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
