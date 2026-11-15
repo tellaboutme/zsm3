@@ -62,7 +62,7 @@ const { label, facts } = Astro.props;
     font-size: var(--step-n1);
   }
 
-  @container facts (30rem <= width < 56rem) {
+  @container facts (30rem <= width < 40rem) {
     dl {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -76,7 +76,7 @@ const { label, facts } = Astro.props;
     }
   }
 
-  @container facts (width >= 56rem) {
+  @container facts (width >= 40rem) {
     dl {
       grid-auto-columns: minmax(0, 1fr);
       grid-auto-flow: column;
