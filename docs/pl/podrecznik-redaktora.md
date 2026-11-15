@@ -348,7 +348,7 @@ Gdy publikujesz aktualność, strona sama zgłasza jej adres wyszukiwarkom (Bing
 
 ## 15. Wnioski e-wniosek
 
-Zakładka **Wnioski** zbiera wnioski złożone przez formularz na stronie: wymianę i duplikat legitymacji oraz zaświadczenie o uczęszczaniu do szkoły. Widzą ją tylko sekretariat i administrator; redaktor treści jej nie ma.
+Sekcja **Wnioski** (menu panelu, grupa „Uczniowie i rodzice”) zbiera wnioski złożone przez formularz na stronie: wymianę i duplikat legitymacji oraz zaświadczenie o uczęszczaniu do szkoły. Widzą ją tylko sekretariat i administrator; redaktor treści jej nie ma.
 
 ### Lista
 

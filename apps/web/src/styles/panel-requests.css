@@ -34,25 +34,16 @@
 }
 
 .panel-item-current {
-  box-shadow: inset var(--rule) 0 0 var(--orange);
-  background: var(--gray);
-}
-
-.panel-status {
-  padding: 0 var(--space-2);
-  border: var(--hairline) solid var(--line);
-  border-radius: var(--radius);
-  font-size: var(--step-n1);
-  font-family: var(--font-mono);
+  box-shadow: inset var(--rule) 0 0 var(--blue);
+  background: var(--page);
 }
 
 .panel-status[data-status="ready"] {
-  border: var(--rule) solid var(--orange);
-  background: var(--highlight);
+  color: var(--success);
 }
 
 .panel-status[data-status="submitted"] {
-  border-color: var(--blue);
+  color: var(--link);
 }
 
 .panel-facts {
@@ -73,19 +64,21 @@
 }
 
 .panel-warning {
-  padding: var(--space-3);
+  padding: var(--space-4);
+  border: var(--hairline) solid var(--line);
   border-inline-start: var(--rule) solid var(--danger);
-  background: var(--gray);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .panel-confirm {
   display: grid;
   min-width: 0;
   gap: var(--space-3);
-  padding: var(--space-3);
-  border: var(--rule) solid var(--orange);
+  padding: var(--space-4);
+  border: var(--hairline) solid var(--danger);
   border-radius: var(--radius);
-  background: var(--gray);
+  background: var(--surface);
 }
 
 .panel-request .panel-actions > button {
