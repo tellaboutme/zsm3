@@ -34,16 +34,18 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
     breadcrumbs={[{ label: section.label }]}
   >
     <div class="hub">
-      <PageHead title={section.label} lead={hub.intro}>
-        <a class="action nudge" href={hub.action.href}>
-          {hub.action.label} <span aria-hidden="true">→</span>
-        </a>
-      </PageHead>
-      {section.featured !== undefined && (
-        <div class="feature">
-          <MenuFeature feature={section.featured} />
-        </div>
-      )}
+      <div class="top">
+        <PageHead title={section.label} lead={hub.intro}>
+          <a class="action nudge" href={hub.action.href}>
+            {hub.action.label} <span aria-hidden="true">→</span>
+          </a>
+        </PageHead>
+        {section.featured !== undefined && (
+          <div class="feature">
+            <MenuFeature feature={section.featured} />
+          </div>
+        )}
+      </div>
       <TaskGroups groups={section.groups} />
       <section class="news" aria-labelledby="aktualnosci">
         <h2 id="aktualnosci">Aktualności</h2>
@@ -83,6 +85,13 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
     text-decoration: none;
   }
 
+  .top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: center;
+  }
+
   .feature {
     max-width: 32rem;
   }
@@ -107,5 +116,21 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
 
   .more {
     font-weight: 700;
+  }
+
+  @media (width >= 64rem) {
+    .top {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    .feature {
+      max-width: none;
+    }
+  }
+
+  @media (width >= 48rem) {
+    .news ul {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 </style>
