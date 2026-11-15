@@ -43,6 +43,37 @@
 }
 
 @layer base {
+  .disclosure > summary {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--target);
+    font-weight: 700;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .disclosure > summary::after {
+    flex: none;
+    width: var(--space-2);
+    height: var(--space-2);
+    margin-inline-end: var(--space-1);
+    border-block-end: var(--rule) solid var(--ink-2);
+    border-inline-end: var(--rule) solid var(--ink-2);
+    content: "";
+    transform: rotate(45deg);
+    transition: transform var(--duration-1) var(--ease);
+  }
+
+  .disclosure[open] > summary::after {
+    transform: rotate(225deg);
+  }
+
+  .disclosure > summary:hover {
+    color: var(--link);
+  }
+
   body {
     min-height: 100vh;
     background: var(--page);

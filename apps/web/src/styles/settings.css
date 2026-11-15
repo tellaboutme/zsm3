@@ -31,10 +31,8 @@
 
 .settings .kicker {
   color: var(--ink-2);
-  font-family: var(--font-mono);
   font-size: var(--step-n1);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-weight: 600;
 }
 
 .settings .head h2 {
@@ -61,10 +59,8 @@
 .settings legend {
   padding: 0;
   color: var(--ink-2);
-  font-family: var(--font-mono);
   font-size: var(--step-n1);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-weight: 600;
 }
 
 .settings .segments {
