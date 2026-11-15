@@ -1,11 +1,9 @@
-@keyframes fade-up {
+@keyframes shift-up {
   from {
-    opacity: 0;
     transform: translateY(var(--shift));
   }
 
   to {
-    opacity: 1;
     transform: none;
   }
 }
@@ -18,7 +16,7 @@
 
     :root:not([data-motion="reduce"]) .appear,
     :root:not([data-motion="reduce"]) .reveal {
-      animation: fade-up var(--duration-3) var(--ease) both;
+      animation: shift-up var(--duration-3) var(--ease) both;
     }
 
     :root:not([data-motion="reduce"]) .nudge > [aria-hidden="true"] {

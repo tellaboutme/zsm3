@@ -91,11 +91,11 @@ test.describe("foundation", () => {
 });
 
 test.describe("motion", () => {
-  test("fades the page head in by default", async ({ page }) => {
+  test("moves the page head in by default", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto("/wzornik");
 
-    expect(await computed(page, ".page-head", "animation-name")).toBe("fade-up");
+    expect(await computed(page, ".page-head", "animation-name")).toBe("shift-up");
   });
 
   test("stops all motion when the system asks for less", async ({ page }) => {
