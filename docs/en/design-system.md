@@ -65,7 +65,7 @@ All colours, sizes, spacing, radii, durations and z-indices are CSS custom prope
 | Type   | `--font-display`, `--font-body`, `--font-mono`, `--step-n1` … `--step-4` (fluid `clamp()` scale), `--weight-heading`, `--leading-*`, `--stretch-*`                                     |
 | Space  | `--space-1` … `--space-8` on a 4 px base                                                                                                                                               |
 | Layout | `--measure` (65ch), `--grid-columns`, `--gutter`, `--page-max`                                                                                                                         |
-| Shape  | `--radius` (8 px), `--radius-round`, `--hairline`, `--rule` (status bars and the active menu item)                                                                                     |
+| Shape  | `--radius` (8 px), `--radius-round`, `--hairline`, `--rule` (the active menu item, focus rings and timeline markers; cards and callouts use `--hairline` only)                         |
 | Motion | `--ease`, `--duration-1`, `--duration-2` (hover, ≤ 200 ms), `--duration-3` (block entrance, ≤ 300 ms), `--shift` (≤ 8 px)                                                              |
 
 Contrast: body text at least 7:1 (AAA) in both themes, large text and UI elements at least 4.5:1; field borders (`--line-strong`) at least 3:1 against `--surface`. The accessibility settings (larger text, high contrast, greyscale, underlined links, readable font) are token overrides, not separate styles.

@@ -69,8 +69,7 @@
 .request-errors,
 .request-notice {
   padding: var(--space-5);
-  border: var(--hairline) solid var(--line);
-  border-left: var(--rule) solid var(--danger);
+  border: var(--hairline) solid var(--danger);
   border-radius: var(--radius);
   background: var(--surface);
 }

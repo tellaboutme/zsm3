@@ -6,9 +6,10 @@ interface Props {
 }
 
 const { items } = Astro.props;
+const plain = items.every((item) => timelineLabel(item) === undefined);
 ---
 
-<ol class="timeline">
+<ol class:list={["timeline", { plain }]}>
   {items.map((item) => {
     const label = timelineLabel(item);
     return (
@@ -77,6 +78,14 @@ const { items } = Astro.props;
     h3,
     .text {
       grid-column: 2;
+    }
+
+    .plain li {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .plain :is(h3, .text) {
+      grid-column: auto;
     }
 
     .label {

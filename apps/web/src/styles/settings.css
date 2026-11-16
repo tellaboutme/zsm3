@@ -19,7 +19,6 @@
   display: grid;
   gap: var(--space-4);
   padding: var(--space-6);
-  border-block-start: var(--rule) solid var(--orange);
 }
 
 .settings .head {

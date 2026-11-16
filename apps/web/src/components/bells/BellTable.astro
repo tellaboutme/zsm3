@@ -64,8 +64,24 @@ const { caption, lessons } = Astro.props;
     font-family: var(--font-mono);
   }
 
+  thead th:first-child {
+    white-space: nowrap;
+  }
+
   .minutes {
     color: var(--ink-2);
     font-size: var(--step-n1);
+  }
+
+  @media (width < 30rem) {
+    .minutes {
+      display: block;
+    }
+  }
+
+  @media (width >= 30rem) {
+    .mono {
+      white-space: nowrap;
+    }
   }
 </style>
