@@ -92,10 +92,6 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
     align-items: center;
   }
 
-  .feature {
-    max-width: 32rem;
-  }
-
   .news {
     display: grid;
     gap: var(--space-5);
@@ -107,7 +103,7 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
 
   .news ul {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-5);
     margin: 0;
     padding: 0;
@@ -122,13 +118,9 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
     .top {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
     }
-
-    .feature {
-      max-width: none;
-    }
   }
 
-  @media (width >= 48rem) {
+  @media (width >= 56rem) {
     .news ul {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
