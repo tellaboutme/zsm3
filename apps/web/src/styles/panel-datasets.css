@@ -105,7 +105,9 @@
 }
 
 [data-panel="dataset-fields"] .panel-item .panel-item > .panel-actions {
-  flex: none;
+  flex: 1 1 auto;
+  justify-content: end;
+  min-width: 0;
   padding-block-start: 0;
   border-block-start: 0;
 }
