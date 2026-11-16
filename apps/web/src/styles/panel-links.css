@@ -2,14 +2,20 @@
   display: grid;
   min-width: 0;
   gap: var(--space-3);
-  padding: var(--space-4);
+  padding: var(--space-5);
   border: var(--hairline) solid var(--line);
-  border-block-start: var(--rule) solid var(--blue);
   border-radius: var(--radius);
+  background: var(--surface);
+}
+
+[data-panel-page="links"] section {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-3);
 }
 
 .panel-links-create > h2 {
-  font-size: var(--step-1);
+  font-size: var(--step-2);
 }
 
 .panel-form .panel-choice {
@@ -34,9 +40,10 @@
 
 .panel-links-expiry {
   margin: 0;
-  padding: var(--space-3);
-  border-inline-start: var(--rule) solid var(--orange);
-  background: var(--gray);
+  padding: var(--space-3) var(--space-4);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius);
+  background: var(--page);
 }
 
 .panel-links-result {
@@ -44,9 +51,9 @@
   min-width: 0;
   gap: var(--space-2);
   padding: var(--space-3);
-  border: var(--rule) solid var(--orange);
+  border: var(--hairline) solid var(--success);
   border-radius: var(--radius);
-  background: var(--highlight);
+  background: var(--surface);
 }
 
 .panel-links-result > h3 {

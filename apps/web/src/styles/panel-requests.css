@@ -86,7 +86,6 @@
   text-align: start;
 }
 
-.panel-actions > button.panel-danger,
 .panel-confirm .panel-actions > button.panel-save {
   border: var(--hairline) solid var(--danger-surface);
   background: var(--danger-surface);
