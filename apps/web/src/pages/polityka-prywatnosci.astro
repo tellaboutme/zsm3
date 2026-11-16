@@ -48,7 +48,7 @@ const sections = document.sections.map((section) => ({
     {sections.map((section) => (
       <section id={section.id} aria-labelledby={`${section.id}-tytul`}>
         <h2 id={`${section.id}-tytul`}>{section.title}</h2>
-        <RichText document={section.document} />
+        <RichText document={section.document} idPrefix={`${section.id}-tabela`} />
       </section>
     ))}
   </article>

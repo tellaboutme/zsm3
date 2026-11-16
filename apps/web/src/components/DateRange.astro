@@ -11,8 +11,7 @@ const { date, endDate } = Astro.props;
 
 <span class="date-range">
   <span class="endpoint" data-date-endpoint>
-    <time datetime={date}>{longDate(date)}</time>
-    {endDate !== undefined && " –"}
+    {[<time datetime={date}>{longDate(date)}</time>, endDate === undefined ? "" : "\u00a0–"]}
   </span>
   {endDate !== undefined && (
     <>
