@@ -1,0 +1,111 @@
+[data-panel="dataset-fields"] .panel-group {
+  gap: var(--space-4);
+}
+
+[data-panel="dataset-fields"] .panel-items {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-panel="dataset-fields"] .panel-items > .panel-item {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-3) var(--space-4);
+  align-items: start;
+  padding: var(--space-4);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+[data-panel="dataset-fields"] .panel-items > .panel-item:hover {
+  background: var(--surface);
+}
+
+[data-panel="dataset-fields"] .panel-item > :is(.panel-group, .panel-actions),
+[data-panel="dataset-fields"] .panel-item > .panel-field:has(textarea) {
+  grid-column: 1 / -1;
+}
+
+[data-panel="dataset-fields"] .panel-field label {
+  display: grid;
+  gap: var(--space-1);
+}
+
+[data-panel="dataset-fields"] .panel-field .panel-meta {
+  color: var(--ink-2);
+  font-family: var(--font-body);
+  font-size: var(--step-n1);
+  font-weight: 400;
+}
+
+[data-panel="dataset-fields"] textarea {
+  min-height: 7rem;
+}
+
+[data-panel="dataset-fields"] .panel-field[data-kind="checkbox"] label {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: var(--target);
+}
+
+[data-panel="dataset-fields"] .panel-field [type="checkbox"] {
+  width: var(--space-4);
+  height: var(--space-4);
+  margin: 0;
+  accent-color: var(--blue);
+}
+
+[data-panel="dataset-fields"] .panel-item .panel-group {
+  padding: var(--space-4);
+  background: var(--page);
+}
+
+[data-panel="dataset-fields"] .panel-item .panel-group > legend {
+  font-size: var(--step-1);
+}
+
+[data-panel="dataset-fields"] .panel-group > button {
+  justify-self: start;
+  min-height: var(--target);
+  padding: var(--space-1) var(--space-4);
+  border: var(--hairline) solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+[data-panel="dataset-fields"] .panel-item > .panel-actions {
+  justify-content: end;
+  padding-block-start: var(--space-3);
+  border-block-start: var(--hairline) solid var(--line);
+}
+
+[data-panel="dataset-fields"] .panel-item > .panel-actions > button:last-child {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+[data-panel="dataset-fields"] .panel-item .panel-items > .panel-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  padding: var(--space-3);
+}
+
+[data-panel="dataset-fields"] .panel-item .panel-item > .panel-field {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+[data-panel="dataset-fields"] .panel-item .panel-item > .panel-actions {
+  flex: none;
+  padding-block-start: 0;
+  border-block-start: 0;
+}
