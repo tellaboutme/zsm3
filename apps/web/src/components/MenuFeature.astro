@@ -14,32 +14,38 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
 {feature === "live-status" && <LiveStatus />}
 {feature === "professions" && (
   <a class="feature nudge" href="/kandydaci/zawody">
-    <span class="label">Oferta</span>
+    <span class="top">
+      <span class="label">Oferta</span>
+      <span class="go" aria-hidden="true">
+        →
+      </span>
+    </span>
     <span class="big">13 zawodów</span>
     <span>w technikum i szkole branżowej, w pięciu branżach</span>
-    <span class="go" aria-hidden="true">
-      →
-    </span>
   </a>
 )}
 {feature === "next-meeting" && (
   <a class="feature nudge" href="/szkola/terminarz" data-dated>
-    <span class="label">Najbliższe zebranie z rodzicami</span>
+    <span class="top">
+      <span class="label">Najbliższe zebranie z rodzicami</span>
+      <span class="go" aria-hidden="true">
+        →
+      </span>
+    </span>
     <span class="big">{meeting === undefined ? "Terminarz" : longDate(meeting.date)}</span>
     <span>Terminy wszystkich spotkań w terminarzu roku szkolnego</span>
-    <span class="go" aria-hidden="true">
-      →
-    </span>
   </a>
 )}
 {feature === "patron" && (
   <a class="feature nudge" href="/szkola/patron">
-    <span class="label">Patron szkoły</span>
+    <span class="top">
+      <span class="label">Patron szkoły</span>
+      <span class="go" aria-hidden="true">
+        →
+      </span>
+    </span>
     <span class="big">gen. Władysław Sikorski</span>
     <span>Historia patrona i tradycje szkoły</span>
-    <span class="go" aria-hidden="true">
-      →
-    </span>
   </a>
 )}
 
@@ -51,7 +57,6 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
     height: 100%;
     padding: var(--space-5);
     border: var(--hairline) solid var(--line);
-    border-left: var(--rule) solid var(--blue);
     border-radius: var(--radius);
     background: var(--surface);
     color: var(--ink);
@@ -63,13 +68,20 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
     border-color: var(--blue);
   }
 
+  .top {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
   .label {
     color: var(--ink-2);
     font-size: var(--step-n1);
   }
 
   .big {
-    color: var(--link);
+    color: var(--ink);
     font-family: var(--font-display);
     font-size: var(--step-2);
     font-weight: var(--weight-heading);

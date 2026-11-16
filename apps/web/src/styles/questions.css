@@ -48,8 +48,7 @@
 
 .question-success {
   padding: var(--space-5);
-  border: var(--hairline) solid var(--line);
-  border-left: var(--rule) solid var(--success);
+  border: var(--hairline) solid var(--success);
   border-radius: var(--radius);
   background: var(--surface);
 }
