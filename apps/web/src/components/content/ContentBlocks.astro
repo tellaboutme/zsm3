@@ -8,15 +8,18 @@ import FactStrip from "../FactStrip.astro";
 
 interface Props {
   blocks: readonly ContentBlock[];
+  idPrefix?: string | undefined;
 }
 
-const { blocks } = Astro.props;
+const { blocks, idPrefix = "blok" } = Astro.props;
 ---
 
-{blocks.map((block) => {
+{blocks.map((block, index) => {
   switch (block.type) {
     case "rich-text":
-      return <RichText document={block.document} />;
+      return (
+        <RichText document={block.document} idPrefix={`${idPrefix}-${String(index + 1)}-tabela`} />
+      );
     case "facts":
       return <FactStrip label={block.label} facts={block.facts} />;
     case "timeline":

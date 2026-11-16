@@ -43,7 +43,7 @@ const cardLayout = page.path === "/szkola/biblioteka" || page.path === "/uczniow
         {page.sections.map((section) => (
           <section class="section" id={section.id} aria-labelledby={`${section.id}-tytul`}>
             <h2 id={`${section.id}-tytul`}>{section.title}</h2>
-            <ContentBlocks blocks={section.blocks} />
+            <ContentBlocks blocks={section.blocks} idPrefix={section.id} />
           </section>
         ))}
       </div>

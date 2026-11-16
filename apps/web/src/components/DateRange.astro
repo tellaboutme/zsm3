@@ -7,12 +7,12 @@ interface Props {
 }
 
 const { date, endDate } = Astro.props;
+const start = endDate === undefined ? longDate(date) : `${longDate(date)}\u00a0–`;
 ---
 
 <span class="date-range">
   <span class="endpoint" data-date-endpoint>
-    <time datetime={date}>{longDate(date)}</time>
-    {endDate !== undefined && " –"}
+    <time datetime={date}>{start}</time>
   </span>
   {endDate !== undefined && (
     <>

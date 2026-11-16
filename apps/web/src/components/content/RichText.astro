@@ -9,9 +9,10 @@ import VideoFacade from "./VideoFacade.astro";
 
 interface Props {
   document: RichText;
+  idPrefix?: string | undefined;
 }
 
-const { document } = Astro.props;
+const { document, idPrefix = "tabela" } = Astro.props;
 ---
 
 <div class="rich-text">
@@ -32,7 +33,7 @@ const { document } = Astro.props;
       case "table":
         return (
           <RichTable
-            id={`tabela-${String(index + 1)}`}
+            id={`${idPrefix}-${String(index + 1)}`}
             caption={block.caption}
             header={block.header}
             rows={block.rows}
