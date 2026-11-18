@@ -190,6 +190,11 @@
   outline-offset: var(--ring);
 }
 
+.settings .statement-link {
+  margin: 0;
+  color: var(--ink-2);
+}
+
 .settings .actions {
   display: flex;
   gap: var(--space-3);

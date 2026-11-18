@@ -1,5 +1,6 @@
 import type { ContentPage } from "@zsm3/contracts/content";
 
+import { budynekSections } from "./deklaracja-budynek.ts";
 import { zgloszeniaSection } from "./deklaracja-zgloszenia.ts";
 
 export const deklaracjaDostepnosci: ContentPage = {
@@ -70,12 +71,6 @@ export const deklaracjaDostepnosci: ContentPage = {
                   {
                     type: "text",
                     text: "Tabele osadzone w treści dokumentu mogą nie posiadać nagłówków oraz opisów kolumn i wierszy, ponieważ były opublikowane przed wejściem w życie ustawy o dostępności cyfrowej.",
-                  },
-                ],
-                [
-                  {
-                    type: "text",
-                    text: "Elementy osadzone pochodzące od zewnętrznych dostawców, na przykład Google Maps, wyłączone są z obowiązku zapewniania dostępności.",
                   },
                 ],
               ],
@@ -152,5 +147,6 @@ export const deklaracjaDostepnosci: ContentPage = {
         },
       ],
     },
+    ...budynekSections,
   ],
 };

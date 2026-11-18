@@ -14,7 +14,7 @@ const { title, text, link } = Astro.props;
   <p class="title">{title}</p>
   <p class="text">{text}</p>
   {link !== undefined && (
-    <a class="nudge" href={link.href}>
+    <a class="nudge tap-target" href={link.href}>
       {link.label} <span aria-hidden="true">→</span>
     </a>
   )}

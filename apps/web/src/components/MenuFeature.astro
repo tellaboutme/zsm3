@@ -13,7 +13,7 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
 
 {feature === "live-status" && <LiveStatus />}
 {feature === "professions" && (
-  <a class="feature nudge" href="/kandydaci/zawody">
+  <a class="feature nudge tap-target" href="/kandydaci/zawody">
     <span class="top">
       <span class="label">Oferta</span>
       <span class="go" aria-hidden="true">
@@ -25,7 +25,7 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
   </a>
 )}
 {feature === "next-meeting" && (
-  <a class="feature nudge" href="/szkola/terminarz" data-dated>
+  <a class="feature nudge tap-target" href="/szkola/terminarz" data-dated>
     <span class="top">
       <span class="label">Najbliższe zebranie z rodzicami</span>
       <span class="go" aria-hidden="true">
@@ -37,7 +37,7 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
   </a>
 )}
 {feature === "patron" && (
-  <a class="feature nudge" href="/szkola/patron">
+  <a class="feature nudge tap-target" href="/szkola/patron">
     <span class="top">
       <span class="label">Patron szkoły</span>
       <span class="go" aria-hidden="true">

@@ -12,7 +12,9 @@ const { nodes, depth = 0 } = Astro.props;
 <ul class:list={["tree", { root: depth === 0 }]}>
   {nodes.map((node) => (
     <li>
-      <a href={node.href}>{node.label}</a>
+      <a class="tap-target" href={node.href}>
+        {node.label}
+      </a>
       {node.description !== undefined && depth < 2 && <p>{node.description}</p>}
       {node.children !== undefined && node.children.length > 0 && (
         <Astro.self nodes={node.children} depth={depth + 1} />

@@ -70,8 +70,16 @@ function itemNode(item: PanelNewsItem, open: (ref: string) => void): HTMLElement
 
 function pageNode(parts: Parts, label: string, page: number): HTMLElement {
   const node = button(label);
-  const name = page === parts.state.page ? "Strona, bieżąca" : "Strona";
-  node.setAttribute("aria-label", `${name} ${String(page)}`);
+  const numbered = label === String(page);
+  const hint = el("span", {
+    className: "visually-hidden",
+    text: numbered ? "Strona " : ` (strona ${String(page)})`,
+  });
+  if (numbered) {
+    node.prepend(hint);
+  } else {
+    node.append(hint);
+  }
   if (page === parts.state.page) {
     node.setAttribute("aria-current", "page");
   }
