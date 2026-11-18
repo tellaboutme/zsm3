@@ -34,10 +34,6 @@ The same policy picked older versions in two places:
 - `lefthook` 2.2.1 instead of 2.2.2, which was published by hand without OIDC;
 - `@cloudflare/vitest-pool-workers` 0.22.0 instead of 0.23.0, which has no provenance. The Worker's `compatibility_date` is therefore `2026-08-15`, the newest date its workerd supports.
 
-### Deprecated releases waiting for the release age
-
-`tldts-core` 7.4.20 (lighthouse, through `tldts-icann`, end-to-end tests only) was marked deprecated by its author as a partial release; the replacement 7.4.22 and later were all published on or after 2026-11-11. It carries no advisory. Checked: 2026-11-13. Review: 2026-11-18, when 7.4.22 is 7 days old: update it then.
-
 ### Vulnerabilities without a fix
 
 None recorded. The previous entry, GHSA-vfj7-8cjw-p6xm (`braces` 3.0.3 through stylelint), was withdrawn by the advisory database on 2026-10-23 as not practically exploitable, so the ignore in `auditConfig.ignoreGhsas` and `osv-scanner.toml` was removed with it.
