@@ -42,7 +42,9 @@ const { programmes, professions } = Astro.props;
           return (
             <tr>
               <th scope="row">
-                <a href={programmeHref(programme)}>{profession.name}</a>
+                <a class="tap-target" href={programmeHref(programme)}>
+                  {profession.name}
+                </a>
               </th>
               <td>{fieldLabels[profession.field]}</td>
               <td>{schoolLabels[programme.school]}</td>
