@@ -127,10 +127,9 @@ async function commit(parts: Parts, saved: SavedState): Promise<void> {
   const ref = parts.ref;
   const freshly = ref.slug.length === 0;
   const payload = newsSave(candidate.item, freshly ? null : saved.revision);
-  const path = `/api/panel/news/${ref.year}/${ref.slug}`;
   const response = freshly
     ? await panelSend("POST", "/api/panel/news", payload)
-    : await panelSend("PUT", path, payload);
+    : await panelSend("PUT", `/api/panel/news/${ref.year}/${ref.slug}`, payload);
   const revision = savedRevision(response.data);
   if (!response.ok || revision === undefined) {
     noteOf(parts, problemPhrase(response.status));
@@ -141,7 +140,7 @@ async function commit(parts: Parts, saved: SavedState): Promise<void> {
   if (freshly) {
     markSaved(parts, candidate.item);
   }
-  await syncPublish(parts, path, saved);
+  await syncPublish(parts, `/api/panel/news/${ref.year}/${ref.slug}`, saved);
   parts.onSaved(`${parts.ref.year}/${parts.ref.slug}`);
 }
 

@@ -175,3 +175,37 @@ it("admits an unknown publish state instead of guessing", async ({ expect }) => 
   expect(part(section, "news-unpublish").hidden).toBe(false);
   expect(seen).toHaveLength(3);
 });
+
+it("enables publishing right after the first save of a new article", async ({ expect }) => {
+  const draft = { item: { ...ITEM_BASE, status: "draft" }, revision: 1 };
+  const seen = stubFetch([jsonOf({ ok: true, revision: 1 }), jsonOf(draft)]);
+  const section = buildSection();
+  const editor = wireEditor(section, wireBlocks(part(section, "blocks-root")), () => undefined);
+  editor.open("");
+  const form = part(section, "form");
+  for (const [name, value] of Object.entries({
+    slug: ITEM_BASE.slug,
+    date: ITEM_BASE.date,
+    category: ITEM_BASE.category,
+    title: ITEM_BASE.title,
+    lead: ITEM_BASE.lead,
+  })) {
+    const input = form.querySelector<HTMLInputElement>(`input[name="${name}"]`);
+    if (input !== null) {
+      input.value = value;
+    }
+  }
+  for (const text of section.querySelectorAll<HTMLTextAreaElement>('[data-field="text"]')) {
+    text.value = "Zapraszamy.";
+  }
+  part(section, "news-save").click();
+  await vi.waitFor(() => {
+    expect(part(section, "form-status").textContent).not.toContain("nieznany");
+    expect(seen).toHaveLength(2);
+  });
+  expect(seen[0]?.method).toBe("POST");
+  expect(seen[1]?.path).toBe("/api/panel/news/2026/dzien-otwarty");
+  const publish = part(section, "news-publish");
+  expect(publish.hidden).toBe(false);
+  expect(publish).not.toHaveProperty("disabled", true);
+});
