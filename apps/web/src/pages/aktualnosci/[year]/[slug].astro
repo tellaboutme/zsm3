@@ -39,7 +39,9 @@ const { newer, older } = article.neighbours;
   <article class="article">
     <PageHead class="head headline" title={item.title} lead={item.lead}>
       <Fragment slot="meta">
-        <a href={categoryHref(category)}>{category.name}</a>
+        <a class="category" href={categoryHref(category)}>
+          {category.name}
+        </a>
         <time datetime={item.date}>{longDate(item.date)}</time>
       </Fragment>
     </PageHead>
@@ -51,7 +53,7 @@ const { newer, older } = article.neighbours;
         Kopiuj link do artykułu
       </button>
       <p class="visually-hidden" role="status" data-copy-status></p>
-      <a class="back nudge" href="/aktualnosci">
+      <a class="back nudge tap-target" href="/aktualnosci">
         <span aria-hidden="true">←</span> Wróć do listy
       </a>
     </footer>
@@ -89,6 +91,12 @@ const { newer, older } = article.neighbours;
 </script>
 
 <style>
+  .category {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--target);
+  }
+
   .article {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

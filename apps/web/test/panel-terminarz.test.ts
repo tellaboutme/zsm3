@@ -51,7 +51,7 @@ function buildSection(): HTMLElement {
   const year = document.createElement("select");
   year.dataset["part"] = "year";
   holder.append(year);
-  const rows = document.createElement("ul");
+  const rows = document.createElement("div");
   rows.dataset["panel"] = "event-rows";
   const status = document.createElement("p");
   status.dataset["panel"] = "status";

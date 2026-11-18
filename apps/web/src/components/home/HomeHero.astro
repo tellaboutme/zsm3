@@ -30,7 +30,7 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
   <div class="entries">
     <div class="entry">
       <h3>{candidate?.title ?? "Dla kandydata"}</h3>
-      <a class="card nudge" href="/kandydaci/zawody">
+      <a class="card nudge tap-target" href="/kandydaci/zawody">
         <span class="top">
           <span class="label">Kształcenie zawodowe</span>
           <span class="go">
@@ -49,7 +49,7 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
     </div>
     <div class="entry">
       <h3>{parent?.title ?? "Dla rodzica"}</h3>
-      <a class="card nudge" href="/szkola/terminarz">
+      <a class="card nudge tap-target" href="/szkola/terminarz">
         <span class="top">
           <span class="label">Najbliższe wydarzenie dla rodziców</span>
           <span class="go">

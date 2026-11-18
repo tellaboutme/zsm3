@@ -166,6 +166,7 @@
 
   .skip-link {
     position: absolute;
+    min-height: var(--target);
     top: var(--space-2);
     left: var(--space-4);
     z-index: var(--z-skip);

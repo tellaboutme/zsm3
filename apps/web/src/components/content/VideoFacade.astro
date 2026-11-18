@@ -17,7 +17,7 @@ const { id, title } = Astro.props;
     <span class="tag">Film · YouTube</span>
     <span class="title">{title}</span>
   </figcaption>
-  <a class="watch nudge" href={youtubeWatchUrl(id)}>
+  <a class="watch nudge tap-target" href={youtubeWatchUrl(id)}>
     Obejrzyj na YouTube
     <Icon name="external" />
     <span class="visually-hidden">(otwiera serwis zewnętrzny)</span>

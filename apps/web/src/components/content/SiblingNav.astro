@@ -15,7 +15,7 @@ const { title, links } = Astro.props;
     <ul>
       {links.map((link) => (
         <li>
-          <a class="nudge" href={link.href}>
+          <a class="nudge tap-target" href={link.href}>
             {link.label} <span aria-hidden="true">→</span>
           </a>
         </li>

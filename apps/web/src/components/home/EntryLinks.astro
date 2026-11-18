@@ -12,7 +12,11 @@ const { links } = Astro.props;
 <ul class="links">
   {links.map((link) => (
     <li>
-      <a class="nudge" href={link.href} rel={link.external === true ? "noopener" : undefined}>
+      <a
+        class="nudge tap-target"
+        href={link.href}
+        rel={link.external === true ? "noopener" : undefined}
+      >
         {link.label}
         {link.external === true ? (
           <>

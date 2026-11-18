@@ -36,7 +36,7 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
     <div class="hub">
       <div class="top">
         <PageHead title={section.label} lead={hub.intro}>
-          <a class="action nudge" href={hub.action.href}>
+          <a class="action nudge tap-target" href={hub.action.href}>
             {hub.action.label} <span aria-hidden="true">→</span>
           </a>
         </PageHead>
@@ -56,7 +56,7 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
             </li>
           ))}
         </ul>
-        <a class="more nudge" href="/aktualnosci">
+        <a class="more nudge tap-target" href="/aktualnosci">
           Wszystkie aktualności <span aria-hidden="true">→</span>
         </a>
       </section>

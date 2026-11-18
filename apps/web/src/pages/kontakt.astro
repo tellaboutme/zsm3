@@ -23,10 +23,10 @@ const { departments, management } = await contacts();
         {school.street}, {school.city}
       </Fragment>
       <div class="main">
-        <a class="phone" href={`tel:${school.phone}`}>
+        <a class="phone tap-target" href={`tel:${school.phone}`}>
           {school.phoneLabel}
         </a>
-        <a href={`mailto:${school.email}`}>
+        <a class="tap-target" href={`mailto:${school.email}`}>
           <EmailText email={school.email} />
         </a>
       </div>
@@ -48,7 +48,7 @@ const { departments, management } = await contacts();
         <br />
         {school.street}, {school.postalCode} {school.city}
       </address>
-      <a class="map nudge" href={school.mapUrl}>
+      <a class="map nudge tap-target" href={school.mapUrl}>
         Zobacz dojazd w Google Maps
         <Icon name="external" />
         <span class="visually-hidden">(otwiera serwis zewnętrzny)</span>

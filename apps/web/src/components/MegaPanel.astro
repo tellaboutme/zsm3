@@ -13,7 +13,7 @@ const { section } = Astro.props;
 <div class="panel" id={`menu-${section.id}`} hidden data-menu-panel>
   <div class="page inner">
     <p class="head">
-      <a class="overview nudge" href={section.href}>
+      <a class="overview nudge tap-target" href={section.href}>
         {section.label}: przegląd <span aria-hidden="true">→</span>
       </a>
     </p>
