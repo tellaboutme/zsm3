@@ -7,6 +7,7 @@ import { galleryProblemPhrase, removePhotoQuestion } from "../../lib/panel/galle
 
 export interface PhotoRowInput {
   readonly albumId: string;
+  readonly albumPublished: boolean;
   readonly photo: PanelPhoto;
   readonly index: number;
   readonly hidesAlbum: boolean;
@@ -75,7 +76,7 @@ export function photoRow(row: PhotoRowInput): HTMLElement {
       }),
       field,
       el("div", { className: "panel-actions", children: [save, remove] }),
-      featureControl(photo.id, number, row.say),
+      featureControl({ photoId: photo.id, number, published: row.albumPublished, say: row.say }),
     ],
   });
 }

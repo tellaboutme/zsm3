@@ -165,6 +165,7 @@ async function deletePhoto(c: Context<AppEnv>): Promise<Response> {
   const emptied = album.publishedAt !== null && album.photoCount === 1;
   await atomicWrite(deps, [
     deps.repos.gallery.deletePhotoStatement(photo.id),
+    deps.repos.featured.clearPhotoStatement(photo.id),
     deps.repos.gallery.refreshAlbumStatement(album.id),
     deps.repos.audit.statement(
       auditEntry({

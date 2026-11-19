@@ -27,7 +27,10 @@ describe("featured photo phrases", () => {
   });
 
   it("names the slot after setting and clearing it", () => {
-    expect(featuredSetPhrase("film")).toBe("Zdjęcie jest teraz wyróżnione: Film o szkole.");
+    expect(featuredSetPhrase("film", true)).toBe("Zdjęcie jest teraz wyróżnione: Film o szkole.");
+    expect(featuredSetPhrase("home", false)).toBe(
+      "Zdjęcie jest teraz wyróżnione: Strona główna. Odwiedzający zobaczą je dopiero po opublikowaniu albumu.",
+    );
     expect(featuredClearedPhrase("szkola")).toBe("Usunięto wyróżnienie: Szkoła.");
   });
 

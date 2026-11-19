@@ -14,7 +14,11 @@ test.describe("featured photos in the gallery panel", () => {
     await page.getByLabel("Wyróżnij zdjęcie 1 jako").selectOption("film");
     await page.getByRole("button", { name: "Wyróżnij zdjęcie 1" }).click();
 
-    await expect(page.getByText("Zdjęcie jest teraz wyróżnione: Film o szkole.")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Zdjęcie jest teraz wyróżnione: Film o szkole. Odwiedzający zobaczą je dopiero po opublikowaniu albumu.",
+      ),
+    ).toBeVisible();
     expect(sent).toEqual([
       { method: "PUT", path: "/api/panel/featured/film", body: { photoId: fakePhoto(0)["id"] } },
     ]);

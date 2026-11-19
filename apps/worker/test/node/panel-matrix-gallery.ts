@@ -4,7 +4,6 @@ import type { PanelRouteName } from "@zsm3/contracts/panel";
 import { albumInput, photoParts, uploadCall } from "./gallery-support.ts";
 import { panelJsonCall, type PanelHarness } from "./panel-support.ts";
 import type { Store } from "../../src/storage/database.ts";
-import { featuredRepo } from "../../src/storage/featured-repo.ts";
 import { galleryRepo } from "../../src/storage/gallery-repo.ts";
 
 interface RouteCase {
@@ -62,11 +61,7 @@ export async function seedGalleryMatrix(store: Store, roles: readonly string[]):
       consentBy: CREATOR,
     });
     const slot = FEATURED_SLOTS[index % FEATURED_SLOTS.length] ?? "home";
-    await store.db.batch([
-      album.statement,
-      photo.statement,
-      featuredRepo(store).setStatement(slot, photo.id, CREATOR),
-    ]);
+    await store.db.batch([album.statement, photo.statement]);
     fixtures.set(key, {
       albumId: album.id,
       photoId: photo.id,

@@ -58,7 +58,7 @@ async function setFeatured(c: Context<AppEnv>): Promise<Response> {
 async function clearFeatured(c: Context<AppEnv>): Promise<Response> {
   const slot = requestedSlot(c);
   const deps = requirePanelDeps(c);
-  if (slot === undefined || (await deps.repos.featured.slot(slot)) === undefined) {
+  if (slot === undefined || !(await deps.repos.featured.stored(slot))) {
     return problemResponse(c, 404);
   }
   const session = requirePanelSession(c);

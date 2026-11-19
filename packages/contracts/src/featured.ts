@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-import { LARGE_LONG_EDGE } from "./gallery-limits.ts";
-import { sha256Schema } from "./media.ts";
+import { publicPhotoSchema } from "./gallery-public.ts";
 
 export const FEATURED_SLOTS = [
   "home",
@@ -29,15 +28,9 @@ export const FEATURED_ROUTE_NAMES = ["featured.list", "featured.set", "featured.
 
 export const featuredSetSchema = z.strictObject({ photoId: z.uuid() });
 
-const dimension = z.int().min(1).max(LARGE_LONG_EDGE);
-
-export const publicFeaturedPhotoSchema = z.strictObject({
-  slot: featuredSlotSchema,
-  width: dimension,
-  height: dimension,
-  alt: z.string().min(1),
-  sha256: sha256Schema,
-});
+export const publicFeaturedPhotoSchema = publicPhotoSchema
+  .omit({ id: true })
+  .extend({ slot: featuredSlotSchema });
 
 export const panelFeaturedPhotoSchema = publicFeaturedPhotoSchema.extend({
   photoId: z.uuid(),

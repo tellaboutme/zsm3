@@ -14,8 +14,11 @@ export interface FeaturedRepo {
   published(): Promise<readonly PublicFeaturedPhoto[]>;
   slot(slot: FeaturedSlot): Promise<PanelFeaturedPhoto | undefined>;
   livePhoto(photoId: string): Promise<boolean>;
+  stored(slot: FeaturedSlot): Promise<boolean>;
   setStatement(slot: FeaturedSlot, photoId: string, staffEmail: string): SqlStatement;
   clearStatement(slot: FeaturedSlot): SqlStatement;
+  clearPhotoStatement(photoId: string): SqlStatement;
+  clearAlbumStatement(albumId: string): SqlStatement;
 }
 
 const LIVE_PHOTO = "p.deleted_at IS NULL AND a.deleted_at IS NULL";
@@ -36,10 +39,19 @@ const SELECT_LIVE_PHOTO = `SELECT p.id FROM photos p JOIN albums a ON a.id = p.a
   WHERE p.id = ? AND ${LIVE_PHOTO}`;
 
 const UPSERT = `INSERT INTO featured_photos (slot, photo_id, updated_by, updated_at)
-  VALUES (?1, ?2, ?3, ?4) ON CONFLICT (slot) DO UPDATE SET photo_id = excluded.photo_id,
+  SELECT ?1, p.id, ?3, ?4 FROM photos p JOIN albums a ON a.id = p.album_id
+  WHERE p.id = ?2 AND ${LIVE_PHOTO}
+  ON CONFLICT (slot) DO UPDATE SET photo_id = excluded.photo_id,
   updated_by = excluded.updated_by, updated_at = excluded.updated_at`;
 
+const SELECT_STORED = "SELECT slot FROM featured_photos WHERE slot = ?";
+
 const DELETE_SLOT = "DELETE FROM featured_photos WHERE slot = ?";
+
+const DELETE_PHOTO = "DELETE FROM featured_photos WHERE photo_id = ?";
+
+const DELETE_ALBUM = `DELETE FROM featured_photos
+  WHERE photo_id IN (SELECT id FROM photos WHERE album_id = ?)`;
 
 const rowSchema = z.object({
   slot: featuredSlotSchema,
@@ -96,8 +108,13 @@ export function featuredRepo({ db, clock }: Store): FeaturedRepo {
         db.prepare(SELECT_LIVE_PHOTO).bind(photoId),
         z.object({ id: z.string() }),
       )) !== undefined,
+    stored: async (slot) =>
+      (await firstRow(db.prepare(SELECT_STORED).bind(slot), z.object({ slot: z.string() }))) !==
+      undefined,
     setStatement: (slot, photoId, staffEmail) =>
       db.prepare(UPSERT).bind(slot, photoId, staffEmail, timestamp(clock)),
     clearStatement: (slot) => db.prepare(DELETE_SLOT).bind(slot),
+    clearPhotoStatement: (photoId) => db.prepare(DELETE_PHOTO).bind(photoId),
+    clearAlbumStatement: (albumId) => db.prepare(DELETE_ALBUM).bind(albumId),
   };
 }

@@ -117,7 +117,13 @@ it("clears a slot, audits it and answers 404 for an empty one", async ({ expect 
   );
 });
 
-it("drops a slot whose photo was deleted or purged", async ({ expect }) => {
+async function storedSlots(g: Gallery): Promise<unknown> {
+  return g.harness.env.DB.prepare("SELECT COUNT(*) AS n FROM featured_photos").first();
+}
+
+it("frees the slot when its photo is deleted, so a re-upload does not bring it back", async ({
+  expect,
+}) => {
   const g = await gallery();
   await feature(g, "uczniowie");
 
@@ -125,14 +131,30 @@ it("drops a slot whose photo was deleted or purged", async ({ expect }) => {
     token: g.token,
     body: {},
   });
-  expect((await listed(g)).items).toEqual([]);
+  expect(await storedSlots(g)).toEqual({ n: 0 });
   await expectProblem(
     await panelJsonCall(g.harness, "DELETE", "/featured/uczniowie", { token: g.token, body: {} }),
     404,
   );
+  await uploadPhoto(g.harness, g.albumId, g.token);
+  expect((await listed(g)).items).toEqual([]);
+});
+
+it("frees every slot of a deleted album", async ({ expect }) => {
+  const g = await gallery();
+  await feature(g, "home");
+  await feature(g, "film");
+
+  await panelJsonCall(g.harness, "DELETE", `/albums/${g.albumId}`, { token: g.token, body: {} });
+  expect(await storedSlots(g)).toEqual({ n: 0 });
+});
+
+it("lets the database drop the slot when a photo row is purged", async ({ expect }) => {
+  const g = await gallery();
+  await feature(g, "szkola");
+
   await g.harness.env.DB.prepare("DELETE FROM photos WHERE id = ?").bind(g.photoId).run();
-  const rows = await g.harness.env.DB.prepare("SELECT COUNT(*) AS n FROM featured_photos").first();
-  expect(rows).toEqual({ n: 0 });
+  expect(await storedSlots(g)).toEqual({ n: 0 });
 });
 
 it("rejects unknown slots, malformed bodies and photos that are not live", async () => {

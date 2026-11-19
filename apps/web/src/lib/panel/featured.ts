@@ -8,8 +8,9 @@ export function featuredPath(slot: FeaturedSlot): string {
   return `/api/panel/featured/${slot}`;
 }
 
-export function featuredSetPhrase(slot: FeaturedSlot): string {
-  return `Zdjęcie jest teraz wyróżnione: ${FEATURED_SLOT_LABELS[slot]}.`;
+export function featuredSetPhrase(slot: FeaturedSlot, published: boolean): string {
+  const set = `Zdjęcie jest teraz wyróżnione: ${FEATURED_SLOT_LABELS[slot]}.`;
+  return published ? set : `${set} Odwiedzający zobaczą je dopiero po opublikowaniu albumu.`;
 }
 
 export function featuredClearedPhrase(slot: FeaturedSlot): string {

@@ -18,11 +18,14 @@ import {
 import { galleryProblemPhrase } from "../../lib/panel/gallery.ts";
 import { parse } from "../../lib/panel/models.ts";
 
-export function featureControl(
-  photoId: string,
-  number: string,
-  say: (phrase: string) => void,
-): HTMLElement {
+interface FeatureInput {
+  readonly photoId: string;
+  readonly number: string;
+  readonly published: boolean;
+  readonly say: (phrase: string) => void;
+}
+
+export function featureControl({ photoId, number, published, say }: FeatureInput): HTMLElement {
   const select = document.createElement("select");
   select.append(el("option", { text: "Wybierz miejsce", attributes: { value: "" } }));
   for (const slot of FEATURED_SLOTS) {
@@ -37,10 +40,12 @@ export function featureControl(
       say("Wybierz miejsce, w którym ma się pojawić zdjęcie.");
       return;
     }
+    apply.disabled = true;
     void panelSend("PUT", featuredPath(slot.data), { photoId }).then((response) => {
+      apply.disabled = false;
       say(
         response.ok
-          ? featuredSetPhrase(slot.data)
+          ? featuredSetPhrase(slot.data, published)
           : galleryProblemPhrase(response.status, response.data),
       );
     });
@@ -55,7 +60,9 @@ function featuredRow(
 ): HTMLElement {
   const remove = button(`Usuń wyróżnienie: ${FEATURED_SLOT_LABELS[item.slot]}`);
   remove.addEventListener("click", () => {
+    remove.disabled = true;
     void panelSend("DELETE", featuredPath(item.slot), {}).then(async (response) => {
+      remove.disabled = false;
       if (!response.ok) {
         speak(status, [galleryProblemPhrase(response.status, response.data)]);
         return;
