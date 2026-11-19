@@ -12,7 +12,6 @@ import { allRows, firstRow, timestamp, type SqlStatement, type Store } from "./d
 export interface FeaturedRepo {
   list(): Promise<readonly PanelFeaturedPhoto[]>;
   published(): Promise<readonly PublicFeaturedPhoto[]>;
-  slot(slot: FeaturedSlot): Promise<PanelFeaturedPhoto | undefined>;
   livePhoto(photoId: string): Promise<boolean>;
   stored(slot: FeaturedSlot): Promise<boolean>;
   setStatement(slot: FeaturedSlot, photoId: string, staffEmail: string): SqlStatement;
@@ -32,8 +31,6 @@ const COLUMNS = `SELECT f.slot, f.photo_id, f.updated_at, p.album_id, p.width, p
 const SELECT_ALL = `${COLUMNS} WHERE ${LIVE_PHOTO} ORDER BY f.slot LIMIT ?`;
 
 const SELECT_PUBLISHED = `${COLUMNS} WHERE ${PUBLISHED} ORDER BY f.slot LIMIT ?`;
-
-const SELECT_SLOT = `${COLUMNS} WHERE ${LIVE_PHOTO} AND f.slot = ?`;
 
 const SELECT_LIVE_PHOTO = `SELECT p.id FROM photos p JOIN albums a ON a.id = p.album_id
   WHERE p.id = ? AND ${LIVE_PHOTO}`;
@@ -99,10 +96,6 @@ export function featuredRepo({ db, clock }: Store): FeaturedRepo {
       (await allRows(db.prepare(SELECT_PUBLISHED).bind(FEATURED_SLOTS.length), rowSchema)).map(
         publicFromRow,
       ),
-    slot: async (slot) => {
-      const row = await firstRow(db.prepare(SELECT_SLOT).bind(slot), rowSchema);
-      return row === undefined ? undefined : panelFromRow(row);
-    },
     livePhoto: async (photoId) =>
       (await firstRow(
         db.prepare(SELECT_LIVE_PHOTO).bind(photoId),
