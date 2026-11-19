@@ -23,6 +23,13 @@
   --danger: light-dark(#b42318, #ff8a80);
   --danger-surface: light-dark(#b42318, #ff8a80);
   --danger-ink: light-dark(#fff, #0b1220);
+  --tone-1: #0b4fb3;
+  --tone-2: #0f6b47;
+  --tone-3: #a33a0c;
+  --tone-4: #5b3fb3;
+  --tone-5: #0e5f78;
+  --tone-6: #8a2f4f;
+  --tone-ink: #fff;
   --shadow-float: 0 1.25rem 2.5rem light-dark(#0b122029, #0009);
   --radius-round: 999px;
   --header-height: 4.5rem;

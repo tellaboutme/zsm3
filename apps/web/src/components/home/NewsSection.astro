@@ -1,70 +1,164 @@
 ---
+import NewsSlide from "./NewsSlide.astro";
 import SectionHead from "./SectionHead.astro";
 import type { NewsItem } from "../../lib/news.ts";
-import NewsCard from "../news/NewsCard.astro";
 
 interface Props {
   items: readonly NewsItem[];
 }
 
 const { items } = Astro.props;
-const [first, ...rest] = items;
 ---
 
-<section class="news" aria-labelledby="aktualnosci">
+<section class="news" aria-labelledby="aktualnosci" data-news-strip>
   <SectionHead
     id="aktualnosci"
     title="Co się dzieje w szkole"
     link={{ label: "Wszystkie aktualności", href: "/aktualnosci" }}
   />
-  <ul class="cards">
-    {first !== undefined && (
-      <li class="first reveal">
-        <NewsCard item={first} variant="lead" />
-      </li>
-    )}
-    {rest.map((item) => (
-      <li class="reveal">
-        <NewsCard item={item} />
+  <ul class="track" aria-label="Najnowsze aktualności, od najnowszej" data-strip-track>
+    {items.map((item) => (
+      <li class="item">
+        <NewsSlide item={item} />
       </li>
     ))}
+    <li class="item">
+      <a class="all nudge" href="/aktualnosci">
+        Wszystkie aktualności <span aria-hidden="true">→</span>
+      </a>
+    </li>
   </ul>
+  <div class="nav" data-strip-nav hidden>
+    <p class="count" data-strip-count></p>
+    <div class="arrows">
+      <button
+        type="button"
+        class="arrow tap-target"
+        aria-label="Nowsze aktualności"
+        data-strip-prev
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 5l-7 7 7 7"></path>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="arrow tap-target"
+        aria-label="Starsze aktualności"
+        data-strip-next
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
 </section>
 
 <style>
   .news {
     display: grid;
-    gap: var(--space-5);
-  }
-
-  .cards {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
+  }
+
+  .track {
+    display: grid;
+    grid-auto-columns: min(82%, 20rem);
+    grid-auto-flow: column;
+    gap: var(--space-3);
     margin: 0;
-    padding: 0;
+    padding: 0 0 var(--space-2);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
     list-style: none;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
   }
 
-  @media (width >= 40rem) {
-    .cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .item {
+    scroll-snap-align: start;
+  }
 
-    .first {
-      grid-column: 1 / -1;
+  .all {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    min-block-size: 8rem;
+    padding: var(--space-5);
+    border: var(--hairline) dashed var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--gray);
+    color: var(--link);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .count {
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .arrows {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .arrow {
+    display: grid;
+    place-items: center;
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius-round);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .arrow:disabled {
+    cursor: default;
+  }
+
+  .arrow:hover:not(:disabled) {
+    border-color: var(--blue);
+  }
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: var(--ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.2;
+  }
+
+  .arrow:disabled svg {
+    stroke: var(--line-strong);
+  }
+
+  @media (width >= 48rem) {
+    .track {
+      grid-auto-columns: calc((100% - 2 * var(--space-3)) / 3);
     }
   }
 
-  @media (40rem <= width < 64rem) {
-    .cards > :last-child:nth-child(even) {
-      grid-column: 1 / -1;
+  @media (width >= 80rem) {
+    .track {
+      grid-auto-columns: calc((100% - 3 * var(--space-3)) / 4);
     }
   }
 
-  @media (width >= 64rem) {
-    .cards {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+  @media (prefers-reduced-motion: no-preference) {
+    .track {
+      scroll-behavior: smooth;
     }
   }
 </style>

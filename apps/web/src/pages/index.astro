@@ -11,7 +11,7 @@ import { newsReader } from "../server/news.ts";
 
 export const prerender = false;
 
-const recent = await latestNews(newsReader(), 4);
+const recent = await latestNews(newsReader(), 8);
 ---
 
 <Base
