@@ -1,3 +1,4 @@
+import { initNewsStrips } from "./news-strip.ts";
 import { isoDay, upcomingEvents } from "../lib/calendar.ts";
 
 function initUpcomingEvents(): void {
@@ -22,3 +23,4 @@ function initUpcomingEvents(): void {
 }
 
 initUpcomingEvents();
+initNewsStrips();

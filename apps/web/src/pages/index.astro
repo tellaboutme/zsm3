@@ -12,7 +12,7 @@ import { newsReader } from "../server/news.ts";
 
 export const prerender = false;
 
-const [recent, featured] = await Promise.all([latestNews(newsReader(), 4), featuredPhotos()]);
+const [recent, featured] = await Promise.all([latestNews(newsReader(), 8), featuredPhotos()]);
 ---
 
 <Base
