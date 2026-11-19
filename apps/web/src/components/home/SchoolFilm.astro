@@ -64,11 +64,7 @@ const tiles = [
 </section>
 
 <style>
-  .film {
-    display: grid;
-    gap: var(--space-5);
-  }
-
+  .film,
   .layout {
     display: grid;
     gap: var(--space-5);
@@ -160,16 +156,12 @@ const tiles = [
 
   .tiles {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     align-content: start;
     gap: var(--space-3);
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  .tiles > :last-child:nth-child(odd) {
-    grid-column: 1 / -1;
   }
 
   .tile {
@@ -206,6 +198,16 @@ const tiles = [
     top: var(--space-3);
     right: var(--space-3);
     color: var(--ink-2);
+  }
+
+  @media (width >= 30rem) {
+    .tiles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tiles > :last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
   }
 
   @media (width >= 64rem) {
