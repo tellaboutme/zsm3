@@ -69,15 +69,15 @@ Blue and orange are the school's logo colours. Orange is never used for small te
 | `--duration-3` | 300 ms — block entrance               |
 | `--shift`      | 0.5 rem — entrance offset             |
 
-| Pattern         | Where                                                                                                                                              | Rule                                                             |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Appear          | the page head on load                                                                                                                              | once per page: `--shift` up in `--duration-3`, opacity unchanged |
-| Reveal          | cards and list items                                                                                                                               | the same shift as Appear, once on load; never tied to scrolling  |
-| Fill            | profession tiles and field rows, list rows on hover and focus                                                                                      | blue fills from the bottom                                       |
-| Nudge           | arrows in links and buttons                                                                                                                        | 0.3–0.4 rem to the right                                         |
-| Zoom            | news photos on hover                                                                                                                               | scale 1.06 inside the frame                                      |
-| Page transition | every navigation                                                                                                                                   | `@view-transition` cross-fade                                    |
-| Live            | Teraz w szkole: a compact bordered card with a label row, timer and thin progress; outside lessons the title says so and names the next school day | updates every second; the only thing that moves by itself        |
+| Pattern         | Where                                                                                                                                                                                                                                             | Rule                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Appear          | the page head on load                                                                                                                                                                                                                             | once per page: `--shift` up in `--duration-3`, opacity unchanged |
+| Reveal          | cards and list items                                                                                                                                                                                                                              | the same shift as Appear, once on load; never tied to scrolling  |
+| Fill            | profession tiles and field rows, list rows on hover and focus                                                                                                                                                                                     | blue fills from the bottom                                       |
+| Nudge           | arrows in links and buttons                                                                                                                                                                                                                       | 0.3–0.4 rem to the right                                         |
+| Zoom            | news photos on hover                                                                                                                                                                                                                              | scale 1.06 inside the frame                                      |
+| Page transition | every navigation                                                                                                                                                                                                                                  | `@view-transition` cross-fade                                    |
+| Live            | Teraz w szkole: a bordered card with a ring that fills towards the bell (blue in a lesson, orange in a break) and the time left; outside lessons the ring shows the next first lesson ([ADR 0009](adr/0009-livelier-home-and-featured-photos.md)) | updates every second; the only thing that moves by itself        |
 
 Nothing auto-rotates, loops or uses parallax. Content never waits for an animation. With `prefers-reduced-motion: reduce` every animation and transition is off.
 
@@ -252,6 +252,13 @@ Each template lists its sections in reading order. "Data" names the content type
 
 The three entries are equal cards in a row from 64 rem and stacked on a phone; the links under each card come from the former audience panels, so no separate "Dla kandydata / ucznia / rodzica" block remains. Section heads are a hairline, an h2 and a link; sections are at most `--space-7` apart. Without photos every block is complete: a news item without a photo is a text card, never an empty frame.
 
+Changes from [ADR 0009](adr/0009-livelier-home-and-featured-photos.md), in page order:
+
+- **Head:** the school name centred over the featured home photo with the flat scrim, three actions (Rekrutacja primary, Zawody, Kontakt) and the live lesson line; without a photo the same head on `--page`.
+- **Teraz w szkole:** the ring card of §1.4 in the student entry.
+- **Aktualności:** a horizontal strip instead of the lead story and cards; newest first, moved only by the user (scroll snap, two arrow buttons, a position counter); category colour covers until a news item has a photo; a last card links to all news. Without scripts it is a plain scrollable list.
+- **Szkoła w sieci:** the school film poster (featured film photo) with a play button that creates the `youtube-nocookie.com` player on click, and tiles for Instagram, Facebook, YouTube and the virtual tour; it replaces the profiles column of the last section.
+
 The profession section is a field index ([ADR 0006](adr/0006-home-profession-index.md), [ADR 0007](adr/0007-home-profession-index-open.md)): one group per field with all its professions visible.
 
 Data: bell schedule and today's variant, the professions and fields, the next event for parents, latest news, numbers, upcoming events, audience links, partners and the school's profiles.
@@ -274,6 +281,8 @@ The candidate entry shows the recruitment season once the panel provides its dat
 │ news filtered for this audience (3)                           │
 └───────────────────────────────────────────────────────────────┘
 ```
+
+A hub whose slot has a featured photo shows the title and intro over the photo with the flat scrim ([ADR 0009](adr/0009-livelier-home-and-featured-photos.md)); otherwise the head above is kept.
 
 ### 4.3 Professions listing `/kandydaci/zawody`
 
