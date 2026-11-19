@@ -29,7 +29,7 @@ const EDGE = 4;
 export function categoryTone(category: string): number {
   let hash = 0;
   for (const char of category.toLocaleLowerCase("pl-PL")) {
-    hash = (hash * 31 + (char.codePointAt(0) ?? 0)) % 9973;
+    hash = (hash * 31 + char.charCodeAt(0)) % 9973;
   }
   return (hash % CATEGORY_TONES) + 1;
 }
