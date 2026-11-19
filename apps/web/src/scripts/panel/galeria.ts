@@ -8,6 +8,7 @@ import {
 import { z } from "zod";
 
 import { area, areaForm, areaList, areaSelect, el, inputValue, speak } from "./dom.ts";
+import { loadFeatured } from "./galeria-featured.ts";
 import { denyContent, gateView } from "./gate-ui.ts";
 import { wireShell } from "./shell.ts";
 import { photoCountPhrase } from "../../lib/gallery.ts";
@@ -120,6 +121,7 @@ function wire(section: HTMLElement): void {
     void create(parts);
   });
   void refresh(parts);
+  void loadFeatured(areaList(section, "featured-rows"), area(section, "featured-status"));
 }
 
 const section = document.querySelector<HTMLElement>('[data-panel-page="gallery"]');

@@ -153,6 +153,10 @@ photo_uploads
   sha256 PK, started_at, claimed_at NULL
   INDEX (started_at), partial INDEX (claimed_at, sha256)
 
+featured_photos
+  slot PK (home | film | kandydaci | uczniowie | rodzice | szkola),
+  photo_id FK photos ON DELETE CASCADE, updated_by, updated_at
+
 staff
   email PK (lower case), role (admin | secretariat | editor | gallery_editor | counsellor), active, created_at, updated_at
 
@@ -294,6 +298,8 @@ Migrations follow expand/contract: the new code works with the old schema and vi
    - the remaining old rows are claimed in one statement that rechecks `photos`, then both variants are deleted and the row removed, at most 50 per tick. A failed R2 delete keeps the claim and retries on the next tick.
 6. An album is public only after "Opublikuj", which needs at least one photo. Every photo has its own recorded confirmation, so a published album never contains an unconfirmed one. Both `admin` and `gallery_editor` can publish and unpublish. Deleting the last photo of a published album unpublishes it in the same batch, so an urgent removal is never refused. Triggers on `albums` and `photos` hold these limits in the database, whatever order concurrent requests commit in: an album without photos cannot become published, and an album cannot exceed 1000 live photos through an insert or a restore.
 7. Deletion is soft (`deleted_at`) and ends access immediately, including when the school withdraws permission: the media route checks D1 on every request, and §7.6 limits how long a cached copy can last. After 30 days the same job turns the photo row into a claimed journal row in one batch, skipping any hash an upload holds, then removes the files with the same retries and records `photos.purge` in the audit log. A deleted album is treated the same way, and its row goes once no photo refers to it.
+
+8. A photo can be featured in a slot of the site ([ADR 0009](adr/0009-livelier-home-and-featured-photos.md)): `PUT /api/panel/featured/:slot` with a live photo id, `DELETE` to clear it, both audited and allowed to `admin` and `gallery_editor`. One photo per slot. Pages read only slots whose photo is live and whose album is published, so unpublishing or deleting the album or the photo removes it from every page at once; purging the photo deletes the slot row.
 
 ### 7.6 Public gallery and media
 

@@ -1,6 +1,7 @@
 import { photoAltSchema, type PanelPhoto } from "@zsm3/contracts/gallery";
 
 import { button, el } from "./dom.ts";
+import { featureControl } from "./galeria-featured.ts";
 import { panelSend } from "../../lib/panel/api.ts";
 import { galleryProblemPhrase, removePhotoQuestion } from "../../lib/panel/gallery.ts";
 
@@ -74,6 +75,7 @@ export function photoRow(row: PhotoRowInput): HTMLElement {
       }),
       field,
       el("div", { className: "panel-actions", children: [save, remove] }),
+      featureControl(photo.id, number, row.say),
     ],
   });
 }
