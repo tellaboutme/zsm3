@@ -18,14 +18,14 @@ Photos of the school may not live in the public repository. The gallery already 
 2. **Home head (A3).** The school name is centred over the featured home photo, with a flat dark scrim token for contrast, three actions (recruitment as the primary one) and the live lesson line. Without a photo the head is centred on `--page`.
 3. **Live status (C1).** Teraz w szkole is a ring that fills towards the bell, blue during a lesson and orange during a break, with the time left in the monospace face. More than an hour before the first lesson the ring shows its start time instead of a countdown; after the last lesson and on days off the card names the next school day, as before.
 4. **News strip (B1).** The latest news are a horizontal strip, newest on the left, moved only by the user (swipe, scroll or the two arrow buttons), with a position counter and a last card that links to all news. Until a news item has a photo, its card has a cover in the colour of its category, from a fixed set of category tokens, with the date set large.
-5. **Film and profiles (D1).** The home shows the school film as a poster (the featured film photo) with a play button. The YouTube player (`youtube-nocookie.com`) is created only after the click, so nothing is loaded from YouTube and no cookie is set before it; the privacy policy says so. Next to it are four tiles: Instagram, Facebook, YouTube and the virtual tour.
+5. **Film and profiles (D1).** Right after the news, the home shows the school film as a poster (the featured film photo) with a play button and its length, which opens the film on YouTube in a new tab, and tiles for the school's profiles and the virtual tour. The film is not embedded: `Cross-Origin-Embedder-Policy: require-corp` blocks a YouTube frame and `Referrer-Policy: no-referrer` makes the YouTube player refuse to start, and neither header is weakened for a film.
 6. **Hub heads (E2).** A hub with a featured photo shows its title over the photo, with the same scrim as the home head; without one it keeps its current head.
 7. **Gallery (F1).** The gallery is filled with real photos of the building and workshops without people until the school provides photos with consent.
 
 ## Consequences
 
 - Design-system rule 1 allows the centred head over a photo on the home only; rule 5 allows the flat photo scrim; rule 6 allows the category covers of news cards and the live ring colours. The remaining rules stay, including rule 18: nothing moves by itself.
-- The Content Security Policy gains `frame-src https://www.youtube-nocookie.com`, covered by the header tests.
+- The security headers do not change; nothing is loaded from YouTube until a visitor opens the film.
 - The home becomes heavier by one responsive photo; it is the largest contentful element, loaded with high priority, and the Lighthouse budgets are checked again.
 - Visual baselines use the synthetic seed photos for every slot; real photos exist only in the deployed data.
 - Home, hub, news card and live status baselines change and are reviewed again in both themes at 360, 768, 1280 and 1920 px.

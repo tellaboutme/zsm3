@@ -257,7 +257,7 @@ Changes from [ADR 0009](adr/0009-livelier-home-and-featured-photos.md), in page 
 - **Head:** the school name centred over the featured home photo with the flat scrim, three actions (Rekrutacja primary, Zawody, Kontakt) and the live lesson line; without a photo the same head on `--page`.
 - **Teraz w szkole:** the ring card of §1.4 in the student entry.
 - **Aktualności:** a horizontal strip instead of the lead story and cards; newest first, moved only by the user (scroll snap, two arrow buttons, a position counter); category colour covers until a news item has a photo; a last card links to all news. Without scripts it is a plain scrollable list.
-- **Szkoła w sieci:** the school film poster (featured film photo) with a play button that creates the `youtube-nocookie.com` player on click, and tiles for Instagram, Facebook, YouTube and the virtual tour; it replaces the profiles column of the last section.
+- **Szkoła w sieci:** right after the news, the school film poster (featured film photo) with a play button and its length, opening the film on YouTube in a new tab, and tiles for Facebook, Instagram, YouTube, X and the virtual tour; the last section keeps partners and official services.
 
 The profession section is a field index ([ADR 0006](adr/0006-home-profession-index.md), [ADR 0007](adr/0007-home-profession-index-open.md)): one group per field with all its professions visible.
 
