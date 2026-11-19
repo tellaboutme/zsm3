@@ -45,7 +45,9 @@ const image = photo === undefined ? undefined : featuredImage(photo);
     <p class="live" data-live-line aria-hidden="true">
       <span class="dot"></span>
       <span data-live="title">Dzwonki</span>
-      <span data-live="detail">1. lekcja o 7:30</span>
+      <span class="timer" data-live="timer">
+        —
+      </span>
     </p>
   </div>
 </div>
@@ -118,7 +120,8 @@ const image = photo === undefined ? undefined : featuredImage(photo);
 
   .live {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    white-space: nowrap;
     justify-content: center;
     align-items: center;
     gap: var(--space-1) var(--space-2);
@@ -133,8 +136,18 @@ const image = photo === undefined ? undefined : featuredImage(photo);
     background: var(--success);
   }
 
-  .live [data-live="detail"]::before {
+  .timer {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .timer::before {
     content: "· ";
+  }
+
+  [data-state="after"] .timer,
+  [data-state="day-off"] .timer {
+    display: none;
   }
 
   .head[data-photo="on"] {
