@@ -32,15 +32,18 @@ export interface ExternalProfile {
 export const socialProfiles: readonly ExternalProfile[] = [
   { name: "Facebook", handle: "@zsm3krk", href: "https://www.facebook.com/zsm3krk" },
   { name: "Instagram", handle: "@zsm3krk", href: "https://www.instagram.com/zsm3krk/" },
+  { name: "YouTube", handle: "@ZSMnr3Krakow", href: "https://www.youtube.com/@ZSMnr3Krakow" },
   { name: "X", handle: "@MechanikTrzyKrk", href: "https://twitter.com/MechanikTrzyKrk" },
 ];
+
+export const schoolFilm = {
+  title: "Zobacz nas od środka",
+  href: "https://www.youtube.com/watch?v=1zR5BuBQZcI",
+  duration: "3:58",
+  isoDuration: "PT3M58S",
+} as const;
 
 export const officialSites: readonly ExternalProfile[] = [
   { name: "BIP", handle: "bip.krakow.pl", href: externalServices.bip },
   { name: "Organ prowadzący", handle: "krakow.pl", href: "https://www.krakow.pl/" },
-  {
-    name: "Wirtualny spacer",
-    handle: "zespolszkolmechanicznych.wkraj.pl",
-    href: externalServices.virtualTour,
-  },
 ];
