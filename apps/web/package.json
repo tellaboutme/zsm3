@@ -21,7 +21,7 @@
     "@jsquash/webp": "1.5.0",
     "@zsm3/contracts": "workspace:*",
     "@zsm3/worker": "workspace:*",
-    "astro": "7.4.7",
+    "astro": "7.4.11",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -35,6 +35,6 @@
     "happy-dom": "21.0.4",
     "typescript": "catalog:",
     "vitest": "catalog:",
-    "wrangler": "4.157.0"
+    "wrangler": "4.160.1"
   }
 }
