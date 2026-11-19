@@ -9,6 +9,14 @@
     text-size-adjust: 100%;
   }
 
+  html:has(dialog:modal) {
+    overflow: hidden;
+  }
+
+  dialog:modal {
+    overscroll-behavior: contain;
+  }
+
   body,
   h1,
   h2,
