@@ -38,6 +38,17 @@ const hasMeta = Astro.slots.has("meta");
     line-height: var(--leading-snug);
   }
 
+  .on-photo {
+    position: relative;
+    padding: var(--space-5);
+    background: var(--scrim);
+    color: var(--on-photo);
+  }
+
+  .on-photo .lead {
+    color: var(--on-photo-2);
+  }
+
   .meta {
     display: flex;
     flex-wrap: wrap;
