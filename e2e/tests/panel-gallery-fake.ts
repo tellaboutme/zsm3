@@ -1,5 +1,7 @@
 import type { Page, Route } from "@playwright/test";
 
+import { fakeFeatured } from "./panel-featured-fake.ts";
+
 export const ALBUM_ID = "018f0000-0000-7000-8000-000000000001";
 const PHOTO_ID = "018f0000-0000-7000-8000-000000000002";
 const AT = "2026-11-04T08:00:00.000Z";
@@ -137,6 +139,7 @@ export async function fakeGallery(page: Page, role: string): Promise<FakeGallery
   await page.route("**/api/panel/me", async (route) =>
     json(route, 200, { email: "galeria@zsm3.test", role }),
   );
+  await fakeFeatured(page);
   await page.route(
     (url) => url.pathname.startsWith("/api/panel/albums"),
     async (route) => {

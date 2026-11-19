@@ -9,6 +9,7 @@ import { datasetsRoutes } from "./datasets.ts";
 import type { BackgroundTask, PanelDeps } from "./deps.ts";
 import { indexNowNotify, panelOrigin } from "./deps.ts";
 import { eventsRoutes } from "./events.ts";
+import { featuredRoutes } from "./featured.ts";
 import { filesRoutes } from "./files.ts";
 import { newsRoutes } from "./news.ts";
 import { pagesRoutes } from "./pages.ts";
@@ -37,6 +38,7 @@ import { bellsRepo } from "../../storage/bells-repo.ts";
 import { liveStore, systemClock } from "../../storage/database.ts";
 import { datasetsRepo } from "../../storage/datasets-repo.ts";
 import { eventsRepo } from "../../storage/events-repo.ts";
+import { featuredRepo } from "../../storage/featured-repo.ts";
 import { filesRepo } from "../../storage/files-repo.ts";
 import { galleryRepo } from "../../storage/gallery-repo.ts";
 import { newsRepo } from "../../storage/news-repo.ts";
@@ -112,6 +114,7 @@ function injectPanelDeps(options: PanelAppOptions): MiddlewareHandler<AppEnv> {
         requests: requestsRepo(store),
         questions: questionsRepo(store),
         gallery: galleryRepo(store),
+        featured: featuredRepo(store),
         photoUploads: photoUploadsRepo(store),
       },
       mediaBucket: c.env.MEDIA,
@@ -149,5 +152,6 @@ export function panelApp(options: PanelAppOptions = {}): Hono<AppEnv> {
   panel.route("/", questionsRoutes());
   panel.route("/", albumsRoutes());
   panel.route("/", photosRoutes());
+  panel.route("/", featuredRoutes());
   return panel;
 }

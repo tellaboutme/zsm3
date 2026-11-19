@@ -1,3 +1,4 @@
+import { FEATURED_SLOTS, type FeaturedSlot } from "@zsm3/contracts/featured";
 import type { PanelRouteName } from "@zsm3/contracts/panel";
 
 import { albumInput, photoParts, uploadCall } from "./gallery-support.ts";
@@ -14,6 +15,7 @@ interface RoleFixture {
   readonly albumId: string;
   readonly photoId: string;
   readonly seed: number;
+  readonly slot: FeaturedSlot;
 }
 
 export const GALLERY_STATUSES = {
@@ -26,6 +28,9 @@ export const GALLERY_STATUSES = {
   "photos.upload": 201,
   "photos.update": 200,
   "photos.delete": 204,
+  "featured.list": 200,
+  "featured.set": 200,
+  "featured.clear": 204,
 } as const;
 
 const fixtures = new Map<string, RoleFixture>();
@@ -55,11 +60,13 @@ export async function seedGalleryMatrix(store: Store, roles: readonly string[]):
       sha256: index.toString(16).padStart(64, "0"),
       consentBy: CREATOR,
     });
+    const slot = FEATURED_SLOTS[index % FEATURED_SLOTS.length] ?? "home";
     await store.db.batch([album.statement, photo.statement]);
     fixtures.set(key, {
       albumId: album.id,
       photoId: photo.id,
       seed: ROLE_SEED_BASE + index,
+      slot,
     });
   }
 }
@@ -71,6 +78,23 @@ export function galleryCases(
   const own = (token: string): RoleFixture => fixture(rolesByToken.get(token));
   const shared = (): RoleFixture => fixture("shared");
   return [
+    {
+      name: "featured.list",
+      call: async (token) => panelJsonCall(harness, "GET", "/featured", { token }),
+    },
+    {
+      name: "featured.set",
+      call: async (token) =>
+        panelJsonCall(harness, "PUT", `/featured/${own(token).slot}`, {
+          token,
+          body: { photoId: own(token).photoId },
+        }),
+    },
+    {
+      name: "featured.clear",
+      call: async (token) =>
+        panelJsonCall(harness, "DELETE", `/featured/${own(token).slot}`, { token, body: {} }),
+    },
     {
       name: "albums.list",
       call: async (token) => panelJsonCall(harness, "GET", "/albums", { token }),
