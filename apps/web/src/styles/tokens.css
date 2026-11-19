@@ -23,6 +23,9 @@
   --danger: light-dark(#b42318, #ff8a80);
   --danger-surface: light-dark(#b42318, #ff8a80);
   --danger-ink: light-dark(#fff, #0b1220);
+  --scrim: light-dark(#061024a3, #061024bf);
+  --on-photo: #fff;
+  --on-photo-2: #e3eaf6;
   --shadow-float: 0 1.25rem 2.5rem light-dark(#0b122029, #0009);
   --radius-round: 999px;
   --header-height: 4.5rem;

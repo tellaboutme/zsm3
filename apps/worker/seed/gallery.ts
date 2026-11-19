@@ -52,6 +52,22 @@ const INSERT_ALBUM = `INSERT OR IGNORE INTO albums
 
 const PUBLISH_ALBUM = "UPDATE albums SET published_at = ?1 WHERE id = ?2";
 
+const FEATURED: readonly (readonly [string, number])[] = [
+  ["home", 1],
+  ["film", 2],
+  ["kandydaci", 3],
+  ["uczniowie", 4],
+  ["rodzice", 1],
+  ["szkola", 2],
+];
+
+const INSERT_FEATURED = `INSERT OR IGNORE INTO featured_photos (slot, photo_id, updated_by, updated_at)
+  VALUES (?1, ?2, ?3, ?4)`;
+
+function seedPhotoId(photo: number): string {
+  return `01890a5d-ac96-7abc-8def-1000000000${String(photo).padStart(2, "0")}`;
+}
+
 const INSERT_PHOTO = `INSERT OR IGNORE INTO photos (id, album_id, position, width, height, alt,
     sha256, consent_by, consent_at, created_by, created_at)
   VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?8, ?9)`;
@@ -74,7 +90,7 @@ async function seedPhoto(
   await db
     .prepare(INSERT_PHOTO)
     .bind(
-      `01890a5d-ac96-7abc-8def-1000000000${String(photo).padStart(2, "0")}`,
+      seedPhotoId(photo),
       album.id,
       photo,
       portrait ? LARGE_SHORT : LARGE_LONG,
@@ -107,5 +123,8 @@ export async function seedGallery(db: SqlDatabase, media: GalleryBucket): Promis
     if (album.published) {
       await db.prepare(PUBLISH_ALBUM).bind(SEEDED_AT, album.id).run();
     }
+  }
+  for (const [slot, photo] of FEATURED) {
+    await db.prepare(INSERT_FEATURED).bind(slot, seedPhotoId(photo), AUTHOR, SEEDED_AT).run();
   }
 }

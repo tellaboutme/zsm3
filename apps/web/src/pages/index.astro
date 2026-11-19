@@ -7,11 +7,12 @@ import ProfessionFinder from "../components/home/ProfessionFinder.astro";
 import SocialStrip from "../components/home/SocialStrip.astro";
 import Base from "../layouts/Base.astro";
 import { latestNews } from "../lib/news-listing.ts";
+import { featuredPhotos } from "../server/featured.ts";
 import { newsReader } from "../server/news.ts";
 
 export const prerender = false;
 
-const recent = await latestNews(newsReader(), 4);
+const [recent, featured] = await Promise.all([latestNews(newsReader(), 4), featuredPhotos()]);
 ---
 
 <Base
@@ -19,7 +20,7 @@ const recent = await latestNews(newsReader(), 4);
   description="Technikum i szkoła branżowa w Nowej Hucie: 13 zawodów w informatyce, mechatronice, motoryzacji, lotnictwie i logistyce portów. Dzwonki, aktualności i terminarz szkoły."
 >
   <div class="home">
-    <HomeHero />
+    <HomeHero photo={featured.get("home")} />
     {recent.length > 0 && <NewsSection items={recent} />}
     <NumbersStrip />
     <ProfessionFinder />
