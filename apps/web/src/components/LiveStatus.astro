@@ -20,11 +20,34 @@
         Następne lekcje w poniedziałek 30 października o 10:45
       </span>
     </div>
-    <p class="timer" data-live="timer">
-      —
-    </p>
+    <div class="ring">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="track" cx="60" cy="60" r="52" pathLength="100"></circle>
+        <circle
+          class="fill"
+          cx="60"
+          cy="60"
+          r="52"
+          pathLength="100"
+          stroke-dasharray="100"
+          stroke-dashoffset="100"
+          data-live-ring
+        ></circle>
+      </svg>
+      <p class="clock">
+        <span class="timer" data-live="timer">
+          —
+        </span>
+        <span class="unit" data-live="unit"></span>
+      </p>
+    </div>
   </div>
-  <progress max="1" value="0" aria-label="Postęp bieżącej lekcji"></progress>
+  <progress
+    class="visually-hidden"
+    max="1"
+    value="0"
+    aria-label="Postęp bieżącej lekcji"
+  ></progress>
 </section>
 
 <style>
@@ -64,13 +87,13 @@
   .main {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
-    gap: var(--space-2) var(--space-5);
+    align-items: center;
+    gap: var(--space-3) var(--space-5);
   }
 
   .status {
     display: grid;
-    flex: 1 1 auto;
+    flex: 1 1 12rem;
     gap: var(--space-1);
     min-width: 0;
   }
@@ -93,47 +116,72 @@
     visibility: hidden;
   }
 
+  .ring {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: 7.5rem;
+    block-size: 7.5rem;
+  }
+
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    rotate: -90deg;
+  }
+
+  circle {
+    fill: none;
+    stroke-width: 10;
+  }
+
+  .track {
+    stroke: var(--line);
+  }
+
+  .fill {
+    stroke: var(--blue);
+    stroke-linecap: round;
+    transition: stroke-dashoffset var(--duration-3) var(--ease);
+  }
+
+  [data-state="break"] .fill {
+    stroke: var(--orange);
+  }
+
+  .clock {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
   .timer {
     color: var(--link);
     font-family: var(--font-mono);
-    font-size: var(--step-3);
+    font-size: var(--step-2);
     font-variant-numeric: tabular-nums;
+    font-weight: 600;
     line-height: var(--leading-tight);
-    min-inline-size: 7ch;
     white-space: nowrap;
   }
 
-  progress {
-    position: absolute;
-    right: var(--space-5);
-    bottom: var(--space-3);
-    left: var(--space-5);
-    width: auto;
-    height: var(--space-1);
-    border: 0;
-    border-radius: var(--radius);
-    appearance: none;
-    background: var(--line);
-    accent-color: var(--blue);
+  .unit {
+    color: var(--ink-2);
+    font-size: var(--step-n1);
   }
 
-  progress::-webkit-progress-bar {
-    border-radius: var(--radius);
-    background: var(--line);
-  }
-
-  progress::-webkit-progress-value {
-    border-radius: var(--radius);
-    background: var(--blue);
-  }
-
-  progress::-moz-progress-bar {
-    border-radius: var(--radius);
-    background: var(--blue);
-  }
-
-  [data-state="after"] :is(.timer, progress),
-  [data-state="day-off"] :is(.timer, progress) {
+  [data-state="after"] .ring,
+  [data-state="day-off"] .ring {
     visibility: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fill {
+      transition: none;
+    }
   }
 </style>

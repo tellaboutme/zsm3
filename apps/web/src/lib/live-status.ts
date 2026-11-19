@@ -13,7 +13,12 @@ export type LiveStatus =
       readonly secondsLeft: number;
       readonly progress: number;
     }
-  | { readonly kind: "break"; readonly next: Lesson; readonly secondsLeft: number }
+  | {
+      readonly kind: "break";
+      readonly next: Lesson;
+      readonly secondsLeft: number;
+      readonly progress: number;
+    }
   | { readonly kind: "after"; readonly last: Lesson };
 
 export interface SchoolClock {
@@ -26,6 +31,7 @@ export interface LiveView {
   readonly title: string;
   readonly detail: string;
   readonly timer: string;
+  readonly unit: string;
   readonly progress: number;
 }
 
@@ -64,14 +70,22 @@ export function warsawClock(now: Date): SchoolClock {
   };
 }
 
+function waitingFor(lesson: Lesson, previous: Lesson | undefined, now: number): LiveStatus {
+  const start = secondsOf(lesson.start);
+  if (previous === undefined) {
+    return { kind: "before", next: lesson, secondsLeft: start - now };
+  }
+  const from = secondsOf(previous.end);
+  const progress = (now - from) / (start - from);
+  return { kind: "break", next: lesson, secondsLeft: start - now, progress };
+}
+
 function duringDay(schedule: readonly Lesson[], now: number): LiveStatus | undefined {
   for (const [index, lesson] of schedule.entries()) {
     const start = secondsOf(lesson.start);
     const end = secondsOf(lesson.end);
     if (now < start) {
-      return index === 0
-        ? { kind: "before", next: lesson, secondsLeft: start - now }
-        : { kind: "break", next: lesson, secondsLeft: start - now };
+      return waitingFor(lesson, schedule[index - 1], now);
     }
     if (now < end) {
       const progress = (now - start) / (end - start);
@@ -102,15 +116,23 @@ export function clockTime(time: string): string {
   return time.replace(/^0/u, "");
 }
 
+export const COUNTDOWN_LIMIT_SECONDS = SECONDS_PER_HOUR;
+
+const UNTIL_BELL = "do dzwonka";
+
 type Waiting = Extract<LiveStatus, { kind: "break" | "before" }>;
 
 function waiting(status: Waiting): LiveView {
+  const lesson = `${String(status.next.number)}. lekcja`;
+  const start = clockTime(status.next.start);
+  const counting = status.secondsLeft <= COUNTDOWN_LIMIT_SECONDS;
   return {
     state: status.kind,
     title: status.kind === "break" ? "Przerwa" : "Przed lekcjami",
-    detail: `${String(status.next.number)}. lekcja o ${clockTime(status.next.start)}`,
-    timer: countdown(status.secondsLeft),
-    progress: 0,
+    detail: `${lesson} o ${start}`,
+    timer: counting ? countdown(status.secondsLeft) : start,
+    unit: counting ? UNTIL_BELL : lesson,
+    progress: status.kind === "break" ? status.progress : 0,
   };
 }
 
@@ -123,6 +145,7 @@ export function describeStatus(status: LiveStatus, upcoming: () => string): Live
         title: `${String(lesson.number)}. lekcja`,
         detail: `${clockTime(lesson.start)}–${clockTime(lesson.end)}`,
         timer: countdown(status.secondsLeft),
+        unit: UNTIL_BELL,
         progress: status.progress,
       };
     }
@@ -136,6 +159,7 @@ export function describeStatus(status: LiveStatus, upcoming: () => string): Live
         title: "Teraz nie ma lekcji",
         detail: upcoming(),
         timer: "—",
+        unit: "",
         progress: 0,
       };
   }
