@@ -43,7 +43,7 @@ function initCompactHeader(): void {
 }
 
 function initLiveStatus(): void {
-  const roots = [...document.querySelectorAll<HTMLElement>("[data-live-status]")];
+  const roots = [...document.querySelectorAll<HTMLElement>("[data-live-status], [data-live-line]")];
   if (roots.length === 0) {
     return;
   }

@@ -1,0 +1,153 @@
+---
+import type { PublicFeaturedPhoto } from "@zsm3/contracts/featured";
+
+import { school } from "../../data/site.ts";
+import { featuredImage } from "../../lib/featured.ts";
+
+interface Props {
+  readonly photo: PublicFeaturedPhoto | undefined;
+}
+
+const { photo } = Astro.props;
+const image = photo === undefined ? undefined : featuredImage(photo);
+---
+
+<div class="head" data-photo={image === undefined ? "off" : "on"}>
+  {image !== undefined && (
+    <img
+      class="backdrop"
+      src={image.src}
+      srcset={image.srcset}
+      sizes="(width >= 80rem) 76rem, 100vw"
+      width={image.width}
+      height={image.height}
+      alt={image.alt}
+      fetchpriority="high"
+      decoding="async"
+    />
+  )}
+  <div class="inner appear">
+    <h1 id="tytul">{school.name.replace(" nr ", " nr ")} w&nbsp;Krakowie</h1>
+    <p class="facts">
+      Technikum i branżowa szkoła I i II stopnia · {school.street}, Nowa Huta · im. {school.patron}
+    </p>
+    <div class="actions">
+      <a class="action primary tap-target" href="/kandydaci/rekrutacja">
+        Rekrutacja
+      </a>
+      <a class="action tap-target" href="/kandydaci/zawody">
+        Zawody
+      </a>
+      <a class="action tap-target" href="/kontakt">
+        Kontakt
+      </a>
+    </div>
+    <p class="live" data-live-line aria-hidden="true">
+      <span class="dot"></span>
+      <span data-live="title">Dzwonki</span>
+      <span data-live="detail">1. lekcja o 7:30</span>
+    </p>
+  </div>
+</div>
+
+<style>
+  .head {
+    position: relative;
+    display: grid;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: var(--radius);
+  }
+
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .inner {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: var(--space-4);
+    padding: var(--space-7) var(--space-4);
+    text-align: center;
+  }
+
+  h1 {
+    max-width: 18ch;
+  }
+
+  .facts {
+    max-width: 48ch;
+    color: var(--ink-2);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+
+  .action {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-5);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+    transition: border-color var(--duration-2) var(--ease);
+  }
+
+  .action:hover {
+    border-color: var(--blue);
+  }
+
+  .action.primary {
+    border-color: var(--orange-surface);
+    background: var(--orange-surface);
+    color: var(--orange-ink);
+  }
+
+  .live {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+    color: var(--ink-2);
+    font-size: var(--step-n1);
+  }
+
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-round);
+    background: var(--success);
+  }
+
+  .live [data-live="detail"]::before {
+    content: "· ";
+  }
+
+  .head[data-photo="on"] {
+    min-block-size: clamp(22rem, 42vw, 32rem);
+    color: var(--on-photo);
+  }
+
+  .head[data-photo="on"] .inner {
+    background: var(--scrim);
+  }
+
+  .head[data-photo="on"] .facts,
+  .head[data-photo="on"] .live {
+    color: var(--on-photo-2);
+  }
+</style>
