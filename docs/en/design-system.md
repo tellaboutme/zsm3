@@ -16,15 +16,15 @@ Every review checks these. Each one is a yes/no question.
 
 **Layout and composition**
 
-1. No centred hero with a headline, a sub-headline and two buttons over a gradient or a blurred photo.
+1. No centred hero with a headline, a sub-headline and two buttons over a gradient or a blurred photo. The one exception is the home head over the featured photo ([ADR 0009](adr/0009-livelier-home-and-featured-photos.md)).
 2. No default grid of identical cards with an icon, a title and two lines of text. Cards exist only where items are truly parallel (programmes, news), and then they show real content (photo, date, qualification codes).
 3. An asymmetric editorial grid with a clear reading order; alignment to the grid, not to the centre.
 4. Whitespace is used to group, never to pad out thin content.
 
 **Colour and surface**
 
-5. No gradients, glow, glassmorphism, textures or background tones; no drop shadows used as decoration. The page background is a flat `--page` (slightly grey in light, deep navy in dark); cards, panels and fields are `--surface` with a 1 px `--line` border. Elevation appears only where an element actually floats (menus, dialogs).
-6. Colour only through tokens. A solid blue fill appears only on the footer and on hover (a profession row or tile, a list row); everywhere else blue is a detail: a status bar, a code, a link, a badge. Orange marks the one primary action of a screen and the focus ring. Everything else is neutral.
+5. No gradients, glow, glassmorphism, textures or background tones; no drop shadows used as decoration. The page background is a flat `--page` (slightly grey in light, deep navy in dark); cards, panels and fields are `--surface` with a 1 px `--line` border. Elevation appears only where an element actually floats (menus, dialogs). The flat photo scrim of the home and hub heads is the only overlay (ADR 0009).
+6. Colour only through tokens. A solid blue fill appears only on the footer and on hover (a profession row or tile, a list row); everywhere else blue is a detail: a status bar, a code, a link, a badge. Orange marks the one primary action of a screen and the focus ring. Everything else is neutral. Exceptions from ADR 0009: news card covers in category tokens and the blue or orange live ring.
 7. One small radius, 8 px (`--radius`); only shapes that are round by design, such as the switch toggles, use the full round token (`--radius-round`). Nothing is a pill unless it is a status badge.
 
 **Typography**

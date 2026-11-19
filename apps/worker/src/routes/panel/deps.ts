@@ -13,6 +13,7 @@ import type { BellsRepo } from "../../storage/bells-repo.ts";
 import type { Clock, SqlDatabase } from "../../storage/database.ts";
 import type { DatasetsRepo } from "../../storage/datasets-repo.ts";
 import type { EventsRepo } from "../../storage/events-repo.ts";
+import type { FeaturedRepo } from "../../storage/featured-repo.ts";
 import type { FilesRepo } from "../../storage/files-repo.ts";
 import type { GalleryRepo } from "../../storage/gallery-repo.ts";
 import type { RandomBytes } from "../../storage/ids.ts";
@@ -55,6 +56,7 @@ export interface PanelRepos {
   readonly requests: RequestsRepo;
   readonly questions: QuestionsRepo;
   readonly gallery: GalleryRepo;
+  readonly featured: FeaturedRepo;
   readonly photoUploads: PhotoUploadsRepo;
 }
 

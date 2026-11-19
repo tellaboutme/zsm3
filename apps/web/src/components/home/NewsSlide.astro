@@ -1,0 +1,143 @@
+---
+import { categoryTone, dateParts } from "../../lib/news-strip.ts";
+import { newsHref, type NewsItem } from "../../lib/news.ts";
+
+interface Props {
+  item: NewsItem;
+}
+
+const { item } = Astro.props;
+const date = dateParts(item.date);
+---
+
+<article class="slide" data-tone={categoryTone(item.category)}>
+  <div class="cover">
+    <span class="category">{item.category}</span>
+    <time class="date" datetime={item.date}>
+      <span class="day">{date.day}</span>
+      <span class="month">
+        {date.month} {date.year}
+      </span>
+    </time>
+  </div>
+  <div class="body">
+    <h3 class="title">
+      <a href={newsHref(item)}>{item.title}</a>
+    </h3>
+    <p class="lead">{item.lead}</p>
+  </div>
+</article>
+
+<style>
+  .slide {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    overflow: hidden;
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    transition: border-color var(--duration-2) var(--ease);
+  }
+
+  .slide:hover {
+    border-color: var(--blue);
+  }
+
+  .cover {
+    display: grid;
+    align-content: space-between;
+    justify-items: start;
+    gap: var(--space-4);
+    min-block-size: 8rem;
+    padding: var(--space-3) var(--space-4);
+    background: var(--tone-1);
+    color: var(--tone-ink);
+  }
+
+  [data-tone="2"] .cover {
+    background: var(--tone-2);
+  }
+
+  [data-tone="3"] .cover {
+    background: var(--tone-3);
+  }
+
+  [data-tone="4"] .cover {
+    background: var(--tone-4);
+  }
+
+  [data-tone="5"] .cover {
+    background: var(--tone-5);
+  }
+
+  [data-tone="6"] .cover {
+    background: var(--tone-6);
+  }
+
+  .category {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: var(--step-n1);
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .date {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+
+  .day {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    font-weight: var(--weight-heading);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .month {
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-4) var(--space-4) var(--space-5);
+  }
+
+  .title {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+
+  .title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .title a::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+  }
+
+  .slide:hover .title a {
+    color: var(--link);
+    text-decoration: underline;
+  }
+
+  .lead {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--ink-2);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+</style>

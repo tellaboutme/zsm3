@@ -55,6 +55,7 @@ describe("galleryProblemPhrase", () => {
         "To zdjęcie jest właśnie przetwarzane. Spróbuj ponownie za kilka minut.",
       ],
       ["Invalid Image", "Serwer odrzucił przygotowane zdjęcie. Wybierz inny plik."],
+      ["Photo Not Found", "Tego zdjęcia już nie ma w galerii. Odśwież album."],
     ] as const) {
       expect(galleryProblemPhrase(422, { title })).toBe(phrase);
     }

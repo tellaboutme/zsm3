@@ -187,6 +187,7 @@ async function deleteAlbum(c: Context<AppEnv>): Promise<Response> {
   }
   await atomicWrite(deps, [
     deps.repos.gallery.deleteAlbumStatement(previous.id),
+    deps.repos.featured.clearAlbumStatement(previous.id),
     deps.repos.audit.statement(
       auditEntry({
         session,
