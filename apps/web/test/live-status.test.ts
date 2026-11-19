@@ -4,6 +4,7 @@ import { describe, it } from "vitest";
 import { regularSchedule } from "../src/data/bell-schedule.ts";
 import {
   clockTime,
+  COUNTDOWN_LIMIT_SECONDS,
   countdown,
   describeStatus,
   liveStatus,
@@ -54,12 +55,12 @@ describe("liveStatus", () => {
     expect(liveStatus(regularSchedule, weekday("08:20")).kind).toBe("lesson");
   });
 
-  it("reports breaks with the next lesson", ({ expect }) => {
-    expect(liveStatus(regularSchedule, weekday("11:45"))).toMatchObject({
-      kind: "break",
-      next: { number: 6 },
-      secondsLeft: 15 * 60,
-    });
+  it("reports breaks with the next lesson and how far the break has run", ({ expect }) => {
+    const status = liveStatus(regularSchedule, weekday("11:45"));
+
+    expect(status).toMatchObject({ kind: "break", next: { number: 6 }, secondsLeft: 15 * 60 });
+    expect(status.kind === "break" && status.progress).toBeCloseTo(5 / 20);
+    expect(liveStatus(regularSchedule, weekday("08:15"))).toMatchObject({ progress: 0 });
   });
 
   it("ends after the last bell and on days off", ({ expect }) => {
@@ -77,7 +78,7 @@ describe("liveStatus", () => {
     fc.assert(
       fc.property(fc.integer({ min: 0, max: 86_399 }), (secondsOfDay) => {
         const status = liveStatus(regularSchedule, { secondsOfDay, isWeekday: true });
-        if (status.kind === "lesson") {
+        if (status.kind === "lesson" || status.kind === "break") {
           expect(status.progress).toBeGreaterThanOrEqual(0);
           expect(status.progress).toBeLessThan(1);
         }
@@ -98,6 +99,25 @@ describe("secondsOf", () => {
     expect(() => secondsOf("12:60")).toThrow(RangeError);
     expect(() => secondsOf("x07:30")).toThrow(RangeError);
     expect(() => secondsOf("07:305")).toThrow(RangeError);
+  });
+});
+
+describe("waiting views", () => {
+  it("counts down only in the last hour before the first lesson", ({ expect }) => {
+    const [first] = regularSchedule;
+    if (first === undefined) {
+      throw new Error("schedule is empty");
+    }
+    const at = (secondsLeft: number): { timer: string; unit: string } => {
+      const { timer, unit } = describeStatus(
+        { kind: "before", next: first, secondsLeft },
+        upcoming,
+      );
+      return { timer, unit };
+    };
+
+    expect(at(COUNTDOWN_LIMIT_SECONDS)).toEqual({ timer: "1:00:00", unit: "do dzwonka" });
+    expect(at(COUNTDOWN_LIMIT_SECONDS + 1)).toEqual({ timer: "7:30", unit: "1. lekcja" });
   });
 });
 
@@ -126,26 +146,32 @@ describe("formatting", () => {
       title: "1. lekcja",
       detail: "7:30–8:15",
       timer: "01:30",
+      unit: "do dzwonka",
       progress: 0.5,
     });
     expect(
-      describeStatus({ kind: "break", next: second, secondsLeft: 60 }, upcoming),
-    ).toMatchObject({
+      describeStatus({ kind: "break", next: second, secondsLeft: 60, progress: 0.75 }, upcoming),
+    ).toEqual({
+      state: "break",
       title: "Przerwa",
       detail: "2. lekcja o 8:20",
       timer: "01:00",
+      unit: "do dzwonka",
+      progress: 0.75,
     });
-    expect(
-      describeStatus({ kind: "before", next: first, secondsLeft: 60 }, upcoming),
-    ).toMatchObject({
+    expect(describeStatus({ kind: "before", next: first, secondsLeft: 60 }, upcoming)).toEqual({
+      state: "before",
       title: "Przed lekcjami",
       detail: "1. lekcja o 7:30",
+      timer: "01:00",
+      unit: "do dzwonka",
       progress: 0,
     });
     const idle = {
       title: "Teraz nie ma lekcji",
       detail: "Następne lekcje jutro o 7:30",
       timer: "—",
+      unit: "",
       progress: 0,
     };
     expect(describeStatus({ kind: "after", last: first }, upcoming)).toEqual({
