@@ -105,6 +105,23 @@ test.describe("phone navigation", () => {
     await expect(menu).toBeHidden();
   });
 
+  test("locks the page behind the open menu and releases it on close", async ({ page }) => {
+    const pageOverflow = async () =>
+      page.evaluate(() => getComputedStyle(document.documentElement).overflow);
+    await page.getByRole("button", { name: "Menu" }).click();
+    const menu = page.getByRole("dialog", { name: "Menu" });
+
+    await expect(menu).toBeVisible();
+    expect(await pageOverflow()).toBe("hidden");
+    expect(await menu.evaluate((node) => getComputedStyle(node).overscrollBehaviorY)).toBe(
+      "contain",
+    );
+    await menu.getByRole("button", { name: "Zamknij menu" }).click();
+
+    await expect(menu).toBeHidden();
+    expect(await pageOverflow()).toBe("visible");
+  });
+
   for (const colorScheme of ["light", "dark"] as const) {
     test(`the open menu stays accessible in ${colorScheme} theme`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
