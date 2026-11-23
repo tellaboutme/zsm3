@@ -1,9 +1,9 @@
 ---
 import type { PublicFeaturedPhoto } from "@zsm3/contracts/featured";
 
+import FilmPoster from "./FilmPoster.astro";
 import SectionHead from "./SectionHead.astro";
-import { externalServices, schoolFilm, socialProfiles } from "../../data/site.ts";
-import { featuredImage } from "../../lib/featured.ts";
+import { externalServices, socialProfiles } from "../../data/site.ts";
 import Icon from "../Icon.astro";
 
 interface Props {
@@ -11,7 +11,6 @@ interface Props {
 }
 
 const { photo } = Astro.props;
-const image = photo === undefined ? undefined : featuredImage(photo);
 const tiles = [
   ...socialProfiles,
   { name: "Wirtualny spacer", handle: "szkoła w 360°", href: externalServices.virtualTour },
@@ -21,32 +20,7 @@ const tiles = [
 <section class="film" aria-labelledby="w-sieci">
   <SectionHead id="w-sieci" title="Szkoła w sieci" />
   <div class="layout">
-    <a class="poster" href={schoolFilm.href} rel="noopener" target="_blank">
-      <span class="frame" data-photo={image === undefined ? "off" : "on"}>
-        {image !== undefined && (
-          <img
-            src={image.src}
-            srcset={image.srcset}
-            sizes="(width >= 64rem) 40rem, 100vw"
-            width={image.width}
-            height={image.height}
-            alt=""
-            loading="lazy"
-            decoding="async"
-          />
-        )}
-        <span class="play" aria-hidden="true"></span>
-        <time class="duration" datetime={schoolFilm.isoDuration}>
-          {schoolFilm.duration}
-        </time>
-      </span>
-      <span class="caption">
-        <span class="name">{schoolFilm.title}</span>
-        <span class="where">
-          Film na YouTube <span class="visually-hidden">(otwiera nową stronę)</span>
-        </span>
-      </span>
-    </a>
+    <FilmPoster photo={photo} />
     <ul class="tiles">
       {tiles.map((tile) => (
         <li>
@@ -68,90 +42,6 @@ const tiles = [
   .layout {
     display: grid;
     gap: var(--space-5);
-  }
-
-  .poster {
-    display: grid;
-    gap: var(--space-2);
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  .frame {
-    position: relative;
-    display: grid;
-    place-items: center;
-    aspect-ratio: 16 / 9;
-    max-width: 100%;
-    overflow: hidden;
-    border-radius: var(--radius);
-    background: var(--blue-2);
-  }
-
-  img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: scale var(--duration-3) var(--ease);
-  }
-
-  .poster:hover img {
-    scale: 1.04;
-  }
-
-  .play {
-    position: relative;
-    display: grid;
-    place-items: center;
-    inline-size: 4.5rem;
-    block-size: 4.5rem;
-    border-radius: var(--radius-round);
-    background: var(--orange-surface);
-    box-shadow: var(--shadow-float);
-  }
-
-  .play::before {
-    margin-inline-start: var(--space-1);
-    border-block: 0.8rem solid transparent;
-    border-inline-start: 1.2rem solid var(--on-photo);
-    content: "";
-  }
-
-  .duration {
-    position: absolute;
-    right: var(--space-3);
-    bottom: var(--space-3);
-    padding: 0 var(--space-2);
-    border-radius: var(--radius);
-    background: var(--scrim);
-    color: var(--on-photo);
-    font-family: var(--font-mono);
-    font-size: var(--step-n1);
-  }
-
-  .caption {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-1) var(--space-3);
-  }
-
-  .name {
-    font-family: var(--font-display);
-    font-size: var(--step-1);
-    font-weight: var(--weight-heading);
-  }
-
-  .where {
-    color: var(--ink-2);
-    font-size: var(--step-n1);
-  }
-
-  .poster:hover .name {
-    color: var(--link);
-    text-decoration: underline;
   }
 
   .tiles {
@@ -214,12 +104,6 @@ const tiles = [
     .layout {
       grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
       align-items: start;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    img {
-      transition: none;
     }
   }
 </style>

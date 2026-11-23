@@ -1,3 +1,4 @@
+import { flash } from "./feedback.ts";
 import {
   PREFERENCES_KEY,
   preferenceNames,
@@ -77,16 +78,19 @@ export function initPreferences(): void {
         update(name, valueOf(input));
       }
     });
-    form.querySelector("[data-reset-settings]")?.addEventListener("click", () => {
+    const reset = form.querySelector<HTMLElement>("[data-reset-settings]");
+    reset?.addEventListener("click", () => {
       preferences = {};
       save(preferences);
       apply(preferences);
       syncForm(form, preferences);
+      flash(reset, "done", "Przywrócono ustawienia");
     });
   }
-  for (const toggle of document.querySelectorAll("[data-theme-toggle]")) {
+  for (const toggle of document.querySelectorAll<HTMLElement>("[data-theme-toggle]")) {
     toggle.addEventListener("click", () => {
       update("theme", nextTheme(preferences.theme));
+      flash(toggle, "done");
     });
   }
 }

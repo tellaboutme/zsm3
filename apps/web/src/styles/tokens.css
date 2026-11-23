@@ -19,6 +19,8 @@
   --focus: light-dark(#f26b1d, #ff8a3d);
   --highlight: light-dark(#ffe1cc, #4a2a12);
   --success: light-dark(#1a7f37, #6fdc8c);
+  --success-surface: light-dark(#1a7f37, #1f7a3b);
+  --success-ink: #fff;
   --warning: light-dark(#8a5a00, #f2cc60);
   --danger: light-dark(#b42318, #ff8a80);
   --danger-surface: light-dark(#b42318, #ff8a80);

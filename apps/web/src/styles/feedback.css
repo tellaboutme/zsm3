@@ -1,0 +1,27 @@
+@layer motion {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:not([data-motion="reduce"]) button:not(:disabled) {
+      transition:
+        scale var(--duration-1) var(--ease),
+        background-color var(--duration-2) var(--ease),
+        border-color var(--duration-2) var(--ease),
+        color var(--duration-2) var(--ease);
+    }
+
+    :root:not([data-motion="reduce"]) button:not(:disabled):active {
+      scale: 0.96;
+    }
+  }
+}
+
+:is(button, a)[data-feedback="done"][data-feedback] {
+  border-color: var(--success-surface);
+  background: var(--success-surface);
+  color: var(--success-ink);
+}
+
+:is(button, a)[data-feedback="failed"][data-feedback] {
+  border-color: var(--danger-surface);
+  background: var(--danger-surface);
+  color: var(--danger-ink);
+}
