@@ -48,8 +48,10 @@ async function verifyHome(page: Page, url: string, count: number): Promise<void>
   await expect(page.locator(".hero .entry .links")).toHaveCount(3);
   await expect(page.locator(".hero .entry .links a")).not.toHaveCount(0);
   await expect(page.locator(".hero .entry")).toHaveCount(3);
-  await expect(page.locator(".news .cards > li")).toHaveCount(count);
-  await expect(page.locator(".news .card.lead")).toHaveCount(count === 0 ? 0 : 1);
+  await expect(page.locator(".news .slide")).toHaveCount(count);
+  await expect(page.locator(".news [data-strip-track] > li")).toHaveCount(
+    count === 0 ? 0 : count + 1,
+  );
   await expect(page.locator(".news")).toHaveCount(count > 0 ? 1 : 0);
   if (count === 0) {
     await verifyEmptyHome(page);
