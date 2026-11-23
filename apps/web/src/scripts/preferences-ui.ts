@@ -87,10 +87,9 @@ export function initPreferences(): void {
       flash(reset, "done", "Przywrócono ustawienia");
     });
   }
-  for (const toggle of document.querySelectorAll<HTMLElement>("[data-theme-toggle]")) {
+  for (const toggle of document.querySelectorAll("[data-theme-toggle]")) {
     toggle.addEventListener("click", () => {
       update("theme", nextTheme(preferences.theme));
-      flash(toggle, "done");
     });
   }
 }
