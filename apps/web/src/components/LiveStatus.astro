@@ -20,26 +20,28 @@
         <span class="detail">Następne lekcje w poniedziałek 30 października o 10:45</span>
       </div>
     </div>
-    <div class="ring">
-      <svg viewBox="0 0 120 120" aria-hidden="true">
-        <circle class="track" cx="60" cy="60" r="52" pathLength="100"></circle>
-        <circle
-          class="fill"
-          cx="60"
-          cy="60"
-          r="52"
-          pathLength="100"
-          stroke-dasharray="100"
-          stroke-dashoffset="100"
-          data-live-ring
-        ></circle>
-      </svg>
-      <p class="clock">
-        <span class="timer" data-live="timer">
-          —
-        </span>
-        <span class="unit" data-live="unit"></span>
-      </p>
+    <div class="meter">
+      <div class="ring">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="track" cx="60" cy="60" r="52" pathLength="100"></circle>
+          <circle
+            class="fill"
+            cx="60"
+            cy="60"
+            r="52"
+            pathLength="100"
+            stroke-dasharray="100"
+            stroke-dashoffset="100"
+            data-live-ring
+          ></circle>
+        </svg>
+        <p class="clock">
+          <span class="timer" data-live="timer">
+            —
+          </span>
+        </p>
+      </div>
+      <span class="unit" data-live="unit"></span>
     </div>
   </div>
   <progress
@@ -120,13 +122,20 @@
     visibility: hidden;
   }
 
+  .meter {
+    display: grid;
+    flex: none;
+    justify-items: center;
+    gap: var(--space-1);
+    margin-inline-start: auto;
+  }
+
   .ring {
     position: relative;
     display: grid;
-    flex: none;
     place-items: center;
-    margin-inline-start: auto;
-    inline-size: min(6rem, 100%);
+    inline-size: 5.5rem;
+    max-inline-size: 100%;
     aspect-ratio: 1;
   }
 
@@ -182,8 +191,8 @@
     line-height: var(--leading-tight);
   }
 
-  [data-state="after"] .ring,
-  [data-state="day-off"] .ring {
+  [data-state="after"] .meter,
+  [data-state="day-off"] .meter {
     visibility: hidden;
   }
 
