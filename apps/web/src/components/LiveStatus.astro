@@ -121,7 +121,7 @@
     display: grid;
     flex: none;
     place-items: center;
-    inline-size: min(7.5rem, 100%);
+    inline-size: min(9rem, 100%);
     aspect-ratio: 1;
   }
 
@@ -135,7 +135,7 @@
 
   circle {
     fill: none;
-    stroke-width: 10;
+    stroke-width: 7;
   }
 
   .track {
@@ -156,6 +156,8 @@
     position: relative;
     display: grid;
     justify-items: center;
+    gap: var(--space-1);
+    max-inline-size: 72%;
     text-align: center;
   }
 
@@ -172,6 +174,7 @@
   .unit {
     color: var(--ink-2);
     font-size: var(--step-n1);
+    line-height: var(--leading-tight);
   }
 
   [data-state="after"] .ring,

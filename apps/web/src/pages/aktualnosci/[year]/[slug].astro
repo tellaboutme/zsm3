@@ -50,7 +50,7 @@ const { newer, older } = article.neighbours;
     </div>
     <footer class="tools">
       <button type="button" class="copy" data-copy-link hidden>
-        Kopiuj link do artykułu
+        <span data-feedback-label>Kopiuj link do artykułu</span>
       </button>
       <p class="visually-hidden" role="status" data-copy-status></p>
       <a class="back nudge tap-target" href="/aktualnosci">
@@ -95,6 +95,11 @@ const { newer, older } = article.neighbours;
     display: inline-flex;
     align-items: center;
     min-block-size: var(--target);
+    font-weight: 600;
+  }
+
+  time {
+    font-family: var(--font-mono);
   }
 
   .article {

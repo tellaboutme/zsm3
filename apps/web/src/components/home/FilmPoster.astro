@@ -1,0 +1,162 @@
+---
+import type { PublicFeaturedPhoto } from "@zsm3/contracts/featured";
+
+import { school, schoolFilm } from "../../data/site.ts";
+import { featuredImage } from "../../lib/featured.ts";
+
+interface Props {
+  readonly photo: PublicFeaturedPhoto | undefined;
+}
+
+const { photo } = Astro.props;
+const image = photo === undefined ? undefined : featuredImage(photo);
+---
+
+<a class="poster" href={schoolFilm.href} rel="noopener" target="_blank">
+  <span class="frame">
+    {image !== undefined && (
+      <img
+        class="still"
+        src={image.src}
+        srcset={image.srcset}
+        sizes="(width >= 64rem) 40rem, 100vw"
+        width={image.width}
+        height={image.height}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    )}
+    <span class="badge">Film o szkole · YouTube</span>
+    <span class="play" aria-hidden="true"></span>
+    <span class="band">
+      <img class="logo" src="/logo-zsm3.png" width="44" height="44" alt="" />
+      <span class="titles">
+        <span class="school">{school.name} w Krakowie</span>
+        <span class="name">{schoolFilm.title}</span>
+      </span>
+      <time class="duration" datetime={schoolFilm.isoDuration}>
+        {schoolFilm.duration}
+      </time>
+    </span>
+  </span>
+  <span class="visually-hidden">Obejrzyj film na YouTube (otwiera nową stronę)</span>
+</a>
+
+<style>
+  .poster {
+    display: block;
+    color: var(--on-photo);
+    text-decoration: none;
+  }
+
+  .frame {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--blue-2);
+  }
+
+  .still {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale var(--duration-3) var(--ease);
+  }
+
+  .poster:hover .still {
+    scale: 1.04;
+  }
+
+  .badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius);
+    background: var(--scrim);
+    font-size: var(--step-n1);
+    font-weight: 700;
+  }
+
+  .play {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 4.5rem;
+    block-size: 4.5rem;
+    border-radius: var(--radius-round);
+    background: var(--orange-surface);
+    box-shadow: var(--shadow-float);
+    transition: scale var(--duration-2) var(--ease);
+  }
+
+  .poster:hover .play {
+    scale: 1.08;
+  }
+
+  .play::before {
+    margin-inline-start: var(--space-1);
+    border-block: 0.8rem solid transparent;
+    border-inline-start: 1.2rem solid var(--on-photo);
+    content: "";
+  }
+
+  .band {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--scrim);
+  }
+
+  .logo {
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .titles {
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .school {
+    overflow: hidden;
+    color: var(--on-photo-2);
+    font-size: var(--step-n1);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: var(--weight-heading);
+    line-height: var(--leading-snug);
+  }
+
+  .duration {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--step-n1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .still,
+    .play {
+      transition: none;
+    }
+  }
+</style>
