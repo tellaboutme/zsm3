@@ -7,18 +7,18 @@
   </div>
   <div class="main">
     <div class="status">
-      <p class="title" data-live="title">
-        Dzwonki
-      </p>
-      <p class="detail" data-live="detail">
-        1. lekcja o 7:30
-      </p>
-      <span class="title sizer" aria-hidden="true">
-        Teraz nie ma lekcji
-      </span>
-      <span class="detail sizer" aria-hidden="true">
-        Następne lekcje w poniedziałek 30 października o 10:45
-      </span>
+      <div class="lines">
+        <p class="title" data-live="title">
+          Dzwonki
+        </p>
+        <p class="detail" data-live="detail">
+          1. lekcja o 7:30
+        </p>
+      </div>
+      <div class="lines sizer" aria-hidden="true">
+        <span class="title">Teraz nie ma lekcji</span>
+        <span class="detail">Następne lekcje w poniedziałek 30 października o 10:45</span>
+      </div>
     </div>
     <div class="ring">
       <svg viewBox="0 0 120 120" aria-hidden="true">
@@ -94,12 +94,17 @@
   .status {
     display: grid;
     flex: 1 1 9rem;
-    gap: var(--space-1);
     min-width: 0;
   }
 
-  .title {
+  .lines {
+    display: grid;
     grid-area: 1 / 1;
+    align-content: start;
+    gap: var(--space-1);
+  }
+
+  .title {
     font-family: var(--font-display);
     font-size: var(--step-2);
     font-weight: var(--weight-heading);
@@ -107,8 +112,6 @@
   }
 
   .detail {
-    grid-area: 2 / 1;
-    align-self: start;
     color: var(--ink-2);
     font-size: var(--step-0);
   }
