@@ -140,10 +140,6 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
     line-height: var(--leading-snug);
   }
 
-  .date {
-    font-family: var(--font-mono);
-  }
-
   @media (width >= 64rem) {
     .entries {
       grid-template-columns: repeat(3, minmax(0, 1fr));
