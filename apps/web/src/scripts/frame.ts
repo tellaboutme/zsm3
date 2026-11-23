@@ -45,7 +45,7 @@ function initCompactHeader(): void {
 const RING_LENGTH = 100;
 
 function initLiveStatus(): void {
-  const roots = [...document.querySelectorAll<HTMLElement>("[data-live-status], [data-live-line]")];
+  const roots = [...document.querySelectorAll<HTMLElement>("[data-live-status]")];
   if (roots.length === 0) {
     return;
   }

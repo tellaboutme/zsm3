@@ -122,6 +122,10 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
     color: var(--ink-2);
   }
 
+  .date {
+    font-family: var(--font-body);
+  }
+
   .label {
     font-size: var(--step-n1);
   }
@@ -138,10 +142,6 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
     font-size: var(--step-2);
     font-weight: var(--weight-heading);
     line-height: var(--leading-snug);
-  }
-
-  .date {
-    font-family: var(--font-mono);
   }
 
   @media (width >= 64rem) {

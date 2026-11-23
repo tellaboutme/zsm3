@@ -79,7 +79,7 @@
     display: inline-flex;
     gap: var(--space-1);
     align-items: center;
-    min-height: var(--space-6);
+    margin-block: calc((1lh - var(--target)) / 2);
     font-size: var(--step-n1);
     font-weight: 700;
   }
@@ -87,7 +87,7 @@
   .main {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: start;
     gap: var(--space-3) var(--space-5);
   }
 
@@ -125,8 +125,8 @@
     display: grid;
     flex: none;
     place-items: center;
-    margin-inline: auto;
-    inline-size: min(9rem, 100%);
+    margin-inline-start: auto;
+    inline-size: min(6rem, 100%);
     aspect-ratio: 1;
   }
 
@@ -162,14 +162,14 @@
     display: grid;
     justify-items: center;
     gap: var(--space-1);
-    max-inline-size: 72%;
+    max-inline-size: 80%;
     text-align: center;
   }
 
   .timer {
     color: var(--link);
     font-family: var(--font-mono);
-    font-size: var(--step-2);
+    font-size: var(--step-1);
     font-variant-numeric: tabular-nums;
     font-weight: 600;
     line-height: var(--leading-tight);

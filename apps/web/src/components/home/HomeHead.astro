@@ -42,13 +42,6 @@ const image = photo === undefined ? undefined : featuredImage(photo);
         Kontakt
       </a>
     </div>
-    <p class="live" data-live-line aria-hidden="true">
-      <span class="dot"></span>
-      <span data-live="title">Dzwonki</span>
-      <span class="timer" data-live="timer">
-        —
-      </span>
-    </p>
   </div>
 </div>
 
@@ -118,37 +111,6 @@ const image = photo === undefined ? undefined : featuredImage(photo);
     color: var(--orange-ink);
   }
 
-  .live {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: var(--space-1) var(--space-2);
-    color: var(--ink-2);
-    font-size: var(--step-n1);
-  }
-
-  .dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: var(--radius-round);
-    background: var(--success);
-  }
-
-  .timer {
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .timer::before {
-    content: "· ";
-  }
-
-  [data-state="after"] .timer,
-  [data-state="day-off"] .timer {
-    display: none;
-  }
-
   .head[data-photo="on"] {
     min-block-size: clamp(22rem, 42vw, 32rem);
     color: var(--on-photo);
@@ -158,8 +120,7 @@ const image = photo === undefined ? undefined : featuredImage(photo);
     background: var(--scrim);
   }
 
-  .head[data-photo="on"] .facts,
-  .head[data-photo="on"] .live {
+  .head[data-photo="on"] .facts {
     color: var(--on-photo-2);
   }
 </style>
