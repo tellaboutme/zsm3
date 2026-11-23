@@ -1,4 +1,6 @@
 ---
+import { featuredSlotSchema } from "@zsm3/contracts/featured";
+
 import ContentPageView from "../../components/content/ContentPageView.astro";
 import TaskGroups from "../../components/hub/TaskGroups.astro";
 import MenuFeature from "../../components/MenuFeature.astro";
@@ -7,7 +9,9 @@ import PageHead from "../../components/PageHead.astro";
 import { hubs } from "../../data/hubs.ts";
 import { publicFallbackNavigation } from "../../data/navigation.ts";
 import Base from "../../layouts/Base.astro";
+import { featuredImage } from "../../lib/featured.ts";
 import { latestNews } from "../../lib/news-listing.ts";
+import { featuredPhotos } from "../../server/featured.ts";
 import { newsReader, notFound } from "../../server/news.ts";
 import { pagesReader } from "../../server/pages.ts";
 
@@ -23,7 +27,13 @@ const page =
 if (page === undefined && (hub === undefined || section === undefined)) {
   return notFound();
 }
-const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
+const [latest, featured] =
+  page === undefined
+    ? await Promise.all([latestNews(newsReader(), 3), featuredPhotos()])
+    : [[], undefined];
+const slot = featuredSlotSchema.safeParse(slug);
+const photo = slot.success ? featured?.get(slot.data) : undefined;
+const image = photo === undefined ? undefined : featuredImage(photo);
 ---
 
 {page !== undefined && <ContentPageView page={page} />}
@@ -35,11 +45,30 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
   >
     <div class="hub">
       <div class="top">
-        <PageHead title={section.label} lead={hub.intro}>
-          <a class="action nudge tap-target" href={hub.action.href}>
-            {hub.action.label} <span aria-hidden="true">→</span>
-          </a>
-        </PageHead>
+        <div class:list={["head", { photo: image !== undefined }]}>
+          {image !== undefined && (
+            <img
+              class="backdrop"
+              src={image.src}
+              srcset={image.srcset}
+              sizes="(width >= 64rem) 44rem, 100vw"
+              width={image.width}
+              height={image.height}
+              alt={image.alt}
+              fetchpriority="high"
+              decoding="async"
+            />
+          )}
+          <PageHead
+            title={section.label}
+            lead={hub.intro}
+            class={image === undefined ? undefined : "on-photo"}
+          >
+            <a class="action nudge tap-target" href={hub.action.href}>
+              {hub.action.label} <span aria-hidden="true">→</span>
+            </a>
+          </PageHead>
+        </div>
         {section.featured !== undefined && (
           <div class="feature">
             <MenuFeature feature={section.featured} />
@@ -90,6 +119,24 @@ const latest = page === undefined ? await latestNews(newsReader(), 3) : [];
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-6);
     align-items: center;
+  }
+
+  .head.photo {
+    position: relative;
+    display: grid;
+    align-content: end;
+    min-block-size: clamp(18rem, 32vw, 26rem);
+    overflow: hidden;
+    border-radius: var(--radius);
+    color: var(--on-photo);
+  }
+
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .news {

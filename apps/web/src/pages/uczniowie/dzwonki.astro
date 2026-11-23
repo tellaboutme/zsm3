@@ -38,6 +38,7 @@ const todayLabel = todaySchedule(bells, buildDay).label;
         <div
           class="variant"
           data-variant
+          data-dated
           data-date={variant.date}
           data-label={variant.label}
           hidden={variant.date < buildDay}

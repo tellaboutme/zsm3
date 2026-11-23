@@ -20,6 +20,7 @@ const PROBLEM_TITLES: Readonly<Record<string, string>> = {
   "Photo Upload In Progress":
     "To zdjęcie jest właśnie przetwarzane. Spróbuj ponownie za kilka minut.",
   "Invalid Image": "Serwer odrzucił przygotowane zdjęcie. Wybierz inny plik.",
+  "Photo Not Found": "Tego zdjęcia już nie ma w galerii. Odśwież album.",
 };
 
 const FAILURE_PHRASES: Readonly<Record<PhotoFailure, string>> = {

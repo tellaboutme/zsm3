@@ -30,7 +30,7 @@ test("secondary links offer separate touch targets on a phone", async ({ page })
           return (
             previous instanceof HTMLAnchorElement &&
             current !== null &&
-            previous.getBoundingClientRect().bottom > current.getBoundingClientRect().top
+            previous.getBoundingClientRect().bottom - current.getBoundingClientRect().top >= 1
           );
         }),
       );

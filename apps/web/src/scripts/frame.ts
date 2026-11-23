@@ -42,8 +42,10 @@ function initCompactHeader(): void {
   }).observe(sentinel);
 }
 
+const RING_LENGTH = 100;
+
 function initLiveStatus(): void {
-  const roots = [...document.querySelectorAll<HTMLElement>("[data-live-status]")];
+  const roots = [...document.querySelectorAll<HTMLElement>("[data-live-status], [data-live-line]")];
   if (roots.length === 0) {
     return;
   }
@@ -61,6 +63,7 @@ function initLiveStatus(): void {
         ["title", view.title],
         ["detail", view.detail],
         ["timer", view.timer],
+        ["unit", view.unit],
       ] as const) {
         const target = root.querySelector(`[data-live="${field}"]`);
         if (target !== null) {
@@ -71,6 +74,9 @@ function initLiveStatus(): void {
       if (bar !== null) {
         bar.value = view.progress;
       }
+      root
+        .querySelector("[data-live-ring]")
+        ?.setAttribute("stroke-dashoffset", String(RING_LENGTH * (1 - view.progress)));
     }
   };
   tick();

@@ -1,6 +1,6 @@
 ---
 import SectionHead from "./SectionHead.astro";
-import { officialSites, socialProfiles } from "../../data/site.ts";
+import { officialSites } from "../../data/site.ts";
 import { isVisibleHref } from "../../lib/navigation.ts";
 import { partners as loadPartners } from "../../server/datasets.ts";
 import { pagesReader } from "../../server/pages.ts";
@@ -8,14 +8,11 @@ import Icon from "../Icon.astro";
 
 const [partners, paths] = await Promise.all([loadPartners(), pagesReader().publishedPaths()]);
 const publishedPaths = new Set(paths);
-const groups = [
-  { id: "profile", title: "Profile szkoły", items: socialProfiles },
-  { id: "serwisy", title: "Serwisy urzędowe", items: officialSites },
-];
+const groups = [{ id: "serwisy", title: "Serwisy urzędowe", items: officialSites }];
 ---
 
-<section class="social" aria-labelledby="w-sieci">
-  <SectionHead id="w-sieci" title="Partnerzy i szkoła w sieci" />
+<section class="social" aria-labelledby="partnerzy-serwisy">
+  <SectionHead id="partnerzy-serwisy" title="Partnerzy i serwisy urzędowe" />
   <div class="groups">
     <div class="group">
       <h3 id="partnerzy">Partnerzy i projekty</h3>

@@ -46,6 +46,7 @@ function present(parts: Parts, album: PanelAlbum, photos: readonly PanelPhoto[])
     ...photos.map((photo, index) =>
       photoRow({
         albumId: parts.id,
+        albumPublished: album.publishedAt !== null,
         photo,
         index,
         hidesAlbum,

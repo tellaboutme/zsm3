@@ -1,13 +1,21 @@
 ---
+import type { PublicFeaturedPhoto } from "@zsm3/contracts/featured";
+
 import EntryLinks from "./EntryLinks.astro";
+import HomeHead from "./HomeHead.astro";
 import { audiencePanels } from "../../data/home.ts";
-import { school } from "../../data/site.ts";
 import { isoDay, longDate, nextEvent } from "../../lib/calendar.ts";
 import { visibleGroups } from "../../lib/navigation.ts";
 import { fields } from "../../lib/professions.ts";
 import { programmeData } from "../../server/datasets.ts";
 import { pagesReader } from "../../server/pages.ts";
 import LiveStatus from "../LiveStatus.astro";
+
+interface Props {
+  readonly photo: PublicFeaturedPhoto | undefined;
+}
+
+const { photo } = Astro.props;
 
 const [{ professions }, paths] = await Promise.all([
   programmeData(),
@@ -18,14 +26,7 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
 ---
 
 <section class="hero" aria-labelledby="tytul">
-  <div class="head appear">
-    <h1 id="tytul">{school.name.replace(" nr ", " nr\u00a0")} w&nbsp;Krakowie</h1>
-    <ul class="facts">
-      <li>Technikum · Branżowa szkoła I i II stopnia</li>
-      <li>{school.street}, Nowa Huta</li>
-      <li>im. {school.patron}</li>
-    </ul>
-  </div>
+  <HomeHead photo={photo} />
   <h2 class="visually-hidden">Na skróty</h2>
   <div class="entries">
     <div class="entry">
@@ -77,24 +78,6 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
     display: grid;
     gap: var(--space-6);
     padding-top: var(--space-6);
-  }
-
-  .head {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  h1 {
-    max-width: 22ch;
-  }
-
-  .facts {
-    display: grid;
-    gap: var(--space-1);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    color: var(--ink-2);
   }
 
   .entries {
@@ -159,19 +142,6 @@ const meeting = nextEvent(Astro.locals.events ?? [], isoDay(new Date()), "Rodzic
 
   .date {
     font-family: var(--font-mono);
-  }
-
-  @media (width >= 56rem) {
-    .head {
-      grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
-      align-items: end;
-      gap: var(--space-6);
-    }
-
-    .facts {
-      padding-left: var(--space-5);
-      border-left: var(--hairline) solid var(--line);
-    }
   }
 
   @media (width >= 64rem) {
